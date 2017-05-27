@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="Countdown.Views.Clock"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Countdown.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="150" d:DesignWidth="150">
+
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="InnerFrameColour" Color="#FF0068C7"/>
+        <SolidColorBrush x:Key="FaceColour" Color="#FFFBFBFB"/>
+        <SolidColorBrush x:Key="TickTrailColour" Color="#FFFFFFE0"/>
+        <SolidColorBrush x:Key="HandFillColour" Color="#FF008BCE"/>
+    </UserControl.Resources>
+    <Grid>
+        <!-- position in list defines the elements z order -->
+        <local:Clock_Frame x:Name="outerFrame" Stroke="LightGray" />
+        <local:Clock_Frame x:Name="innerFrame" Stroke="{StaticResource InnerFrameColour}" Fill="{StaticResource FaceColour}"/>
+        <local:Clock_TickTrail x:Name="tickTrail" Fill="{StaticResource TickTrailColour}"/>
+        <local:Clock_TickMarks x:Name="tickMarks" Stroke="DarkGray"/>
+        <local:Clock_Hand x:Name="clockHand" Stroke="{StaticResource InnerFrameColour}" Fill="{StaticResource HandFillColour}"/>
+    </Grid>
+</UserControl>
