@@ -313,7 +313,11 @@ namespace Countdown.ViewModels
                 results.Solutions.Add(new EquationItem("No solutions are 10 or less from the target"));
 
             results.Solutions.Add(new EquationItem());
-            results.Solutions.Add(new EquationItem($"Evaluated in {results.Elapsed.Seconds}.{results.Elapsed.Milliseconds:D3} seconds."));
+
+            // in case its running on a very fast multicore machine
+            string fmtStr = (results.Elapsed < TimeSpan.FromMilliseconds(1)) ? "\\0\\.ffffff" : "s\\.fff";
+            results.Solutions.Add(new EquationItem($"Evaluated in {results.Elapsed.ToString(fmtStr)} seconds."));
+
             results.Solutions.Add(new EquationItem($"Tiles are {tiles[0]}, {tiles[1]}, {tiles[2]}, {tiles[3]}, {tiles[4]}, {tiles[5]}"));
             results.Solutions.Add(new EquationItem($"Target is {target}"));
 
