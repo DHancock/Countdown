@@ -59,7 +59,7 @@ namespace Countdown.Models
         }
 
 
-        public LetterList(LetterList other) : base(new List<LetterTile>())
+        private LetterList(LetterList other) : base(new List<LetterTile>())
         {
             if (other is null)
                 throw new ArgumentNullException(nameof(other));
@@ -172,7 +172,7 @@ namespace Countdown.Models
         }
 
 
-        public LetterTile(LetterTile other)
+        private LetterTile(LetterTile other)
         {
             if (other is null)
                 throw new ArgumentNullException(nameof(other));
