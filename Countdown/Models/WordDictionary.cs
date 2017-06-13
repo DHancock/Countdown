@@ -47,7 +47,7 @@ namespace Countdown.Models
             loadingEvent.Wait();  // until finished loading resources
 
             List<WordItem> results = new List<WordItem>();
-            
+
             for (int k = letters.Length; k >= cMinLetters; --k)
             {
                 foreach (List<char> chars in new Combinations<char>(letters, k))
@@ -58,12 +58,12 @@ namespace Countdown.Models
                         AddDictionaryWordsToList(chars, conundrumWords, results);
                 }
             }
-            
+
             return results;
         }
-            
 
-        
+
+
 
         private static void AddDictionaryWordsToList(List<char> keyChars, Dictionary<string, byte[]> dictionary, List<WordItem> list)
         {
@@ -116,7 +116,7 @@ namespace Countdown.Models
                 throw new ArgumentNullException(nameof(random));
 
             loadingEvent.Wait();  // until finished loading resources
-            
+
             if (conundrumWords.Count > 0)
             {
                 // move a random distance into dictionary
@@ -147,33 +147,43 @@ namespace Countdown.Models
         private void LoadResourceFile()
         {
             Stream resourceStream = typeof(App).Assembly.GetManifestResourceStream(cResourceName);
-            
+
             if (resourceStream != null)
             {
                 using (DeflateStream stream = new DeflateStream(resourceStream, CompressionMode.Decompress))
                 {
                     StreamManager sm = new StreamManager(stream);
-                    byte[] line = sm.ReadLine(out int wordBreak);
+                    byte[] line;
 
-                    while (line.Length > 0)
+                    while ((line = sm.ReadLine()) != null)
                     {
+                        int keyLength = line.Length;
+                        
+                        // check for a word break within the line
+                        if (keyLength > (cMinLetters * 2))
+                        {
+                            for (keyLength = cMinLetters; keyLength < line.Length; ++keyLength)
+                            {
+                                if (line[keyLength] == cWord_seperator)
+                                    break;
+                            }
+                        }
+                        
                         // make key
-                        char[] c = GetChars(line, (wordBreak > 0) ? wordBreak : line.Length);
+                        char[] c = GetChars(line, keyLength);
                         Array.Sort(c);
                         string key = new string(c);
 
                         // add to dictionary
-                        if ((key.Length == cMaxLetters) && (wordBreak == 0))
+                        if ((keyLength == cMaxLetters) && (keyLength == line.Length))
                             conundrumWords[key] = line;
                         else
                             otherWords[key] = line;
-
-                        // get next line
-                        line = sm.ReadLine(out wordBreak);
                     }
                 }
             }
         }
+
 
         // a simple encoder, the source is known quantity
         private static char[] GetChars(byte[] bytes, int count, bool toUpper = false)
@@ -209,18 +219,20 @@ namespace Countdown.Models
         }
 
 
-        
+
 
         /// <summary>
-        /// Hides the complexity of reading lines from the stream
+        /// Hides the complexity of reading lines from the stream.
+        /// Assumes that the maximum line length is going to be 
+        /// less than or equal to the buffer size.
         /// </summary>
         private sealed class StreamManager
         {
             private const int cBufferSize = 1024 * 8;
 
             private readonly DeflateStream stream;
-            private readonly byte[] buffer = new byte[cBufferSize]; 
-            
+            private readonly byte[] buffer = new byte[cBufferSize];
+
             private int bufferEnd = 0;
             private int position = 0;
             private bool endOfStream = false;
@@ -231,10 +243,9 @@ namespace Countdown.Models
             }
 
 
-            public byte[] ReadLine(out int wordBreak)
+            public byte[] ReadLine()
             {
-                wordBreak = 0;
-                int length = SeekNextLine(ref wordBreak);
+                int length = SeekNextLine();
 
                 if (length > 0) // simple case
                 {
@@ -261,8 +272,8 @@ namespace Countdown.Models
                     bufferEnd = stream.Read(buffer, 0, buffer.Length);
                     endOfStream = bufferEnd < buffer.Length;
                     position = 0;
-                    
-                    length = SeekNextLine(ref wordBreak);
+
+                    length = SeekNextLine();
 
                     if (length >= 0)  // its not the end of the stream, it shouldn't be
                     {
@@ -282,34 +293,16 @@ namespace Countdown.Models
                     }
                 }
 
-                return new byte[0];
+                return null;
             }
 
 
-            private int SeekNextLine(ref int wordBreak)
+            private int SeekNextLine()
             {
-                int index = position;
-
-                while (index < bufferEnd)
+                for (int index = position; index < bufferEnd; ++index)
                 {
-                    if (buffer[index] is cLine_seperator)
+                    if (buffer[index] == cLine_seperator)
                         return index - position;
-
-                    if (buffer[index] is cWord_seperator)
-                    {
-                        wordBreak = index - position;
-                        ++index;
-
-                        while (index < bufferEnd)
-                        {
-                            if (buffer[index] is cLine_seperator)
-                                return index - position;
-
-                            ++index;
-                        }
-                    }
-
-                    ++index;
                 }
 
                 return -1;   // the buffer doesn't contain a full line
