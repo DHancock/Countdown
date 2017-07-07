@@ -4,13 +4,11 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Diagnostics.CodeAnalysis;
 using Countdown.ViewModels;
 
 namespace Countdown.Models
 {
 
-    [SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "class lifetime same as application" )]
     internal class WordDictionary
     {
         private const string cResourceName = "Countdown.Resources.wordlist.dat";
@@ -219,6 +217,11 @@ namespace Countdown.Models
         }
 
 
+        ~WordDictionary()
+        {
+            if (loadingEvent != null)
+                loadingEvent.Dispose();
+        }
 
 
         /// <summary>
