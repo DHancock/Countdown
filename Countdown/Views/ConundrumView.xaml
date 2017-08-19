@@ -19,6 +19,7 @@
             <Setter Property="TextAlignment" Value="Center" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="CharacterCasing" Value="Upper"/>
+            <Setter Property="AutoTab" Value="True"/>
             <Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="true">
                     <Setter Property="ToolTip" Value="{Binding (Validation.Errors)[0].ErrorContent, RelativeSource={x:Static RelativeSource.Self}}"/>
@@ -75,7 +76,7 @@
                     <local:CountdownTextBox Text="{Binding Conundrum_5, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Text="{Binding Conundrum_6, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Text="{Binding Conundrum_7, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Text="{Binding Conundrum_8, UpdateSourceTrigger=PropertyChanged}"/>
+                    <local:CountdownTextBox Text="{Binding Conundrum_8, UpdateSourceTrigger=PropertyChanged}" AutoTab="False"/>
                 </StackPanel>
             </GroupBox>
 
