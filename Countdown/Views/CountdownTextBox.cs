@@ -10,20 +10,18 @@ namespace Countdown.Views
     {
         public enum ContentType { Number, Letter }
 
-        private Func<char, bool> predicate;
 
 
         
         public CountdownTextBox() : base()
         {
-            SetPredicate((ContentType)ContentStyleProperty.DefaultMetadata.DefaultValue); // default
-
             PreviewKeyDown += CountdownTextBox_PreviewKeyDown;
             PreviewTextInput += CountdownTextBox_PreviewTextInput;
             PreviewDragEnter += CountdownTextBox_DragPreviewHandler;
             PreviewDragOver += CountdownTextBox_DragPreviewHandler;
             GotFocus += CountdownTextBox_GotFocus;
             PreviewMouseLeftButtonDown += CountdownTextBox_PreviewMouseLeftButtonDown;
+            TextChanged += CountdownTextBox_TextChanged;
 
             CommandBindings.Add(new CommandBinding(
                 ApplicationCommands.Paste,
@@ -48,27 +46,46 @@ namespace Countdown.Views
             DependencyProperty.Register(nameof(ContentStyle),
                 typeof(ContentType),
                 typeof(CountdownTextBox),
-                new PropertyMetadata(ContentType.Letter, OnContentStylePropertyChanged));
+                new PropertyMetadata(ContentType.Letter)); // default to letters
 
 
-
-        private static void OnContentStylePropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
-        {
-            if ((source is CountdownTextBox tb) && (e != null) && (e.NewValue is ContentType style))
-                tb.SetPredicate(style) ;
-        }
-
+        
 
         /// <summary>
         /// defines what characters are allowed
         /// </summary>
-        private void SetPredicate(ContentType style)
+        private Func<char, bool> GetPredicate()
         {
-            if (style == ContentType.Number)
-                predicate = c => (c >= '0') && (c <= '9');
-            else
-                predicate = c => ((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z'));
+            if (ContentStyle == ContentType.Number)
+                return c => (c >= '0') && (c <= '9');
+            
+            return c => ((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z'));
         }
+
+
+
+
+
+
+        /// <summary>
+        /// Defines if auto tabbing is on or off. If on then the next control 
+        /// in the tab order will be focused if the text has changed,
+        /// its error free and the max length property has been reached.
+        /// </summary>
+        public bool AutoTab
+        {
+            get { return (bool)GetValue(AutoTabProperty); }
+            set { SetValue(AutoTabProperty, value); }
+        }
+
+
+        public static readonly DependencyProperty AutoTabProperty =
+            DependencyProperty.Register(nameof(AutoTab),
+                typeof(bool),
+                typeof(CountdownTextBox),
+                new PropertyMetadata(false)); // default to off
+
+
 
 
         /// <summary>
@@ -94,9 +111,21 @@ namespace Countdown.Views
         private void CountdownTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             if ((e != null) && (e.Text != null))
-                e.Handled = !e.Text.All(predicate);
+                e.Handled = !e.Text.All(GetPredicate());
         }
 
+
+        /// <summary>
+        /// After the text changes check if the next control should be focused
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CountdownTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (AutoTab && (sender is TextBox tb) && (tb.MaxLength > 0) && (tb.Text != null) &&
+                (tb.Text.Length == tb.MaxLength) && !Validation.GetHasError(tb))
+                    tb.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+        }
 
 
 
@@ -118,7 +147,7 @@ namespace Countdown.Views
                     string dataString = (string)e.Data.GetData(DataFormats.StringFormat);
 
                     if ((tb.MaxLength == 0) || (tb.Text.Length + dataString.Length) <= tb.MaxLength)
-                        dragTargetIsInvalid = !dataString.All(predicate);
+                        dragTargetIsInvalid = !dataString.All(GetPredicate());
                 }
 
                 if (dragTargetIsInvalid)
@@ -196,7 +225,7 @@ namespace Countdown.Views
                     string dataString = Clipboard.GetText();
 
                     if ((tb.MaxLength == 0) || ((tb.Text.Length - tb.SelectionLength) + dataString.Length) <= tb.MaxLength)
-                        pasteIsValid = dataString.All(predicate);
+                        pasteIsValid = dataString.All(GetPredicate());
                 }
 
                 e.CanExecute = pasteIsValid;
