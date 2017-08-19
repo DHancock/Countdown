@@ -94,30 +94,33 @@ namespace Countdown.UnitTests
 
         private void LetterFrequencyTest(char[] letters)
         {
-            const int cVowelCount = 5;
-            const int cLoopCount = 200000; // per letter
-            const double cAcceptableError = 0.5; // percent
+            const int cLoopCount = 100000; // per letter
+            const double cAcceptableError = 0.2; // percent
             
-            ConcurrentDictionary<char, long> frequencies = new ConcurrentDictionary<char, long>();
+            Dictionary<char, long> frequencies = new Dictionary<char, long>();
 
             // initialise the dictionary contents 
             foreach (char c in letters)
-                frequencies.TryAdd(c, 0);
+                frequencies.Add(c, 0);
 
             Func<char> GetLetter;
 
-            if (letters.Length == cVowelCount)
+            if (LetterTile.IsUpperVowel(letters[0]))
                 GetLetter = () => lvm.Model.GetVowel();
             else
                 GetLetter = () => lvm.Model.GetConsonant();
 
-            // choose and record counts 
-            Parallel.For(0, cLoopCount * letters.Length, (x) => frequencies[GetLetter()] += 1);
+            // choose the letters and record counts 
+            for (int index = 0; index < cLoopCount * letters.Length; ++index)
+                frequencies[GetLetter()] += 1;
+            
+            // check that only the required letters have been picked
+            Assert.AreEqual(letters.Length, frequencies.Count);
 
             // sum the settings frequencies to allow percentage comparisons
             double sum = 0;
 
-            if (letters.Length == cVowelCount)
+            if (LetterTile.IsUpperVowel(letters[0]))
                 sum = UserSettings.Vowels.Sum(lt => lt.Frequency);
             else
                 sum = UserSettings.Consonants.Sum(lt => lt.Frequency);
@@ -128,15 +131,15 @@ namespace Countdown.UnitTests
                 double actualPercentage = (100.0 / (cLoopCount * letters.Length)) * frequencies[letters[index]];
                 double settingsPercentage = (100.0 / sum);
 
-                if (letters.Length == cVowelCount)
+                if (LetterTile.IsUpperVowel(letters[0]))
                     settingsPercentage *= UserSettings.Vowels[index].Frequency;
                 else
                     settingsPercentage *= UserSettings.Consonants[index].Frequency;
 
                 // assumes that enough random choices have been made for the 
                 // frequency test to approach the required accuracy
-                Assert.IsTrue(Math.Abs(actualPercentage - settingsPercentage) <= cAcceptableError);
                 //System.Diagnostics.Debug.WriteLine($"{letters[index]}:{Math.Abs(actualPercentage - settingsPercentage)}");
+                Assert.IsTrue(Math.Abs(actualPercentage - settingsPercentage) <= cAcceptableError);
             }
         }
 
