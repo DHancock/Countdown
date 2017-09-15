@@ -10,9 +10,10 @@ namespace Countdown.Views
     {
         public enum ContentType { Number, Letter }
 
+        public enum AutoTabType { Off, TabIfErrorFree, AlwaysTab }
 
 
-        
+
         public CountdownTextBox() : base()
         {
             PreviewKeyDown += CountdownTextBox_PreviewKeyDown;
@@ -68,22 +69,20 @@ namespace Countdown.Views
 
 
         /// <summary>
-        /// Defines if auto tabbing is on or off. If on then the next control 
-        /// in the tab order will be focused if the text has changed,
-        /// its error free and the max length property has been reached.
+        /// Defines if auto tabbing is off or conditionally on. 
         /// </summary>
-        public bool AutoTab
+        public AutoTabType AutoTabStyle
         {
-            get { return (bool)GetValue(AutoTabProperty); }
-            set { SetValue(AutoTabProperty, value); }
+            get { return (AutoTabType)GetValue(AutoTabStyleProperty); }
+            set { SetValue(AutoTabStyleProperty, value); }
         }
 
 
-        public static readonly DependencyProperty AutoTabProperty =
-            DependencyProperty.Register(nameof(AutoTab),
-                typeof(bool),
+        public static readonly DependencyProperty AutoTabStyleProperty =
+            DependencyProperty.Register(nameof(AutoTabStyle),
+                typeof(AutoTabType),
                 typeof(CountdownTextBox),
-                new PropertyMetadata(false)); // default to off
+                new PropertyMetadata(AutoTabType.Off)); // default to off
 
 
 
@@ -116,15 +115,17 @@ namespace Countdown.Views
 
 
         /// <summary>
-        /// After the text changes check if the next control should be focused
+        /// After the text changes move focus to the next control if required
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void CountdownTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (AutoTab && (sender is TextBox tb) && (tb.MaxLength > 0) && (tb.Text != null) &&
-                (tb.Text.Length == tb.MaxLength) && !Validation.GetHasError(tb))
+            if ((sender is TextBox tb) && (tb.MaxLength > 0) && (tb.Text?.Length == tb.MaxLength))
+            {
+                if ((AutoTabStyle == AutoTabType.AlwaysTab) || ((AutoTabStyle == AutoTabType.TabIfErrorFree) && !Validation.GetHasError(tb)))
                     tb.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+            }
         }
 
 
