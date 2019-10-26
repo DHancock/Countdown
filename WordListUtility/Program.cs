@@ -20,11 +20,11 @@ namespace WordListUtility
         {
             try
             {
-                App app = new App();
+                App app = new App(args);
                 return app.Run();
             }
-            catch (Exception)
-            {  
+            catch
+            {
             }
           
             return error_fail;
@@ -34,33 +34,40 @@ namespace WordListUtility
 
         private class App
         {
-            Dictionary<string, List<string>> dictionary = new Dictionary<string, List<string>>();
+            private string InputDir { get; }
+            private string OutputFile { get; }
+            private Dictionary<string, List<string>> WordLists { get; } = new Dictionary<string, List<string>>();
+
+
+            public App(string[] args)
+            {
+                if (args.Length != 2)
+                    throw new ArgumentOutOfRangeException();
+
+                InputDir = args[0];
+                OutputFile = args[1];
+
+                if (!Directory.Exists(InputDir))
+                    throw new DirectoryNotFoundException();
+
+                if (!Directory.Exists(Path.GetDirectoryName(OutputFile)))
+                    throw new DirectoryNotFoundException();
+            }
+
 
             public int Run()
             {
-                // caution - brittle path code follows,
-                // its only intended to be run from within visual studio
-                string input = Path.GetFullPath(@"..\..\Input");
-
-                if (Directory.Exists(input))
+                foreach (string file in Directory.EnumerateFiles(InputDir, "*.txt"))
                 {
-                    foreach (string file in Directory.EnumerateFiles(input, "*.txt"))
-                    {
-                        ReadSource(file);
-                    }
-
-                    if (dictionary.Count > 0)
-                    {
-                        string output = Path.GetFullPath(@"..\..\Output");
-
-                        if (Directory.Exists(output))
-                        {
-                            WriteCompressedData(Path.Combine(output, "wordlist.dat"));
-                            return error_success;
-                        }
-                    }
+                    ReadSource(file);
                 }
 
+                if (WordLists.Count > 0)
+                {
+                    WriteCompressedData();
+                    return error_success;
+                }
+            
                 return error_fail;
             }
 
@@ -79,31 +86,29 @@ namespace WordListUtility
 
                 if (fs != null)
                 {
-                    using (StreamReader sr = new StreamReader(fs))
+                    using StreamReader sr = new StreamReader(fs);
+                    String line;
+
+                    while ((line = sr.ReadLine()) != null)
                     {
-                        String line;
+                        string data = line.Trim().ToLower();
 
-                        while ((line = sr.ReadLine()) != null)
+                        if ((data.Length >= min_word_length) && (data.Length <= max_word_length) && data.All(c => IsLetter(c)))
                         {
-                            string data = line.Trim().ToLower();
-                            
-                            if ((data.Length >= min_word_length) && (data.Length <= max_word_length) && data.All(c => IsLetter(c)))
+                            // construct the key
+                            char[] a = data.ToCharArray();
+                            Array.Sort(a);
+                            string key = new string(a);
+
+                            if (WordLists.TryGetValue(key, out List<string> list))
                             {
-                                // construct the key
-                                char[] a = data.ToCharArray();
-                                Array.Sort(a);
-                                string key = new string(a);
+                                int index = list.BinarySearch(data);
 
-                                if (dictionary.TryGetValue(key, out List<string> list))
-                                {       
-                                    int index = list.BinarySearch(data);
-
-                                    if (index < 0)
-                                        list.Insert(~index, data);
-                                }
-                                else
-                                    dictionary[key] = new List<string>() { data };
+                                if (index < 0)
+                                    list.Insert(~index, data);
                             }
+                            else
+                                WordLists[key] = new List<string>() { data };
                         }
                     }
                 }
@@ -111,31 +116,30 @@ namespace WordListUtility
 
 
            
-            private void WriteCompressedData(string path)
+            private void WriteCompressedData()
             {
                 const string word_seperator = " ";
                 const string line_seperator = ".";
 
-                FileStream fs = File.Create(path);
+                FileStream fs = File.Create(OutputFile);
 
                 if (fs != null)
                 {
-                    using (DeflateStream ds = new DeflateStream(fs, CompressionLevel.Optimal))
+                    using DeflateStream ds = new DeflateStream(fs, CompressionLevel.Optimal);
+
+                    foreach (List<string> list in WordLists.Values)
                     {
-                        foreach (List<string> list in dictionary.Values)
+                        if (list.Count > 0)
                         {
-                            if (list.Count > 0)
-                            {
-                                string line = list[0];
+                            string line = list[0];
 
-                                for (int index = 1; index < list.Count; ++index)
-                                    line += word_seperator + list[index];
+                            for (int index = 1; index < list.Count; ++index)
+                                line += word_seperator + list[index];
 
-                                line += line_seperator;
+                            line += line_seperator;
 
-                                byte[] bytes = Encoding.ASCII.GetB‌​ytes(line);
-                                ds.Write(bytes, 0, bytes.Length);
-                            }
+                            byte[] bytes = Encoding.ASCII.GetB‌​ytes(line);
+                            ds.Write(bytes, 0, bytes.Length);
                         }
                     }
                 }
