@@ -5,3 +5,6 @@ csharp_style_unused_value_assignment_preference = discard_variable:none
 
 # IDE0060: Remove unused parameter
 dotnet_code_quality_unused_parameters = all:none
+
+# IDE0066: Convert switch statement to expression
+csharp_style_prefer_switch_expression = true:none

@@ -11,12 +11,12 @@ namespace Countdown.UnitTests
     [TestClass]
     public class NumbersViewModelTests
     {
-        private static string[] propertyNames = { nameof(NumbersViewModel.Tile_A),
-                                                    nameof(NumbersViewModel.Tile_B),
-                                                    nameof(NumbersViewModel.Tile_C),
-                                                    nameof(NumbersViewModel.Tile_D),
-                                                    nameof(NumbersViewModel.Tile_E),
-                                                    nameof(NumbersViewModel.Tile_F) };
+        private readonly static string[] propertyNames = { nameof(NumbersViewModel.Tile_A),
+                                                            nameof(NumbersViewModel.Tile_B),
+                                                            nameof(NumbersViewModel.Tile_C),
+                                                            nameof(NumbersViewModel.Tile_D),
+                                                            nameof(NumbersViewModel.Tile_E),
+                                                            nameof(NumbersViewModel.Tile_F) };
 
 
         private readonly NumbersViewModel nvm = new ViewModel().NumbersViewModel;

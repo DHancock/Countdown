@@ -12,10 +12,7 @@ namespace WordListUtility
         const int error_success = 0;
         const int error_fail = 1;
 
-        const int min_word_length = 4;
-        const int max_word_length = 9;
-        
-
+  
         static int Main(string[] args)
         {
             try
@@ -82,6 +79,9 @@ namespace WordListUtility
 
             private void ReadSource(string path)
             {
+                const int min_word_length = 4;
+                const int max_word_length = 9;
+
                 FileStream fs = File.OpenRead(path);
 
                 if (fs != null)
