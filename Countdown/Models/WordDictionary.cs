@@ -22,7 +22,7 @@ namespace Countdown.Models
         private readonly Dictionary<string, byte[]> conundrumWords = new Dictionary<string, byte[]>();
         private readonly Dictionary<string, byte[]> otherWords = new Dictionary<string, byte[]>();
 
-        private ManualResetEventSlim loadingEvent = new ManualResetEventSlim();
+        private readonly ManualResetEventSlim loadingEvent = new ManualResetEventSlim();
 
 
         public WordDictionary()
@@ -148,36 +148,35 @@ namespace Countdown.Models
 
             if (resourceStream != null)
             {
-                using (DeflateStream stream = new DeflateStream(resourceStream, CompressionMode.Decompress))
+                using DeflateStream stream = new DeflateStream(resourceStream, CompressionMode.Decompress);
+
+                StreamManager sm = new StreamManager(stream);
+                byte[] line;
+
+                while ((line = sm.ReadLine()) != null)
                 {
-                    StreamManager sm = new StreamManager(stream);
-                    byte[] line;
+                    int keyLength = line.Length;
 
-                    while ((line = sm.ReadLine()) != null)
+                    // check for a word break within the line
+                    if (keyLength > (cMinLetters * 2))
                     {
-                        int keyLength = line.Length;
-                        
-                        // check for a word break within the line
-                        if (keyLength > (cMinLetters * 2))
+                        for (keyLength = cMinLetters; keyLength < line.Length; ++keyLength)
                         {
-                            for (keyLength = cMinLetters; keyLength < line.Length; ++keyLength)
-                            {
-                                if (line[keyLength] == cWord_seperator)
-                                    break;
-                            }
+                            if (line[keyLength] == cWord_seperator)
+                                break;
                         }
-                        
-                        // make key
-                        char[] c = GetChars(line, keyLength);
-                        Array.Sort(c);
-                        string key = new string(c);
-
-                        // add to dictionary
-                        if ((keyLength == cMaxLetters) && (keyLength == line.Length))
-                            conundrumWords[key] = line;
-                        else
-                            otherWords[key] = line;
                     }
+
+                    // make key
+                    char[] c = GetChars(line, keyLength);
+                    Array.Sort(c);
+                    string key = new string(c);
+
+                    // add to dictionary
+                    if ((keyLength == cMaxLetters) && (keyLength == line.Length))
+                        conundrumWords[key] = line;
+                    else
+                        otherWords[key] = line;
                 }
             }
         }
