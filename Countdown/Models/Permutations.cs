@@ -33,7 +33,7 @@ namespace Countdown.Models
             if (source is null)
                 throw new ArgumentNullException(nameof(source));
 
-            if (source.Count() < 1)
+            if (!source.Any())
                 throw new ArgumentOutOfRangeException(nameof(source));
 
             // setup the comparer

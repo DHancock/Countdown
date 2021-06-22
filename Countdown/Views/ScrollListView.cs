@@ -25,7 +25,7 @@ namespace Countdown.Views
 
         private static void OnScrollToItemPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            if ((source is ScrollListView listView) && (e != null) && (e.NewValue != null))
+            if ((source is ScrollListView listView) && (e.NewValue != null))
             {
                 ICollectionView view = CollectionViewSource.GetDefaultView(listView.ItemsSource);
 
