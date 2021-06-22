@@ -35,7 +35,7 @@ namespace Countdown.Views
 
         private static void OnSelectedIndexPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if ((d is ButtonPopup control) && (e != null) && (e.NewValue is int selectedIndex))
+            if ((d is ButtonPopup control) && (e.NewValue is int selectedIndex))
             {
                 IEnumerator itemsEnumerator = control.popup_items_control?.ItemsSource?.GetEnumerator();
 
@@ -127,7 +127,7 @@ namespace Countdown.Views
 
         private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if ((d is ButtonPopup control) && (control.popup_items_control != null) && (e != null) && (e.NewValue is IEnumerable items))
+            if ((d is ButtonPopup control) && (control.popup_items_control != null) && (e.NewValue is IEnumerable items))
             {
                 int index = 0;
                 List<Button> list = new List<Button>();

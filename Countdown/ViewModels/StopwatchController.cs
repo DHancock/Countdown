@@ -83,7 +83,7 @@ namespace Countdown.ViewModels
 
         private static void OnStopwatchRunningPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if ((d is StopwatchController sc) && (e != null) && (e.NewValue is bool startTimer))
+            if ((d is StopwatchController sc) && (e.NewValue is bool startTimer))
             {
                 if (startTimer)
                 {
