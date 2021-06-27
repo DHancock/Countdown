@@ -1,9 +1,12 @@
-﻿using Countdown.Models;
-using System.Windows.Input;
+﻿using System;
 using System.Collections.ObjectModel;
-using System.Text;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
-using System;
+using System.Text;
+using System.Windows.Input;
+
+using Countdown.Models;
 
 namespace Countdown.ViewModels
 {
@@ -38,8 +41,7 @@ namespace Countdown.ViewModels
         public ICommand SolveCommand { get; }
         public ICommand ListCopyCommand { get; }
         public ICommand ListSelectAllCommand { get; }
-
-
+        public ICommand GoToDefinitionCommand { get; }
 
 
         public ConundrumViewModel(Model model, StopwatchController sc)
@@ -52,6 +54,7 @@ namespace Countdown.ViewModels
 
             ListSelectAllCommand = new RelayCommand(ExecuteSelectAll, CanSelectAll);
             ListCopyCommand = new RelayCommand(ExecuteCopy, CanCopy);
+            GoToDefinitionCommand = new RelayCommand(GoToDefinition, CanGoToDefinition);
         }
 
 
@@ -259,5 +262,31 @@ namespace Countdown.ViewModels
         {
             return (SolutionList != null) && SolutionList.Any(e => !e.IsSelected);
         }
+
+        private void GoToDefinition(object p)
+        {
+            try
+            {
+                foreach (ConundrumItem e in SolutionList)
+                {
+                    if (e.IsSelected)
+                    {
+                        ProcessStartInfo psi = new()
+                        {
+                            UseShellExecute = true,
+                            FileName = string.Format(CultureInfo.InvariantCulture, p.ToString(), e.Solution),
+                        };
+
+                        _ = Process.Start(psi);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // fail silently...
+            }
+        }
+
+        private bool CanGoToDefinition(object p) => SolutionList.Count(e => e.IsSelected) is > 0 and < 10;
     }
 }

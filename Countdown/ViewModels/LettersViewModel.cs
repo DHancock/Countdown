@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Countdown.Models;
 using System.Windows.Input;
 
+using Countdown.Models;
 
 namespace Countdown.ViewModels
 {
@@ -54,7 +56,7 @@ namespace Countdown.ViewModels
         public ICommand ChooseLettersCommand { get; }
         public ICommand ListCopyCommand { get; }
         public ICommand ListSelectAllCommand { get; }
-
+        public ICommand GoToDefinitionCommand { get; }
         public Model Model { get; }
         public StopwatchController StopwatchController { get; }
 
@@ -74,6 +76,7 @@ namespace Countdown.ViewModels
 
             ListSelectAllCommand = new RelayCommand(ExecuteSelectAll, CanSelectAll);
             ListCopyCommand = new RelayCommand(ExecuteCopy, CanCopy);
+            GoToDefinitionCommand = new RelayCommand(GoToDefinition, CanGoToDefinition);
 
             // initialise letter menu selected item
             LetterOptionIndex = Settings.Default.PickLetterOption;
@@ -514,5 +517,33 @@ namespace Countdown.ViewModels
         {
             return (WordList != null) && WordList.Any(e => !e.IsSelected);
         }
+
+        private void GoToDefinition(object p)
+        {
+            try
+            {
+                foreach (WordItem e in WordList)
+                {
+                    if (e.IsSelected)
+                    {
+                        ProcessStartInfo psi = new()
+                        {
+                            UseShellExecute = true,
+                            FileName = string.Format(CultureInfo.InvariantCulture, p.ToString(), e.Content),
+                        };
+
+                        _ = Process.Start(psi);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // fail silently...
+            }
+        }
+
+
+
+        private bool CanGoToDefinition(object p) => WordList.Count(e => e.IsSelected) is > 0 and < 10;
     }
 }
