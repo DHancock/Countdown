@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <Resource Include="Resources\copy.png" />
+    <Resource Include="Resources\goto.png" />
     <Resource Include="Resources\selectall.png" />
   </ItemGroup>
 
