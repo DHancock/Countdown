@@ -233,7 +233,7 @@
                 <Path Style="{StaticResource CrossTickStyle}"/>
             </StackPanel>
 
-            <local:ScrollListView x:Name="WordListView" Grid.Row="1" ScrollToItem ="{Binding ScrollToItem}" SelectionMode="Extended" ItemsSource="{Binding Source={StaticResource WordListGrouping}}" Style="{StaticResource CommonListViewStyle}" ItemContainerStyle="{StaticResource CommonListViewItemContainerStyle}" ContextMenu="{StaticResource CopyPasteGoToContextMenu}" VirtualizingPanel.IsVirtualizingWhenGrouping="True">
+            <local:ScrollListView x:Name="WordListView" Grid.Row="1" ScrollToItem ="{Binding ScrollToItem}" SelectionMode="Extended" ItemsSource="{Binding Source={StaticResource WordListGrouping}}" Style="{StaticResource CommonListViewStyle}" ItemContainerStyle="{StaticResource CommonListViewItemContainerStyle}" ContextMenu="{StaticResource CopyPasteGoToContextMenu}" >
                 <local:ScrollListView.View>
                     <GridView AllowsColumnReorder="false">
                         <GridView.ColumnHeaderContainerStyle>
