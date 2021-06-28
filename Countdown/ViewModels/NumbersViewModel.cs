@@ -15,6 +15,9 @@ namespace Countdown.ViewModels
         // this tile value indicates an empty string
         private const int cEmptyTileValue = -1;
 
+        // limit the result shown in the ui
+        private const int cMaxModelResults = 100;
+
         // the solver results that the ui can bind to
         private List<EquationItem> equationList;
 
@@ -308,8 +311,17 @@ namespace Countdown.ViewModels
                 }
                 else
                     results.Solutions.Add(new EquationItem("No solutions are 10 or less from the target"));
+            }
+            else
+            {
+                results.Solutions.Sort();   // guarantee ordering, independent of parallel partition order
 
-                results.Solutions.Add(new EquationItem());
+                // trim to a manageable number
+                // the further down the list, the less relevant they are
+                int excess = results.Solutions.Count - cMaxModelResults;
+
+                if (excess > 0)
+                    results.Solutions.RemoveRange(cMaxModelResults, excess);
             }
 
             // update the ui
