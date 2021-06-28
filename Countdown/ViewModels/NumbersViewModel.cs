@@ -295,31 +295,22 @@ namespace Countdown.ViewModels
             int[] tiles = Model.Tiles.ToArray();
 
             SolverResults results = await Task.Run(() => Model.Solve(tiles, target));
-            
+
             // process the results list
-            if (results.Solutions.Count > 0)
+            if (results.Solutions.Count == 0)
             {
+                if (results.ClosestMatch.Length > 0)
+                {
+                    results.Solutions.Add(new EquationItem("There are no solutions."));
+                    results.Solutions.Add(new EquationItem($"The closest match is {Math.Abs(results.Difference)} away."));
+                    results.Solutions.Add(new EquationItem());
+                    results.Solutions.Add(new EquationItem($"{results.ClosestMatch} = {target - results.Difference}"));
+                }
+                else
+                    results.Solutions.Add(new EquationItem("No solutions are 10 or less from the target"));
+
                 results.Solutions.Add(new EquationItem());
-                results.Solutions.Add(new EquationItem($"There are {results.Solutions.Count - 1} solutions."));
             }
-            else if (results.ClosestMatch.Length > 0)
-            {
-                results.Solutions.Add(new EquationItem("There are no solutions."));
-                results.Solutions.Add(new EquationItem($"The closest match is {Math.Abs(results.Difference)} away."));
-                results.Solutions.Add(new EquationItem());
-                results.Solutions.Add(new EquationItem($"{results.ClosestMatch} = {target - results.Difference}"));
-            }
-            else
-                results.Solutions.Add(new EquationItem("No solutions are 10 or less from the target"));
-
-            results.Solutions.Add(new EquationItem());
-
-            // in case its running on a very fast multicore machine
-            string fmtStr = (results.Elapsed < TimeSpan.FromMilliseconds(1)) ? "\\0\\.ffffff" : "s\\.fff";
-            results.Solutions.Add(new EquationItem($"Evaluated in {results.Elapsed.ToString(fmtStr)} seconds."));
-
-            results.Solutions.Add(new EquationItem($"Tiles are {tiles[0]}, {tiles[1]}, {tiles[2]}, {tiles[3]}, {tiles[4]}, {tiles[5]}"));
-            results.Solutions.Add(new EquationItem($"Target is {target}"));
 
             // update the ui
             EquationList = results.Solutions;
