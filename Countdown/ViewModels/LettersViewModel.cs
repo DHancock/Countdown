@@ -506,6 +506,12 @@ namespace Countdown.ViewModels
             {
                 foreach (WordItem e in WordList)
                 {
+                    // Always expand any groups. This guarantees the wpf ui items with in the group
+                    // are created. If they don't exist it causes problems when items are deselected
+                    // by clicking in the list, the bound model list item will not be deselected.
+                    if (!e.IsExpanded)
+                        e.IsExpanded = true;
+
                     if (!e.IsSelected)
                         e.IsSelected = true;
                 }
