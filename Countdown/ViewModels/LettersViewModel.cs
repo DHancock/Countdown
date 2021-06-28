@@ -542,14 +542,12 @@ namespace Countdown.ViewModels
                     }
                 }
             }
-            catch (Exception)
+            catch
             {
                 // fail silently...
             }
         }
 
-
-
-        private bool CanGoToDefinition(object p) => WordList.Count(e => e.IsSelected) is > 0 and < 10;
+        private bool CanGoToDefinition(object p) => WordList.Count(e => e.IsSelected) is > 0 and < 11;
     }
 }
