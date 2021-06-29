@@ -143,30 +143,20 @@
             </MenuItem.Icon>
         </MenuItem>
 
-        <MenuItem x:Key="SelectAllMenuItem" Command="{Binding ListSelectAllCommand}" Header="Select _All" InputGestureText="Ctrl+A" x:Shared ="false">
-            <MenuItem.Icon>
-                <Image Source="/Resources/selectall.png" />
-            </MenuItem.Icon>
-        </MenuItem>
-
         <!-- standard context menu for numbers list -->
         <ContextMenu x:Key="CopyPasteContextMenu">
             <ContextMenu.InputBindings>
                 <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
-                <KeyBinding Command="{Binding ListSelectAllCommand}" Modifiers="Control" Key="A" />
             </ContextMenu.InputBindings>
             <StaticResource ResourceKey="CopyMenuItem"/>
-            <StaticResource ResourceKey="SelectAllMenuItem"/>
         </ContextMenu>
 
         <!-- context menu for letters and conundrum list -->
         <ContextMenu x:Key="CopyPasteGoToContextMenu">
             <ContextMenu.InputBindings>
                 <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
-                <KeyBinding Command="{Binding ListSelectAllCommand}" Modifiers="Control" Key="A" />
             </ContextMenu.InputBindings>
             <StaticResource ResourceKey="CopyMenuItem"/>
-            <StaticResource ResourceKey="SelectAllMenuItem"/>
             <Separator />
             <MenuItem Header="Look up definition..." CommandParameter="https://www.collinsdictionary.com/dictionary/english/{0}" Command="{Binding GoToDefinitionCommand}" >
                 <MenuItem.Icon>
