@@ -55,7 +55,6 @@ namespace Countdown.ViewModels
         public ICommand SolveCommand { get; }
         public ICommand ChooseLettersCommand { get; }
         public ICommand ListCopyCommand { get; }
-        public ICommand ListSelectAllCommand { get; }
         public ICommand GoToDefinitionCommand { get; }
         public Model Model { get; }
         public StopwatchController StopwatchController { get; }
@@ -74,7 +73,6 @@ namespace Countdown.ViewModels
             PickVowelCommand = new RelayCommand(ExecutePickVowel, CanPickVowel);
             PickConsonantCommand = new RelayCommand(ExecutePickConsonant, CanPickConsonant);
 
-            ListSelectAllCommand = new RelayCommand(ExecuteSelectAll, CanSelectAll);
             ListCopyCommand = new RelayCommand(ExecuteCopy, CanCopy);
             GoToDefinitionCommand = new RelayCommand(GoToDefinition, CanGoToDefinition);
 
@@ -495,33 +493,6 @@ namespace Countdown.ViewModels
         private bool CanCopy(object p)
         {
             return (WordList != null) && WordList.Any(e => e.IsSelected);
-        }
-
-
-
-
-        private void ExecuteSelectAll(object p)
-        {
-            if (WordList != null)
-            {
-                foreach (WordItem e in WordList)
-                {
-                    // Always expand any groups. This guarantees the wpf ui items with in the group
-                    // are created. If they don't exist it causes problems when items are deselected
-                    // by clicking in the list, the bound model list item will not be deselected.
-                    if (!e.IsExpanded)
-                        e.IsExpanded = true;
-
-                    if (!e.IsSelected)
-                        e.IsSelected = true;
-                }
-            }
-        }
-
-
-        private bool CanSelectAll(object p)
-        {
-            return (WordList != null) && WordList.Any(e => !e.IsSelected);
         }
 
         private void GoToDefinition(object p)

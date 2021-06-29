@@ -40,7 +40,6 @@ namespace Countdown.ViewModels
         public ICommand ChooseCommand { get; }
         public ICommand SolveCommand { get; }
         public ICommand ListCopyCommand { get; }
-        public ICommand ListSelectAllCommand { get; }
         public ICommand GoToDefinitionCommand { get; }
 
 
@@ -52,7 +51,6 @@ namespace Countdown.ViewModels
             SolveCommand = new RelayCommand(ExecuteSolve, CanSolve);
             ChooseCommand = new RelayCommand(ExecuteChoose, CanChoose);
 
-            ListSelectAllCommand = new RelayCommand(ExecuteSelectAll, CanSelectAll);
             ListCopyCommand = new RelayCommand(ExecuteCopy, CanCopy);
             GoToDefinitionCommand = new RelayCommand(GoToDefinition, CanGoToDefinition);
         }
@@ -243,26 +241,6 @@ namespace Countdown.ViewModels
             return (SolutionList != null) && SolutionList.Any(e => e.IsSelected);
         }
     
-
-
-        private void ExecuteSelectAll(object p)
-        {
-            if (SolutionList != null)
-            {
-                foreach (ConundrumItem e in SolutionList)
-                {
-                    if (!e.IsSelected)
-                        e.IsSelected = true;
-                }
-            }
-        }
-
-
-        private bool CanSelectAll(object p)
-        {
-            return (SolutionList != null) && SolutionList.Any(e => !e.IsSelected);
-        }
-
         private void GoToDefinition(object p)
         {
             try

@@ -116,7 +116,6 @@
             </ListView.View>
             <ListView.InputBindings>
                 <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
-                <KeyBinding Command="{Binding ListSelectAllCommand}" Modifiers="Control" Key="A" />
             </ListView.InputBindings>
         </ListView>
     </DockPanel>

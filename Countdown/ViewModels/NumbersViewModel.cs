@@ -48,7 +48,6 @@ namespace Countdown.ViewModels
         public ICommand ChooseNumbersCommand { get; }
         public ICommand SolveCommand { get; }
         public ICommand ListCopyCommand { get; }
-        public ICommand ListSelectAllCommand { get; }
 
         private Model Model { get; }
         public StopwatchController StopwatchController { get; }
@@ -61,9 +60,7 @@ namespace Countdown.ViewModels
             StopwatchController = sc ?? throw new ArgumentNullException(nameof(sc));
 
             ChooseNumbersCommand = new RelayCommand(ExecuteChoose);
-           
             SolveCommand = new RelayTaskCommand(ExecuteSolveAsync, CanSolve);
-            ListSelectAllCommand = new RelayCommand(ExecuteSelectAll, CanSelectAll);
             ListCopyCommand = new RelayCommand(ExecuteCopy, CanCopy);
 
             // initialise tile and target values
@@ -376,27 +373,6 @@ namespace Countdown.ViewModels
         private bool CanCopy(object p)
         {
             return (EquationList != null) && EquationList.Any(e => e.IsSelected);
-        }
-
-
-        
-
-        private void ExecuteSelectAll(object p)
-        {
-            if (EquationList != null)
-            {
-                foreach (EquationItem e in EquationList)
-                {
-                    if (!e.IsSelected)
-                        e.IsSelected = true;
-                }
-            }
-        }
-
-
-        private bool CanSelectAll(object p)
-        {
-            return (EquationList != null) && EquationList.Any(e => !e.IsSelected);
         }
     }
 }
