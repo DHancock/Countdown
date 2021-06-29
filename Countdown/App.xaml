@@ -158,7 +158,7 @@
             </ContextMenu.InputBindings>
             <StaticResource ResourceKey="CopyMenuItem"/>
             <Separator />
-            <MenuItem Header="Look up definition..." CommandParameter="https://www.collinsdictionary.com/dictionary/english/{0}" Command="{Binding GoToDefinitionCommand}" >
+            <MenuItem Header="Look up definition..." CommandParameter="https://www.merriam-webster.com/dictionary/{0}" Command="{Binding GoToDefinitionCommand}" >
                 <MenuItem.Icon>
                     <Image Source="/Resources/goto.png" />
                 </MenuItem.Icon>
