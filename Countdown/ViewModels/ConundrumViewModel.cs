@@ -208,7 +208,7 @@ namespace Countdown.ViewModels
             if (notLoadedYet)
                 return false;
 
-            return ((Solution is null) || (Solution[0] == space_char)) && Model.Conundrum.All(s => !string.IsNullOrEmpty(s)) && (Model.Solve() != null);
+            return Model.Conundrum.Any(s => !string.IsNullOrEmpty(s)) && (Model.Solve() != null);
         }
 
    
