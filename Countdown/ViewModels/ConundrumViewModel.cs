@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 
 using Countdown.Models;
@@ -17,9 +18,6 @@ namespace Countdown.ViewModels
         private Model Model { get; }
         public StopwatchController StopwatchController { get; }
         public ObservableCollection<ConundrumItem> SolutionList { get; } = new ObservableCollection<ConundrumItem>();
-
-        // allow the clipboard to be impersonated in unit tests
-        public IClipboardService ClipboadService { get; set; } = new RealClipboard();
 
         // flag to see if this vm's view has been loaded  
         private bool notLoadedYet = true;
@@ -231,7 +229,7 @@ namespace Countdown.ViewModels
                 }
 
                 if (sb.Length > 0)
-                    ClipboadService.SetText(sb.ToString());
+                    Clipboard.SetText(sb.ToString());
             }
         }
 

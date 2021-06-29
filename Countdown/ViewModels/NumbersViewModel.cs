@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 using Countdown.Models;
@@ -22,10 +23,7 @@ namespace Countdown.ViewModels
         private List<EquationItem> equationList;
 
         // which item in the tile option list is selected
-        private int tileOptionIndex ;
-
-        // allow the clipboard to be impersonated in unit tests
-        public IClipboardService ClipboadService { get; set; } = new RealClipboard();
+        private int tileOptionIndex;
 
         // property names for change events when generating data and error notifications
         private static readonly string[] propertyNames = { nameof(Tile_A),
@@ -365,7 +363,7 @@ namespace Countdown.ViewModels
                 }
 
                 if (sb.Length > 0)
-                    ClipboadService.SetText(sb.ToString());
+                    Clipboard.SetText(sb.ToString());
             }
         }
 

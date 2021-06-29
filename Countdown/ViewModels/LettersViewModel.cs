@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 using Countdown.Models;
@@ -18,9 +19,6 @@ namespace Countdown.ViewModels
 
         // which item in the letter option list is selected
         private int letterOptionIndex = 0;
-
-        // allow the clipboard to be impersonated in unit tests
-        public IClipboardService ClipboadService { get; set; } = new RealClipboard();
 
         // property names for change events when generating data and error notifications
         private static readonly string[] propertyNames = { nameof(Letter_0),
@@ -485,7 +483,7 @@ namespace Countdown.ViewModels
                 }
 
                 if (sb.Length > 0)
-                    ClipboadService.SetText(sb.ToString());
+                    Clipboard.SetText(sb.ToString());
             }
         }
 
