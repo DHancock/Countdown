@@ -18,8 +18,10 @@ namespace Countdown.ViewModels
 
         public int CompareTo(object obj)
         {
-            string other = ((EquationItem)obj).Content; 
-            return Content.Length == other.Length ? string.Compare(Content, other) : Content.Length - other.Length;
+            string other = ((EquationItem)obj).Content;
+
+            int lengthCompare = Content.Length - other.Length;
+            return lengthCompare == 0 ? string.Compare(Content, other) : lengthCompare;
         }
     }
 }
