@@ -259,7 +259,7 @@
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="{x:Type GroupItem}">
-                                            <Expander IsExpanded="{Binding Items[0].IsExpanded, Mode=TwoWay}" Style="{StaticResource ExpanderStyle}">
+                                            <Expander IsExpanded="{Binding Items[0].IsExpanded, Mode=OneWay}" Style="{StaticResource ExpanderStyle}">
                                                 <Expander.Header>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
