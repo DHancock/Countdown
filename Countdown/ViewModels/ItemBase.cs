@@ -6,7 +6,7 @@
         private bool isSelected = false;
 
 
-        public ItemBase() : this(null)
+        public ItemBase() 
         {
         }
 
