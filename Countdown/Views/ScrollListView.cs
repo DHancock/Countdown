@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -32,7 +34,16 @@ namespace Countdown.Views
                 if (view.MoveCurrentTo(e.NewValue))
                 {
                     listView.SelectedItem = e.NewValue;
-                    listView.ScrollIntoView(e.NewValue);
+
+                    // dastardly hack - wait until the items in the recently expanded group have 
+                    // been created before scrolling the item into view. 
+                    Task t = new Task(async () =>
+                    {
+                        await Task.Delay(100);
+                        _ = listView.Dispatcher.BeginInvoke(new Action(() => listView.ScrollIntoView(e.NewValue)));
+                    });
+
+                    t.Start();
                 }
             }
         }
