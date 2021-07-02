@@ -151,20 +151,19 @@ namespace Countdown.Models
                 using DeflateStream stream = new DeflateStream(resourceStream, CompressionMode.Decompress);
 
                 StreamManager sm = new StreamManager(stream);
-                byte[] line;
+                ReadOnlySpan<byte> line;
 
-                while ((line = sm.ReadLine()) != null)
+                while ((line = sm.ReadLine()) != Span<byte>.Empty)
                 {
                     int keyLength = line.Length;
 
                     // check for a word break within the line
                     if (keyLength > (cMinLetters * 2))
                     {
-                        for (keyLength = cMinLetters; keyLength < line.Length; ++keyLength)
-                        {
-                            if (line[keyLength] == cWord_seperator)
-                                break;
-                        }
+                        int pos = line.Slice(cMinLetters).IndexOf(cWord_seperator);
+
+                        if (pos >= 0)
+                            keyLength = pos + cMinLetters;
                     }
 
                     // make key
@@ -174,20 +173,17 @@ namespace Countdown.Models
 
                     // add to dictionary
                     if ((keyLength == cMaxLetters) && (keyLength == line.Length))
-                        conundrumWords[key] = line;
+                        conundrumWords[key] = line.ToArray();
                     else
-                        otherWords[key] = line;
+                        otherWords[key] = line.ToArray();
                 }
             }
         }
 
 
         // a simple encoder, the source is known quantity
-        private static char[] GetChars(byte[] bytes, int count, bool toUpper = false)
+        private static char[] GetChars(ReadOnlySpan<byte> bytes, int count, bool toUpper = false)
         {
-            if (bytes is null)
-                throw new ArgumentNullException(nameof(bytes));
-
             if ((count < 0) || (count > bytes.Length))
                 throw new ArgumentOutOfRangeException(nameof(count));
 
@@ -235,7 +231,7 @@ namespace Countdown.Models
             private readonly DeflateStream stream;
             private readonly byte[] buffer = new byte[cBufferSize];
 
-            private int bufferEnd = 0;
+            private int dataSize = 0;
             private int position = 0;
             private bool endOfStream = false;
 
@@ -244,71 +240,54 @@ namespace Countdown.Models
                 stream = s ?? throw new ArgumentNullException(nameof(s));
             }
 
-
-            public byte[] ReadLine()
+            public ReadOnlySpan<byte> ReadLine()
             {
                 int length = SeekNextLine();
 
-                if (length > 0) // simple case
+                if (length > 0) // simple case, the line is within the buffer
                 {
-                    // copy line
-                    byte[] line = new byte[length];
-                    Buffer.BlockCopy(buffer, position, line, 0, length);
-
-                    // update position
+                    ReadOnlySpan<byte> line = buffer.AsSpan(position, length);
                     position += length + 1;
                     return line;
                 }
-                else if (!endOfStream) // part or all of the line is still in the stream
+                else if (!endOfStream) // some of the line remains in the stream
                 {
-                    byte[] temp = null;
-                    int sizeLeft = bufferEnd - position;
+                    int sizeLeft = dataSize - position;
 
-                    if (sizeLeft > 0)  // copy remaining if any
+                    if (sizeLeft > 0)  // move partial line to the start of the buffer
+                        Buffer.BlockCopy(buffer, position, buffer, 0, sizeLeft);
+
+                    // refill buffer
+                    dataSize = sizeLeft;
+                    Span<byte> span = buffer.AsSpan();
+
+                    while (dataSize < buffer.Length)
                     {
-                        temp = new byte[sizeLeft];
-                        Buffer.BlockCopy(buffer, position, temp, 0, sizeLeft);
+                        int bytesRead = stream.Read(span.Slice(dataSize));
+
+                        if (bytesRead == 0)
+                        {
+                            endOfStream = true;
+                            break;
+                        }
+
+                        dataSize += bytesRead;
                     }
 
-                    // always refill the whole buffer
-                    bufferEnd = stream.Read(buffer, 0, buffer.Length);
-                    endOfStream = bufferEnd < buffer.Length;
                     position = 0;
-
                     length = SeekNextLine();
 
-                    if (length >= 0)  // its not the end of the stream, it shouldn't be
+                    if (length > 0)  // its not the end of the stream, it shouldn't be
                     {
-                        byte[] line = new byte[sizeLeft + length];
-
-                        if (sizeLeft > 0)  // copy remaining and new part of the buffer
-                        {
-                            Buffer.BlockCopy(temp, 0, line, 0, temp.Length);
-                            Buffer.BlockCopy(buffer, 0, line, temp.Length, length);
-                        }
-                        else
-                            Buffer.BlockCopy(buffer, 0, line, 0, length);
-
-                        // update position
                         position += length + 1;
-                        return line;
+                        return span.Slice(0, length);
                     }
                 }
 
-                return null;
+                return Span<byte>.Empty;
             }
 
-
-            private int SeekNextLine()
-            {
-                for (int index = position; index < bufferEnd; ++index)
-                {
-                    if (buffer[index] == cLine_seperator)
-                        return index - position;
-                }
-
-                return -1;   // the buffer doesn't contain a full line
-            }
+            private int SeekNextLine() => buffer.AsSpan(position).IndexOf(cLine_seperator);
         }
     }
 }
