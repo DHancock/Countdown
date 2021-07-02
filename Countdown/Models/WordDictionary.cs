@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
@@ -287,7 +288,7 @@ namespace Countdown.Models
                 return Span<byte>.Empty;
             }
 
-            private int SeekNextLine() => buffer.AsSpan(position).IndexOf(cLine_seperator);
+            private int SeekNextLine() => buffer.AsSpan(position, dataSize - position).IndexOf(cLine_seperator);
         }
     }
 }
