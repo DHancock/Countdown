@@ -1,8 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Threading;
 
 namespace Countdown.Views
@@ -27,26 +25,30 @@ namespace Countdown.Views
 
         private static void OnScrollToItemPropertyChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
         {
-            if ((source is ScrollListView listView) && (e.NewValue != null))
+            if (e.NewValue is not null)
             {
-                ICollectionView view = CollectionViewSource.GetDefaultView(listView.ItemsSource);
+                ScrollListView listView = (ScrollListView)source;
 
-                if (view.MoveCurrentTo(e.NewValue))
+                listView.SelectedItem = e.NewValue;
+
+                if (listView.IsGrouping)
                 {
-                    listView.SelectedItem = e.NewValue;
-
                     // Work around a bug that stops ScrollIntoView() working on Net5.0
                     // It appears that the ItemContainerGenerator status has been set to
                     // GeneratorStatus.ContainersGenerated too early for the ScrollIntoView()
-                    // method. See:
+                    // method when grouping. See:
                     //
-                    // https://referencesource.microsoft.com/#PresentationFramework/src/Framework/System/Windows/Controls/ListBox.cs,0e6481e67cd3cffc
+                    // https://github.com/dotnet/wpf/blob/2fe5451ed1ff47ff03a741cc56bf201ff3d1acc1/src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/ListBox.cs#L123
                     //
-                    // The code below would have been called by ScrollIntoView() if the 
+                    // The equivalent code below would have been called by ScrollIntoView() if the 
                     // ItemContainerGenerator indicated the expanded group hadn't been generated...
 
                     _ = listView.Dispatcher.BeginInvoke(DispatcherPriority.Loaded,
                                                         new Action(() => listView.ScrollIntoView(e.NewValue)));
+                }
+                else
+                {
+                    listView.ScrollIntoView(e.NewValue);
                 }
             }
         }
