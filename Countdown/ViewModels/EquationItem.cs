@@ -21,7 +21,7 @@ namespace Countdown.ViewModels
             string other = ((EquationItem)obj).Content;
 
             int lengthCompare = Content.Length - other.Length;
-            return lengthCompare == 0 ? string.Compare(Content, other) : lengthCompare;
+            return lengthCompare == 0 ? -string.Compare(Content, other, StringComparison.Ordinal) : lengthCompare;
         }
     }
 }
