@@ -233,8 +233,8 @@
                 <Path Style="{StaticResource CrossTickStyle}"/>
             </StackPanel>
 
-            <local:ScrollListView x:Name="WordListView" Grid.Row="1" ScrollToItem ="{Binding ScrollToItem}" SelectionMode="Extended" ItemsSource="{Binding Source={StaticResource WordListGrouping}}" Style="{StaticResource CommonListViewStyle}" ItemContainerStyle="{StaticResource CommonListViewItemContainerStyle}" ContextMenu="{StaticResource CopyPasteGoToContextMenu}" >
-                <local:ScrollListView.View>
+            <ListView x:Name="WordListView" Grid.Row="1" local:ScrollTo.Item ="{Binding ScrollToItem}" SelectionMode="Extended" ItemsSource="{Binding Source={StaticResource WordListGrouping}}" Style="{StaticResource CommonListViewStyle}" ItemContainerStyle="{StaticResource CommonListViewItemContainerStyle}" ContextMenu="{StaticResource CopyPasteGoToContextMenu}" >
+                <ListView.View>
                     <GridView AllowsColumnReorder="false">
                         <GridView.ColumnHeaderContainerStyle>
                             <Style TargetType="GridViewColumnHeader">
@@ -249,16 +249,16 @@
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                     </GridView>
-                </local:ScrollListView.View>
+                </ListView.View>
 
-                <local:ScrollListView.GroupStyle>
+                <ListView.GroupStyle>
                     <GroupStyle>
                         <GroupStyle.ContainerStyle>
                             <Style TargetType="{x:Type GroupItem}">
                                 <Setter Property="Margin" Value="0"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
-                                        <ControlTemplate TargetType="{x:Type GroupItem}">
+                                        <ControlTemplate>
                                             <Expander IsExpanded="{Binding Items[0].IsExpanded, Mode=TwoWay}" Style="{StaticResource ExpanderStyle}">
                                                 <Expander.Header>
                                                     <Grid>
@@ -280,12 +280,12 @@
                             </Style>
                         </GroupStyle.ContainerStyle>
                     </GroupStyle>
-                </local:ScrollListView.GroupStyle>
-                <local:ScrollListView.InputBindings>
+                </ListView.GroupStyle>
+                <ListView.InputBindings>
                     <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
                     <KeyBinding CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" Modifiers="Control" Key="L" />
-                </local:ScrollListView.InputBindings>
-            </local:ScrollListView>
+                </ListView.InputBindings>
+            </ListView>
         </Grid>
     </DockPanel>
 </UserControl>

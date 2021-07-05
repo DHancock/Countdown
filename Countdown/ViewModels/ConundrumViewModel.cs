@@ -18,6 +18,7 @@ namespace Countdown.ViewModels
         private Model Model { get; }
         public StopwatchController StopwatchController { get; }
         public ObservableCollection<ConundrumItem> SolutionList { get; } = new ObservableCollection<ConundrumItem>();
+        private object scrollToItem;
 
         // flag to see if this vm's view has been loaded  
         private bool notLoadedYet = true;
@@ -134,6 +135,15 @@ namespace Countdown.ViewModels
             }
         }
 
+        public object ScrollToItem
+        {
+            get { return scrollToItem; }
+            set
+            {
+                scrollToItem = value;
+                RaisePropertyChanged();
+            }
+        }
 
         public bool IsSelected
         {
@@ -196,7 +206,8 @@ namespace Countdown.ViewModels
                     conundrum[index] = Model.Conundrum[index][0]; 
 
                 Solution = word;
-                SolutionList.Add(new ConundrumItem(new string(conundrum), word));
+                SolutionList.Insert(0, new ConundrumItem(new string(conundrum), word));
+                ScrollToItem = SolutionList[0];
             }
         }
 
@@ -206,7 +217,7 @@ namespace Countdown.ViewModels
             if (notLoadedYet)
                 return false;
 
-            return Model.Conundrum.Any(s => !string.IsNullOrEmpty(s)) && (Model.Solve() != null);
+            return (Solution?[0] == space_char) && Model.Conundrum.Any(s => !string.IsNullOrEmpty(s)) && (Model.Solve() != null);
         }
 
    
