@@ -107,7 +107,7 @@
             </Grid>
         </Grid>
 
-        <ListView Margin="5" ItemsSource="{Binding SolutionList}" SelectionMode="Extended" Style="{StaticResource CommonListViewStyle}" ItemContainerStyle="{StaticResource CommonListViewItemContainerStyle}" ContextMenu="{StaticResource CopyPasteGoToContextMenu}" UseLayoutRounding="True">
+        <ListView Margin="5" ItemsSource="{Binding SolutionList}" SelectionMode="Extended" local:ScrollTo.Item="{Binding ScrollToItem}" Style="{StaticResource CommonListViewStyle}" ItemContainerStyle="{StaticResource CommonListViewItemContainerStyle}" ContextMenu="{StaticResource CopyPasteGoToContextMenu}" UseLayoutRounding="True">
             <ListView.View>
                 <GridView  AllowsColumnReorder="true" >
                     <GridViewColumn Header="Conundrum" Width="100" CellTemplate="{StaticResource ConundrumCellTemplateStyle}"/>
