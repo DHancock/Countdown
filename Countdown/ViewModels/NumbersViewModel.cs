@@ -309,6 +309,7 @@ namespace Countdown.ViewModels
                 results.Solutions.Sort();   // guarantee ordering, independent of parallel partition order
 
                 results.Solutions.Add(new EquationItem());
+                results.Solutions.Add(new EquationItem($"There are {results.Solutions.Count - 1} solutions."));
                 results.Solutions.Add(new EquationItem($"Evaluated in {results.Elapsed.TotalMilliseconds} milliseconds."));
                 results.Solutions.Add(new EquationItem($"Tiles are {tiles[0]}, {tiles[1]}, {tiles[2]}, {tiles[3]}, {tiles[4]}, {tiles[5]}"));
                 results.Solutions.Add(new EquationItem($"Target is {target}"));
