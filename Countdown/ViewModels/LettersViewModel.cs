@@ -72,7 +72,7 @@ namespace Countdown.ViewModels
             PickConsonantCommand = new RelayCommand(ExecutePickConsonant, CanPickConsonant);
 
             ListCopyCommand = new RelayCommand(ExecuteCopy, CanCopy);
-            GoToDefinitionCommand = new RelayCommand(GoToDefinition, CanGoToDefinition);
+            GoToDefinitionCommand = new RelayCommand(ExecuteGoToDefinition, CanGoToDefinition);
 
             // initialise letter menu selected item
             LetterOptionIndex = Settings.Default.PickLetterOption;
@@ -493,7 +493,7 @@ namespace Countdown.ViewModels
             return (WordList != null) && WordList.Any(e => e.IsSelected);
         }
 
-        private void GoToDefinition(object p)
+        private void ExecuteGoToDefinition(object p)
         {
             try
             {
@@ -517,6 +517,6 @@ namespace Countdown.ViewModels
             }
         }
 
-        private bool CanGoToDefinition(object p) => WordList.Count(e => e.IsSelected) is > 0 and < 11;
+        private bool CanGoToDefinition(object p) => WordList?.Count(e => e.IsSelected) is > 0 and < 11;
     }
 }

@@ -283,6 +283,7 @@
                 </local:ScrollListView.GroupStyle>
                 <local:ScrollListView.InputBindings>
                     <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
+                    <KeyBinding CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" Modifiers="Control" Key="L" />
                 </local:ScrollListView.InputBindings>
             </local:ScrollListView>
         </Grid>

@@ -50,7 +50,7 @@ namespace Countdown.ViewModels
             ChooseCommand = new RelayCommand(ExecuteChoose, CanChoose);
 
             ListCopyCommand = new RelayCommand(ExecuteCopy, CanCopy);
-            GoToDefinitionCommand = new RelayCommand(GoToDefinition, CanGoToDefinition);
+            GoToDefinitionCommand = new RelayCommand(ExecuteGoToDefinition, CanGoToDefinition);
         }
 
 
@@ -239,7 +239,7 @@ namespace Countdown.ViewModels
             return (SolutionList != null) && SolutionList.Any(e => e.IsSelected);
         }
     
-        private void GoToDefinition(object p)
+        private void ExecuteGoToDefinition(object p)
         {
             try
             {
@@ -263,6 +263,6 @@ namespace Countdown.ViewModels
             }
         }
 
-        private bool CanGoToDefinition(object p) => SolutionList.Count(e => e.IsSelected) is > 0 and < 11;
+        private bool CanGoToDefinition(object p) => SolutionList?.Count(e => e.IsSelected) is > 0 and < 11;
     }
 }

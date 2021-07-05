@@ -116,6 +116,7 @@
             </ListView.View>
             <ListView.InputBindings>
                 <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
+                <KeyBinding CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" Modifiers="Control" Key="L" />
             </ListView.InputBindings>
         </ListView>
     </DockPanel>
