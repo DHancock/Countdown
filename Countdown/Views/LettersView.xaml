@@ -10,7 +10,7 @@
     <UserControl.Resources>
 
         <!-- draws green tick, or red cross path depending on data triggers -->
-        <Style x:Key="CrossTickStyle" TargetType="{x:Type Path}">
+        <Style x:Key="CrossTickStyle" TargetType="Path">
             <Setter Property="Width" Value="10"/>
             <Setter Property="Height" Value="10"/>
             <Setter Property="Margin" Value="10,5,5,5"/>
@@ -31,7 +31,7 @@
         </Style>
 
         <!-- text box style, the text is used to search the results list-->
-        <Style x:Key="SearchTextBoxStyle" TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Style x:Key="SearchTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="MaxLength" Value="9" />
             <Setter Property="MinWidth" Value="80" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -45,7 +45,7 @@
         </Style>
 
         <!-- text box style limiting input to uppercase Latin letters-->
-        <Style TargetType="{x:Type local:CountdownTextBox}">
+        <Style TargetType="local:CountdownTextBox">
             <Setter Property="Margin" Value="2,3" />
             <Setter Property="MaxLength" Value="1" />
             <Setter Property="MinWidth" Value="23" />
@@ -70,7 +70,7 @@
         </CollectionViewSource>
 
         <!-- a custom expander that looks like a tree view expander -->
-        <Style x:Key="ExpanderHeaderStyle" TargetType="{x:Type ToggleButton}">
+        <Style x:Key="ExpanderHeaderStyle" TargetType="ToggleButton">
             <Style.Resources>
                 <SolidColorBrush x:Key="Expander.MouseOver" Color="#FF27C7F7"/>
                 <SolidColorBrush x:Key="Expander.Pressed" Color="#FF000000"/>
@@ -78,7 +78,7 @@
             </Style.Resources>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                    <ControlTemplate TargetType="ToggleButton">
                         <Border Padding="{TemplateBinding Padding}">
                             <Grid Background="Transparent" SnapsToDevicePixels="False">
                                 <Grid.ColumnDefinitions>
@@ -123,7 +123,7 @@
         </Style>
 
         <!-- an expander style using the custom toggle button style for the expander -->
-        <Style x:Key="ExpanderStyle" TargetType="{x:Type Expander}">
+        <Style x:Key="ExpanderStyle" TargetType="Expander">
             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -132,7 +132,7 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Expander}">
+                    <ControlTemplate TargetType="Expander">
                         <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="3" SnapsToDevicePixels="true">
                             <DockPanel>
                                 <ToggleButton x:Name="HeaderSite" Style="{StaticResource ExpanderHeaderStyle}" Content="{TemplateBinding Header}" DockPanel.Dock="Top" Foreground="{TemplateBinding Foreground}" FontWeight="{TemplateBinding FontWeight}" FocusVisualStyle="{StaticResource ExpanderHeaderFocusVisual}" FontStyle="{TemplateBinding FontStyle}" FontStretch="{TemplateBinding FontStretch}" FontSize="{TemplateBinding FontSize}" FontFamily="{TemplateBinding FontFamily}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Margin="1" MinWidth="0" MinHeight="0" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
@@ -254,11 +254,11 @@
                 <ListView.GroupStyle>
                     <GroupStyle>
                         <GroupStyle.ContainerStyle>
-                            <Style TargetType="{x:Type GroupItem}">
+                            <Style TargetType="GroupItem">
                                 <Setter Property="Margin" Value="0"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
-                                        <ControlTemplate>
+                                        <ControlTemplate TargetType="GroupItem">
                                             <Expander IsExpanded="{Binding Items[0].IsExpanded, Mode=TwoWay}" Style="{StaticResource ExpanderStyle}">
                                                 <Expander.Header>
                                                     <Grid>
