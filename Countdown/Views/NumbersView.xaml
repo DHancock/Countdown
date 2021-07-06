@@ -74,7 +74,7 @@
             </Grid>
         </Grid>
 
-        <ListView Margin="5" ItemsSource="{Binding EquationList}" SelectionMode="Extended" Style="{StaticResource CommonListViewStyle}" ItemContainerStyle="{StaticResource CommonListViewItemContainerStyle}" UseLayoutRounding="True">
+        <ListView Margin="5" ItemsSource="{Binding EquationList}" SelectionMode="Extended" ItemContainerStyle="{StaticResource CommonItemContainerStyle}" UseLayoutRounding="True" >
             <ListView.View>
                 <GridView AllowsColumnReorder="false" >
                     <GridView.ColumnHeaderContainerStyle>

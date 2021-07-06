@@ -1,135 +1,14 @@
 ﻿<Application x:Class="Countdown.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
 
-        <!-- changes the disabled background colour to be the windows color -->
-        <Style x:Key="ListViewScrollViewerStyle" TargetType="ScrollViewer">
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ScrollViewer">
-                        <Grid Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <DockPanel Margin="{TemplateBinding Padding}">
-                                <ScrollViewer DockPanel.Dock="Top" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
-                                    <GridViewHeaderRowPresenter AllowsColumnReorder="{Binding TemplatedParent.View.AllowsColumnReorder, RelativeSource={RelativeSource TemplatedParent}}" ColumnHeaderContainerStyle="{Binding TemplatedParent.View.ColumnHeaderContainerStyle, RelativeSource={RelativeSource TemplatedParent}}" ColumnHeaderToolTip="{Binding TemplatedParent.View.ColumnHeaderToolTip, RelativeSource={RelativeSource TemplatedParent}}" ColumnHeaderContextMenu="{Binding TemplatedParent.View.ColumnHeaderContextMenu, RelativeSource={RelativeSource TemplatedParent}}" ColumnHeaderTemplate="{Binding TemplatedParent.View.ColumnHeaderTemplate, RelativeSource={RelativeSource TemplatedParent}}" Columns="{Binding TemplatedParent.View.Columns, RelativeSource={RelativeSource TemplatedParent}}" Margin="2,0" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                                </ScrollViewer>
-                                <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}" CanHorizontallyScroll="False" CanVerticallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" KeyboardNavigation.DirectionalNavigation="Local" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                            </DockPanel>
-                            <ScrollBar x:Name="PART_HorizontalScrollBar" Cursor="Arrow" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}"/>
-                            <ScrollBar x:Name="PART_VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Orientation="Vertical" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}"/>
-                            <DockPanel Background="{Binding Background, ElementName=PART_VerticalScrollBar}" Grid.Column="1" LastChildFill="False" Grid.Row="1">
-                                <Rectangle DockPanel.Dock="Left" Fill="White" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Width="1"/>
-                                <Rectangle DockPanel.Dock="Top" Fill="White" Height="1" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"/>
-                            </DockPanel>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- defaults to disabled if there are no items in the list -->
-        <Style x:Key="CommonListViewStyle" TargetType="ListView">
-            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
-            <Setter Property="BorderBrush" Value="#FFABADB3"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#FF042271"/>
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Visible"/>
-            <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
-            <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
-            <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="False"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListView">
-                        <Themes:ListBoxChrome x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" RenderMouseOver="{TemplateBinding IsMouseOver}" RenderFocused="{TemplateBinding IsKeyboardFocusWithin}" SnapsToDevicePixels="true">
-                            <ScrollViewer Padding="{TemplateBinding Padding}" Style="{StaticResource ListViewScrollViewerStyle}">
-                                <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                            </ScrollViewer>
-                        </Themes:ListBoxChrome>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter Property="Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
-                            </Trigger>
-                            <Trigger Property="IsGrouping" Value="True">
-                                <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="IsEnabled" Value="false"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding HasItems, RelativeSource={x:Static RelativeSource.Self}}" Value="true">
-                    <Setter Property="IsEnabled" Value="true"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- set a custom selection colour and selection boarder -->
-        <Style x:Key="CommonListViewItemContainerStyle" TargetType="ListViewItem">
-            <Style.Resources>
-                <SolidColorBrush x:Key="ListItemHoverFill" Color="AliceBlue"/>
-                <SolidColorBrush x:Key="ListItemSelectedFill" Color="#FFBEE6FD"/>
-                <SolidColorBrush x:Key="ListItemSelectedInactiveFill" Color="#FFBEE6FD"/>
-                <SolidColorBrush x:Key="ListItemSelectedHoverFill" Color="#FFBEE6FD"/>
-            </Style.Resources>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <!-- common list item selected state binding -->
+        <Style x:Key="CommonItemContainerStyle" TargetType="ListViewItem" >
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=OneWayToSource}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListViewItem">
-                        <Border CornerRadius="2" SnapsToDevicePixels="True" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}">
-                            <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource ListItemHoverFill}" />
-                                <Setter Property="BorderBrush" Value="#FFCCF0FF" />
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="{StaticResource ListItemSelectedFill}" />
-                                <Setter Property="BorderBrush" Value="#FF98DDFB" />
-                            </Trigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsSelected" Value="True" />
-                                    <Condition Property="Selector.IsSelectionActive" Value="False" />
-                                </MultiTrigger.Conditions>
-                                <Setter Property="Background" Value="{StaticResource ListItemSelectedInactiveFill}" />
-                                <Setter Property="BorderBrush" Value="#FFCFCFCF" />
-                            </MultiTrigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsSelected" Value="True" />
-                                    <Condition Property="IsMouseOver" Value="True" />
-                                </MultiTrigger.Conditions>
-                                <Setter Property="Background" Value="{StaticResource ListItemSelectedHoverFill}" />
-                                <Setter Property="BorderBrush" Value="#FF98DDFB" />
-                            </MultiTrigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
-
 
         <!-- this should probably be a user defined setting... -->
         <System:String x:Key="UrlEncodedLink">https://www.merriam-webster.com/dictionary/{0}</System:String>
