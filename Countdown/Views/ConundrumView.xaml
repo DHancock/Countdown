@@ -45,9 +45,9 @@
         </DataTemplate>
 
         <DataTemplate x:Key="SolutionCellTemplateStyle">
-            <TextBlock Text="{Binding Solution}" HorizontalAlignment="Left" Padding="10,0,0,0"/>
+            <TextBlock Text="{Binding Solution}" HorizontalAlignment="Left" Padding="10,0,0,0" />
         </DataTemplate>
-        
+
     </UserControl.Resources>
 
     <DockPanel Margin="5" LastChildFill="True">
@@ -107,16 +107,34 @@
             </Grid>
         </Grid>
 
-        <ListView Margin="5" ItemsSource="{Binding SolutionList}" SelectionMode="Extended" local:ScrollTo.Item="{Binding ScrollToItem}" Style="{StaticResource CommonListViewStyle}" ItemContainerStyle="{StaticResource CommonListViewItemContainerStyle}" ContextMenu="{StaticResource CopyPasteGoToContextMenu}" UseLayoutRounding="True">
+        <ListView Margin="5" ItemsSource="{Binding SolutionList}" SelectionMode="Extended" local:ScrollTo.Item="{Binding ScrollToItem}" Style="{StaticResource CommonListViewStyle}" ItemContainerStyle="{StaticResource CommonListViewItemContainerStyle}" UseLayoutRounding="True">
             <ListView.View>
-                <GridView  AllowsColumnReorder="true" >
+                <GridView  AllowsColumnReorder="True" >
                     <GridViewColumn Header="Conundrum" Width="100" CellTemplate="{StaticResource ConundrumCellTemplateStyle}"/>
                     <GridViewColumn Header="Solution" Width="100" CellTemplate="{StaticResource SolutionCellTemplateStyle}"/>
                 </GridView>
             </ListView.View>
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <ContextMenu.InputBindings>
+                        <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
+                        <KeyBinding CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" Modifiers="Control" Key="L" />
+                    </ContextMenu.InputBindings>
+                    <StaticResource ResourceKey="CopyMenuItem"/>
+                    <Separator />
+                    <StaticResource ResourceKey="LinkMenuItem"/>
+                    <Separator />
+                    <MenuItem Header="Clear" Command="{Binding ClearCommand}" InputGestureText="DEL" >
+                        <MenuItem.Icon>
+                            <Path Data="M3,3 L13,13 M3,13 L13,3" Stroke="Black" StrokeThickness="1.5" Width="16" Height="16"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.InputBindings>
                 <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
                 <KeyBinding CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" Modifiers="Control" Key="L" />
+                <KeyBinding Command="{Binding ClearCommand}" Key="Delete" />
             </ListView.InputBindings>
         </ListView>
     </DockPanel>

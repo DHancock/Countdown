@@ -130,38 +130,22 @@
             </Setter>
         </Style>
 
+
+        <!-- this should probably be a user defined setting... -->
+        <System:String x:Key="UrlEncodedLink">https://www.merriam-webster.com/dictionary/{0}</System:String>
+
         <!-- common menu items for context menus -->
-        <MenuItem x:Key="CopyMenuItem" Command="{Binding ListCopyCommand}" Header="Copy" InputGestureText="Ctrl+C" x:Shared ="false">
+        <MenuItem x:Key="CopyMenuItem" Header="Copy" Command="{Binding ListCopyCommand}" InputGestureText="Ctrl+C" x:Shared ="false">
             <MenuItem.Icon>
                 <Image Source="/Resources/copy.png" />
             </MenuItem.Icon>
         </MenuItem>
 
-        <!-- standard context menu for numbers list -->
-        <ContextMenu x:Key="CopyPasteContextMenu">
-            <ContextMenu.InputBindings>
-                <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
-            </ContextMenu.InputBindings>
-            <StaticResource ResourceKey="CopyMenuItem"/>
-        </ContextMenu>
-
-        <!-- this should probably be a user defined setting... -->
-        <System:String x:Key="UrlEncodedLink">https://www.merriam-webster.com/dictionary/{0}</System:String>
-
-        <!-- context menu for letters and conundrum list -->
-        <ContextMenu x:Key="CopyPasteGoToContextMenu">
-            <ContextMenu.InputBindings>
-                <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
-                <KeyBinding CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" Modifiers="Control" Key="L" />
-            </ContextMenu.InputBindings>
-            <StaticResource ResourceKey="CopyMenuItem"/>
-            <Separator />
-            <MenuItem Header="Look up definition..." CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" InputGestureText="Ctrl+L" >
-                <MenuItem.Icon>
-                    <Image Source="/Resources/goto.png" />
-                </MenuItem.Icon>
-            </MenuItem>
-        </ContextMenu>
+        <MenuItem x:Key="LinkMenuItem" Header="Look up definition..." CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" InputGestureText="Ctrl+L" x:Shared ="false" >
+            <MenuItem.Icon>
+                <Image Source="/Resources/goto.png" />
+            </MenuItem.Icon>
+        </MenuItem>
 
         <!-- generic button style -->
         <Style TargetType="{x:Type Button}">
