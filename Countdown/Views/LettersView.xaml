@@ -233,7 +233,7 @@
                 <Path Style="{StaticResource CrossTickStyle}"/>
             </StackPanel>
 
-            <ListView x:Name="WordListView" Grid.Row="1" local:ScrollTo.Item ="{Binding ScrollToItem}" SelectionMode="Extended" ItemsSource="{Binding Source={StaticResource WordListGrouping}}" Style="{StaticResource CommonListViewStyle}" ItemContainerStyle="{StaticResource CommonListViewItemContainerStyle}">
+            <ListView x:Name="WordListView" Grid.Row="1" local:ScrollTo.Item ="{Binding ScrollToItem}" SelectionMode="Extended" ItemsSource="{Binding Source={StaticResource WordListGrouping}}" ItemContainerStyle="{StaticResource CommonItemContainerStyle}">
                 <ListView.View>
                     <GridView AllowsColumnReorder="false">
                         <GridView.ColumnHeaderContainerStyle>

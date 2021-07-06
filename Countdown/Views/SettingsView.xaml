@@ -28,7 +28,7 @@
 
         <!-- list view style that intercepts key events that other wise would be -->
         <!-- processed by the text boxes contained within the list -->
-        <Style x:Key="SettingsListViewStyle" TargetType="ListView" BasedOn="{StaticResource CommonListViewStyle}">
+        <Style x:Key="SettingsListViewStyle" TargetType="ListView">
             <Setter Property="SelectionMode" Value="Single"/>
             <EventSetter Event="PreviewKeyDown" Handler="SettingsListPreviewKeyDown"/>
             <EventSetter Event="GotKeyboardFocus" Handler="SettingsListGotKeyboardFocus"/>
