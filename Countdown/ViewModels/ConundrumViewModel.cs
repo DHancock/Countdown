@@ -40,6 +40,7 @@ namespace Countdown.ViewModels
         public ICommand SolveCommand { get; }
         public ICommand ListCopyCommand { get; }
         public ICommand GoToDefinitionCommand { get; }
+        public ICommand ClearCommand { get; }
 
 
         public ConundrumViewModel(Model model, StopwatchController sc)
@@ -52,6 +53,7 @@ namespace Countdown.ViewModels
 
             ListCopyCommand = new RelayCommand(ExecuteCopy, CanCopy);
             GoToDefinitionCommand = new RelayCommand(ExecuteGoToDefinition, CanGoToDefinition);
+            ClearCommand = new RelayCommand(ExecuteClear, CanCopy);
         }
 
 
@@ -206,8 +208,8 @@ namespace Countdown.ViewModels
                     conundrum[index] = Model.Conundrum[index][0]; 
 
                 Solution = word;
-                SolutionList.Insert(0, new ConundrumItem(new string(conundrum), word));
-                ScrollToItem = SolutionList[0];
+                SolutionList.Add(new ConundrumItem(new string(conundrum), word));
+                ScrollToItem = SolutionList[^1];
             }
         }
 
@@ -217,7 +219,7 @@ namespace Countdown.ViewModels
             if (notLoadedYet)
                 return false;
 
-            return (Solution?[0] == space_char) && Model.Conundrum.Any(s => !string.IsNullOrEmpty(s)) && (Model.Solve() != null);
+            return (Solution[0] == space_char) && Model.Conundrum.Any(s => !string.IsNullOrEmpty(s)) && (Model.Solve() != null);
         }
 
    
@@ -245,10 +247,7 @@ namespace Countdown.ViewModels
         }
 
 
-        private bool CanCopy(object p)
-        {
-            return (SolutionList != null) && SolutionList.Any(e => e.IsSelected);
-        }
+        private bool CanCopy(object p) => SolutionList.Any(e => e.IsSelected);
     
         private void ExecuteGoToDefinition(object p)
         {
@@ -274,6 +273,15 @@ namespace Countdown.ViewModels
             }
         }
 
-        private bool CanGoToDefinition(object p) => SolutionList?.Count(e => e.IsSelected) is > 0 and < 11;
+        private bool CanGoToDefinition(object p) => SolutionList.Count(e => e.IsSelected) is > 0 and < 11;
+
+        private void ExecuteClear(object p)
+        {
+            for (int index = SolutionList.Count - 1; index >= 0; --index)
+            {
+                if (SolutionList[index].IsSelected)
+                    SolutionList.RemoveAt(index);
+            }
+        }
     }
 }
