@@ -15,7 +15,7 @@
     <Grid>
         <TabControl Focusable="False">
             <TabControl.ItemContainerStyle>
-                <Style TargetType="{x:Type TabItem}" BasedOn="{StaticResource {x:Type TabItem}}">
+                <Style TargetType="TabItem">
                     <Setter Property="Padding" Value="10,2" />
                 </Style>
             </TabControl.ItemContainerStyle>

@@ -10,7 +10,7 @@
 
     <UserControl.Resources>
         <!-- limit input to numbers -->
-        <Style TargetType="{x:Type local:CountdownTextBox}">
+        <Style TargetType="local:CountdownTextBox">
             <Setter Property="ContentStyle" Value="Number" />
             <Setter Property="Margin" Value="3,0" />
             <Setter Property="MaxLength" Value="3" />

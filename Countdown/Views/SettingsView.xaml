@@ -11,7 +11,7 @@
 
         <!-- text box that contain numbers and focus event handlers used to -->
         <!-- correct invalid values after the text box looses focus -->
-        <Style TargetType="{x:Type local:CountdownTextBox}">
+        <Style TargetType="local:CountdownTextBox">
             <Setter Property="ContentStyle" Value="Number" />
             <Setter Property="Margin" Value="0,0" />
             <Setter Property="Padding" Value="0,0" />
@@ -28,7 +28,7 @@
 
         <!-- list view style that intercepts key events that other wise would be -->
         <!-- processed by the text boxes contained within the list -->
-        <Style x:Key="SettingsListViewStyle" TargetType="{x:Type ListView}" BasedOn="{StaticResource CommonListViewStyle}">
+        <Style x:Key="SettingsListViewStyle" TargetType="ListView" BasedOn="{StaticResource CommonListViewStyle}">
             <Setter Property="SelectionMode" Value="Single"/>
             <EventSetter Event="PreviewKeyDown" Handler="SettingsListPreviewKeyDown"/>
             <EventSetter Event="GotKeyboardFocus" Handler="SettingsListGotKeyboardFocus"/>
@@ -36,11 +36,11 @@
         
         <!-- selects the list item when the text box contained inside -->
         <!-- the list item gets focus -->
-        <Style x:Key="SettingsListViewItemContainerStyle" TargetType="{x:Type ListViewItem}">
+        <Style x:Key="SettingsListViewItemContainerStyle" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                    <ControlTemplate TargetType="ListViewItem">
                         <Border CornerRadius="2" SnapsToDevicePixels="True" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}">
                             <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                         </Border>

@@ -10,7 +10,7 @@
     <UserControl.Resources>
 
         <!-- text box style limiting input to uppercase Latin letters-->
-        <Style TargetType="{x:Type local:CountdownTextBox}">
+        <Style TargetType="local:CountdownTextBox">
             <Setter Property="Margin" Value="2,3" />
             <Setter Property="MaxLength" Value="1" />
             <Setter Property="MinWidth" Value="23" />
@@ -28,7 +28,7 @@
         </Style>
         
         <!-- a read only text box, simpler than styling a label -->
-        <Style TargetType="{x:Type TextBox}">
+        <Style TargetType="TextBox">
             <Setter Property="Margin" Value="2,3" />
             <Setter Property="MinWidth" Value="23" />
             <Setter Property="FontWeight" Value="Bold"/>
