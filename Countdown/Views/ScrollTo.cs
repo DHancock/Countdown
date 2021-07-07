@@ -35,12 +35,19 @@ namespace Countdown.Views
                     // see https://github.com/dotnet/wpf/issues/4797
 
                     _ = list.Dispatcher.BeginInvoke(DispatcherPriority.Loaded,
-                                                        new Action(() => list.ScrollIntoView(e.NewValue)));
+                                                        new Action(() =>
+                                                            {
+                                                                list.ScrollIntoView(e.NewValue);
+                                                                _ = list.Focus();
+                                                            }));
                 }
                 else
                 {
                     list.ScrollIntoView(e.NewValue);
+                    _ = list.Focus();
                 }
+
+                
             }
         }
     }
