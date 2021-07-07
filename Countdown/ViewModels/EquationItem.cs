@@ -3,25 +3,22 @@
 namespace Countdown.ViewModels
 {
     /// <summary>
-    /// Used to display solver results in the ui and tracks
-    /// the selection of the items
+    /// A list item used in the numbers result ui list
     /// </summary>
-    internal sealed class EquationItem : ItemBase, IComparable
+    internal sealed class EquationItem : ItemBase, IComparable<EquationItem>
     {
-        public EquationItem() : this(string.Empty)
+        public EquationItem() : base(string.Empty)
         {
         }
 
-        public EquationItem(string equation) : base(equation)
+        public EquationItem(string item) : base(item)
         {
         }
 
-        public int CompareTo(object obj)
+        public int CompareTo(EquationItem other)
         {
-            string other = ((EquationItem)obj).Content;
-
-            int lengthCompare = Content.Length - other.Length;
-            return lengthCompare == 0 ? -string.Compare(Content, other, StringComparison.Ordinal) : lengthCompare;
+            int lengthCompare = Content.Length - other.Content.Length;
+            return lengthCompare == 0 ? string.Compare(other.Content, Content, StringComparison.Ordinal) : lengthCompare;
         }
     }
 }
