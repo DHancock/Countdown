@@ -119,6 +119,7 @@
                     <ContextMenu.InputBindings>
                         <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
                         <KeyBinding CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" Modifiers="Control" Key="L" />
+                        <KeyBinding Command="{Binding ClearCommand}" Key="Delete" />
                     </ContextMenu.InputBindings>
                     <StaticResource ResourceKey="CopyMenuItem"/>
                     <Separator />
@@ -126,7 +127,7 @@
                     <Separator />
                     <MenuItem Header="Clear" Command="{Binding ClearCommand}" InputGestureText="DEL" >
                         <MenuItem.Icon>
-                            <Path Data="M3,3 L13,13 M3,13 L13,3" Stroke="Black" StrokeThickness="1.5" Width="16" Height="16"/>
+                            <Path Data="M3,3 L13,13 M3,13 L13,3" Stroke="Black" StrokeThickness="1.5" Width="16" Height="16" Style="{StaticResource EnabledPathStyle}"/>
                         </MenuItem.Icon>
                     </MenuItem>
                 </ContextMenu>
