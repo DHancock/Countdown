@@ -125,7 +125,7 @@
                     <Separator />
                     <StaticResource ResourceKey="LinkMenuItem"/>
                     <Separator />
-                    <MenuItem Header="Clear" Command="{Binding ClearCommand}" InputGestureText="DEL" >
+                    <MenuItem Header="Delete" Command="{Binding ClearCommand}" InputGestureText="DEL" >
                         <MenuItem.Icon>
                             <Path Data="M3,3 L13,13 M3,13 L13,3" Stroke="Black" StrokeThickness="1.5" Width="16" Height="16" Style="{StaticResource EnabledPathStyle}"/>
                         </MenuItem.Icon>
