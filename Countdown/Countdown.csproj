@@ -24,11 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\copy.png" />
-    <Resource Include="Resources\goto.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="Settings.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>

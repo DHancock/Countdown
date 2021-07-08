@@ -285,7 +285,6 @@
                     <ContextMenu>
                         <ContextMenu.InputBindings>
                             <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
-                            <KeyBinding CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" Modifiers="Control" Key="L" />
                         </ContextMenu.InputBindings>
                         <StaticResource ResourceKey="CopyMenuItem"/>
                         <Separator />
@@ -294,7 +293,6 @@
                 </ListView.ContextMenu>
                 <ListView.InputBindings>
                     <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
-                    <KeyBinding CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" Modifiers="Control" Key="L" />
                 </ListView.InputBindings>
             </ListView>
         </Grid>
