@@ -118,7 +118,6 @@
                 <ContextMenu>
                     <ContextMenu.InputBindings>
                         <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
-                        <KeyBinding CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" Modifiers="Control" Key="L" />
                         <KeyBinding Command="{Binding ClearCommand}" Key="Delete" />
                     </ContextMenu.InputBindings>
                     <StaticResource ResourceKey="CopyMenuItem"/>
@@ -134,7 +133,6 @@
             </ListView.ContextMenu>
             <ListView.InputBindings>
                 <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
-                <KeyBinding CommandParameter="{StaticResource UrlEncodedLink}" Command="{Binding GoToDefinitionCommand}" Modifiers="Control" Key="L" />
                 <KeyBinding Command="{Binding ClearCommand}" Key="Delete" />
             </ListView.InputBindings>
         </ListView>
