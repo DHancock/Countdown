@@ -9,26 +9,48 @@
             DataContext="{Binding LettersViewModel}">
     <UserControl.Resources>
 
-        <!-- draws green tick, or red cross path depending on data triggers -->
-        <Style x:Key="CrossTickStyle" TargetType="Path">
-            <Setter Property="Width" Value="10"/>
-            <Setter Property="Height" Value="10"/>
-            <Setter Property="Margin" Value="10,5,5,5"/>
-            <Setter Property="Opacity" Value="0"/>
-            <Setter Property="Data" Value="M1,1 L9,9 M1,9 L9,1"/>
-            <Setter Property="Stroke" Value="Red"/>
-            <Setter Property="StrokeThickness" Value="1.5"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding ScrollToTextLengthValid}" Value="true">
-                    <Setter Property="Opacity" Value="1"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding ContainsScrollToWord}" Value="true">
-                    <Setter Property="Data" Value="M0,7 L4,9 L9,0"/>
-                    <Setter Property="Stroke" Value="LimeGreen"/>
-                    <Setter Property="StrokeThickness" Value="2"/>
-                </DataTrigger>
-            </Style.Triggers>
+        <SolidColorBrush x:Key="Button.Background" Color="LimeGreen"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Background" Color="MediumSeaGreen"/>
+        <SolidColorBrush x:Key="Button.Pressed.Background" Color="SeaGreen"/>
+
+        <SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
+        <SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
+        <SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4"/>
+        <SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFADB2B5"/>
+        <SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF838383"/>
+
+        <!-- a button with a green background when enabled -->
+        <Style x:Key="SearchButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource Button.Background}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ButtonBase}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Button.IsDefaulted" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Pressed.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Pressed.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Disabled.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Disabled.Border}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource Button.Disabled.Foreground}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
+
 
         <!-- text box style, the text is used to search the results list-->
         <Style x:Key="SearchTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
@@ -69,13 +91,12 @@
             </CollectionViewSource.GroupDescriptions>
         </CollectionViewSource>
 
+        <SolidColorBrush x:Key="Expander.MouseOver" Color="#FF27C7F7"/>
+        <SolidColorBrush x:Key="Expander.Pressed" Color="#FF000000"/>
+        <SolidColorBrush x:Key="Expander.Static" Color="#FF808080"/>
+
         <!-- a custom expander that looks like a tree view expander -->
         <Style x:Key="ExpanderHeaderStyle" TargetType="ToggleButton">
-            <Style.Resources>
-                <SolidColorBrush x:Key="Expander.MouseOver" Color="#FF27C7F7"/>
-                <SolidColorBrush x:Key="Expander.Pressed" Color="#FF000000"/>
-                <SolidColorBrush x:Key="Expander.Static" Color="#FF808080"/>
-            </Style.Resources>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
@@ -223,14 +244,13 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5" >
-                <local:CountdownTextBox Text="{Binding ScrollToText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource}" Style="{StaticResource SearchTextBoxStyle}"/>
-                <Button Command="{Binding ScrollToCommand}" Width="20" Height="20" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="True">
+                <local:CountdownTextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource}" Style="{StaticResource SearchTextBoxStyle}"/>
+                <Button Command="{Binding ScrollToCommand}" Style="{StaticResource SearchButtonStyle}" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="True">
                     <Path Data="M3,7 H12 L9,4 M12,7 L9,10" HorizontalAlignment="Center" Stroke="Black" StrokeThickness="1.5" VerticalAlignment="Center" Width="15" Height="15" Style="{StaticResource EnabledPathStyle}"/>
                     <Button.RenderTransform>
                         <TranslateTransform X="-1" />
                     </Button.RenderTransform>
                 </Button>
-                <Path Style="{StaticResource CrossTickStyle}"/>
             </StackPanel>
 
             <ListView x:Name="WordListView" Grid.Row="1" local:ScrollTo.Item ="{Binding ScrollToItem}" SelectionMode="Extended" ItemsSource="{Binding Source={StaticResource WordListGrouping}}" ItemContainerStyle="{StaticResource CommonItemContainerStyle}">
