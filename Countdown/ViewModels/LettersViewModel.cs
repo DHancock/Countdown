@@ -40,11 +40,8 @@ namespace Countdown.ViewModels
             };
 
         // property backing stores
-        private string scrollToText;
         private WordItem scrollToItem;
         private List<WordItem> wordList;
-        private bool containsScrollToWord;
-        private bool scrollToTextLengthValid;
 
         public ICommand ClearCommand { get; }
         public ICommand PickVowelCommand { get; }
@@ -170,7 +167,7 @@ namespace Countdown.ViewModels
             }
             else
             {
-                int consonantCount = Model.Letters.Where(c => IsUpperConsonant(c)).Count();
+                int consonantCount = Model.Letters.Count(c => IsUpperConsonant(c));
 
                 if (consonantCount > max_consonants)
                 {
@@ -213,23 +210,9 @@ namespace Countdown.ViewModels
 
 
         /// <summary>
-        /// The contents of the scroll to text box
+        /// Bound to the contents of the search text box
         /// </summary>
-        public string ScrollToText
-        {
-            get { return scrollToText; }
-            set
-            {
-                scrollToText = value;
-                ScrollToTextLengthValid = (scrollToText != null) && (scrollToText.Length >= WordDictionary.cMinLetters);
-
-                if (ScrollToTextLengthValid)
-                    ContainsScrollToWord = WordListContains();
-                else
-                    ContainsScrollToWord = false;
-            }
-        }
-
+        public string SearchText { get; set; }
 
 
         /// <summary>
@@ -242,11 +225,9 @@ namespace Countdown.ViewModels
             set
             {
                 scrollToItem = value;
-                RaisePropertyChanged(nameof(ScrollToItem));
+                RaisePropertyChanged();
             }
-        } 
-       
-
+        }
 
         /// <summary>
         /// Expose the list so it can be bound to by the ui 
@@ -257,47 +238,19 @@ namespace Countdown.ViewModels
             set
             {
                 wordList = value;
-                RaisePropertyChanged(nameof(WordList));
+                RaisePropertyChanged();
             }
         }
 
-        
-
-        public bool ContainsScrollToWord 
+        private bool WordListContains(string word)
         {
-            get { return containsScrollToWord; }
-            set
-            {
-                containsScrollToWord = value;
-                RaisePropertyChanged(nameof(ContainsScrollToWord));
-            }
-        }
+            if (word?.Length >= WordDictionary.cMinLetters)
+                return WordList?.BinarySearch(new WordItem(word)) >= 0;
 
-        
-
-        public bool ScrollToTextLengthValid
-        {
-            get { return scrollToTextLengthValid; }
-            set
-            {
-                scrollToTextLengthValid = value;
-                RaisePropertyChanged(nameof(ScrollToTextLengthValid));
-            }
-        }
-
-
-
-        private bool WordListContains()
-        {
-            if ((WordList != null) && (ScrollToText != null) && (ScrollToText.Length >= WordDictionary.cMinLetters))
-                return WordList.BinarySearch(new WordItem(ScrollToText)) >= 0;
-            
             return false;
         }
 
-        
-
-        private void ExecuteClear(object p)
+        private void ExecuteClear(object _)
         {
             for (int index = 0; index < Model.cLetterCount; ++index)
             {
@@ -312,14 +265,14 @@ namespace Countdown.ViewModels
 
 
 
-        private bool CanClear(object p)
+        private bool CanClear(object _)
         {
             return Model.Letters.Any(c => !string.IsNullOrEmpty(c));
         }
 
         
 
-        private void ExecutePickVowel(object p)
+        private void ExecutePickVowel(object _)
         {
             SetFirstEmptyLetter(Model.GetVowel());
         }
@@ -340,61 +293,57 @@ namespace Countdown.ViewModels
         }
 
 
-        private bool CanPickVowel(object p)
+        private bool CanPickVowel(object _)
         {
-            int vowels = Model.Letters.Where(c => IsUpperVowel(c)).Count();
+            int vowels = Model.Letters.Count(c => IsUpperVowel(c));
             return vowels < max_vowels && Model.Letters.Any(c => string.IsNullOrEmpty(c));
         }
 
         
 
-        private void ExecutePickConsonant(object p)
+        private void ExecutePickConsonant(object _)
         {
             SetFirstEmptyLetter(Model.GetConsonant());
         }
 
 
-        private bool CanPickConsonant(object p)
+        private bool CanPickConsonant(object _)
         {
-            int consonants = Model.Letters.Where(c => IsUpperConsonant(c)).Count();
+            int consonants = Model.Letters.Count(c => IsUpperConsonant(c));
             return consonants < max_consonants && Model.Letters.Any(c => string.IsNullOrEmpty(c));
         }
 
         
 
-        private void ExecuteScrollTo(object p)
+        private void ExecuteScrollTo(object _)
         {
             if (WordList != null)
             {
-                int index = WordList.BinarySearch(new WordItem(ScrollToText));
+                int index = WordList.BinarySearch(new WordItem(SearchText));
 
                 if (index >= 0)
                 {
-                    if (WordList[index] == ScrollToItem)
-                        ScrollToItem = null; // force a property changed notification
-
                     // expand the group that the search word belongs too
-                    int firstItem = WordList.BinarySearch(new WordItem(new string ('a', ScrollToText.Length)));
+                    int firstItem = WordList.BinarySearch(new WordItem(new string('a', SearchText.Length)));
 
                     if (firstItem < 0)
+                    {
                         WordList[~firstItem].IsExpanded = true;
 
-                    // select and scroll into view
-                    ScrollToItem = WordList[index];  
+                        if (WordList[index] == ScrollToItem)
+                            ScrollToItem = null; // force a property changed notification
+
+                        // select and scroll into view
+                        ScrollToItem = WordList[index];
+                    }
                 }
             }
         }
 
-        
-
-        private bool CanScrollTo(object p)
-        {
-            return (WordList != null) && ContainsScrollToWord;
-        }
-        
+        private bool CanScrollTo(object _) => WordListContains(SearchText);     
 
 
-        private async Task ExecuteSolveAsync(object p)
+        private async Task ExecuteSolveAsync(object _)
         {
             // copy the model data now converting to lower case, 
             // it could be changed before the task is run
@@ -417,11 +366,11 @@ namespace Countdown.ViewModels
             WordList = viewData;
 
             // reset the search text and thus its dependencies
-            ScrollToText = ScrollToText;
+            SearchText = SearchText;
         }
 
 
-        private bool CanSolve(object p, bool isExecuting)
+        private bool CanSolve(object _, bool isExecuting)
         {
             return !(HasErrors || isExecuting || Model.Letters.Any(c => string.IsNullOrEmpty(c)));
         }
@@ -446,7 +395,7 @@ namespace Countdown.ViewModels
 
         
 
-        private void ExecuteChooseLetters(object p)
+        private void ExecuteChooseLetters(object _)
         {
             if ((LetterOptionIndex >= 0) && (LetterOptionIndex < LetterOptionsList.Count))
             {
@@ -465,7 +414,7 @@ namespace Countdown.ViewModels
 
 
 
-        private void ExecuteCopy(object p)
+        private void ExecuteCopy(object _)
         {
             if (WordList != null)
             {
@@ -488,7 +437,7 @@ namespace Countdown.ViewModels
         }
 
 
-        private bool CanCopy(object p)
+        private bool CanCopy(object _)
         {
             return (WordList != null) && WordList.Any(e => e.IsSelected);
         }
@@ -517,6 +466,6 @@ namespace Countdown.ViewModels
             }
         }
 
-        private bool CanGoToDefinition(object p) => WordList?.Count(e => e.IsSelected) is > 0 and < 11;
+        private bool CanGoToDefinition(object _) => WordList?.Count(e => e.IsSelected) is > 0 and < 11;
     }
 }
