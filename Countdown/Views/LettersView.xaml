@@ -9,9 +9,9 @@
             DataContext="{Binding LettersViewModel}">
     <UserControl.Resources>
 
-        <SolidColorBrush x:Key="Button.Background" Color="LimeGreen"/>
-        <SolidColorBrush x:Key="Button.MouseOver.Background" Color="MediumSeaGreen"/>
-        <SolidColorBrush x:Key="Button.Pressed.Background" Color="SeaGreen"/>
+        <SolidColorBrush x:Key="Button.Background" Color="#FF6AFF6A"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FF2AFF2A"/>
+        <SolidColorBrush x:Key="Button.Pressed.Background" Color="#FF0AEE0A"/>
 
         <SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
         <SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
@@ -230,7 +230,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <local:ButtonPopup Grid.Column ="0" ItemsSource="{Binding LetterOptionsList}" ChooseCommand="{Binding ChooseLettersCommand}" SelectedIndex="{Binding LetterOptionIndex, Mode=TwoWay}"/>
+                <local:ButtonPopup Grid.Column ="0" ItemsSource="{Binding LetterOptionsList}" ChooseCommand="{Binding ChooseLettersCommand}" SelectedIndex="{Binding ChooseLettersOption, Mode=TwoWay}"/>
                 <Button Grid.Column ="1" Style="{StaticResource StartStopButtonStyle}" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
                 <Button Grid.Column ="2" Content="_Solve" Command="{Binding SolveCommand}" IsDefault="True" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
             </Grid>
