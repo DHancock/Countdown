@@ -49,7 +49,7 @@ namespace Countdown.Models
 
             for (int k = letters.Length; k >= cMinLetters; --k)
             {
-                foreach (List<char> chars in new Combinations<char>(letters, k))
+                foreach (char[] chars in new Combinations<char>(letters, k))
                 {
                     AddDictionaryWordsToList(chars, otherWords, results);
 
@@ -64,9 +64,9 @@ namespace Countdown.Models
 
 
 
-        private static void AddDictionaryWordsToList(List<char> keyChars, Dictionary<string, byte[]> dictionary, List<WordItem> list)
+        private static void AddDictionaryWordsToList(char[] keyChars, Dictionary<string, byte[]> dictionary, List<WordItem> list)
         {
-            string key = new string(keyChars.ToArray());
+            string key = new string(keyChars);
 
             if (dictionary.TryGetValue(key, out byte[] data))
             {

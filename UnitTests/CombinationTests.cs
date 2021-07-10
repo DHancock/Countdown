@@ -26,8 +26,8 @@ namespace Countdown.UnitTests
 
             for (int k = 1; k <= source.Count(); ++k)
             {
-                var list = new List<List<T>>(new Combinations<T>(source, k, comparer));
-                List<List<T>> altList = AltComb.Get(source, k, comparer);
+                var list = new List<T[]>(new Combinations<T>(source, k, comparer));
+                List<T[]> altList = AltComb.Get(source, k, comparer);
 
                 if (uniqueSource)
                     Assert.AreEqual(Utils.CombinationSize(source.Count(), k), list.Count) ;
@@ -89,9 +89,9 @@ namespace Countdown.UnitTests
         {
             int[] source = { 864 };
 
-            var list = new List<List<int>>(new Combinations<int>(source, 1));
+            var list = new List<int[]>(new Combinations<int>(source, 1));
 
-            if ((list.Count != 1) || (list[0].Count != 1) || (list[0][0] != source[0]))
+            if ((list.Count != 1) || (list[0].Length != 1) || (list[0][0] != source[0]))
                 Assert.Fail();
         }
 
@@ -113,7 +113,7 @@ namespace Countdown.UnitTests
 
             // k == 0 is a valid input condition. The enumerator should 
             // return nothing
-            foreach (List<int> o in c)
+            foreach (int[] o in c)
             {
                 Assert.Fail();
             }
@@ -137,10 +137,10 @@ namespace Countdown.UnitTests
             int[] source = { 1, 3, 2, 4 };
             Combinations<int> c = new Combinations<int>(source, 2);
 
-            IEnumerator<List<int>> e = c.GetEnumerator();
+            IEnumerator<int[]> e = c.GetEnumerator();
 
             // move next has not been called yet
-            List<int> current = e.Current;
+            _ = e.Current;
         }
         
 
@@ -152,7 +152,7 @@ namespace Countdown.UnitTests
             int[] source = { 1, 3, 2, 4 };
             Combinations<int> c = new Combinations<int>(source, 2);
 
-            IEnumerator<List<int>> e = c.GetEnumerator();
+            IEnumerator<int[]> e = c.GetEnumerator();
 
             e.MoveNext();
             e.MoveNext();
@@ -160,7 +160,7 @@ namespace Countdown.UnitTests
             e.Reset();
           
             // move next has not been called yet
-            List<int> current = e.Current;
+            _ = e.Current;
         }
 
 
@@ -173,12 +173,12 @@ namespace Countdown.UnitTests
             int[] source = { 1, 3, 2, 4 };
             Combinations<int> c = new Combinations<int>(source, 2);
 
-            IEnumerator<List<int>> e = c.GetEnumerator();
+            IEnumerator<int[]> e = c.GetEnumerator();
 
             while (e.MoveNext()) ;
 
             // end of the enumeration has been reached
-            List<int> current = e.Current;
+            _ = e.Current;
         }
 
         
@@ -236,10 +236,10 @@ namespace Countdown.UnitTests
             int[] source = { 1, 3, 2, 4 };
             Combinations<int> c = new Combinations<int>(source, 2);
 
-            IEnumerator<List<int>> e = c.GetEnumerator();
+            IEnumerator<int[]> e = c.GetEnumerator();
 
             e.MoveNext();
-            List<int> c1 = e.Current;
+            int[] c1 = e.Current;
             e.MoveNext();
 
             e.Reset();
@@ -255,8 +255,8 @@ namespace Countdown.UnitTests
             int[] source = { 1, 3, 2, 4 };
 
             Combinations<int> c1 = new Combinations<int>(source, 2);
-            List<List<int>> c1list = new List<List<int>>(c1);
-            List<List<int>> c2list = new List<List<int>>(c1);
+            List<int[]> c1list = new List<int[]>(c1);
+            List<int[]> c2list = new List<int[]>(c1);
 
             Assert.IsTrue(Utils.IsEqual(c1list, c2list));
         }
