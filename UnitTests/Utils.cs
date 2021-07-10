@@ -84,7 +84,7 @@ namespace Countdown.UnitTests
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="list"></param>
-        internal static void RemoveDuplicates<T>(List<List<T>> list, IComparer<T> comparer = null)
+        internal static void RemoveDuplicates<T>(List<T[]> list, IComparer<T> comparer = null)
         {
             if (list != null)
             {
@@ -110,11 +110,11 @@ namespace Countdown.UnitTests
 
         internal static void TestComparers()
         {
-            List<int> l0 = null;
-            List<int> l1 = new List<int> { 0, 2, 3 };
-            List<int> l2 = new List<int> { 0, 2, 3 };
-            List<int> l3 = new List<int> { 1, 2, 4 };
-            List<int> l4 = new List<int> { 1, 2 };
+            int[] l0 = null;
+            int[] l1 = new int[] { 0, 2, 3 };
+            int[] l2 = new int[] { 0, 2, 3 };
+            int[] l3 = new int[] { 1, 2, 4 };
+            int[] l4 = new int[] { 1, 2 };
 
             Assert.IsTrue(Compare(l0, l0) == 0);    // nulls
             Assert.IsTrue(Compare(l1, l0) > 0);
@@ -129,13 +129,13 @@ namespace Countdown.UnitTests
             Assert.IsTrue(Compare(l1, l4) > 0);     // lengths
             Assert.IsTrue(Compare(l4, l1) < 0);
 
-            List<List<int>> ll0 = null;
-            List<List<int>> lr0 = null;
+            List<int[]> ll0 = null;
+            List<int[]> lr0 = null;
 
-            List<List<int>> ll1 = new List<List<int>> { l1, l1 };
-            List<List<int>> ll2 = new List<List<int>> { l2, l2 };
-            List<List<int>> ll3 = new List<List<int>> { l1, l3 };
-            List<List<int>> ll4 = new List<List<int>> { l1 };
+            List<int[]> ll1 = new List<int[]> { l1, l1 };
+            List<int[]> ll2 = new List<int[]> { l2, l2 };
+            List<int[]> ll3 = new List<int[]> { l1, l3 };
+            List<int[]> ll4 = new List<int[]> { l1 };
 
             Assert.IsTrue(Compare(lr0, ll0) == 0);  // nulls
             Assert.IsTrue(Compare(ll1, ll0) > 0);
@@ -162,13 +162,13 @@ namespace Countdown.UnitTests
 
 
         /// <summary>
-        /// Simplistic method to compare two ILists
+        /// Simplistic method to compare two arrays
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        internal static int Compare<T>(IList<T> left, IList<T> right, IComparer<T> comparer = null)
+        internal static int Compare<T>(T[] left, T[] right, IComparer<T> comparer = null)
         {
             if (ReferenceEquals(left, right))
                 return 0;
@@ -179,13 +179,13 @@ namespace Countdown.UnitTests
             if (right is null)
                 return 1;
 
-            if (left.Count != right.Count)
-                return (left.Count < right.Count) ? -1 : 1;
+            if (left.Length != right.Length)
+                return (left.Length < right.Length) ? -1 : 1;
 
             // null friendly comparer
             IComparer<T> c = comparer ?? Comparer<T>.Default;
 
-            for (int index = 0; index < left.Count; index++)
+            for (int index = 0; index < left.Length; index++)
             {
                 int cr = c.Compare(left[index], right[index]);
 
@@ -200,7 +200,7 @@ namespace Countdown.UnitTests
 
 
 
-        internal static int Compare<T>(List<List<T>> left, List<List<T>> right, IComparer<T> comparer = null)
+        internal static int Compare<T>(List<T[]> left, List<T[]> right, IComparer<T> comparer = null)
         {
             if (ReferenceEquals(left, right))
                 return 0;
@@ -226,13 +226,13 @@ namespace Countdown.UnitTests
         }
 
 
-        internal static bool IsEqual<T>(List<List<T>> left, List<List<T>> right, IComparer<T> comparer = null)
+        internal static bool IsEqual<T>(List<T[]> left, List<T[]> right, IComparer<T> comparer = null)
         {
             return Compare(left, right, comparer) == 0;
         }
 
 
-        internal static bool IsEqual<T>(IList<T> left, IList<T> right, IComparer<T> comparer = null)
+        internal static bool IsEqual<T>(T[] left, T[] right, IComparer<T> comparer = null)
         {
             return Compare(left, right, comparer) == 0;
         }
@@ -240,16 +240,16 @@ namespace Countdown.UnitTests
 
 
 
-    internal class ListComparerClass<T> : IComparer<IList<T>> 
+    internal class ArrayComparerClass<T> : IComparer<T[]> 
     {
         private readonly IComparer<T> comparer;
 
-        public ListComparerClass(IComparer<T> c)
+        public ArrayComparerClass(IComparer<T> c)
         {
             comparer = c;
         }
 
-        public int Compare(IList<T> left, IList<T> right)
+        public int Compare(T[] left, T[] right)
         {
             return Utils.Compare<T>(left, right, comparer);
         }
@@ -331,7 +331,7 @@ namespace Countdown.UnitTests
     internal static class AltPerm
     {
 
-        public static List<List<T>> Get<T>(IEnumerable<T> source, IComparer<T> comparer = null) 
+        public static List<T[]> Get<T>(IEnumerable<T> source, IComparer<T> comparer = null) 
         {
             if (source is null)
                 throw new ArgumentNullException(nameof(source));
@@ -339,7 +339,7 @@ namespace Countdown.UnitTests
             if (source.Count() == 0)
                 throw new ArgumentOutOfRangeException(nameof(source));
 
-            List<List<T>> result = new List<List<T>>();
+            List<T[]> result = new List<T[]>();
 
             T[] input = source.ToArray();
             Array.Sort(input, comparer);
@@ -347,7 +347,7 @@ namespace Countdown.UnitTests
             Permute(input, 0, input.Length - 1, result);
 
             // convert to lexicographical and remove duplicates 
-            result.Sort(new ListComparerClass<T>(comparer));
+            result.Sort(new ArrayComparerClass<T>(comparer));
 
             if (HasDuplicates(input))
                 Utils.RemoveDuplicates(result, comparer);
@@ -367,11 +367,13 @@ namespace Countdown.UnitTests
             b = tmp;
         }
 
-        private static void Permute<T>(T[] source, int recursionDepth, int maxDepth, List<List<T>> result)
+        private static void Permute<T>(T[] source, int recursionDepth, int maxDepth, List<T[]> result)
         {
             if (recursionDepth == maxDepth)
             {
-                result.Add(new List<T>(source));
+                T[] copy = new T[source.Length];
+                source.AsSpan().CopyTo(copy);
+                result.Add(copy);
                 return;
             }
 
@@ -395,7 +397,7 @@ namespace Countdown.UnitTests
     internal static class AltComb
     {
 
-        public static List<List<T>> Get<T>(IEnumerable<T> source, int k, IComparer<T> comparer = null) 
+        public static List<T[]> Get<T>(IEnumerable<T> source, int k, IComparer<T> comparer = null) 
         {
             if (source is null)
                 throw new ArgumentNullException(nameof(source));
@@ -409,10 +411,10 @@ namespace Countdown.UnitTests
             T[] input = source.ToArray();
             Array.Sort(input, comparer);
 
-            List<List<T>> result = GetCombinations(input, k);
+            List<T[]> result = GetCombinations(input, k);
 
             // convert to lexicographical and remove duplicates
-            result.Sort(new ListComparerClass<T>(comparer));
+            result.Sort(new ArrayComparerClass<T>(comparer));
 
             if (HasDuplicates(input))
                 Utils.RemoveDuplicates(result, comparer);
@@ -427,12 +429,12 @@ namespace Countdown.UnitTests
         }
 
 
-        private static List<List<T>> GetCombinations<T>(T[] source, int k)
+        private static List<T[]> GetCombinations<T>(T[] source, int k)
         {
-            List<List<T>> listOfLists = new List<List<T>>();
+            List<T[]> results = new List<T[]>();
 
             if (k == 0)
-                return listOfLists;
+                return results;
 
             int nonEmptyCombinations = (int)Math.Pow(2, source.Length) - 1;
 
@@ -447,10 +449,10 @@ namespace Countdown.UnitTests
                 }
 
                 if (thisCombination.Count == k)
-                    listOfLists.Add(thisCombination);
+                    results.Add(thisCombination.ToArray());
             }
 
-            return listOfLists;
+            return results;
         }
     }
 }

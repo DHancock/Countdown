@@ -20,7 +20,7 @@ namespace Countdown.Models
     ///        
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal sealed class Combinations<T> : IEnumerable<List<T>> 
+    internal sealed class Combinations<T> : IEnumerable<T[]> 
     {
         /// <summary>
         /// copy of the source 
@@ -104,7 +104,7 @@ namespace Countdown.Models
         /// Gets the generic enumerator for the combinations.
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<List<T>> GetEnumerator()
+        public IEnumerator<T[]> GetEnumerator()
         {
             return new CombinationEnumerator(this);
         }
@@ -116,7 +116,7 @@ namespace Countdown.Models
         /// The enumerator for the combinations. Each time MoveNext()
         /// is called a new combination generated on demand.
         /// </summary>
-        private struct CombinationEnumerator : IEnumerator<List<T>>
+        private struct CombinationEnumerator : IEnumerator<T[]>
         {
             /// <summary>
             /// the source collection
@@ -216,14 +216,17 @@ namespace Countdown.Models
             /// <summary>
             /// IEnumerator<T>.Current interface implementation. 
             /// </summary>
-            public List<T> Current
+            public T[] Current
             {
                 get
                 {
                     if (setUpFirstItem)
                         throw new InvalidOperationException("Enumerator state is invalid");
 
-                    return new List<T>(current);
+                    T[] copy = new T[k];
+                    current.AsSpan().CopyTo(copy);
+
+                    return copy;
                 }
             }
 

@@ -19,9 +19,9 @@ namespace Countdown.UnitTests
 
         public void TestPermutations<T>(IEnumerable<T> source, IComparer<T> comparer = null) 
         {
-            var list = new List<List<T>>(new Permutations<T>(source, comparer));
+            var list = new List<T[]>(new Permutations<T>(source, comparer));
 
-            List<List<T>> altList = AltPerm.Get(source, comparer);
+            List<T[]> altList = AltPerm.Get(source, comparer);
 
             Assert.AreEqual(Utils.PermutaionSize(source), list.Count);
             Assert.IsTrue(Utils.IsEqual(list, altList, comparer));
@@ -51,10 +51,10 @@ namespace Countdown.UnitTests
             int[] source = { 1, 3, 2, 4 };
             Permutations<int> p = new Permutations<int>(source);
 
-            IEnumerator<List<int>> e = p.GetEnumerator();
+            IEnumerator<int[]> e = p.GetEnumerator();
 
             // move next has not been called yet
-            List<int> current = e.Current;
+            _ = e.Current;
         }
 
 
@@ -66,7 +66,7 @@ namespace Countdown.UnitTests
             int[] source = { 1, 3, 2, 4 };
             Permutations<int> p = new Permutations<int>(source);
 
-            IEnumerator<List<int>> e = p.GetEnumerator();
+            IEnumerator<int[]> e = p.GetEnumerator();
 
             e.MoveNext();
             e.MoveNext();
@@ -74,7 +74,7 @@ namespace Countdown.UnitTests
             e.Reset();
 
             // move next has not been called yet
-            List<int> current = e.Current;
+            _ = e.Current;
         }
 
 
@@ -87,12 +87,12 @@ namespace Countdown.UnitTests
             int[] source = { 1, 3, 2, 4 };
             Permutations<int> p = new Permutations<int>(source);
 
-            IEnumerator<List<int>> e = p.GetEnumerator();
+            IEnumerator<int[]> e = p.GetEnumerator();
 
             while (e.MoveNext()) ;
 
             // end of the enumeration has been reached
-            List<int> current = e.Current;
+            _ = e.Current;
         }
 
        
@@ -152,10 +152,10 @@ namespace Countdown.UnitTests
             int[] source = { 1, 3, 2, 4 };
             Permutations<int> p = new Permutations<int>(source);
 
-            IEnumerator<List<int>> e = p.GetEnumerator();
+            IEnumerator<int[]> e = p.GetEnumerator();
 
             e.MoveNext();
-            List<int> c1 = e.Current;
+            int[] c1 = e.Current;
             e.MoveNext();
 
             e.Reset();
@@ -189,9 +189,9 @@ namespace Countdown.UnitTests
         public void Source_Single()
         {
             int[] source = { 367 };
-            var list = new List<List<int>>(new Permutations<int>(source));
+            var list = new List<int[]>(new Permutations<int>(source));
 
-            if ((list.Count != 1) || (list[0].Count != 1) || (list[0][0] != source[0]))
+            if ((list.Count != 1) || (list[0].Length != 1) || (list[0][0] != source[0]))
                 Assert.Fail();
         }
 
@@ -204,8 +204,8 @@ namespace Countdown.UnitTests
             int[] source = { 1, 3, 2 };
             Permutations<int> p1 = new Permutations<int>(source);
 
-            List<List<int>> p1list = new List<List<int>>(p1);
-            List<List<int>> p2list = new List<List<int>>(p1);
+            List<int[]> p1list = new(p1);
+            List<int[]> p2list = new(p1);
 
             Assert.IsTrue(Utils.IsEqual(p1list, p2list));
         }

@@ -8,7 +8,7 @@ namespace Countdown.Models
     /// <summary>
     /// Generates all permutations for a collection of objects. 
     /// </summary>
-    internal sealed class Permutations<T> : IEnumerable<List<T>> 
+    internal sealed class Permutations<T> : IEnumerable<T[]> 
     {
         /// <summary>
         /// store for the source 
@@ -58,7 +58,7 @@ namespace Countdown.Models
         /// Gets the generic enumerator for the permutations.
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<List<T>> GetEnumerator()
+        public IEnumerator<T[]> GetEnumerator()
         {
             return new PermutationEnumerator(this);
         }
@@ -70,7 +70,7 @@ namespace Countdown.Models
         /// The enumerator for the permutations. Each time MoveNext()
         /// is called a new permutation generated.
         /// </summary>
-        private struct PermutationEnumerator : IEnumerator<List<T>>
+        private struct PermutationEnumerator : IEnumerator<T[]>
         {
             /// <summary>
             /// the current permutation
@@ -136,14 +136,17 @@ namespace Countdown.Models
             /// <summary>
             /// IEnumerator<T>.Current interface implementation. 
             /// </summary>
-            public List<T> Current
+            public T[] Current
             {
                 get
                 {
                     if (setUpFirstItem)
                         throw new InvalidOperationException("Enumerator state is invalid");
 
-                    return new List<T>(current);
+                    T[] copy = new T[current.Length];
+                    current.AsSpan().CopyTo(copy);
+
+                    return copy;
                 }
             }
 

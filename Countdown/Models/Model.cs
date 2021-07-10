@@ -103,7 +103,7 @@ namespace Countdown.Models
             {
                 Combinations<int> combinations = new Combinations<int>(tiles, k);
 
-                foreach (List<int> combination in combinations)
+                foreach (int[] combination in combinations)
                 {
                     Permutations<int> permutations = new Permutations<int>(combination);
 
