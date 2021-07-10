@@ -18,7 +18,7 @@ namespace Countdown.ViewModels
         public const int max_consonants = 6;
 
         // which item in the letter option list is selected
-        private int letterOptionIndex = 0;
+        private int chooseLettersOption = 0;
 
         // property names for change events when generating data and error notifications
         private static readonly string[] propertyNames = { nameof(Letter_0),
@@ -72,7 +72,7 @@ namespace Countdown.ViewModels
             GoToDefinitionCommand = new RelayCommand(ExecuteGoToDefinition, CanGoToDefinition);
 
             // initialise letter menu selected item
-            LetterOptionIndex = Settings.Default.PickLetterOption;
+            ChooseLettersOption = Settings.Default.PickLetterOption;
         }
 
 
@@ -330,9 +330,6 @@ namespace Countdown.ViewModels
                     {
                         WordList[~firstItem].IsExpanded = true;
 
-                        if (WordList[index] == ScrollToItem)
-                            ScrollToItem = null; // force a property changed notification
-
                         // select and scroll into view
                         ScrollToItem = WordList[index];
                     }
@@ -345,28 +342,25 @@ namespace Countdown.ViewModels
 
         private async Task ExecuteSolveAsync(object _)
         {
-            // copy the model data now converting to lower case, 
+            // copy the model data now, converting to lower case 
             // it could be changed before the task is run
             char[] letters = new char[Model.cLetterCount];
 
             for (int index = 0; index < Model.cLetterCount; ++index)
                 letters[index] = (char)(Model.Letters[index][0] | 0x20); // to lower
 
-            List<WordItem> viewData = await Task.Run(() => Model.Solve(letters));
+            List<WordItem> results = await Task.Run(() => Model.Solve(letters));
 
-            if (viewData.Count > 0)
+            if (results.Count > 0)
             {
                 // sort, longer words first then alphabetically
-                viewData.Sort();
+                results.Sort();
                 // expand the first group
-                viewData[0].IsExpanded = true;
+                results[0].IsExpanded = true;
             }
 
             // update the ui
-            WordList = viewData;
-
-            // reset the search text and thus its dependencies
-            SearchText = SearchText;
+            WordList = results;
         }
 
 
@@ -375,44 +369,32 @@ namespace Countdown.ViewModels
             return !(HasErrors || isExecuting || Model.Letters.Any(c => string.IsNullOrEmpty(c)));
         }
 
-             
-
-        // which item in the letter option list is selected
-        public int LetterOptionIndex
+        // which item in the choose letter menu is selected
+        public int ChooseLettersOption
         {
-            get { return letterOptionIndex; }
+            get { return chooseLettersOption; }
             set
             {
-                if ((value < 0) && (value > LetterOptionsList.Count - 1))
-                    value = 0;
-
-                letterOptionIndex = value;
-                RaisePropertyChanged(nameof(LetterOptionIndex));
+                chooseLettersOption = value;
+                RaisePropertyChanged();
                 ChooseLettersCommand.Execute(null);
                 Settings.Default.PickLetterOption = value;
             }
         }
 
-        
-
         private void ExecuteChooseLetters(object _)
         {
-            if ((LetterOptionIndex >= 0) && (LetterOptionIndex < LetterOptionsList.Count))
+            for (int index = 0; index < Model.cLetterCount; index++)
             {
-                for (int index = 0; index < Model.cLetterCount; index++)
-                {
-                    if (index < (LetterOptionIndex + LetterOptionsList.Count))
-                        Model.Letters[index] = Model.GetVowel().ToString();
-                    else
-                        Model.Letters[index] = Model.GetConsonant().ToString();
+                if (index < (ChooseLettersOption + LetterOptionsList.Count))
+                    Model.Letters[index] = Model.GetVowel().ToString();
+                else
+                    Model.Letters[index] = Model.GetConsonant().ToString();
 
-                    RaisePropertyChanged(propertyNames[index]);
-                    ClearValidationError(propertyNames[index]);
-                }
+                RaisePropertyChanged(propertyNames[index]);
+                ClearValidationError(propertyNames[index]);
             }
         }
-
-
 
         private void ExecuteCopy(object _)
         {
@@ -426,7 +408,7 @@ namespace Countdown.ViewModels
                     {
                         if (sb.Length > 0)
                             sb.Append(Environment.NewLine);
-                        
+
                         sb.Append(e.ToString());
                     }
                 }
