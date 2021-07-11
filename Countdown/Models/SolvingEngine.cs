@@ -1,4 +1,5 @@
 ﻿using Countdown.ViewModels;
+using System;
 using System.Collections.Generic;
 
 
@@ -49,9 +50,9 @@ namespace Countdown.Models
 
         /// <summary>
         /// The postfix equation evaluation stacks. 
-        /// Each level of recursion has its own copy of the stack
+        /// Each level of recursion has its own stack
         /// </summary>
-        private readonly int[][] stacks;
+        private readonly StackManager stacks;
 
         /// <summary>
         /// Keeps a record of the operators used when evaluating the
@@ -92,10 +93,7 @@ namespace Countdown.Models
             // initialize the stacks. Each recursive call gets a copy
             // of the current stack so that when the recursion unwinds
             // the caller can simply proceed with the next operator
-            stacks = new int[k - 1][];
-
-            for (int index = 0; index < (k - 1); index++)
-                stacks[index] = new int[k];
+            stacks = new StackManager(k);
 
             // store for the operators used to build a string representation of the current equation
             operators = new int[k - 1];
@@ -132,7 +130,7 @@ namespace Countdown.Models
             const int cInvalidResult = 0;
 
             // identify which stack to use for this depth of recursion
-            int[] stack = stacks[depth];
+            Span<int> stack = stacks[depth];
 
             // read how many numbers that are required to be pushed on to the stack
             int pushCount = mapEntry[mapIndex++];
@@ -187,7 +185,7 @@ namespace Countdown.Models
                 {
                     if (mapIndex < mapEntry.Count)   // some left
                     {
-                        int[] nextStack = stacks[depth + 1];
+                        Span<int> nextStack = stacks[depth + 1];
 
                         if (copyToNextStack)
                         {
@@ -295,6 +293,20 @@ namespace Countdown.Models
         {
             foreach (List<int> mapEntry in map)
                 SolveRecursive(-1, mapEntry, 0, permutation, 0, 0);
+        }
+
+        private readonly struct StackManager    // caution: written for speed, not safety
+        {
+            private const int segmentLength = 6;
+
+            private readonly int[] store;
+
+            public StackManager(int k)
+            {
+                store = new int[segmentLength * k];
+            }
+
+            public Span<int> this[int i] => store.AsSpan().Slice(i * segmentLength, segmentLength);
         }
     }
 }
