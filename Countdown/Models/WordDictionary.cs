@@ -212,14 +212,6 @@ namespace Countdown.Models
             return chars;
         }
 
-
-        ~WordDictionary()
-        {
-            if (loadingEvent != null)
-                loadingEvent.Dispose();
-        }
-
-
         /// <summary>
         /// Hides the complexity of reading lines from the stream.
         /// Assumes that the maximum line length is going to be 

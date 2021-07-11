@@ -20,11 +20,6 @@ namespace Countdown.Models
         private readonly int target;
 
         /// <summary>
-        /// the map for this solver instance
-        /// </summary>
-        private readonly List<List<int>> map;
-
-        /// <summary>
         /// records the closest non matching equation difference
         /// </summary>
         private int absDifference = cNonMatchThreshold;
@@ -79,17 +74,10 @@ namespace Countdown.Models
 
 
 
-
-
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="tiles"></param>
-        /// <param name="target"></param>
-        /// <param name="k">the length of a permutation</param>
-        public SolvingEngine(int target, int k)
+        public SolvingEngine(int target)
         {
+            const int k = 6;
+
             // initialize the stacks. Each recursive call gets a copy
             // of the current stack so that when the recursion unwinds
             // the caller can simply proceed with the next operator
@@ -100,7 +88,6 @@ namespace Countdown.Models
 
             // record params
             this.target = target;
-            map = PostfixMap.Instance[k];
         }
 
 
@@ -144,10 +131,10 @@ namespace Countdown.Models
 
             if (pushCount > 0)
             {
-                derived = (pushCount < 2);
+                derived = pushCount < 2;
 
                 while (pushCount-- > 0)
-                    stack[++stackHead] = (permutation[permutationIndex++]); // push
+                    stack[++stackHead] = permutation[permutationIndex++]; // push
 
                 ++mapIndex; // for the first operator
             }
@@ -157,8 +144,6 @@ namespace Countdown.Models
 
             for (int op = cMultiply; op <= cDivide; op++)
             {
-                operators[depth] = op; // record the current operator
-
                 int result = cInvalidResult;
 
                 if (op == cMultiply)
@@ -183,6 +168,8 @@ namespace Countdown.Models
 
                 if (result > cInvalidResult)  // valid result
                 {
+                    operators[depth] = op;
+
                     if (mapIndex < mapEntry.Count)   // some left
                     {
                         Span<int> nextStack = stacks[depth + 1];
@@ -291,7 +278,7 @@ namespace Countdown.Models
         /// </summary>
         public void Solve(ReadOnlySpan<int> permutation)
         {
-            foreach (List<int> mapEntry in map)
+            foreach (List<int> mapEntry in PostfixMap.Instance[permutation.Length])
                 SolveRecursive(-1, mapEntry, 0, permutation, 0, 0);
         }
 

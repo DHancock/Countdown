@@ -109,7 +109,7 @@ namespace Countdown.Models
 
                     Parallel.ForEach(permutations,
                                     // the partitions local solver
-                                    () => new SolvingEngine(target, k),
+                                    () => new SolvingEngine(target),
                                     // the parallel action
                                     (permutation, loopState, solvingEngine) =>
                                     {
