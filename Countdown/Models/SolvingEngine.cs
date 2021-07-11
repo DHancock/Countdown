@@ -125,7 +125,7 @@ namespace Countdown.Models
         /// <param name="permutation">the current tile permutation</param>
         /// <param name="permutationIndex">position in the permutation</param>
         /// <param name="depth">recursion depth</param>
-        private void SolveRecursive(int stackHead, List<int> mapEntry, int mapIndex, int[] permutation, int permutationIndex, int depth)
+        private void SolveRecursive(int stackHead, List<int> mapEntry, int mapIndex, ReadOnlySpan<int> permutation, int permutationIndex, int depth)
         {
             const int cInvalidResult = 0;
 
@@ -250,7 +250,7 @@ namespace Countdown.Models
         /// <param name="mapEntry"></param>
         /// <param name="permutation"></param>
         /// <returns></returns>
-        private string ConvertToString(List<int> mapEntry, int[] permutation)
+        private string ConvertToString(List<int> mapEntry, ReadOnlySpan<int> permutation)
         {
             int mapIndex = 0;
             int operatorCount = 0;
@@ -289,7 +289,7 @@ namespace Countdown.Models
         /// <summary>
         /// starts the solving engine for the given permutation 
         /// </summary>
-        public void Solve(int[] permutation)
+        public void Solve(ReadOnlySpan<int> permutation)
         {
             foreach (List<int> mapEntry in map)
                 SolveRecursive(-1, mapEntry, 0, permutation, 0, 0);
