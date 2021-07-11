@@ -6,8 +6,6 @@ namespace Countdown.Models
 {
     internal sealed class SolverResults
     {
-        private const int cSolutionCapacity = 100;
-
         /// <summary>
         /// thread synchronization objects
         /// </summary>
@@ -17,7 +15,7 @@ namespace Countdown.Models
         /// <summary>
         /// the equation solutions
         /// </summary>
-        public List<EquationItem> Solutions { get; } = new List<EquationItem>(cSolutionCapacity);
+        public List<EquationItem> Solutions { get; } = new List<EquationItem>(500);
 
 
         /// <summary>
