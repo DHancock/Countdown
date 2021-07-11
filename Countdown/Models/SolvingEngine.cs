@@ -64,7 +64,7 @@ namespace Countdown.Models
         /// <summary>
         /// a list of matching equations
         /// </summary>
-        public List<EquationItem> Solutions { get; } = new List<EquationItem>();
+        public List<EquationItem> Solutions { get; } = new List<EquationItem>(250);
 
         /// <summary>
         /// If no solutions found this is the closest equation
