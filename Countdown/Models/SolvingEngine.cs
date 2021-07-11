@@ -137,6 +137,8 @@ namespace Countdown.Models
             // read how many numbers that are required to be pushed on to the stack
             int pushCount = mapEntry[mapIndex++];
 
+            bool copyToNextStack = true;   // avoid multiple copies
+
             // if at least two tiles are pushed onto the stack, the operator will act on
             // tiles directly rather than a derived value. This allows simple duplicate 
             // equations to be filtered out e.g. 4+6 == 6+4 
@@ -185,14 +187,19 @@ namespace Countdown.Models
                 {
                     if (mapIndex < mapEntry.Count)   // some left
                     {
-                        // copy the current stack for the next depth of recursion
-                        int[] localStack = stacks[depth + 1];
+                        int[] nextStack = stacks[depth + 1];
 
-                        for (int index = 0; index < stackHead; index++)
-                            localStack[index] = stack[index];
+                        if (copyToNextStack)
+                        {
+                            // copy the current stack for the next depth of recursion
+                            copyToNextStack = false;
+
+                            for (int index = 0; index < stackHead; index++)
+                                nextStack[index] = stack[index];
+                        }
 
                         // record the current result
-                        localStack[stackHead] = result; // poke
+                        nextStack[stackHead] = result; // poke
 
                         // evaluate the next sequence
                         SolveRecursive(stackHead, mapEntry, mapIndex, permutation, permutationIndex, depth + 1);
