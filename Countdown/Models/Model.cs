@@ -121,6 +121,8 @@ namespace Countdown.Models
                 }
             }
 
+            results.AggregateResults();
+
             stopWatch.Stop();
             results.Elapsed = stopWatch.Elapsed;
 

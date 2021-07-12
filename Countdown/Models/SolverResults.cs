@@ -12,10 +12,12 @@ namespace Countdown.Models
         private readonly object addLock = new object();
         private readonly object updateLock = new object();
 
-        /// <summary>
-        /// the equation solutions
-        /// </summary>
-        public List<EquationItem> Solutions { get; } = new List<EquationItem>(500);
+
+        // collects a reference of each solver's solution list
+        private List<List<EquationItem>> SolverLists { get; } = new List<List<EquationItem>>(100);
+
+        // used to aggregate all the solver list contents into a single list
+        public List<EquationItem> Solutions { get; private set; }
 
 
         /// <summary>
@@ -52,12 +54,12 @@ namespace Countdown.Models
             {
                 lock (addLock)
                 {
-                    Solutions.AddRange(solvingEngine.Solutions);
+                    SolverLists.Add(solvingEngine.Solutions);
                 }
             }
-            else if ((Solutions.Count == 0) && solvingEngine.HasClosestMatch) // no existing or new matches
+            else if ((SolverLists.Count == 0) && solvingEngine.HasClosestMatch) // no existing or new matches
             {
-                // there is a race hazard reading Solutions.Count but the down side is trivial,
+                // there is a race hazard reading SolverLists.Count but the down side is trivial,
                 // even the c# concurrent collections don't guarantee counts
                 lock (updateLock)
                 {
@@ -68,6 +70,19 @@ namespace Countdown.Models
                     }
                 }
             }
+        }
+
+        public void AggregateResults()
+        {
+            int size = 0;
+
+            foreach (List<EquationItem> solverResults in SolverLists)
+                size += solverResults.Count;
+
+            Solutions = new(size);
+
+            foreach (List<EquationItem> solverResults in SolverLists)
+                Solutions.AddRange(solverResults);
         }
     }
 }
