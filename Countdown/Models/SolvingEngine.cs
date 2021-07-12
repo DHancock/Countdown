@@ -112,7 +112,7 @@ namespace Countdown.Models
         /// <param name="permutation">the current tile permutation</param>
         /// <param name="permutationIndex">position in the permutation</param>
         /// <param name="depth">recursion depth</param>
-        private void SolveRecursive(int stackHead, List<int> mapEntry, int mapIndex, ReadOnlySpan<int> permutation, int permutationIndex, int depth)
+        private void SolveRecursive(int stackHead, ReadOnlySpan<int> mapEntry, int mapIndex, ReadOnlySpan<int> permutation, int permutationIndex, int depth)
         {
             const int cInvalidResult = 0;
 
@@ -170,7 +170,7 @@ namespace Countdown.Models
                 {
                     operators[depth] = op;
 
-                    if (mapIndex < mapEntry.Count)   // some left
+                    if (mapIndex < mapEntry.Length)   // some left
                     {
                         Span<int> nextStack = stacks[depth + 1];
 
@@ -237,7 +237,7 @@ namespace Countdown.Models
         /// <param name="mapEntry"></param>
         /// <param name="permutation"></param>
         /// <returns></returns>
-        private string ConvertToString(List<int> mapEntry, ReadOnlySpan<int> permutation)
+        private string ConvertToString(ReadOnlySpan<int> mapEntry, ReadOnlySpan<int> permutation)
         {
             int mapIndex = 0;
             int operatorCount = 0;
@@ -261,13 +261,13 @@ namespace Countdown.Models
                     string left = stack[stackHead];    // peek
                     string operand = opStr[operators[operatorCount++]];
 
-                    if (mapIndex < mapEntry.Count)
+                    if (mapIndex < mapEntry.Length)
                         stack[stackHead] = "(" + left + operand + right + ")"; // poke
                     else
                         stack[stackHead] = left + operand + right;
                 }
             }
-            while (mapIndex < mapEntry.Count);
+            while (mapIndex < mapEntry.Length);
 
             return stack[stackHead];
         }
@@ -278,7 +278,7 @@ namespace Countdown.Models
         /// </summary>
         public void Solve(ReadOnlySpan<int> permutation)
         {
-            foreach (List<int> mapEntry in PostfixMap.Instance[permutation.Length])
+            foreach (int[] mapEntry in PostfixMap.Instance[permutation.Length])
                 SolveRecursive(-1, mapEntry, 0, permutation, 0, 0);
         }
 
