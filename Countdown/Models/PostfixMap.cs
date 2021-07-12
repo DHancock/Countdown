@@ -1,6 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using System.Threading;
+using System.Windows;
 
 namespace Countdown.Models
 {
@@ -42,21 +44,166 @@ namespace Countdown.Models
         /// </summary>
         public static readonly PostfixMap Instance = new PostfixMap(); 
 
-        private readonly List<List<List<int>>> postfixMap ;
+        private readonly List<List<int[]>> map ;
 
 
         private PostfixMap()
         {
-            postfixMap = new List<List<List<int>>>(5)
-            {
-                new List<List<int>>(1),     // 2 tiles have 1 equation pattern (12o)
-                new List<List<int>>(2),     // 3 tiles have 2 equation patterns (123oo, 12o3o)
-                new List<List<int>>(5),     // 4 tiles have 5 
-                new List<List<int>>(14),    // 5 tiles have 14 
-                new List<List<int>>(42)     // 6 tiles have 42   
-            };
+            map = new(5);
 
-            BuildMap();
+            map.Add(new(1));    // capacity for 2 tiles
+            map.Add(new(2));    // capacity for 3 tiles
+            map.Add(new(5));    // capacity for 4 tiles
+            map.Add(new(14));   // capacity for 5 tiles
+            map.Add(new(42));   // capacity for 6 tiles
+
+            // map entries for 2 tiles
+            map[0].Add(new[] { 2, 0 });
+
+            // map entries for 3 tiles
+            map[1].Add(new[] { 3, 0, 0 });
+            map[1].Add(new[] { 2, 0, 1, 0 });
+
+            // map entries for 4 tiles
+            map[2].Add(new[] { 4, 0, 0, 0 });
+            map[2].Add(new[] { 3, 0, 1, 0, 0 });
+            map[2].Add(new[] { 3, 0, 0, 1, 0 });
+            map[2].Add(new[] { 2, 0, 2, 0, 0 });
+            map[2].Add(new[] { 2, 0, 1, 0, 1, 0 });
+
+            // map entries for 5 tiles
+            map[3].Add(new[] { 5, 0, 0, 0, 0 });
+            map[3].Add(new[] { 4, 0, 1, 0, 0, 0 });
+            map[3].Add(new[] { 4, 0, 0, 1, 0, 0 });
+            map[3].Add(new[] { 4, 0, 0, 0, 1, 0 });
+            map[3].Add(new[] { 3, 0, 2, 0, 0, 0 });
+            map[3].Add(new[] { 3, 0, 1, 0, 1, 0, 0 });
+            map[3].Add(new[] { 3, 0, 1, 0, 0, 1, 0 });
+            map[3].Add(new[] { 3, 0, 0, 2, 0, 0 });
+            map[3].Add(new[] { 3, 0, 0, 1, 0, 1, 0 });
+            map[3].Add(new[] { 2, 0, 3, 0, 0, 0 });
+            map[3].Add(new[] { 2, 0, 2, 0, 1, 0, 0 });
+            map[3].Add(new[] { 2, 0, 2, 0, 0, 1, 0 });
+            map[3].Add(new[] { 2, 0, 1, 0, 2, 0, 0 });
+            map[3].Add(new[] { 2, 0, 1, 0, 1, 0, 1, 0 });
+
+            // map entries for 6 tiles
+            map[4].Add(new[] { 6, 0, 0, 0, 0, 0 });
+            map[4].Add(new[] { 5, 0, 1, 0, 0, 0, 0 });
+            map[4].Add(new[] { 5, 0, 0, 1, 0, 0, 0 });
+            map[4].Add(new[] { 5, 0, 0, 0, 1, 0, 0 });
+            map[4].Add(new[] { 5, 0, 0, 0, 0, 1, 0 });
+            map[4].Add(new[] { 4, 0, 2, 0, 0, 0, 0 });
+            map[4].Add(new[] { 4, 0, 1, 0, 1, 0, 0, 0 });
+            map[4].Add(new[] { 4, 0, 1, 0, 0, 1, 0, 0 });
+            map[4].Add(new[] { 4, 0, 1, 0, 0, 0, 1, 0 });
+            map[4].Add(new[] { 4, 0, 0, 2, 0, 0, 0 });
+            map[4].Add(new[] { 4, 0, 0, 1, 0, 1, 0, 0 });
+            map[4].Add(new[] { 4, 0, 0, 1, 0, 0, 1, 0 });
+            map[4].Add(new[] { 4, 0, 0, 0, 2, 0, 0 });
+            map[4].Add(new[] { 4, 0, 0, 0, 1, 0, 1, 0 });
+            map[4].Add(new[] { 3, 0, 3, 0, 0, 0, 0 });
+            map[4].Add(new[] { 3, 0, 2, 0, 1, 0, 0, 0 });
+            map[4].Add(new[] { 3, 0, 2, 0, 0, 1, 0, 0 });
+            map[4].Add(new[] { 3, 0, 2, 0, 0, 0, 1, 0 });
+            map[4].Add(new[] { 3, 0, 1, 0, 2, 0, 0, 0 });
+            map[4].Add(new[] { 3, 0, 1, 0, 1, 0, 1, 0, 0 });
+            map[4].Add(new[] { 3, 0, 1, 0, 1, 0, 0, 1, 0 });
+            map[4].Add(new[] { 3, 0, 1, 0, 0, 2, 0, 0 });
+            map[4].Add(new[] { 3, 0, 1, 0, 0, 1, 0, 1, 0 });
+            map[4].Add(new[] { 3, 0, 0, 3, 0, 0, 0 });
+            map[4].Add(new[] { 3, 0, 0, 2, 0, 1, 0, 0 });
+            map[4].Add(new[] { 3, 0, 0, 2, 0, 0, 1, 0 });
+            map[4].Add(new[] { 3, 0, 0, 1, 0, 2, 0, 0 });
+            map[4].Add(new[] { 3, 0, 0, 1, 0, 1, 0, 1, 0 });
+            map[4].Add(new[] { 2, 0, 4, 0, 0, 0, 0 });
+            map[4].Add(new[] { 2, 0, 3, 0, 1, 0, 0, 0 });
+            map[4].Add(new[] { 2, 0, 3, 0, 0, 1, 0, 0 });
+            map[4].Add(new[] { 2, 0, 3, 0, 0, 0, 1, 0 });
+            map[4].Add(new[] { 2, 0, 2, 0, 2, 0, 0, 0 });
+            map[4].Add(new[] { 2, 0, 2, 0, 1, 0, 1, 0, 0 });
+            map[4].Add(new[] { 2, 0, 2, 0, 1, 0, 0, 1, 0 });
+            map[4].Add(new[] { 2, 0, 2, 0, 0, 2, 0, 0 });
+            map[4].Add(new[] { 2, 0, 2, 0, 0, 1, 0, 1, 0 });
+            map[4].Add(new[] { 2, 0, 1, 0, 3, 0, 0, 0 });
+            map[4].Add(new[] { 2, 0, 1, 0, 2, 0, 1, 0, 0 });
+            map[4].Add(new[] { 2, 0, 1, 0, 2, 0, 0, 1, 0 });
+            map[4].Add(new[] { 2, 0, 1, 0, 1, 0, 2, 0, 0 });
+            map[4].Add(new[] { 2, 0, 1, 0, 1, 0, 1, 0, 1, 0 });
+
+#if false
+            GenerateMap();
+#endif
+        }
+
+
+        private static void GenerateMap()
+        {
+            SetClipBoardText(ConvertToText(CreateMap()));
+            Debugger.Break();
+        }
+
+
+
+        private static void SetClipBoardText(string text)
+        {
+            text ??= string.Empty;
+
+            if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+                Clipboard.SetText(text);
+            else
+            {
+                Thread t = new(() => Clipboard.SetText(text));
+
+                if (t.TrySetApartmentState(ApartmentState.STA))
+                {
+                    t.Start();
+                    t.Join();
+                }
+            }
+        }
+
+        private static string ConvertToText(List<List<List<int>>> localMap)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine($"map = new({localMap.Count});");
+            sb.AppendLine();
+
+            for (int tileIndex = 0; tileIndex < localMap.Count; tileIndex++)
+            {
+                sb.AppendLine($"map.Add(new ({localMap[tileIndex].Count}));\t// capacity for {tileIndex + 2} tiles");
+            }
+
+            sb.AppendLine();
+
+            for (int tileIndex = 0; tileIndex < localMap.Count; tileIndex++)
+            {
+                List<List<int>> tileEntries = localMap[tileIndex];
+
+                sb.AppendLine($"// map entries for {tileIndex + 2} tiles");
+                
+                for (int entryIndex = 0; entryIndex < tileEntries.Count; entryIndex++)
+                {
+                    List<int> entry = tileEntries[entryIndex];
+
+                    sb.Append($"map[{tileIndex}].Add(new[] {{ ");
+
+                    for (int valueIndex = 0; valueIndex < entry.Count; valueIndex++)
+                    {
+                        sb.Append(entry[valueIndex]);
+
+                        if (valueIndex < (entry.Count - 1))
+                            sb.Append(", ");
+                    }
+
+                    sb.AppendLine($" }});");
+                }
+
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
         }
 
 
@@ -73,21 +220,28 @@ namespace Countdown.Models
         ///           op1        op3
         ///    
         /// </summary>
-        /// <param name="tileCount"></param>
-        /// <param name="map"></param> 
-        private void BuildMap()
+        private static List<List<List<int>>> CreateMap()
         {
+            List<List<List<int>>> localMap = new (5)
+            {
+                new List<List<int>>(1),     // 2 tiles have 1 equation pattern (12o)
+                new List<List<int>>(2),     // 3 tiles have 2 equation patterns (123oo, 12o3o)
+                new List<List<int>>(5),     // 4 tiles have 5 
+                new List<List<int>>(14),    // 5 tiles have 14 
+                new List<List<int>>(42)     // 6 tiles have 42   
+            };
+
             // op0 can be between 0..1
             for (int op0 = 0; op0 < 2; op0++)
             {
                 if (op0 == 1)
-                    AddMapRow(postfixMap[0], op0); // for 2 tiles
+                    AddMapRow(localMap[0], op0); // for 2 tiles
 
                 // op1 can be between 0..2
                 for (int op1 = 0; op1 < 3; op1++)
                 {
                     if (op0 + op1 == 2)
-                        AddMapRow(postfixMap[1], op0, op1); // for 3 tiles
+                        AddMapRow(localMap[1], op0, op1); // for 3 tiles
 
                     int op0and1 = op0 + op1;
 
@@ -95,7 +249,7 @@ namespace Countdown.Models
                     for (int op2 = 0; (op2 < 4) && ((op0and1 + op2) < 6); op2++)
                     {
                         if (op0and1 + op2 == 3) 
-                            AddMapRow(postfixMap[2], op0, op1, op2); // for 4 tiles
+                            AddMapRow(localMap[2], op0, op1, op2); // for 4 tiles
 
                         int op01and2 = op0 + op1 + op2;
 
@@ -103,7 +257,7 @@ namespace Countdown.Models
                         for (int op3 = 0; (op3 < 5) && ((op01and2 + op3) < 6); op3++) 
                         {
                             if (op01and2 + op3 == 4) 
-                                AddMapRow(postfixMap[3], op0, op1, op2, op3); // for 5 tiles
+                                AddMapRow(localMap[3], op0, op1, op2, op3); // for 5 tiles
 
                             // op4 can be between 1..5 operators and the total operator count in the 
                             // equation must be 5 or less. If the total operators so far 
@@ -112,12 +266,14 @@ namespace Countdown.Models
                             if (op01and2 + op3 < 5)  
                             {
                                 int op4 = 5 - (op01and2 + op3);
-                                AddMapRow(postfixMap[4], op0, op1, op2, op3, op4); // for 6 tiles
+                                AddMapRow(localMap[4], op0, op1, op2, op3, op4); // for 6 tiles
                             }
                         }
                     }
                 }
             }
+
+            return localMap;
         }
 
 
@@ -164,23 +320,11 @@ namespace Countdown.Models
             map.Add(row);
         }
 
-
-
         /// <summary>
-        /// Indexer access.
         /// index is the number of tiles in the equation that this map entry is used for
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public List<List<int>> this[int tileCount]
-        {
-            get
-            {
-                if ((tileCount < 2) || (tileCount >= postfixMap.Count + 2))
-                    throw new ArgumentOutOfRangeException(nameof(tileCount));
-
-                return postfixMap[tileCount - 2];
-            }
-        }
+        public List<int[]> this[int tileCount] => map[tileCount - 2];
     }
 }
