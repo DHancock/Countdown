@@ -293,7 +293,7 @@ namespace Countdown.Models
                 store = new int[segmentLength * k];
             }
 
-            public Span<int> this[int i] => store.AsSpan().Slice(i * segmentLength, segmentLength);
+            public Span<int> this[int i] => store.AsSpan(i * segmentLength, segmentLength);
         }
     }
 }
