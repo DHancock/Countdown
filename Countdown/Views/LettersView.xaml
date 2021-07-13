@@ -9,7 +9,7 @@
             DataContext="{Binding LettersViewModel}">
     <UserControl.Resources>
 
-        <SolidColorBrush x:Key="Button.Background" Color="#FF6AFF6A"/>
+        <SolidColorBrush x:Key="Button.Background" Color="#FF9AFF9A"/>
         <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FF2AFF2A"/>
         <SolidColorBrush x:Key="Button.Pressed.Background" Color="#FF0AEE0A"/>
 
