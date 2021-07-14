@@ -19,12 +19,13 @@ namespace Countdown.Models
         // used to aggregate all the solver list contents into a single list
         public List<EquationItem> Solutions { get; private set; }
 
+        // If no solutions found this is the closest equation
+        public string ClosestEquation { get; private set; }
 
-        /// <summary>
-        /// If no solutions found this is the closest equation
-        /// </summary>
-        public string ClosestMatch { get; private set; } = string.Empty;
+        // If no solutions found this is the closest result
+        public int ClosestResult { get; private set; }
 
+        public bool HasClosestResult => ClosestResult > 0;
 
         /// <summary>
         /// If no solutions found this is how far from the target 
@@ -57,16 +58,17 @@ namespace Countdown.Models
                     SolverLists.Add(solvingEngine.Solutions);
                 }
             }
-            else if ((SolverLists.Count == 0) && solvingEngine.HasClosestMatch) // no existing or new matches
+            else if ((SolverLists.Count == 0) && solvingEngine.HasClosestResult) // no existing or new matches
             {
                 // there is a race hazard reading SolverLists.Count but the down side is trivial,
                 // even the c# concurrent collections don't guarantee counts
                 lock (updateLock)
                 {
-                    if (Math.Abs(solvingEngine.Difference) < Math.Abs(Difference)) // record the closest
+                    if (solvingEngine.Difference < Difference) // record the closest
                     {
                         Difference = solvingEngine.Difference;
-                        ClosestMatch = solvingEngine.ClosestMatch;
+                        ClosestResult = solvingEngine.ClosestResult;
+                        ClosestEquation = solvingEngine.ClosestEquation;
                     }
                 }
             }
