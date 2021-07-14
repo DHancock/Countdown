@@ -291,18 +291,16 @@ namespace Countdown.ViewModels
 
             SolverResults results = await Task.Run(() => Model.Solve(tiles, target));
 
-            // process the results list
             if (results.Solutions.Count == 0)
             {
-                if (results.ClosestMatch.Length > 0)
+                results.Solutions.Add(new EquationItem("There are no solutions."));
+
+                if (results.HasClosestResult)
                 {
-                    results.Solutions.Add(new EquationItem("There are no solutions."));
-                    results.Solutions.Add(new EquationItem($"The closest match is {Math.Abs(results.Difference)} away."));
+                    results.Solutions.Add(new EquationItem($"The closest match is {results.Difference} away."));
                     results.Solutions.Add(new EquationItem());
-                    results.Solutions.Add(new EquationItem($"{results.ClosestMatch} = {target - results.Difference}"));
+                    results.Solutions.Add(new EquationItem($"{results.ClosestEquation} = {results.ClosestResult}"));
                 }
-                else
-                    results.Solutions.Add(new EquationItem("No solutions are 10 or less from the target"));
             }
             else
             {

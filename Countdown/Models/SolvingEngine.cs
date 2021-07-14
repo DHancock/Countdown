@@ -20,17 +20,6 @@ namespace Countdown.Models
         private readonly int target;
 
         /// <summary>
-        /// records the closest non matching equation difference
-        /// </summary>
-        private int absDifference = cNonMatchThreshold;
-
-        /// <summary>
-        /// if there is a non matching result less than or 10 from the target result 
-        /// </summary>
-        public bool HasClosestMatch { get; private set; } = false;
-
-
-        /// <summary>
         /// Operator identifiers
         /// </summary>
         private const int cMultiply = 0;
@@ -61,17 +50,17 @@ namespace Countdown.Models
         /// </summary>
         public List<EquationItem> Solutions { get; } = new List<EquationItem>(250);
 
-        /// <summary>
-        /// If no solutions found this is the closest equation
-        /// </summary>
-        public string ClosestMatch { get; private set; } = string.Empty;
+        // If no solutions found this is the closest equation
+        public string ClosestEquation { get; private set; }
 
-        /// <summary>
-        /// If no solutions found this is how far from the target 
-        /// that the closest non match equation is, could be negative
-        /// </summary>
-        public int Difference { get; private set; } = 0;
+        // If no solutions found this is the closest result
+        public int ClosestResult { get; private set; }
 
+        public bool HasClosestResult => ClosestResult > 0;
+
+        // If no solutions found, this is how far from the target 
+        // that the closest result is. It's an absolute value, always > 0.
+        public int Difference { get; private set; } = cNonMatchThreshold;
 
 
         public SolvingEngine(int target)
@@ -199,19 +188,13 @@ namespace Countdown.Models
 
                         if (Solutions.Count == 0) // no solutions so record if its the closest result
                         {
-                            int difference;
+                            int difference = Math.Abs(target - result);
 
-                            if (result < target)
-                                difference = target - result;
-                            else
-                                difference = result - target;
-
-                            if (difference < absDifference)
+                            if (difference < Difference)
                             {
-                                absDifference = difference;
-                                HasClosestMatch = true;
-                                Difference = target - result;
-                                ClosestMatch = ConvertToString(mapEntry, permutation);
+                                Difference = difference;
+                                ClosestResult = result;
+                                ClosestEquation = ConvertToString(mapEntry, permutation);
                             }
                         }
 
