@@ -28,15 +28,13 @@ namespace Countdown.Models
         private const int cDivide = 3;
 
         /// <summary>
-        /// String equivalents of the operators
-        /// </summary>
-        private readonly string[] opStr = { " × ", " + ", " - ", " ÷ " };
-
-        /// <summary>
         /// The postfix equation evaluation stacks. 
         /// Each level of recursion has its own stack
         /// </summary>
-        private readonly StackManager stacks;
+        private readonly StackManager<int> stacks;
+
+        // used to convert postfix equations into infix strings
+        private readonly StackManager<char> charStack;
 
         /// <summary>
         /// Keeps a record of the operators used when evaluating the
@@ -45,10 +43,8 @@ namespace Countdown.Models
         /// </summary>
         private readonly int[] operators;
 
-        /// <summary>
-        /// a list of matching equations
-        /// </summary>
-        public List<EquationItem> Solutions { get; } = new List<EquationItem>(250);
+        /// a list of results equaling the target
+        public List<EquationItem> Solutions { get; }
 
         // If no solutions found this is the closest equation
         public string ClosestEquation { get; private set; }
@@ -65,15 +61,22 @@ namespace Countdown.Models
 
         public SolvingEngine(int target)
         {
-            const int k = 6;
+            const int k = 6;   // the "n choose k" maximum permutation length
 
             // initialize the stacks. Each recursive call gets a copy
             // of the current stack so that when the recursion unwinds
             // the caller can simply proceed with the next operator
-            stacks = new StackManager(k);
+            stacks = new StackManager<int>(k, k);
 
             // store for the operators used to build a string representation of the current equation
             operators = new int[k - 1];
+
+            // minimum size is 41 chars:
+            // [offset] + [size] + [space for 4 parentheses] + "100 + ((((75 + 50) + 25) + 10) + 1)" 
+            charStack = new StackManager<char>(44, k);
+
+            // ensure capacity
+            Solutions = new List<EquationItem>(250);
 
             // record params
             this.target = target;
@@ -211,50 +214,122 @@ namespace Countdown.Models
         }
 
 
-
         /// <summary>
         /// Convert the current postfix equation to an infix formatted string
         /// This works in the same way as evaluating the postfix equation
         /// but instead of calculating simply concatenates strings.
         /// </summary>
         /// <param name="mapEntry"></param>
-        /// <param name="permutation"></param>
+        /// <param name="tiles">the current permutation</param>
         /// <returns></returns>
-        private string ConvertToString(ReadOnlySpan<int> mapEntry, ReadOnlySpan<int> permutation)
+        private string ConvertToString(ReadOnlySpan<int> mapEntry, ReadOnlySpan<int> tiles)
         {
-            int mapIndex = 0;
-            int operatorCount = 0;
-            int permutationCount = 0;
+            const int cOffsetIndex = 0;      // holds the offset to the start of the data
+            const int cSizeIndex = 1;        // holds the size of the data
 
-            string[] stack = new string[permutation.Length];
-            int stackHead = -1;
-
-            do
+            static void WriteTileValue(int value, Span<char> line)
             {
-                int digitCount = mapEntry[mapIndex++];
+                const int cOffsetValue = 6; // allow space for prepending 4 opening parentheses
 
-                if (digitCount > 0) // push digits, mapEntry[0] will always push at least two digits
+                line[cOffsetIndex] = (char)cOffsetValue;
+
+                if (value < 10)
                 {
-                    while (digitCount-- > 0)
-                        stack[++stackHead] = (permutation[permutationCount++]).ToString();
+                    line[cSizeIndex] = (char)1;
+                    line[cOffsetValue] = (char)('0' + value);
                 }
-                else // execute operator
+                else if (value < 100)
                 {
-                    string right = stack[stackHead--]; // pop
-                    string left = stack[stackHead];    // peek
-                    string operand = opStr[operators[operatorCount++]];
-
-                    if (mapIndex < mapEntry.Length)
-                        stack[stackHead] = "(" + left + operand + right + ")"; // poke
-                    else
-                        stack[stackHead] = left + operand + right;
+                    line[cSizeIndex] = (char)2;
+                    line[cOffsetValue] = (char)('0' + value / 10);
+                    line[cOffsetValue + 1] = (char)('0' + value % 10);
+                }
+                else
+                {
+                    line[cSizeIndex] = (char)3;
+                    line[cOffsetValue] = '1';
+                    line[cOffsetValue + 1] = '0';
+                    line[cOffsetValue + 2] = '0';
                 }
             }
-            while (mapIndex < mapEntry.Length);
 
-            return stack[stackHead];
+            static char Operator(int op)
+            {
+                switch (op)
+                {
+                    case cMultiply: return '×';
+                    case cAdd: return '+';
+                    case cSubtract: return '-';
+                    default: return '÷';
+                }
+            }
+
+            // left is also the destination
+            void ConcatWithParentheses(Span<char> left, int op, ReadOnlySpan<char> right)
+            {
+                // prepend opening parentheses
+                --left[cOffsetIndex];
+                left[left[cOffsetIndex]] = '(';
+                ++left[cSizeIndex];
+
+                Concat(left, op, right);
+
+                // append closing parentheses
+                left[left[cOffsetIndex] + left[cSizeIndex]] = ')';
+                ++left[cSizeIndex];
+            }
+
+            // left is also the destination
+            void Concat(Span<char> left, int op, ReadOnlySpan<char> right)
+            {
+                int writeIndex = left[cOffsetIndex] + left[cSizeIndex];
+
+                // append operator
+                left[writeIndex++] = ' ';
+                left[writeIndex++] = Operator(op);
+                left[writeIndex++] = ' ';
+
+                // copy right into left
+                right.Slice(right[cOffsetIndex], right[cSizeIndex]).CopyTo(left.Slice(writeIndex));
+
+                // update size
+                left[cSizeIndex] += (char)(right[cSizeIndex] + 3);
+            }
+
+
+            int mapIndex = 0;
+            int operatorIndex = 0;
+            int tileIndex = 0;
+            int stackHead = -1;
+
+            while (true)
+            {
+                int tileCount = mapEntry[mapIndex++];
+
+                if (tileCount > 0) // push tiles, mapEntry[0] will always push at least two tiles
+                {
+                    while (tileCount-- > 0)
+                    {
+                        WriteTileValue(tiles[tileIndex++], charStack[++stackHead]);
+                    }
+
+                    ++mapIndex; // always followed by at least one operator
+                }
+
+                // execute operator
+                Span<char> right = charStack[stackHead--]; // pop
+                Span<char> left = charStack[stackHead];    // peek
+                int operand = operators[operatorIndex++];
+
+                if (mapIndex < mapEntry.Length)
+                    ConcatWithParentheses(left, operand, right); // left is also the destination
+                else
+                {
+                    Concat(left, operand, right);
+                    return left.Slice(left[cOffsetIndex], left[cSizeIndex]).ToString();
+                }
+            }
         }
-
 
         /// <summary>
         /// starts the solving engine for the given permutation 
@@ -265,18 +340,18 @@ namespace Countdown.Models
                 SolveRecursive(-1, mapEntry, 0, permutation, 0, 0);
         }
 
-        private readonly struct StackManager    // caution: written for speed, not safety
+        private readonly struct StackManager<T> where T : struct   // caution: written for speed, not safety
         {
-            private const int segmentLength = 6;
+            private readonly int segmentLength;
+            private readonly T[] store;
 
-            private readonly int[] store;
-
-            public StackManager(int k)
+            public StackManager(int stackSize, int stackCount)
             {
-                store = new int[segmentLength * k];
+                segmentLength = stackSize;
+                store = new T[stackSize * stackCount];
             }
 
-            public Span<int> this[int i] => store.AsSpan(i * segmentLength, segmentLength);
+            public Span<T> this[int i] => store.AsSpan().Slice(i * segmentLength, segmentLength);
         }
     }
 }
