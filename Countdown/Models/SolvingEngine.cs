@@ -61,19 +61,19 @@ namespace Countdown.Models
 
         public SolvingEngine(int target)
         {
-            const int k = 6;   // the "n choose k" maximum permutation length
+            const int n = 6;   // the "n choose k" maximum permutation length
 
             // initialize the stacks. Each recursive call gets a copy
             // of the current stack so that when the recursion unwinds
             // the caller can simply proceed with the next operator
-            stacks = new StackManager<int>(k, k);
+            stacks = new StackManager<int>(n, n);
 
             // store for the operators used to build a string representation of the current equation
-            operators = new int[k - 1];
+            operators = new int[n - 1];
 
             // minimum size is 41 chars:
             // [offset] + [size] + [space for 4 parentheses] + "100 + ((((75 + 50) + 25) + 10) + 1)" 
-            charStack = new StackManager<char>(44, k);
+            charStack = new StackManager<char>(44, n);
 
             // ensure capacity
             Solutions = new List<EquationItem>(250);
