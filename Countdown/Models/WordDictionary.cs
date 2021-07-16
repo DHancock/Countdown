@@ -267,14 +267,14 @@ namespace Countdown.Models
                         dataSize += bytesRead;
                     }
 
-                    position = 0;
+                    position = sizeLeft;
+
                     length = SeekNextLine();
 
-                    if (length > 0)  // its not the end of the stream, it shouldn't be
-                    {
-                        position += length + 1;
-                        return span.Slice(0, length);
-                    }
+                    Debug.Assert(length >= 0); // its not the end of the stream, it shouldn't be
+
+                    position += length + 1;
+                    return span.Slice(0, sizeLeft + length);
                 }
 
                 return Span<byte>.Empty;
