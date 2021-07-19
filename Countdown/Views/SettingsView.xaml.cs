@@ -138,7 +138,6 @@ namespace Countdown.Views
 
 
 
-        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification = "bogus, its defined in xaml")]
         private void FrequencyTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             if (sender is CountdownTextBox ctb)
@@ -151,7 +150,6 @@ namespace Countdown.Views
             }
         }
 
-        [SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Justification="bogus, its defined in xaml")]
         private void FrequencyTextBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             if (sender is CountdownTextBox ctb)
