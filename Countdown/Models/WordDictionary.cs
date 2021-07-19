@@ -151,7 +151,10 @@ namespace Countdown.Models
             {
                 using DeflateStream stream = new DeflateStream(resourceStream, CompressionMode.Decompress);
 
-                foreach (ReadOnlySpan<byte> line in new DeflateStreamReader(stream))
+                StreamManager sm = new StreamManager(stream);
+                ReadOnlySpan<byte> line;
+
+                while ((line = sm.ReadLine()) != Span<byte>.Empty)
                 {
                     int keyLength = line.Length;
 
@@ -214,45 +217,31 @@ namespace Countdown.Models
         /// Assumes that the maximum line length is going to be 
         /// less than or equal to the buffer size.
         /// </summary>
-        private ref struct DeflateStreamReader
+        private sealed class StreamManager
         {
             private const int cBufferSize = 1024 * 8;
 
             private readonly DeflateStream stream;
-            private readonly byte[] buffer;
+            private readonly byte[] buffer = new byte[cBufferSize];
 
-            private int dataSize;
-            private int position;
-            private bool endOfStream;
-            ReadOnlySpan<byte> current;
+            private int dataSize = 0;
+            private int position = 0;
+            private bool endOfStream = false;
 
-            public DeflateStreamReader(DeflateStream s)
+            public StreamManager(DeflateStream s)
             {
                 stream = s ?? throw new ArgumentNullException(nameof(s));
-
-                buffer = new byte[cBufferSize];
-
-                dataSize = 0;
-                position = 0;
-                endOfStream = false;
-                current = ReadOnlySpan<byte>.Empty;
             }
 
-            public DeflateStreamReader GetEnumerator() => this;
-
-            public ReadOnlySpan<byte> Current => current;
-
-            public bool MoveNext() => ReadNextLine();
-
-            private bool ReadNextLine()
+            public ReadOnlySpan<byte> ReadLine()
             {
                 int length = SeekNextLine();
 
                 if (length > 0) // simple case, the line is within the buffer
                 {
-                    current = buffer.AsSpan(position, length);
+                    ReadOnlySpan<byte> line = buffer.AsSpan(position, length);
                     position += length + 1;
-                    return true;
+                    return line;
                 }
                 else if (!endOfStream) // some of the line remains in the stream
                 {
@@ -285,11 +274,10 @@ namespace Countdown.Models
                     Debug.Assert(length >= 0); // its not the end of the stream, it shouldn't be
 
                     position += length + 1;
-                    current = span.Slice(0, sizeLeft + length);
-                    return true;
+                    return span.Slice(0, sizeLeft + length);
                 }
 
-                return false;
+                return Span<byte>.Empty;
             }
 
             private int SeekNextLine() => buffer.AsSpan(position, dataSize - position).IndexOf(cLine_seperator);
