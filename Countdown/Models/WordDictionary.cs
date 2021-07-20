@@ -25,7 +25,6 @@ namespace Countdown.Models
 
         private readonly ManualResetEventSlim loadingEvent = new ManualResetEventSlim();
 
-
         public WordDictionary()
         {
             Task.Factory.StartNew(() => LoadResourceFile()).ContinueWith((x) => loadingEvent.Set());
@@ -151,10 +150,10 @@ namespace Countdown.Models
             {
                 using DeflateStream stream = new DeflateStream(resourceStream, CompressionMode.Decompress);
 
-                StreamManager sm = new StreamManager(stream);
+                DeflateStreamReader streamReader = new DeflateStreamReader(stream);
                 ReadOnlySpan<byte> line;
 
-                while ((line = sm.ReadLine()) != Span<byte>.Empty)
+                while ((line = streamReader.ReadLine()).Length > 0)
                 {
                     int keyLength = line.Length;
 
@@ -191,21 +190,18 @@ namespace Countdown.Models
             char[] chars = new char[count];
             int index = 0;
 
-            unchecked
+            if (toUpper)
             {
-                if (toUpper)
+                while (index < count)
                 {
-                    while (index < count)
-                    {
-                        chars[index] = (char)(bytes[index++] & ~0x20);
-                    }
+                    chars[index] = (char)(bytes[index++] & ~0x20);
                 }
-                else
+            }
+            else
+            {
+                while (index < count)
                 {
-                    while (index < count)
-                    {
-                        chars[index] = (char)bytes[index++];
-                    }
+                    chars[index] = (char)bytes[index++];
                 }
             }
 
@@ -217,7 +213,7 @@ namespace Countdown.Models
         /// Assumes that the maximum line length is going to be 
         /// less than or equal to the buffer size.
         /// </summary>
-        private sealed class StreamManager
+        private sealed class DeflateStreamReader
         {
             private const int cBufferSize = 1024 * 8;
 
@@ -228,7 +224,7 @@ namespace Countdown.Models
             private int position = 0;
             private bool endOfStream = false;
 
-            public StreamManager(DeflateStream s)
+            public DeflateStreamReader(DeflateStream s)
             {
                 stream = s ?? throw new ArgumentNullException(nameof(s));
             }
