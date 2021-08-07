@@ -32,11 +32,20 @@
 
             <!-- sets the command and the text content of the button depending on if the timer is running or not -->
             <Style x:Key="StartStopButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                <Setter Property="Width" Value="82"/> <!-- stops the layout adjusting when the content changes -->
+                <Setter Property="Padding" Value="4,1"/>
                 <Setter Property="Command" Value="{Binding StopwatchController.StartStopTimerCommand}" />
                 <Setter Property="Content" Value="Start _Timer" />
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding StopwatchController.StopwatchRunning}" Value="True">
+                    <DataTrigger Binding="{Binding StopwatchController.StopwatchState}" Value="Running">
                         <Setter Property="Content" Value="Stop _Timer" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding StopwatchController.StopwatchState}" Value="Stopped">
+                        <Setter Property="Content" Value="Reset _Timer" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding StopwatchController.StopwatchState}" Value="Rewinding">
+                        <Setter Property="Content" Value="Rewinding" />
+                        <Setter Property="IsEnabled" Value="False" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>

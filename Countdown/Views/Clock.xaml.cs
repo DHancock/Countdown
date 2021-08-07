@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -13,50 +14,54 @@ namespace Countdown.Views
     /// </summary>
     public partial class Clock : UserControl
     {
-    
 
-        public double Ticks
+        // the second hand's time in system ticks
+        public long Ticks
         {
-            get { return (double)GetValue(TicksProperty); }
+            get { return (long)GetValue(TicksProperty); }
             set { SetValue(TicksProperty, value); }
         }
 
 
         public static readonly DependencyProperty TicksProperty =
                 DependencyProperty.Register(nameof(Ticks),
-                typeof(double),
+                typeof(long),
                 typeof(Clock),
-                new PropertyMetadata(0.0, OnTicksPropertyChanged, TicksCoerceValue));
+                new PropertyMetadata(0L, OnTicksPropertyChanged));
 
 
 
 
-        private static object TicksCoerceValue(DependencyObject d, object baseValue)
+        private static double TicksCoerceValue(object baseValue)
         {
-            if (baseValue is double ticks)
-            {
-                ticks = Math.Max(0.0, ticks);
-                ticks = Math.Min(180.0, ticks);
+            long ticks = (long)baseValue;
 
-                return ticks;
-            }
+            if (ticks < 0)
+                ticks = 0;
 
-            return 0.0D;
+            if (ticks > TimeSpan.TicksPerMinute)
+                ticks %= TimeSpan.TicksPerMinute;
+
+            return ticks;
         }
 
 
         private static void OnTicksPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is Clock clock)
-            {
-                clock.tickTrail.Tick = clock.clockHand.Tick = clock.Ticks;
+            double ticks = TicksCoerceValue(e.NewValue);
 
-                clock.tickTrail.InvalidateVisual();
-                clock.clockHand.InvalidateVisual();
-            }
+            // degrees in WPF start at 6 o'clock and sweep counter clockwise
+            double angle = 180.0 - ((ticks / TimeSpan.TicksPerSecond) * 6.0);  // one second = 6 degrees
+
+            Clock clock = (Clock)d;
+
+            clock.tickTrail.Angle = clock.clockHand.Angle = angle;
+
+            clock.tickTrail.InvalidateVisual();
+            clock.clockHand.InvalidateVisual();
         }
 
-        
+
 
 
         public Clock()
@@ -80,13 +85,9 @@ namespace Countdown.Views
     }
 
 
-    
-
-
-
     internal sealed class Clock_TickTrail : ShapeBase
     {
-        public double Tick { get; set; }
+        public double Angle { get; set; } = 180.0; // set to zero seconds in WPF degree coordinates
 
         protected override void DrawToStream(StreamGeometryContext stream, double radius, Point offset)
         {
@@ -99,13 +100,11 @@ namespace Countdown.Views
             Size innerSize = new Size(innerRadius, innerRadius);
             Size outerSize = new Size(outerRadius, outerRadius);
 
-            double angle = 180.0 - Tick; // degrees, zero is at 6 o'clock and sweeps counter clockwise  
-
             Vector topLeft = new Vector(outerRadius, 180.0, offset);
-            Vector topRight = new Vector(outerRadius, angle, offset);
+            Vector topRight = new Vector(outerRadius, Angle, offset);
 
             Vector bottomLeft = new Vector(innerRadius, 180.0, offset);
-            Vector bottomRight = new Vector(innerRadius, angle, offset);
+            Vector bottomRight = new Vector(innerRadius, Angle, offset);
 
             stream.BeginFigure(topLeft.Cartesian, true, true);
             stream.ArcTo(topRight.Cartesian, outerSize, 0.0, false, SweepDirection.Clockwise, true, false);
@@ -114,17 +113,15 @@ namespace Countdown.Views
         }
     }
 
-    
+
 
     internal sealed class Clock_Hand : ShapeBase
     {
-        public double Tick { get; set; }
+        public double Angle { get; set; } = 180.0; // set to zero seconds in WPF degree coordinates
 
         protected override void DrawToStream(StreamGeometryContext stream, double radius, Point offset)
         {
-            double angle = 180.0 - Tick; // degrees, zero is at 6 o'clock and sweeps counter clockwise  
-
-            Vector tip = new Vector(radius, angle, offset);
+            Vector tip = new Vector(radius, Angle, offset);
             stream.BeginFigure(tip.Cartesian, true, true);
 
             const double innerRadius = 0.13;
@@ -132,14 +129,14 @@ namespace Countdown.Views
 
             radius *= innerRadius;
 
-            Vector arcPoint = new Vector(radius, angle - sectorAngle , offset);
+            Vector arcPoint = new Vector(radius, Angle - sectorAngle, offset);
             stream.LineTo(arcPoint.Cartesian, true, true);
 
             // draw the circle round the center
-            arcPoint.SetAngle(angle + sectorAngle);
+            arcPoint.SetAngle(Angle + sectorAngle);
             stream.ArcTo(arcPoint.Cartesian, new Size(radius, radius), 0.0, true, SweepDirection.Clockwise, true, true);
         }
-        
+
     }
 
 
@@ -172,8 +169,8 @@ namespace Countdown.Views
             DrawCheck(240D);
             DrawCheck(300D);
             DrawCheck(330D);
-           
-            void DrawCheck (double angle)
+
+            void DrawCheck(double angle)
             {
                 startPos.SetAngle(angle);
                 endPos.SetAngle(angle);
@@ -231,7 +228,7 @@ namespace Countdown.Views
 
                 // adjust drawing radius
                 radius -= (size * InsetPercentage);
-                radius -= StrokeThickness / 2.0 ;
+                radius -= StrokeThickness / 2.0;
 
                 StreamGeometry geometry = new StreamGeometry()
                 {
@@ -252,7 +249,7 @@ namespace Countdown.Views
 
 
         protected abstract void DrawToStream(StreamGeometryContext ctx, double radius, Point offset);
-        
+
 
 
         protected override Size MeasureOverride(Size constraint)
@@ -260,15 +257,15 @@ namespace Countdown.Views
             // when presented with infinites use this size
             const double cDefaultSize = 50;
 
-            if (Double.IsInfinity(constraint.Height) || Double.IsInfinity(constraint.Width))
+            if (double.IsInfinity(constraint.Height) || double.IsInfinity(constraint.Width))
             {
                 // Infinity means this part is inside a scrollable control, stack
                 // panel etc. The other dimension could either be the size of the 
                 // container, the xaml specified size or also infinity too
 
-                if (Double.IsInfinity(constraint.Height))
+                if (double.IsInfinity(constraint.Height))
                 {
-                    if (Double.IsInfinity(constraint.Width)) // both sizes are unbound, use a default
+                    if (double.IsInfinity(constraint.Width)) // both sizes are unbound, use a default
                         constraint.Width = constraint.Height = cDefaultSize;
                     else
                         constraint.Height = constraint.Width;
@@ -292,11 +289,12 @@ namespace Countdown.Views
 
 
 
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     internal sealed class Vector
     {
-        private double radius;
+        private readonly double radius;
         private double radians;
-        private Point offset;
+        private readonly Point offset;
 
 
         public Vector(double radius, double degrees, Point offset)
@@ -306,12 +304,10 @@ namespace Countdown.Views
             SetAngle(degrees);
         }
 
-
         public void SetAngle(double degrees)
         {
             radians = degrees * (Math.PI / 180.0);
         }
-
 
         public Point Cartesian
         {
@@ -321,6 +317,6 @@ namespace Countdown.Views
             }
         }
 
-        public override string ToString() => $"({Cartesian.X}, {Cartesian.Y})";
+        private string GetDebuggerDisplay() => $"{{{Cartesian.X}, {Cartesian.Y}}}";
     }
 }

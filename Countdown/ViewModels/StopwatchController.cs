@@ -1,23 +1,23 @@
 ﻿using System;
-using System.Windows;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Windows.Media.Animation;
 
 namespace Countdown.ViewModels
 {
-    internal sealed class StopwatchController : UIElement
+    internal sealed class StopwatchController : PropertyChangedBase, IDisposable
     {
-        private const int cRewindDelaySeconds = 2;
+        private const long cForwardDurationTicks = 30 * TimeSpan.TicksPerSecond;
+        private const long cRewindDurationTicks = 1 * TimeSpan.TicksPerSecond;
+        private const int cUpdateRateMilliseconds = 25;
 
-        /// <summary>
-        /// the animation object used to tick the clock
-        /// </summary>
-        private DoubleAnimation clockTickAnimation;
+        public enum StopwatchStateEnum { AtStart, Running, Stopped, Rewinding }
 
-        /// <summary>
-        /// the controller state indicator
-        /// </summary>
-        private bool timerRunning;
+        private StopwatchStateEnum _stopwatchState;
+
+        private long _ticks;
+
+        private CancellationTokenSource _cts;
 
         /// <summary>
         /// expose a command that buttons can bind to
@@ -25,84 +25,76 @@ namespace Countdown.ViewModels
         public ICommand StartStopTimerCommand { get; }
 
 
-        /// <summary>
-        /// the animated property, clock ticks. 
-        /// 1.0 ticks is one degree on the clock face, six ticks is one second
-        /// </summary>
-        public double Ticks
+
+        // the current clock time in system ticks 
+        public long Ticks
         {
-            get { return (double)GetValue(TicksProperty); }
-            set { SetValue(TicksProperty, value); }
+            get { return _ticks; }
+            set { HandlePropertyChanged(ref _ticks, value); }
         }
 
 
-        public static readonly DependencyProperty TicksProperty =
-                DependencyProperty.Register(nameof(Ticks),
-                typeof(double),
-                typeof(StopwatchController),
-                new PropertyMetadata(0.0, null, TicksCoerceValue));
-
-
-
-
-        private static object TicksCoerceValue(DependencyObject d, object baseValue)
+        public StopwatchStateEnum StopwatchState
         {
-            if (baseValue is double ticks)
-            {
-                if (ticks < 0.0)
-                    ticks = 0.0;
-                else if (ticks > 180.0)
-                    ticks = 180.0;
+            get { return _stopwatchState; }
+            set { HandlePropertyChanged(ref _stopwatchState, value); }
+        }
 
-                return ticks;
+        private async Task ClockForwardAnimation()
+        {
+            long startTime = DateTime.UtcNow.Ticks;
+
+            try
+            {
+                await Task.Run(async () =>
+                {
+                    while (true)
+                    {
+                        if (_cts.Token.IsCancellationRequested)
+                            throw new TaskCanceledException();
+
+                        Ticks = DateTime.UtcNow.Ticks - startTime;
+
+                        if (Ticks < cForwardDurationTicks)
+                            await Task.Delay(cUpdateRateMilliseconds, _cts.Token); // it's not a high precession timer
+                        else
+                            break;
+                    }
+                }, _cts.Token);
+            }
+            catch (TaskCanceledException)
+            {
+                return;
             }
 
-            return 0.0D;
-        }
-        
-
-
-        /// <summary>
-        /// a bindable state, used as a property trigger and
-        /// for starting and canceling the stopwatch
-        /// </summary>
-        public bool StopwatchRunning
-        {
-            get { return (bool)GetValue(StopwatchRunningProperty); }
-            set { SetValue(StopwatchRunningProperty, value); }
+            Ticks = cForwardDurationTicks;   // guarantee a final value
         }
 
-
-        public static readonly DependencyProperty StopwatchRunningProperty =
-                DependencyProperty.Register(nameof(StopwatchRunning),
-                typeof(bool),
-                typeof(StopwatchController),
-                new PropertyMetadata(false, OnStopwatchRunningPropertyChanged));
-
-
-
-        private static void OnStopwatchRunningPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private async Task ClockRewindAnimation()
         {
-            if ((d is StopwatchController sc) && (e.NewValue is bool startTimer))
+            long startTicks = Ticks;
+
+            if (startTicks > 0)
             {
-                if (startTimer)
+                long startTime = DateTime.UtcNow.Ticks;
+
+                await Task.Run(async () =>
                 {
-                    if (!sc.timerRunning)
+                    while (true)
                     {
-                        sc.timerRunning = true;
-                        sc.StartAnimation();
+                        // accelerate elapsed time by the rewind speed
+                        long elapsed = (DateTime.UtcNow.Ticks - startTime) * (cForwardDurationTicks / cRewindDurationTicks);
+
+                        Ticks = startTicks - elapsed;
+
+                        if (Ticks > 0)
+                            await Task.Delay(cUpdateRateMilliseconds);   // it's not a high precession timer
+                        else
+                            break;
                     }
-                }
-                else
-                {
-                    if (sc.timerRunning)  // user has canceled
-                    {
-                        sc.timerRunning = false;
-                        sc.StopAnimation(TimeSpan.FromSeconds(0));
-                    }
-                    else
-                        sc.StopAnimation(TimeSpan.FromSeconds(cRewindDelaySeconds));
-                }
+                });
+
+                Ticks = 0;  // guarantee a final value
             }
         }
 
@@ -111,66 +103,60 @@ namespace Countdown.ViewModels
 
         public StopwatchController()
         {
-            StartStopTimerCommand = new RelayCommand(ExecuteStartStopTimer);
+            StartStopTimerCommand = new RelayCommand(ExecuteTimer);
+            _cts = new CancellationTokenSource();
         }
 
 
-        private void ExecuteStartStopTimer(object p)
+        private async void ExecuteTimer(object p)
         {
-            StopwatchRunning = !StopwatchRunning;
-        }
-        
-
-
-        private void StopAnimation(TimeSpan beginTime)
-        {
-            if (clockTickAnimation != null)
+            switch (StopwatchState)
             {
-                // remove any previous animation, but keep the property value
-                clockTickAnimation.BeginTime = null;
-                BeginAnimation(TicksProperty, clockTickAnimation);
-                
-                // wind the clock hand back to the start
-                clockTickAnimation.From = Ticks;
-                clockTickAnimation.To = 0;
-                clockTickAnimation.Duration = TimeSpan.FromSeconds(Ticks / 180.0);
-                clockTickAnimation.BeginTime = beginTime;
-                clockTickAnimation.Completed -= ClockTickAnimation_Completed;
+                case StopwatchStateEnum.AtStart:
+                    {
+                        StopwatchState = StopwatchStateEnum.Running;
 
-                BeginAnimation(TicksProperty, clockTickAnimation);
+                        await ClockForwardAnimation();
+
+                        if (_cts.IsCancellationRequested)
+                        {
+                            _cts.Dispose();
+                            _cts = new CancellationTokenSource();
+                        }
+                        else
+                            System.Media.SystemSounds.Exclamation.Play();
+
+                        StopwatchState = StopwatchStateEnum.Stopped;
+                        break;
+                    }
+
+                case StopwatchStateEnum.Stopped:
+                    {
+                        StopwatchState = StopwatchStateEnum.Rewinding;
+
+                        await ClockRewindAnimation();
+
+                        StopwatchState = StopwatchStateEnum.AtStart;
+                        break;
+                    }
+
+                case StopwatchStateEnum.Running:
+                    {
+                        StopwatchState = StopwatchStateEnum.Stopped;
+                        _cts.Cancel();
+                        break;
+                    }
+
+                case StopwatchStateEnum.Rewinding: break;
+
+                default: throw new InvalidOperationException();
             }
         }
 
-
-
-        private void StartAnimation()
+        // avoids a code analysis CA1001 warning...
+        public void Dispose()
         {
-            if (clockTickAnimation != null)
-                BeginAnimation(TicksProperty, null); // remove any previous animation
-            else
-                clockTickAnimation = new DoubleAnimation();
-
-            // start a 30 second animation with a completion handler
-            clockTickAnimation.From = 0;
-            clockTickAnimation.To = 180;
-            clockTickAnimation.Duration = TimeSpan.FromSeconds(30);
-            clockTickAnimation.BeginTime = TimeSpan.FromSeconds(0);
-            clockTickAnimation.Completed += ClockTickAnimation_Completed;
-
-            BeginAnimation(TicksProperty, clockTickAnimation);
-        }
-
-
-
-
-        private void ClockTickAnimation_Completed(object sender, EventArgs e)
-        {
-            timerRunning = false;
-
-            // this will trigger rewinding the clock, after a delay
-            StopwatchRunning = false;
-            
-            System.Media.SystemSounds.Exclamation.Play();
+            _cts.Dispose();
         }
     }
 }
