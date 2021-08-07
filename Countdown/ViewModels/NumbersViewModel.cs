@@ -108,7 +108,7 @@ namespace Countdown.ViewModels
 
             if (temp != existing)
             {
-                existing = Convert(data);
+                existing = temp;
                 ValidateTiles();
                 RaisePropertyChanged(propertyName);
             }
