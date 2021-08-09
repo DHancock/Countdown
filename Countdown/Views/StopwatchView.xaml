@@ -10,6 +10,6 @@
 
     <DockPanel LastChildFill="True" Margin="5,5,5,5">
         <Button Style="{StaticResource StartStopButtonStyle}" VerticalAlignment="Bottom"/>
-        <local:Clock Ticks="{Binding StopwatchController.Ticks}" />
+        <local:Clock Ticks="{Binding StopwatchController.Ticks, Mode=OneWay}" />
     </DockPanel>
 </UserControl>
