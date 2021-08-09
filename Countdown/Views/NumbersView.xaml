@@ -41,7 +41,7 @@
                 <ColumnDefinition Width="{StaticResource CommonTabPageLeftColumnWidth}" />
             </Grid.ColumnDefinitions>
 
-            <local:Clock Grid.Row="0" Width="100" Ticks="{Binding StopwatchController.Ticks}" HorizontalAlignment="Left" Margin="80,10,0,5" />
+            <local:Clock Grid.Row="0" Width="100" Ticks="{Binding StopwatchController.Ticks, Mode=OneWay}" HorizontalAlignment="Left" Margin="80,10,0,5" />
 
             <GroupBox Grid.Row="1" Header="Tiles" Margin="5">
                 <AdornerDecorator>

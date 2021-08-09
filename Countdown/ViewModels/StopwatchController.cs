@@ -9,7 +9,7 @@ namespace Countdown.ViewModels
     {
         private const long cForwardDurationTicks = 30 * TimeSpan.TicksPerSecond;
         private const long cRewindDurationTicks = 1 * TimeSpan.TicksPerSecond;
-        private const int cUpdateRateMilliseconds = 25;
+        private const int cUpdateRateMilliseconds = 5;
 
         public enum StopwatchStateEnum { AtStart, Running, Stopped, Rewinding }
 
@@ -25,19 +25,24 @@ namespace Countdown.ViewModels
         public ICommand StartStopTimerCommand { get; }
 
 
+        public StopwatchController()
+        {
+            StartStopTimerCommand = new RelayCommand(ExecuteTimer);
+            _cts = new CancellationTokenSource();
+        }
 
-        // the current clock time in system ticks 
+        // the elapsed time in system ticks 
         public long Ticks
         {
             get { return _ticks; }
-            set { HandlePropertyChanged(ref _ticks, value); }
+            private set { HandlePropertyChanged(ref _ticks, value); }
         }
 
 
         public StopwatchStateEnum StopwatchState
         {
             get { return _stopwatchState; }
-            set { HandlePropertyChanged(ref _stopwatchState, value); }
+            private set { HandlePropertyChanged(ref _stopwatchState, value); }
         }
 
         private async Task ClockForwardAnimation()
@@ -98,16 +103,8 @@ namespace Countdown.ViewModels
             }
         }
 
-
-
-
-        public StopwatchController()
-        {
-            StartStopTimerCommand = new RelayCommand(ExecuteTimer);
-            _cts = new CancellationTokenSource();
-        }
-
-
+        // this method is re-entrant due to the await operator but will only
+        // ever be run on the UI thread
         private async void ExecuteTimer(object p)
         {
             switch (StopwatchState)
@@ -153,7 +150,6 @@ namespace Countdown.ViewModels
             }
         }
 
-        // avoids a code analysis CA1001 warning...
         public void Dispose()
         {
             _cts.Dispose();
