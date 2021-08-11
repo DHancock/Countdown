@@ -51,21 +51,15 @@ namespace Countdown.ViewModels
 
             try
             {
-                await Task.Run(async () =>
+                while (true)
                 {
-                    while (true)
-                    {
-                        if (_cts.Token.IsCancellationRequested)
-                            throw new TaskCanceledException();
+                    Ticks = DateTime.UtcNow.Ticks - startTime;
 
-                        Ticks = DateTime.UtcNow.Ticks - startTime;
-
-                        if (Ticks < cForwardDurationTicks)
-                            await Task.Delay(cUpdateRateMilliseconds, _cts.Token); // it's not a high precession timer
-                        else
-                            break;
-                    }
-                }, _cts.Token);
+                    if (Ticks < cForwardDurationTicks)
+                        await Task.Delay(cUpdateRateMilliseconds, _cts.Token); // it's not a high precession timer
+                    else
+                        break;
+                }
             }
             catch (TaskCanceledException)
             {
@@ -83,21 +77,18 @@ namespace Countdown.ViewModels
             {
                 long startTime = DateTime.UtcNow.Ticks;
 
-                await Task.Run(async () =>
+                while (true)
                 {
-                    while (true)
-                    {
-                        // accelerate elapsed time by the rewind speed
-                        long elapsed = (DateTime.UtcNow.Ticks - startTime) * (cForwardDurationTicks / cRewindDurationTicks);
+                    // accelerate elapsed time by the rewind speed
+                    long elapsed = (DateTime.UtcNow.Ticks - startTime) * (cForwardDurationTicks / cRewindDurationTicks);
 
-                        Ticks = startTicks - elapsed;
+                    Ticks = startTicks - elapsed;
 
-                        if (Ticks > 0)
-                            await Task.Delay(cUpdateRateMilliseconds);   // it's not a high precession timer
-                        else
-                            break;
-                    }
-                });
+                    if (Ticks > 0)
+                        await Task.Delay(cUpdateRateMilliseconds);   // it's not a high precession timer
+                    else
+                        break;
+                }
 
                 Ticks = 0;  // guarantee a final value
             }
