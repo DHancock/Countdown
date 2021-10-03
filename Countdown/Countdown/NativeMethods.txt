@@ -1,0 +1,11 @@
+﻿MessageBeep
+CallWindowProc
+SetWindowLong
+SetWindowLongPtr
+GetDpiForWindow
+POINT
+MINMAXINFO
+SetWindowPos
+LoadImage
+SendMessage
+GetSystemMetrics

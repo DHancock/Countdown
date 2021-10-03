@@ -1,0 +1,29 @@
+﻿<local:SubClassWindow
+    x:Class="Countdown.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Countdown.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <NavigationView
+        x:Name="RootNavigationView"
+        PaneDisplayMode="Top"
+        IsBackButtonVisible="Collapsed"
+        IsSettingsVisible="False"
+        SelectionFollowsFocus="Disabled"
+        SelectionChanged="RootNavigationView_SelectionChanged">
+
+        <NavigationView.MenuItems>
+            <NavigationViewItem Content="Numbers" Tag="NumbersView" AccessKey="N" KeyTipPlacementMode="Bottom"/>
+            <NavigationViewItem Content="Letters" Tag="LettersView" AccessKey="L" KeyTipPlacementMode="Bottom"/>
+            <NavigationViewItem Content="Conundrum" Tag="ConundrumView" AccessKey="O" KeyTipPlacementMode="Bottom"/>
+            <NavigationViewItem Content="Stopwatch" Tag="StopwatchView" AccessKey="T" KeyTipPlacementMode="Bottom"/>
+            <NavigationViewItem Icon="Setting" Tag="SettingsView" AccessKey="S" KeyTipPlacementMode="Bottom"/>
+        </NavigationView.MenuItems>
+
+        <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated"/>
+    </NavigationView>
+
+</local:SubClassWindow>

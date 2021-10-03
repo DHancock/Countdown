@@ -1,0 +1,43 @@
+﻿<Application
+    x:Class="Countdown.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <Color x:Key="SystemAccentColor">#B1560F</Color>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <Color x:Key="SystemAccentColor">#B1560F</Color>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <Color x:Key="SystemAccentColor">#B1560F</Color>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <ResourceDictionary Source="ms-appx:///Microsoft.UI.Xaml/DensityStyles/Compact.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="StartStopButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                <!-- stops the layout adjusting when the button's content changes -->
+                <Setter Property="MinWidth" Value="105"/>
+            </Style>
+
+            <!-- common list style -->
+            <Style TargetType="ListView">
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="BorderBrush" Value="Gray"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="SelectionMode" Value="Extended"/>
+            </Style>
+
+            <GridLength x:Key="InputGridWidth">350</GridLength>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
+

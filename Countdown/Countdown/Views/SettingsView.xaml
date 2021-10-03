@@ -1,0 +1,21 @@
+﻿<Page
+    x:Name="SettingsViewPage"
+    x:Class="Countdown.Views.SettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Countdown.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Margin="20, 20, 0, 0">
+
+        <StackPanel>
+            <TextBlock Text="Theme Mode" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+            <RadioButton Content="Light" IsChecked="{x:Bind ViewModel.IsLightTheme, Mode=TwoWay}"/>
+            <RadioButton Content="Dark" IsChecked="{x:Bind ViewModel.IsDarkTheme, Mode=TwoWay}"/>
+            <RadioButton Content="Use system setting" IsChecked="{x:Bind ViewModel.IsSystemTheme, Mode=TwoWay}"/>
+        </StackPanel>
+    </Grid>
+</Page>
