@@ -23,7 +23,7 @@
             <NavigationViewItem Icon="Setting" Tag="SettingsView" AccessKey="S" KeyTipPlacementMode="Bottom"/>
         </NavigationView.MenuItems>
 
-        <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated"/>
+        <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" CacheSize="5"/>
     </NavigationView>
 
 </local:SubClassWindow>
