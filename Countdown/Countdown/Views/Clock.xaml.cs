@@ -9,7 +9,6 @@ using Microsoft.UI.Composition;
 
 using Windows.Foundation;
 using Windows.UI;
-using System.Collections.Generic;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -20,8 +19,6 @@ namespace Countdown.Views
     {
         private readonly Compositor compositor;
         private readonly ContainerVisual containerVisual;
-        private CompositionSpriteShape? secondHand;
-        private readonly List<ShapeVisual> tickTrailList = new List<ShapeVisual>(30);
         private Size previousSize = Size.Empty;
 
         public Clock()
@@ -60,11 +57,14 @@ namespace Countdown.Views
 
         private const float cHandStrokePercentage = 0.01f;
         private const float cHandTipRadiusPercentage = 0.90f;
-        private const float cHandSectorAngle = 25.0f;
+        private const double cHandSectorAngle = 25.0;
         private const float cHandArcRadiusPercentage = 0.055f;
 
         private const float cTickTrailOuterRadiusPercent = 0.92f;
         private const float cTickTrailInnerRadiusPercent = 0.38f;
+
+        private const string TrickTrailComment = "t";
+        private const string SecondHandComment = "s";
 
         // TODO: dark mode?
         private static readonly Color OuterFrameColour = Colors.LightGray;
@@ -88,20 +88,17 @@ namespace Countdown.Views
             set { SetValue(TicksProperty, value); }
         }
 
-
         public static readonly DependencyProperty TicksProperty =
                 DependencyProperty.Register(nameof(Ticks),
                 typeof(long),
                 typeof(Clock),
                 new PropertyMetadata(0L, OnTicksPropertyChanged));
 
-
         private static void OnTicksPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             Clock clock = (Clock)d;
             clock.UpdateSecondHandAndTickTrail();
         }
-
 
         private int CalculateVisibleTickTrailSegmentCount()
         {
@@ -112,13 +109,16 @@ namespace Countdown.Views
         {
             try
             {
-                if (secondHand is not null)
-                    secondHand.RotationAngleInDegrees = CalculateSecondHandAngle();
-
                 long segments = CalculateVisibleTickTrailSegmentCount();
+                int index = 0;
 
-                for (int index = 0; index < tickTrailList.Count; index++)
-                    tickTrailList[index].IsVisible = index < segments;
+                foreach (Visual visual in containerVisual.Children)
+                {
+                    if (visual.Comment == TrickTrailComment)
+                        visual.IsVisible = index++ < segments;
+                    else if (visual.Comment == SecondHandComment)
+                        visual.RotationAngleInDegrees = CalculateSecondHandAngle();
+                }
             }
             catch
             {
@@ -136,15 +136,14 @@ namespace Countdown.Views
             Center = new Vector2(ActualSize.X * 0.5f, ActualSize.Y * 0.5f);
         }
 
-
         private void CreateTickTrail()
         {
             float radius = ClockSize * 0.5f;
             float outerRadius = radius * cTickTrailOuterRadiusPercent;
             float innerRadius = radius * cTickTrailInnerRadiusPercent;
 
-            const float startAngle = 179.5f;    // of the first segment   TODO: constants?
-            const float endAngle = 174.5f;
+            const double startAngle = 179.5;
+            const double endAngle = 174.5;
 
             Vector topLeft = new Vector(outerRadius, startAngle, Center);
             Vector topRight = new Vector(outerRadius, endAngle, Center);
@@ -170,11 +169,9 @@ namespace Countdown.Views
             pathGeometry.Path = new CompositionPath(canvasGeometry);
 
             CompositionBrush brush = compositor.CreateColorBrush(TickTrailColour);
-
-            tickTrailList.Clear();
             long visibleSegments = CalculateVisibleTickTrailSegmentCount();
-            
-            // create every trail element visual, then manipulate its visibility as required
+
+            // create every trail element visual, then change its visibility as required
             for (int segment = 0; segment < 30; segment++)
             {
                 // create a shape from the geometry
@@ -188,8 +185,8 @@ namespace Countdown.Views
                 shapeVisual.Size = ActualSize;
                 shapeVisual.Shapes.Add(tickSegment);
                 shapeVisual.IsVisible = segment < visibleSegments;
+                shapeVisual.Comment = TrickTrailComment; // used to identify this shape
 
-                tickTrailList.Add(shapeVisual);
                 containerVisual.Children.InsertAtTop(shapeVisual);
             }
         }
@@ -198,10 +195,10 @@ namespace Countdown.Views
 
         private void CreateFace()
         {
-            CompositionSpriteShape CreateCircle(float radius, float stroke, Vector2 offset, Color fillColour, Color strokeColour)
+            CompositionSpriteShape CreateCircle(double radius, float stroke, Vector2 offset, Color fillColour, Color strokeColour)
             {
                 CompositionEllipseGeometry circleGeometry = compositor.CreateEllipseGeometry();
-                circleGeometry.Radius = new Vector2(radius);
+                circleGeometry.Radius = new Vector2((float)radius);
 
                 CompositionSpriteShape circleShape = compositor.CreateSpriteShape(circleGeometry);
                 circleShape.Offset = offset;
@@ -219,7 +216,7 @@ namespace Countdown.Views
             CompositionContainerShape shapeContainer = compositor.CreateContainerShape();
 
             // outer frame
-            float radius = ClockSize * 0.5f;
+            double radius = ClockSize * 0.5f;
             float outerFrameStroke = ClockSize * cOuterFrameStrokePercentage;
             radius -= outerFrameStroke * 0.5f;
 
@@ -232,9 +229,9 @@ namespace Countdown.Views
             shapeContainer.Shapes.Add(CreateCircle(radius, innerFrameStroke, Center, Colors.Transparent, InnerFrameColour));
 
             // tick marks around inner frame
-            float tickRadius = innerFrameStroke / 5.0f;      // TODO constants, and color static
+            double tickRadius = innerFrameStroke / 5.0;      // TODO constants, and color static
 
-            for (int degrees = 0; degrees < 360; degrees += 30)
+            for (double degrees = 0; degrees < 360.0; degrees += 30.0)
                 shapeContainer.Shapes.Add(CreateCircle(tickRadius, 0f, new Vector(radius, degrees, Center).Cartesian, Colors.Silver, Colors.Transparent));
 
             // clock face fill
@@ -289,8 +286,8 @@ namespace Countdown.Views
 
             // add the 5 second tick marks
             float stroke = ClockSize * cTickMarksStrokePercentage;
-            float startLength = ClockSize * 0.5f * cTickMarksInnerRadiusPercentage;
-            float endLength = ClockSize * 0.5f * cTickMarksOuterRadiusPercentage;
+            double startLength = ClockSize * 0.5f * cTickMarksInnerRadiusPercentage;
+            double endLength = ClockSize * 0.5f * cTickMarksOuterRadiusPercentage;
             CompositionStrokeCap endCap = IsSmallClock ? CompositionStrokeCap.Flat : CompositionStrokeCap.Round;
 
             for (int degrees = 30; degrees < 360; degrees += 30)
@@ -325,14 +322,11 @@ namespace Countdown.Views
             containerVisual.Children.InsertAtTop(shapeVisual);
         }
 
-
-
-
         private void CreateHand()
         {
             using CanvasPathBuilder builder = new CanvasPathBuilder(null);
 
-            Vector tip = new Vector(ClockSize * 0.5f * cHandTipRadiusPercentage, 0f, Center);
+            Vector tip = new Vector(ClockSize * 0.5 * cHandTipRadiusPercentage, 0.0, Center);
             builder.BeginFigure(tip.Cartesian);
 
             float radius = ClockSize * cHandArcRadiusPercentage;
@@ -352,23 +346,23 @@ namespace Countdown.Views
             pathGeometry.Path = new CompositionPath(canvasGeometry);
 
             // create a shape from the geometry
-            secondHand = compositor.CreateSpriteShape(pathGeometry);
+            CompositionSpriteShape secondHand = compositor.CreateSpriteShape(pathGeometry);
             secondHand.FillBrush = compositor.CreateColorBrush(HandFillColour);
             secondHand.StrokeThickness = handStroke;
             secondHand.StrokeLineJoin = CompositionStrokeLineJoin.Round;
             secondHand.StrokeBrush = compositor.CreateColorBrush(HandStrokeColour);
-            secondHand.CenterPoint = Center;
-            secondHand.RotationAngleInDegrees = CalculateSecondHandAngle();
 
             // create a visual for the shape
             ShapeVisual shapeVisual = compositor.CreateShapeVisual();
             shapeVisual.Size = ActualSize;
             shapeVisual.Shapes.Add(secondHand);
+            shapeVisual.CenterPoint = new Vector3(Center, 0f);
+            shapeVisual.RotationAngleInDegrees = CalculateSecondHandAngle();
+            shapeVisual.Comment = SecondHandComment; // used to identify this shape
 
             // add to visual tree
             containerVisual.Children.InsertAtTop(shapeVisual);
         }
-
 
         private float CalculateSecondHandAngle()
         {
@@ -376,7 +370,6 @@ namespace Countdown.Views
             // zero degrees is at 6 o'clock and sweeps clockwise
             return 180.0f + ((Ticks * 6.0f) / TimeSpan.TicksPerSecond);
         }
-
 
         protected override Size MeasureOverride(Size availableSize)
         {
@@ -397,13 +390,13 @@ namespace Countdown.Views
             return availableSize;
         }
 
-        internal readonly struct Vector
+        private readonly struct Vector
         {
-            private readonly float length;
-            private readonly float degrees;
+            private readonly double length;
+            private readonly double degrees;
             private readonly Vector2 offset;
 
-            public Vector(float length, float degrees, Vector2 offset)
+            public Vector(double length, double degrees, Vector2 offset)
             {
                 this.length = length;
                 this.degrees = degrees;
@@ -415,8 +408,8 @@ namespace Countdown.Views
                 get
                 {
                     double radians = degrees * (Math.PI / 180.0);
-                    return new Vector2((length * (float)Math.Sin(radians)) + offset.X,
-                                        (length * (float)Math.Cos(radians)) + offset.Y);
+                    return new Vector2((float)Math.FusedMultiplyAdd(length, Math.Sin(radians), offset.X),
+                                        (float)Math.FusedMultiplyAdd(length, Math.Cos(radians), offset.Y));
                 }
             }
         }
