@@ -1,25 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices.WindowsRuntime;
+using Microsoft.Graphics.Canvas.Geometry;
 using Microsoft.UI;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Hosting;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI;
-using Microsoft.Graphics.Canvas.Geometry;
-using Microsoft.Graphics.Canvas;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -31,12 +18,8 @@ namespace Countdown.Views
     {
         private readonly Compositor compositor;
         private readonly ContainerVisual containerVisual;
-        private Size previousSize = Size.Empty;
 
-        private const float cCornerRadius = 4.0f;   // make a dp along with stroke size??
-
-
-        public GroupBorder()              // TODO check dpi changes, force measure pass InvalidateMeasure ?
+        public GroupBorder()
         {
             this.InitializeComponent();
 
@@ -44,19 +27,52 @@ namespace Countdown.Views
             containerVisual = compositor.CreateContainerVisual();
             ElementCompositionPreview.SetElementChildVisual(this, containerVisual);
 
-            SizeChanged += (s, e) =>
-            {
-                if (e.NewSize != previousSize)
-                {
-                    previousSize = e.NewSize;
+            // the padding is dependent on the corner radius
+            ChildPresenter.Padding = CalculateContentPresenterPadding();
 
-                    GroupBorder gb = (GroupBorder)s;
-                    gb.containerVisual.Children.RemoveAll();
-                    gb.containerVisual.Children.InsertAtBottom(CreateBorderRoundedRect());
-                }
+            // reusing the following properties to define the group border
+            RegisterPropertyChangedCallback(CornerRadiusProperty, CornerRadiusPropertyChanged);
+            RegisterPropertyChangedCallback(BorderThicknessProperty, BorderThicknessPropertyChanged);
+
+            Loaded += (s, e) =>
+            {
+                HeadingText.SizeChanged += (s, e) => RedrawBorder();
+                SizeChanged += (s, e) => RedrawBorder();
+
+                RedrawBorder(); // first draw
             };
         }
 
+        private void RedrawBorder()
+        {
+            containerVisual.Children.RemoveAll();
+            containerVisual.Children.InsertAtBottom(CreateBorderRoundedRect());
+        }
+
+        private void CornerRadiusPropertyChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            Thickness newPadding = CalculateContentPresenterPadding();
+
+            if (ChildPresenter.Padding != newPadding)
+                ChildPresenter.Padding = newPadding;
+            else
+                RedrawBorder();
+        }
+
+        private Thickness CalculateContentPresenterPadding()
+        {
+            // a non uniform corner radius is unlikely, but possible
+            const double inset = 1.0;
+            return new Thickness(Math.Max(CornerRadius.TopLeft, CornerRadius.BottomLeft) + inset,
+                                        Math.Max(CornerRadius.TopLeft, CornerRadius.TopRight) + inset,
+                                        Math.Max(CornerRadius.TopRight, CornerRadius.BottomRight) + inset,
+                                        Math.Max(CornerRadius.BottomLeft, CornerRadius.BottomRight) + inset);
+        }
+
+        private void BorderThicknessPropertyChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            RedrawBorder();
+        }
 
         public static readonly DependencyProperty ChildContentProperty =
             DependencyProperty.Register("ChildContent",
@@ -75,7 +91,7 @@ namespace Countdown.Views
             DependencyProperty.Register("Heading",
             typeof(string),
             typeof(GroupBorder),
-            new PropertyMetadata(string.Empty));
+            new PropertyMetadata(string.Empty, HeadingTextPropertyChanged));
 
         public string Heading
         {
@@ -83,12 +99,16 @@ namespace Countdown.Views
             set { SetValue(HeadingProperty, value); }
         }
 
+        private static void HeadingTextPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((GroupBorder)d).HeadingText.Text = e.NewValue as string ?? string.Empty;
+        }
 
         public static readonly DependencyProperty GroupBorderColourProperty =
               DependencyProperty.Register("GroupBorderColour",
               typeof(Color),
               typeof(GroupBorder),
-              new PropertyMetadata(Colors.LightGray));
+              new PropertyMetadata(Colors.LightGray, GroupBorderColourPropertyChanged));
 
         public Color GroupBorderColour
         {
@@ -96,15 +116,25 @@ namespace Countdown.Views
             set { SetValue(GroupBorderColourProperty, value); }
         }
 
+        private static void GroupBorderColourPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            GroupBorder gb = (GroupBorder)d;
+
+            if (gb.IsLoaded)
+                gb.RedrawBorder();
+        }
+
+
         private ShapeVisual CreateBorderRoundedRect()
         {
             // space between the end of the border line and the start of the text
-            const float cTextStartPadding = 2.0f;
+            const float cTextStartPadding = 3.0f;
             // space between the end of the text and the start of the border line
             const float cTextEndPadding = 4.0f;
 
-            const float cBorderStrokeThickness = 1.0f;
-            const float cHalfStrokeThickness = cBorderStrokeThickness * 0.5f;
+            // non uniform border thicknesses aren't supported
+            float borderStrokeThickness = (float)BorderThickness.Left;
+            float halfStrokeThickness = borderStrokeThickness * 0.5f;
 
             // How far down the TextBlock the border line is draw. If 0.0, it
             // would be drawn at the top of the TextBlock. At 1.0, it would be drawn
@@ -130,30 +160,39 @@ namespace Countdown.Views
             using CanvasPathBuilder builder = new CanvasPathBuilder(null);
 
             // right hand side of text
+            float radius = (float)CornerRadius.TopRight;
             builder.BeginFigure(textRHS, fontCenter, CanvasFigureFill.DoesNotAffectFills);
-            builder.AddLine(ActualSize.X - (cCornerRadius + cHalfStrokeThickness), fontCenter);
+            builder.AddLine(ActualSize.X - (radius + halfStrokeThickness), fontCenter);
 
             // top right corner
-            Vector2 arcEnd = new Vector2(ActualSize.X - cHalfStrokeThickness, fontCenter + cCornerRadius + cHalfStrokeThickness);
-            builder.AddArc(arcEnd, cCornerRadius, cCornerRadius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+            Vector2 arcEnd = new Vector2(ActualSize.X - halfStrokeThickness, fontCenter + radius + halfStrokeThickness);
 
-            builder.AddLine(arcEnd.X, ActualSize.Y - (cCornerRadius + cHalfStrokeThickness));
+            if (radius > 0)
+                builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
 
             // bottom right corner
-            arcEnd = new Vector2(ActualSize.X - (cCornerRadius + cHalfStrokeThickness), ActualSize.Y - cHalfStrokeThickness);
-            builder.AddArc(arcEnd, cCornerRadius, cCornerRadius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+            radius = (float)CornerRadius.BottomRight;
+            builder.AddLine(arcEnd.X, ActualSize.Y - (radius + halfStrokeThickness));
+            arcEnd = new Vector2(ActualSize.X - (radius + halfStrokeThickness), ActualSize.Y - halfStrokeThickness);
 
-            builder.AddLine(cCornerRadius + cHalfStrokeThickness, arcEnd.Y);
+            if (radius > 0)
+                builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
 
             // bottom left corner
-            arcEnd = new Vector2(cHalfStrokeThickness, ActualSize.Y - (cCornerRadius + cHalfStrokeThickness));
-            builder.AddArc(arcEnd, cCornerRadius, cCornerRadius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+            radius = (float)CornerRadius.BottomLeft;
+            builder.AddLine(radius + halfStrokeThickness, arcEnd.Y);
+            arcEnd = new Vector2(halfStrokeThickness, ActualSize.Y - (radius + halfStrokeThickness));
 
-            builder.AddLine(arcEnd.X, fontCenter + cCornerRadius + cHalfStrokeThickness);
+            if (radius > 0)
+                builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
 
             // top left corner
-            arcEnd = new Vector2(cCornerRadius + cHalfStrokeThickness, fontCenter);
-            builder.AddArc(arcEnd, cCornerRadius, cCornerRadius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+            radius = (float)CornerRadius.TopLeft;
+            builder.AddLine(arcEnd.X, fontCenter + radius);
+            arcEnd = new Vector2(radius + halfStrokeThickness, fontCenter);
+
+            if (radius > 0)
+                builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
 
             builder.AddLine(textLHS, arcEnd.Y);
             builder.EndFigure(CanvasFigureLoop.Open);
@@ -166,7 +205,7 @@ namespace Countdown.Views
             // create a shape from the geometry
             CompositionSpriteShape spriteShape = compositor.CreateSpriteShape(pathGeometry);
             spriteShape.FillBrush = compositor.CreateColorBrush(Colors.Transparent);
-            spriteShape.StrokeThickness = cBorderStrokeThickness;
+            spriteShape.StrokeThickness = borderStrokeThickness;
             spriteShape.StrokeBrush = compositor.CreateColorBrush(GroupBorderColour);
 
             // create a visual for the shape
@@ -176,19 +215,5 @@ namespace Countdown.Views
 
             return shapeVisual;
         }
-
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            Size size = base.MeasureOverride(availableSize);
-
-            // Using the System to measure the text height isn't ideal, but it
-            // will always work. This results in another measure pass, but that 
-            // isn't a particularly expensive operation.
-            const double inset = 1;
-            ChildPresenter.Padding = new Thickness(cCornerRadius + inset, HeadingText.DesiredSize.Height + inset, cCornerRadius + inset, cCornerRadius + inset);
-
-            return size;
-        }
     }
 }
-

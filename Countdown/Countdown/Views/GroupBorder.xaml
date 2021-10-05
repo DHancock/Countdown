@@ -7,7 +7,16 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
     <Grid>
-        <TextBlock x:Name="HeadingText" Text="{x:Bind Heading}" Margin="12, 0, 0, 0"/>
-        <ContentPresenter x:Name="ChildPresenter" Content="{x:Bind ChildContent}"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" x:Name="HeadingText" Margin="12, 0, 0, 0"/>
+        <ContentPresenter Grid.Row="1" Grid.ColumnSpan="2" x:Name="ChildPresenter" Content="{x:Bind ChildContent}"/>
     </Grid>
 </UserControl>

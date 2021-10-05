@@ -1,7 +1,8 @@
 ﻿<Application
     x:Class="Countdown.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Countdown.Views">
     <Application.Resources>
         <ResourceDictionary>
 
@@ -33,6 +34,12 @@
                 <Setter Property="BorderBrush" Value="Gray"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="SelectionMode" Value="Extended"/>
+            </Style>
+
+            <Style TargetType="local:GroupBorder">
+                <Setter Property="CornerRadius" Value="{StaticResource OverlayCornerRadius}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="GroupBorderColour" Value="LightGray"/>
             </Style>
 
             <GridLength x:Key="InputGridWidth">350</GridLength>
