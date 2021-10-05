@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Numerics;
 using Microsoft.Graphics.Canvas.Geometry;
 using Microsoft.UI;
@@ -30,9 +31,14 @@ namespace Countdown.Views
             // the padding is dependent on the corner radius
             ChildPresenter.Padding = CalculateContentPresenterPadding();
 
-            // reusing the following properties to define the group border
+            // reuse the following properties to define the group border
             RegisterPropertyChangedCallback(CornerRadiusProperty, CornerRadiusPropertyChanged);
             RegisterPropertyChangedCallback(BorderThicknessProperty, BorderThicknessPropertyChanged);
+            RegisterPropertyChangedCallback(FontSizeProperty, FontPropertyChanged);
+            RegisterPropertyChangedCallback(FontFamilyProperty, FontPropertyChanged);
+            RegisterPropertyChangedCallback(FontWeightProperty, FontPropertyChanged);
+            RegisterPropertyChangedCallback(FontStyleProperty, FontPropertyChanged);
+            RegisterPropertyChangedCallback(FontStretchProperty, FontPropertyChanged);
 
             Loaded += (s, e) =>
             {
@@ -71,7 +77,18 @@ namespace Countdown.Views
 
         private void BorderThicknessPropertyChanged(DependencyObject sender, DependencyProperty dp)
         {
+            // non uniform border thicknesses aren't supported
+            Debug.Assert(BorderThickness == new Thickness(BorderThickness.Left));
             RedrawBorder();
+        }
+
+        private void FontPropertyChanged(DependencyObject sender, DependencyProperty dp)
+        {
+            HeadingText.FontFamily = FontFamily;
+            HeadingText.FontSize = FontSize;
+            HeadingText.FontStyle = FontStyle;
+            HeadingText.FontWeight = FontWeight;
+            HeadingText.FontStretch = FontStretch;
         }
 
         public static readonly DependencyProperty ChildContentProperty =
@@ -198,13 +215,12 @@ namespace Countdown.Views
             builder.EndFigure(CanvasFigureLoop.Open);
 
             // create a composition geometry from the canvas path data
-            CanvasGeometry canvasGeometry = CanvasGeometry.CreatePath(builder);
+            using CanvasGeometry canvasGeometry = CanvasGeometry.CreatePath(builder);
             CompositionPathGeometry pathGeometry = compositor.CreatePathGeometry();
             pathGeometry.Path = new CompositionPath(canvasGeometry);
 
             // create a shape from the geometry
             CompositionSpriteShape spriteShape = compositor.CreateSpriteShape(pathGeometry);
-            spriteShape.FillBrush = compositor.CreateColorBrush(Colors.Transparent);
             spriteShape.StrokeThickness = borderStrokeThickness;
             spriteShape.StrokeBrush = compositor.CreateColorBrush(GroupBorderColour);
 
