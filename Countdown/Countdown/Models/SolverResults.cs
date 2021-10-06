@@ -17,10 +17,10 @@ namespace Countdown.Models
         private List<List<EquationItem>> SolverLists { get; } = new List<List<EquationItem>>(100);
 
         // used to aggregate all the solver list contents into a single list
-        public List<EquationItem> Solutions { get; private set; }
+        public List<EquationItem> Solutions { get; private set; } = new List<EquationItem>();
 
         // If no solutions found this is the closest equation
-        public string ClosestEquation { get; private set; }
+        public string ClosestEquation { get; private set; } = string.Empty;
 
         // If no solutions found this is the closest result
         public int ClosestResult { get; private set; }

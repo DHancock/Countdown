@@ -35,7 +35,6 @@ namespace Countdown.ViewModels
 
         public ICommand ChooseCommand { get; }
         public RelayCommand SolveCommand { get; }
-        public StandardUICommand CopyCommand { get; }
         public ICommand GoToDefinitionCommand { get; }
 
 
@@ -48,8 +47,6 @@ namespace Countdown.ViewModels
             ChooseCommand = new RelayCommand(ExecuteChoose, CanChoose);
 
             GoToDefinitionCommand = new RelayCommand(ExecuteGoToDefinition, CanGoToDefinition);
-
-
             ExecuteChoose(null);
         }
 

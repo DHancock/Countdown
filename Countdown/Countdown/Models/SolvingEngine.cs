@@ -44,10 +44,10 @@ namespace Countdown.Models
         private readonly int[] operators;
 
         /// a list of results equaling the target
-        public List<EquationItem> Solutions { get; }
+        public List<EquationItem> Solutions { get; } = new List<EquationItem>();
 
         // If no solutions found this is the closest equation
-        public string ClosestEquation { get; private set; }
+        public string ClosestEquation { get; private set; } = string.Empty;
 
         // If no solutions found this is the closest result
         public int ClosestResult { get; private set; }
