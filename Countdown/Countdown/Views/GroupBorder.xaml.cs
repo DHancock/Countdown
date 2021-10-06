@@ -14,7 +14,7 @@ using Windows.UI;
 
 namespace Countdown.Views
 {
-    [Microsoft.UI.Xaml.Markup.ContentProperty(Name = "ChildContent")]
+    [Microsoft.UI.Xaml.Markup.ContentProperty(Name = "Children")]
     public sealed partial class GroupBorder : UserControl
     {
         private readonly Compositor compositor;
@@ -27,6 +27,9 @@ namespace Countdown.Views
             compositor = ElementCompositionPreview.GetElementVisual(this).Compositor;
             containerVisual = compositor.CreateContainerVisual();
             ElementCompositionPreview.SetElementChildVisual(this, containerVisual);
+
+            // offset the text block from the control edge
+            HeadingText.Margin = new Thickness(TextMargin, 0, 0, 0);
 
             // the padding is dependent on the corner radius
             ChildPresenter.Padding = CalculateContentPresenterPadding();
@@ -51,8 +54,11 @@ namespace Countdown.Views
 
         private void RedrawBorder()
         {
-            containerVisual.Children.RemoveAll();
-            containerVisual.Children.InsertAtBottom(CreateBorderRoundedRect());
+            if (IsLoaded)
+            {
+                containerVisual.Children.RemoveAll();
+                containerVisual.Children.InsertAtBottom(CreateBorderRoundedRect());
+            }
         }
 
         private void CornerRadiusPropertyChanged(DependencyObject sender, DependencyProperty dp)
@@ -91,24 +97,23 @@ namespace Countdown.Views
             HeadingText.FontStretch = FontStretch;
         }
 
-        public static readonly DependencyProperty ChildContentProperty =
-            DependencyProperty.Register("ChildContent",
+        public static readonly DependencyProperty ChildrenProperty =
+            DependencyProperty.Register("Children",
             typeof(object),
             typeof(GroupBorder),
             new PropertyMetadata(null));
 
-        public object ChildContent
+        public object Children
         {
-            get { return (object)GetValue(ChildContentProperty); }
-            set { SetValue(ChildContentProperty, value); }
+            get { return GetValue(ChildrenProperty); }
+            set { SetValue(ChildrenProperty, value); }
         }
-
 
         public static readonly DependencyProperty HeadingProperty =
             DependencyProperty.Register("Heading",
             typeof(string),
             typeof(GroupBorder),
-            new PropertyMetadata(string.Empty, HeadingTextPropertyChanged));
+            new PropertyMetadata(string.Empty, HeadingPropertyChanged));
 
         public string Heading
         {
@@ -116,102 +121,147 @@ namespace Countdown.Views
             set { SetValue(HeadingProperty, value); }
         }
 
-        private static void HeadingTextPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void HeadingPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((GroupBorder)d).HeadingText.Text = e.NewValue as string ?? string.Empty;
         }
 
-        public static readonly DependencyProperty GroupBorderColourProperty =
-              DependencyProperty.Register("GroupBorderColour",
+        public static readonly DependencyProperty BorderColourProperty =
+              DependencyProperty.Register("BorderColour",
               typeof(Color),
               typeof(GroupBorder),
-              new PropertyMetadata(Colors.LightGray, GroupBorderColourPropertyChanged));
+              new PropertyMetadata(Colors.LightGray, (d, e) => ((GroupBorder)d).RedrawBorder()));
 
-        public Color GroupBorderColour
+        public Color BorderColour
         {
-            get { return (Color)GetValue(GroupBorderColourProperty); }
-            set { SetValue(GroupBorderColourProperty, value); }
+            get { return (Color)GetValue(BorderColourProperty); }
+            set { SetValue(BorderColourProperty, value); }
         }
 
-        private static void GroupBorderColourPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        public static readonly DependencyProperty TextBaseLineRatioProperty =
+            DependencyProperty.Register("TextBaseLineRatio",
+            typeof(double),
+            typeof(GroupBorder),
+            new PropertyMetadata(0.65, (d, e) => ((GroupBorder)d).RedrawBorder()));
+
+        // How far down the TextBlock the border line is draw.
+        // If 0.0, it'll be at the top of the TextBlock.
+        // If 1.0, it would be drawn at the bottom. 
+         public double TextBaseLineRatio
+        {
+            get { return (double)GetValue(TextBaseLineRatioProperty); }
+            set { SetValue(TextBaseLineRatioProperty, value); }
+        }
+
+
+        public static readonly DependencyProperty TextMarginProperty =
+            DependencyProperty.Register("TextMargin",
+            typeof(double),
+            typeof(GroupBorder),
+            new PropertyMetadata(12.0, TextMarginPropertyChanged));
+
+        // The offset from the control edge to the TextBlock. 
+        public double TextMargin
+        {
+            get { return (double)GetValue(TextMarginProperty); }
+            set { SetValue(TextMarginProperty, value); }
+        }
+
+        private static void TextMarginPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             GroupBorder gb = (GroupBorder)d;
+            gb.HeadingText.Margin = new Thickness((double)e.NewValue, 0, 0, 0);
+        }
 
-            if (gb.IsLoaded)
-                gb.RedrawBorder();
+        public static readonly DependencyProperty TextStartPaddingProperty =
+            DependencyProperty.Register("TextStartPadding",
+            typeof(double),
+            typeof(GroupBorder),
+            new PropertyMetadata(3.0, (d, e) => ((GroupBorder)d).RedrawBorder()));
+
+        // Padding between the end of the border and the start of the text.
+        public double TextStartPadding
+        {
+            get { return (double)GetValue(TextStartPaddingProperty); }
+            set { SetValue(TextStartPaddingProperty, value); }
+        }
+
+        public static readonly DependencyProperty TextEndPaddingProperty =
+            DependencyProperty.Register("TextEndPadding",
+            typeof(double),
+            typeof(GroupBorder),
+            new PropertyMetadata(4.0, (d, e) => ((GroupBorder)d).RedrawBorder()));
+
+        // Padding between the start of the border and the end of the text.
+        public double TextEndPadding
+        {
+            get { return (double)GetValue(TextEndPaddingProperty); }
+            set { SetValue(TextEndPaddingProperty, value); }
         }
 
 
         private ShapeVisual CreateBorderRoundedRect()
         {
-            // space between the end of the border line and the start of the text
-            const float cTextStartPadding = 3.0f;
-            // space between the end of the text and the start of the border line
-            const float cTextEndPadding = 4.0f;
-
-            // non uniform border thicknesses aren't supported
             float borderStrokeThickness = (float)BorderThickness.Left;
             float halfStrokeThickness = borderStrokeThickness * 0.5f;
-
-            // How far down the TextBlock the border line is draw. If 0.0, it
-            // would be drawn at the top of the TextBlock. At 1.0, it would be drawn
-            // at the bottom. 
-            const float cBaseLineRatio = 0.65f;   // TODO dp? and test for dpi change
 
             float textRHS;
             float textLHS;
 
             if (FlowDirection == FlowDirection.LeftToRight)
             {
-                textLHS = (float)HeadingText.Margin.Left - cTextStartPadding;
-                textRHS = (float)(HeadingText.Margin.Left + HeadingText.ActualWidth + cTextEndPadding);
+                textLHS = (float)(HeadingText.Margin.Left - TextStartPadding);
+                textRHS = (float)(HeadingText.Margin.Left + HeadingText.ActualWidth + TextEndPadding);
             }
             else
             {
-                textLHS = (float)(ActualSize.X - (HeadingText.Margin.Left + HeadingText.ActualWidth + cTextEndPadding));
-                textRHS = (float)(ActualSize.X - HeadingText.Margin.Left) + cTextStartPadding;
+                textLHS = (float)(ActualSize.X - (HeadingText.Margin.Left + HeadingText.ActualWidth + TextEndPadding));
+                textRHS = (float)(ActualSize.X - HeadingText.Margin.Left + TextStartPadding);
             }
 
-            float fontCenter = (float)(HeadingText.ActualHeight * cBaseLineRatio);
-
+            float fontCenter = (float)(HeadingText.ActualHeight * Math.Clamp(TextBaseLineRatio, 0.0, 1.0));
             using CanvasPathBuilder builder = new CanvasPathBuilder(null);
 
             // right hand side of text
-            float radius = (float)CornerRadius.TopRight;
             builder.BeginFigure(textRHS, fontCenter, CanvasFigureFill.DoesNotAffectFills);
+
+            float radius = (float)CornerRadius.TopRight;
             builder.AddLine(ActualSize.X - (radius + halfStrokeThickness), fontCenter);
 
-            // top right corner
-            Vector2 arcEnd = new Vector2(ActualSize.X - halfStrokeThickness, fontCenter + radius + halfStrokeThickness);
-
-            if (radius > 0)
+            if (radius > 0) // top right corner
+            {
+                Vector2 arcEnd = new Vector2(ActualSize.X - halfStrokeThickness, fontCenter + radius + halfStrokeThickness);
                 builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+            }
 
-            // bottom right corner
             radius = (float)CornerRadius.BottomRight;
-            builder.AddLine(arcEnd.X, ActualSize.Y - (radius + halfStrokeThickness));
-            arcEnd = new Vector2(ActualSize.X - (radius + halfStrokeThickness), ActualSize.Y - halfStrokeThickness);
-
-            if (radius > 0)
+            builder.AddLine(ActualSize.X - halfStrokeThickness, ActualSize.Y - (radius + halfStrokeThickness));
+            
+            if (radius > 0) // bottom right corner
+            {
+                Vector2 arcEnd = new Vector2(ActualSize.X - (radius + halfStrokeThickness), ActualSize.Y - halfStrokeThickness);
                 builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+            }
 
-            // bottom left corner
             radius = (float)CornerRadius.BottomLeft;
-            builder.AddLine(radius + halfStrokeThickness, arcEnd.Y);
-            arcEnd = new Vector2(halfStrokeThickness, ActualSize.Y - (radius + halfStrokeThickness));
+            builder.AddLine(radius + halfStrokeThickness, ActualSize.Y - halfStrokeThickness);
 
-            if (radius > 0)
+            if (radius > 0) // bottom left corner
+            {
+                Vector2 arcEnd = new Vector2(halfStrokeThickness, ActualSize.Y - (radius + halfStrokeThickness));
                 builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+            }
 
-            // top left corner
             radius = (float)CornerRadius.TopLeft;
-            builder.AddLine(arcEnd.X, fontCenter + radius);
-            arcEnd = new Vector2(radius + halfStrokeThickness, fontCenter);
+            builder.AddLine(halfStrokeThickness, fontCenter + radius);
 
-            if (radius > 0)
+            if (radius > 0) // top left corner
+            {
+                Vector2 arcEnd = new Vector2(radius + halfStrokeThickness, fontCenter);
                 builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+            }
 
-            builder.AddLine(textLHS, arcEnd.Y);
+            builder.AddLine(textLHS, fontCenter);
             builder.EndFigure(CanvasFigureLoop.Open);
 
             // create a composition geometry from the canvas path data
@@ -222,7 +272,7 @@ namespace Countdown.Views
             // create a shape from the geometry
             CompositionSpriteShape spriteShape = compositor.CreateSpriteShape(pathGeometry);
             spriteShape.StrokeThickness = borderStrokeThickness;
-            spriteShape.StrokeBrush = compositor.CreateColorBrush(GroupBorderColour);
+            spriteShape.StrokeBrush = compositor.CreateColorBrush(BorderColour);
 
             // create a visual for the shape
             ShapeVisual shapeVisual = compositor.CreateShapeVisual();

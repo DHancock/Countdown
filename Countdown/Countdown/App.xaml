@@ -39,7 +39,7 @@
             <Style TargetType="local:GroupBorder">
                 <Setter Property="CornerRadius" Value="{StaticResource OverlayCornerRadius}"/>
                 <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="GroupBorderColour" Value="LightGray"/>
+                <Setter Property="BorderColour" Value="LightGray"/>
             </Style>
 
             <GridLength x:Key="InputGridWidth">350</GridLength>
