@@ -101,7 +101,7 @@ namespace Countdown.Views
             DependencyProperty.Register(nameof(Children),
             typeof(object),
             typeof(GroupBorder),
-            new PropertyMetadata(null));
+            new PropertyMetadata(null, (d, e) => ((GroupBorder)d).ChildPresenter.Content = e.NewValue));
 
         public object Children
         {
@@ -113,17 +113,12 @@ namespace Countdown.Views
             DependencyProperty.Register(nameof(Heading),
             typeof(object),
             typeof(GroupBorder),
-            new PropertyMetadata(null, HeadingPropertyChanged));
+            new PropertyMetadata(null, (d, e) => ((GroupBorder)d).HeadingPresenter.Content = e.NewValue));
 
         public object Heading
         {
             get { return GetValue(HeadingProperty); }
             set { SetValue(HeadingProperty, value); }
-        }
-
-        private static void HeadingPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((GroupBorder)d).HeadingPresenter.Content = e.NewValue;
         }
 
         public static readonly DependencyProperty BorderColourProperty =
