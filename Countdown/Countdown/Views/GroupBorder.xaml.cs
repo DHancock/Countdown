@@ -29,7 +29,7 @@ namespace Countdown.Views
             ElementCompositionPreview.SetElementChildVisual(this, containerVisual);
 
             // offset the text block from the control edge
-            HeadingText.Margin = new Thickness(TextMargin, 0, 0, 0);
+            HeadingPresenter.Margin = new Thickness(HeadingMargin, 0, 0, 0);
 
             // the padding is dependent on the corner radius
             ChildPresenter.Padding = CalculateContentPresenterPadding();
@@ -45,7 +45,7 @@ namespace Countdown.Views
 
             Loaded += (s, e) =>
             {
-                HeadingText.SizeChanged += (s, e) => RedrawBorder();
+                HeadingPresenter.SizeChanged += (s, e) => RedrawBorder();
                 SizeChanged += (s, e) => RedrawBorder();
 
                 RedrawBorder(); // first draw
@@ -90,15 +90,15 @@ namespace Countdown.Views
 
         private void FontPropertyChanged(DependencyObject sender, DependencyProperty dp)
         {
-            HeadingText.FontFamily = FontFamily;
-            HeadingText.FontSize = FontSize;
-            HeadingText.FontStyle = FontStyle;
-            HeadingText.FontWeight = FontWeight;
-            HeadingText.FontStretch = FontStretch;
+            HeadingPresenter.FontFamily = FontFamily;
+            HeadingPresenter.FontSize = FontSize;
+            HeadingPresenter.FontStyle = FontStyle;
+            HeadingPresenter.FontWeight = FontWeight;
+            HeadingPresenter.FontStretch = FontStretch;
         }
 
         public static readonly DependencyProperty ChildrenProperty =
-            DependencyProperty.Register("Children",
+            DependencyProperty.Register(nameof(Children),
             typeof(object),
             typeof(GroupBorder),
             new PropertyMetadata(null));
@@ -110,24 +110,24 @@ namespace Countdown.Views
         }
 
         public static readonly DependencyProperty HeadingProperty =
-            DependencyProperty.Register("Heading",
-            typeof(string),
+            DependencyProperty.Register(nameof(Heading),
+            typeof(object),
             typeof(GroupBorder),
-            new PropertyMetadata(string.Empty, HeadingPropertyChanged));
+            new PropertyMetadata(null, HeadingPropertyChanged));
 
-        public string Heading
+        public object Heading
         {
-            get { return (string)GetValue(HeadingProperty); }
+            get { return GetValue(HeadingProperty); }
             set { SetValue(HeadingProperty, value); }
         }
 
         private static void HeadingPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((GroupBorder)d).HeadingText.Text = e.NewValue as string ?? string.Empty;
+            ((GroupBorder)d).HeadingPresenter.Content = e.NewValue;
         }
 
         public static readonly DependencyProperty BorderColourProperty =
-              DependencyProperty.Register("BorderColour",
+              DependencyProperty.Register(nameof(BorderColour),
               typeof(Color),
               typeof(GroupBorder),
               new PropertyMetadata(Colors.LightGray, (d, e) => ((GroupBorder)d).RedrawBorder()));
@@ -138,67 +138,66 @@ namespace Countdown.Views
             set { SetValue(BorderColourProperty, value); }
         }
 
-        public static readonly DependencyProperty TextBaseLineRatioProperty =
-            DependencyProperty.Register("TextBaseLineRatio",
+        public static readonly DependencyProperty HeadingBaseLineRatioProperty =
+            DependencyProperty.Register(nameof(HeadingBaseLineRatio),
             typeof(double),
             typeof(GroupBorder),
             new PropertyMetadata(0.65, (d, e) => ((GroupBorder)d).RedrawBorder()));
 
-        // How far down the TextBlock the border line is draw.
-        // If 0.0, it'll be at the top of the TextBlock.
+        // How far down the heading the border line is drawn.
+        // If 0.0, it'll be at the top of the content.
         // If 1.0, it would be drawn at the bottom. 
-        public double TextBaseLineRatio
+        public double HeadingBaseLineRatio
         {
-            get { return (double)GetValue(TextBaseLineRatioProperty); }
-            set { SetValue(TextBaseLineRatioProperty, value); }
+            get { return (double)GetValue(HeadingBaseLineRatioProperty); }
+            set { SetValue(HeadingBaseLineRatioProperty, value); }
         }
 
-
-        public static readonly DependencyProperty TextMarginProperty =
-            DependencyProperty.Register("TextMargin",
+        public static readonly DependencyProperty HeadingMarginProperty =
+            DependencyProperty.Register(nameof(HeadingMargin),
             typeof(double),
             typeof(GroupBorder),
-            new PropertyMetadata(12.0, TextMarginPropertyChanged));
+            new PropertyMetadata(12.0, HeadingMarginPropertyChanged));
 
-        // The offset from the control edge to the TextBlock. 
-        public double TextMargin
+        // The offset from the control edge to the heading presenter. 
+        public double HeadingMargin
         {
-            get { return (double)GetValue(TextMarginProperty); }
-            set { SetValue(TextMarginProperty, value); }
+            get { return (double)GetValue(HeadingMarginProperty); }
+            set { SetValue(HeadingMarginProperty, value); }
         }
 
-        private static void TextMarginPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void HeadingMarginPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            GroupBorder gb = (GroupBorder)d;
-            gb.HeadingText.Margin = new Thickness((double)e.NewValue, 0, 0, 0);
+            ((GroupBorder)d).HeadingPresenter.Margin = new Thickness((double)e.NewValue, 0, 0, 0);
         }
 
-        public static readonly DependencyProperty TextStartPaddingProperty =
-            DependencyProperty.Register("TextStartPadding",
+        public static readonly DependencyProperty BorderEndPaddingProperty =
+            DependencyProperty.Register(nameof(BorderEndPadding),
             typeof(double),
             typeof(GroupBorder),
             new PropertyMetadata(3.0, (d, e) => ((GroupBorder)d).RedrawBorder()));
 
         // Padding between the end of the border and the start of the text.
-        public double TextStartPadding
+        // This affects the border, changes won't cause a new measure pass.
+        public double BorderEndPadding
         {
-            get { return (double)GetValue(TextStartPaddingProperty); }
-            set { SetValue(TextStartPaddingProperty, value); }
+            get { return (double)GetValue(BorderEndPaddingProperty); }
+            set { SetValue(BorderEndPaddingProperty, value); }
         }
 
-        public static readonly DependencyProperty TextEndPaddingProperty =
-            DependencyProperty.Register("TextEndPadding",
+        public static readonly DependencyProperty BorderStartPaddingProperty =
+            DependencyProperty.Register(nameof(BorderStartPadding),
             typeof(double),
             typeof(GroupBorder),
             new PropertyMetadata(4.0, (d, e) => ((GroupBorder)d).RedrawBorder()));
 
         // Padding between the start of the border and the end of the text.
-        public double TextEndPadding
+        // This affects the border, changes won't cause a new measure pass.
+        public double BorderStartPadding
         {
-            get { return (double)GetValue(TextEndPaddingProperty); }
-            set { SetValue(TextEndPaddingProperty, value); }
+            get { return (double)GetValue(BorderStartPaddingProperty); }
+            set { SetValue(BorderStartPaddingProperty, value); }
         }
-
 
         private ShapeVisual CreateBorderRoundedRect()
         {
@@ -210,27 +209,27 @@ namespace Countdown.Views
 
             if (FlowDirection == FlowDirection.LeftToRight)
             {
-                textLHS = (float)(HeadingText.Margin.Left - TextStartPadding);
-                textRHS = (float)(HeadingText.Margin.Left + HeadingText.ActualWidth + TextEndPadding);
+                textLHS = (float)(HeadingPresenter.Margin.Left - BorderEndPadding);
+                textRHS = (float)(HeadingPresenter.Margin.Left + HeadingPresenter.ActualWidth + BorderStartPadding);
             }
             else
             {
-                textLHS = (float)(ActualSize.X - (HeadingText.Margin.Left + HeadingText.ActualWidth + TextEndPadding));
-                textRHS = (float)(ActualSize.X - HeadingText.Margin.Left + TextStartPadding);
+                textLHS = (float)(ActualSize.X - (HeadingPresenter.Margin.Left + HeadingPresenter.ActualWidth + BorderStartPadding));
+                textRHS = (float)(ActualSize.X - HeadingPresenter.Margin.Left + BorderEndPadding);
             }
 
-            float fontCenter = (float)(HeadingText.ActualHeight * Math.Clamp(TextBaseLineRatio, 0.0, 1.0));
+            float headingCenter = (float)(HeadingPresenter.ActualHeight * Math.Clamp(HeadingBaseLineRatio, 0.0, 1.0));
             using CanvasPathBuilder builder = new CanvasPathBuilder(null);
 
             // right hand side of text
-            builder.BeginFigure(textRHS, fontCenter, CanvasFigureFill.DoesNotAffectFills);
+            builder.BeginFigure(textRHS, headingCenter, CanvasFigureFill.DoesNotAffectFills);
 
             float radius = (float)CornerRadius.TopRight;
-            builder.AddLine(ActualSize.X - (radius + halfStrokeThickness), fontCenter);
+            builder.AddLine(ActualSize.X - (radius + halfStrokeThickness), headingCenter);
 
             if (radius > 0) // top right corner
             {
-                Vector2 arcEnd = new Vector2(ActualSize.X - halfStrokeThickness, fontCenter + radius + halfStrokeThickness);
+                Vector2 arcEnd = new Vector2(ActualSize.X - halfStrokeThickness, headingCenter + radius + halfStrokeThickness);
                 builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
             }
 
@@ -252,16 +251,17 @@ namespace Countdown.Views
                 builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
             }
 
+
             radius = (float)CornerRadius.TopLeft;
-            builder.AddLine(halfStrokeThickness, fontCenter + radius);
+            builder.AddLine(halfStrokeThickness, headingCenter + radius);
 
             if (radius > 0) // top left corner
             {
-                Vector2 arcEnd = new Vector2(radius + halfStrokeThickness, fontCenter);
+                Vector2 arcEnd = new Vector2(radius + halfStrokeThickness, headingCenter);
                 builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
             }
 
-            builder.AddLine(textLHS, fontCenter);
+            builder.AddLine(textLHS, headingCenter);
             builder.EndFigure(CanvasFigureLoop.Open);
 
             // create a composition geometry from the canvas path data
