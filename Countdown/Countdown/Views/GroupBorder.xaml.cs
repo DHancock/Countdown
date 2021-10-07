@@ -37,12 +37,11 @@ namespace Countdown.Views
             // reuse the following properties to define the group border
             RegisterPropertyChangedCallback(CornerRadiusProperty, CornerRadiusPropertyChanged);
             RegisterPropertyChangedCallback(BorderThicknessProperty, BorderThicknessPropertyChanged);
-            RegisterPropertyChangedCallback(FontSizeProperty, TextPropertyChanged);
-            RegisterPropertyChangedCallback(FontFamilyProperty, TextPropertyChanged);
-            RegisterPropertyChangedCallback(FontWeightProperty, TextPropertyChanged);
-            RegisterPropertyChangedCallback(FontStyleProperty, TextPropertyChanged);
-            RegisterPropertyChangedCallback(FontStretchProperty, TextPropertyChanged);
-            RegisterPropertyChangedCallback(ForegroundProperty, TextPropertyChanged);
+            RegisterPropertyChangedCallback(FontSizeProperty, FontPropertyChanged);
+            RegisterPropertyChangedCallback(FontFamilyProperty, FontPropertyChanged);
+            RegisterPropertyChangedCallback(FontWeightProperty, FontPropertyChanged);
+            RegisterPropertyChangedCallback(FontStyleProperty, FontPropertyChanged);
+            RegisterPropertyChangedCallback(FontStretchProperty, FontPropertyChanged);
 
             Loaded += (s, e) =>
             {
@@ -89,14 +88,13 @@ namespace Countdown.Views
             RedrawBorder();
         }
 
-        private void TextPropertyChanged(DependencyObject sender, DependencyProperty dp)
+        private void FontPropertyChanged(DependencyObject sender, DependencyProperty dp)
         {
             HeadingText.FontFamily = FontFamily;
             HeadingText.FontSize = FontSize;
             HeadingText.FontStyle = FontStyle;
             HeadingText.FontWeight = FontWeight;
             HeadingText.FontStretch = FontStretch;
-            HeadingText.Foreground = Foreground;
         }
 
         public static readonly DependencyProperty ChildrenProperty =
