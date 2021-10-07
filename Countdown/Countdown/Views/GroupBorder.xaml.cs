@@ -37,11 +37,12 @@ namespace Countdown.Views
             // reuse the following properties to define the group border
             RegisterPropertyChangedCallback(CornerRadiusProperty, CornerRadiusPropertyChanged);
             RegisterPropertyChangedCallback(BorderThicknessProperty, BorderThicknessPropertyChanged);
-            RegisterPropertyChangedCallback(FontSizeProperty, FontPropertyChanged);
-            RegisterPropertyChangedCallback(FontFamilyProperty, FontPropertyChanged);
-            RegisterPropertyChangedCallback(FontWeightProperty, FontPropertyChanged);
-            RegisterPropertyChangedCallback(FontStyleProperty, FontPropertyChanged);
-            RegisterPropertyChangedCallback(FontStretchProperty, FontPropertyChanged);
+            RegisterPropertyChangedCallback(FontSizeProperty, TextPropertyChanged);
+            RegisterPropertyChangedCallback(FontFamilyProperty, TextPropertyChanged);
+            RegisterPropertyChangedCallback(FontWeightProperty, TextPropertyChanged);
+            RegisterPropertyChangedCallback(FontStyleProperty, TextPropertyChanged);
+            RegisterPropertyChangedCallback(FontStretchProperty, TextPropertyChanged);
+            RegisterPropertyChangedCallback(ForegroundProperty, TextPropertyChanged);
 
             Loaded += (s, e) =>
             {
@@ -88,13 +89,14 @@ namespace Countdown.Views
             RedrawBorder();
         }
 
-        private void FontPropertyChanged(DependencyObject sender, DependencyProperty dp)
+        private void TextPropertyChanged(DependencyObject sender, DependencyProperty dp)
         {
             HeadingText.FontFamily = FontFamily;
             HeadingText.FontSize = FontSize;
             HeadingText.FontStyle = FontStyle;
             HeadingText.FontWeight = FontWeight;
             HeadingText.FontStretch = FontStretch;
+            HeadingText.Foreground = Foreground;
         }
 
         public static readonly DependencyProperty ChildrenProperty =
@@ -147,7 +149,7 @@ namespace Countdown.Views
         // How far down the TextBlock the border line is draw.
         // If 0.0, it'll be at the top of the TextBlock.
         // If 1.0, it would be drawn at the bottom. 
-         public double TextBaseLineRatio
+        public double TextBaseLineRatio
         {
             get { return (double)GetValue(TextBaseLineRatioProperty); }
             set { SetValue(TextBaseLineRatioProperty, value); }
@@ -236,7 +238,7 @@ namespace Countdown.Views
 
             radius = (float)CornerRadius.BottomRight;
             builder.AddLine(ActualSize.X - halfStrokeThickness, ActualSize.Y - (radius + halfStrokeThickness));
-            
+
             if (radius > 0) // bottom right corner
             {
                 Vector2 arcEnd = new Vector2(ActualSize.X - (radius + halfStrokeThickness), ActualSize.Y - halfStrokeThickness);

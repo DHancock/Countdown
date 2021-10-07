@@ -16,7 +16,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" x:Name="HeadingText"/>
+        <TextBlock x:Name="HeadingText"/>
         <ContentPresenter Grid.Row="1" Grid.ColumnSpan="2" x:Name="ChildPresenter" Content="{x:Bind Children}"/>
     </Grid>
 </UserControl>
