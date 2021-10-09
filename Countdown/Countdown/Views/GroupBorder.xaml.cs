@@ -1,32 +1,20 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Numerics;
-using Microsoft.Graphics.Canvas.Geometry;
-using Microsoft.UI;
-using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Hosting;
-using Windows.UI;
+using Microsoft.UI.Xaml.Media;
+using Windows.Foundation;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Countdown.Views
 {
-    [Microsoft.UI.Xaml.Markup.ContentProperty(Name = "Children")]
+    [Microsoft.UI.Xaml.Markup.ContentProperty(Name = nameof(Children))]
     public sealed partial class GroupBorder : UserControl
     {
-        private readonly Compositor compositor;
-        private readonly ContainerVisual containerVisual;
-
         public GroupBorder()
         {
             this.InitializeComponent();
-
-            compositor = ElementCompositionPreview.GetElementVisual(this).Compositor;
-            containerVisual = compositor.CreateContainerVisual();
-            ElementCompositionPreview.SetElementChildVisual(this, containerVisual);
 
             // offset the text block from the control edge
             HeadingPresenter.Margin = new Thickness(HeadingMargin, 0, 0, 0);
@@ -34,9 +22,13 @@ namespace Countdown.Views
             // the padding is dependent on the corner radius
             ChildPresenter.Padding = CalculateContentPresenterPadding();
 
+            BorderPath.Stroke = BorderBrush;
+            BorderPath.StrokeThickness = BorderThickness.Left;
+
             // reuse the following properties to define the group border
-            RegisterPropertyChangedCallback(CornerRadiusProperty, CornerRadiusPropertyChanged);
-            RegisterPropertyChangedCallback(BorderThicknessProperty, BorderThicknessPropertyChanged);
+            RegisterPropertyChangedCallback(CornerRadiusProperty, BorderPropertyChanged);
+            RegisterPropertyChangedCallback(BorderThicknessProperty, BorderPropertyChanged);
+            RegisterPropertyChangedCallback(BorderBrushProperty, BorderPropertyChanged);
             RegisterPropertyChangedCallback(FontSizeProperty, FontPropertyChanged);
             RegisterPropertyChangedCallback(FontFamilyProperty, FontPropertyChanged);
             RegisterPropertyChangedCallback(FontWeightProperty, FontPropertyChanged);
@@ -55,37 +47,33 @@ namespace Countdown.Views
         private void RedrawBorder()
         {
             if (IsLoaded)
-            {
-                containerVisual.Children.RemoveAll();
-                containerVisual.Children.InsertAtBottom(CreateBorderRoundedRect());
-            }
+                CreateBorderRoundedRect();
         }
 
-        private void CornerRadiusPropertyChanged(DependencyObject sender, DependencyProperty dp)
+        private void BorderPropertyChanged(DependencyObject sender, DependencyProperty dp)
         {
             Thickness newPadding = CalculateContentPresenterPadding();
 
             if (ChildPresenter.Padding != newPadding)
                 ChildPresenter.Padding = newPadding;
-            else
-                RedrawBorder();
+
+            BorderPath.Stroke = BorderBrush;
+            BorderPath.StrokeThickness = BorderThickness.Left;
+
+            RedrawBorder();
         }
 
         private Thickness CalculateContentPresenterPadding()
         {
-            // a non uniform corner radius is unlikely, but possible
-            const double inset = 1.0;
-            return new Thickness(Math.Max(CornerRadius.TopLeft, CornerRadius.BottomLeft) + inset,
-                                        Math.Max(CornerRadius.TopLeft, CornerRadius.TopRight) + inset,
-                                        Math.Max(CornerRadius.TopRight, CornerRadius.BottomRight) + inset,
-                                        Math.Max(CornerRadius.BottomLeft, CornerRadius.BottomRight) + inset);
-        }
+            double Max(double a, double b, double c) => Math.Max(Math.Max(a, b), c);
 
-        private void BorderThicknessPropertyChanged(DependencyObject sender, DependencyProperty dp)
-        {
-            // non uniform border thicknesses aren't supported
-            Debug.Assert(BorderThickness == new Thickness(BorderThickness.Left));
-            RedrawBorder();
+            // a non uniform corner radius is unlikely, but possible
+            // a non uniform border thickness isn't supported
+            const double inset = 1.0;
+            return new Thickness(Max(CornerRadius.TopLeft, CornerRadius.BottomLeft, BorderThickness.Left) + inset,
+                                    Max(CornerRadius.TopLeft, CornerRadius.TopRight, BorderThickness.Left) + inset,
+                                    Max(CornerRadius.TopRight, CornerRadius.BottomRight, BorderThickness.Left) + inset,
+                                    Max(CornerRadius.BottomLeft, CornerRadius.BottomRight, BorderThickness.Left) + inset);
         }
 
         private void FontPropertyChanged(DependencyObject sender, DependencyProperty dp)
@@ -119,18 +107,6 @@ namespace Countdown.Views
         {
             get { return GetValue(HeadingProperty); }
             set { SetValue(HeadingProperty, value); }
-        }
-
-        public static readonly DependencyProperty BorderColourProperty =
-              DependencyProperty.Register(nameof(BorderColour),
-              typeof(Color),
-              typeof(GroupBorder),
-              new PropertyMetadata(Colors.LightGray, (d, e) => ((GroupBorder)d).RedrawBorder()));
-
-        public Color BorderColour
-        {
-            get { return (Color)GetValue(BorderColourProperty); }
-            set { SetValue(BorderColourProperty, value); }
         }
 
         public static readonly DependencyProperty HeadingBaseLineRatioProperty =
@@ -194,11 +170,23 @@ namespace Countdown.Views
             set { SetValue(BorderStartPaddingProperty, value); }
         }
 
-        private ShapeVisual CreateBorderRoundedRect()
+        private void CreateBorderRoundedRect()
         {
-            float borderStrokeThickness = (float)BorderThickness.Left;
-            float halfStrokeThickness = borderStrokeThickness * 0.5f;
+            LineSegment LineTo(float x, float y) => new LineSegment() { Point = new Point(x, y), };
+            ArcSegment ArcTo(Point end, float radius) => new ArcSegment() { Point = end, RotationAngle = 90.0, IsLargeArc = false, Size = new Size(radius, radius), SweepDirection = SweepDirection.Clockwise };
 
+            PathGeometry pathGeometry = new PathGeometry();
+            PathFigureCollection figureCollection = pathGeometry.Figures;
+
+            PathFigure figure = new PathFigure()
+            {
+                IsClosed = false,
+                IsFilled = false,
+            };
+
+            figureCollection.Add(figure);
+
+            float halfStrokeThickness = (float)(BorderThickness.Left * 0.5);
             float textRHS;
             float textLHS;
 
@@ -214,67 +202,51 @@ namespace Countdown.Views
             }
 
             float headingCenter = (float)(HeadingPresenter.ActualHeight * Math.Clamp(HeadingBaseLineRatio, 0.0, 1.0));
-            using CanvasPathBuilder builder = new CanvasPathBuilder(null);
 
             // right hand side of text
-            builder.BeginFigure(textRHS, headingCenter, CanvasFigureFill.DoesNotAffectFills);
+            figure.StartPoint = new Point(textRHS, headingCenter);
 
             float radius = (float)CornerRadius.TopRight;
-            builder.AddLine(ActualSize.X - (radius + halfStrokeThickness), headingCenter);
+            figure.Segments.Add(LineTo(ActualSize.X - (radius + halfStrokeThickness), headingCenter));
 
             if (radius > 0) // top right corner
             {
-                Vector2 arcEnd = new Vector2(ActualSize.X - halfStrokeThickness, headingCenter + radius + halfStrokeThickness);
-                builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+                Point arcEnd = new Point(ActualSize.X - halfStrokeThickness, headingCenter + radius + halfStrokeThickness);
+                figure.Segments.Add(ArcTo(arcEnd, radius));
             }
 
             radius = (float)CornerRadius.BottomRight;
-            builder.AddLine(ActualSize.X - halfStrokeThickness, ActualSize.Y - (radius + halfStrokeThickness));
+
+            figure.Segments.Add(LineTo(ActualSize.X - halfStrokeThickness, ActualSize.Y - (radius + halfStrokeThickness)));
 
             if (radius > 0) // bottom right corner
             {
-                Vector2 arcEnd = new Vector2(ActualSize.X - (radius + halfStrokeThickness), ActualSize.Y - halfStrokeThickness);
-                builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+                Point arcEnd = new Point(ActualSize.X - (radius + halfStrokeThickness), ActualSize.Y - halfStrokeThickness);
+                figure.Segments.Add(ArcTo(arcEnd, radius));
             }
 
             radius = (float)CornerRadius.BottomLeft;
-            builder.AddLine(radius + halfStrokeThickness, ActualSize.Y - halfStrokeThickness);
+            figure.Segments.Add(LineTo(radius + halfStrokeThickness, ActualSize.Y - halfStrokeThickness));
 
             if (radius > 0) // bottom left corner
             {
-                Vector2 arcEnd = new Vector2(halfStrokeThickness, ActualSize.Y - (radius + halfStrokeThickness));
-                builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+                Point arcEnd = new Point(halfStrokeThickness, ActualSize.Y - (radius + halfStrokeThickness));
+                figure.Segments.Add(ArcTo(arcEnd, radius));
             }
 
-
             radius = (float)CornerRadius.TopLeft;
-            builder.AddLine(halfStrokeThickness, headingCenter + radius);
+            figure.Segments.Add(LineTo(halfStrokeThickness, headingCenter + radius));
 
             if (radius > 0) // top left corner
             {
-                Vector2 arcEnd = new Vector2(radius + halfStrokeThickness, headingCenter);
-                builder.AddArc(arcEnd, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+                Point arcEnd = new Point(radius + halfStrokeThickness, headingCenter);
+                figure.Segments.Add(ArcTo(arcEnd, radius));
             }
 
-            builder.AddLine(textLHS, headingCenter);
-            builder.EndFigure(CanvasFigureLoop.Open);
+            figure.Segments.Add(LineTo(textLHS, headingCenter));
 
-            // create a composition geometry from the canvas path data
-            using CanvasGeometry canvasGeometry = CanvasGeometry.CreatePath(builder);
-            CompositionPathGeometry pathGeometry = compositor.CreatePathGeometry();
-            pathGeometry.Path = new CompositionPath(canvasGeometry);
-
-            // create a shape from the geometry
-            CompositionSpriteShape spriteShape = compositor.CreateSpriteShape(pathGeometry);
-            spriteShape.StrokeThickness = borderStrokeThickness;
-            spriteShape.StrokeBrush = compositor.CreateColorBrush(BorderColour);
-
-            // create a visual for the shape
-            ShapeVisual shapeVisual = compositor.CreateShapeVisual();
-            shapeVisual.Size = ActualSize;
-            shapeVisual.Shapes.Add(spriteShape);
-
-            return shapeVisual;
+            // add the new path geometry in to the visual tree
+            BorderPath.Data = pathGeometry;
         }
     }
 }

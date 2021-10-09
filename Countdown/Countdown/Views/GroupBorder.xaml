@@ -16,6 +16,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <Path x:Name="BorderPath"/>
         <ContentPresenter x:Name="HeadingPresenter"/>
         <ContentPresenter Grid.Row="1" Grid.ColumnSpan="2" x:Name="ChildPresenter"/>
     </Grid>
