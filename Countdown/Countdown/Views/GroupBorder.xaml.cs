@@ -65,7 +65,7 @@ namespace Countdown.Views
 
         private Thickness CalculateContentPresenterPadding()
         {
-            double Max(double a, double b, double c) => Math.Max(Math.Max(a, b), c);
+            static double Max(double a, double b, double c) => Math.Max(Math.Max(a, b), c);
 
             // a non uniform corner radius is unlikely, but possible
             // a non uniform border thickness isn't supported
@@ -113,7 +113,7 @@ namespace Countdown.Views
             DependencyProperty.Register(nameof(HeadingBaseLineRatio),
             typeof(double),
             typeof(GroupBorder),
-            new PropertyMetadata(0.65, (d, e) => ((GroupBorder)d).RedrawBorder()));
+            new PropertyMetadata(0.61, (d, e) => ((GroupBorder)d).RedrawBorder()));
 
         // How far down the heading the border line is drawn.
         // If 0.0, it'll be at the top of the content.
@@ -139,7 +139,10 @@ namespace Countdown.Views
 
         private static void HeadingMarginPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((GroupBorder)d).HeadingPresenter.Margin = new Thickness((double)e.NewValue, 0, 0, 0);
+            GroupBorder gb = (GroupBorder)d;
+
+            gb.HeadingPresenter.Margin = new Thickness((double)e.NewValue, 0, 0, 0);
+            gb.RedrawBorder();
         }
 
         public static readonly DependencyProperty BorderEndPaddingProperty =
@@ -211,7 +214,7 @@ namespace Countdown.Views
 
             if (radius > 0) // top right corner
             {
-                Point arcEnd = new Point(ActualSize.X - halfStrokeThickness, headingCenter + radius + halfStrokeThickness);
+                Point arcEnd = new Point(ActualSize.X - halfStrokeThickness, headingCenter + radius);
                 figure.Segments.Add(ArcTo(arcEnd, radius));
             }
 
