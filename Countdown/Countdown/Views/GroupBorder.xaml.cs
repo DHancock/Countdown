@@ -69,11 +69,10 @@ namespace Countdown.Views
 
             // a non uniform corner radius is unlikely, but possible
             // a non uniform border thickness isn't supported
-            const double inset = 1.0;
-            return new Thickness(Max(CornerRadius.TopLeft, CornerRadius.BottomLeft, BorderThickness.Left) + inset,
-                                    Max(CornerRadius.TopLeft, CornerRadius.TopRight, BorderThickness.Left) + inset,
-                                    Max(CornerRadius.TopRight, CornerRadius.BottomRight, BorderThickness.Left) + inset,
-                                    Max(CornerRadius.BottomLeft, CornerRadius.BottomRight, BorderThickness.Left) + inset);
+            return new Thickness(Max(CornerRadius.TopLeft, CornerRadius.BottomLeft, BorderThickness.Left),
+                                    Max(CornerRadius.TopLeft, CornerRadius.TopRight, BorderThickness.Left),
+                                    Max(CornerRadius.TopRight, CornerRadius.BottomRight, BorderThickness.Left),
+                                    Max(CornerRadius.BottomLeft, CornerRadius.BottomRight, BorderThickness.Left));
         }
 
         private void FontPropertyChanged(DependencyObject sender, DependencyProperty dp)
@@ -175,11 +174,8 @@ namespace Countdown.Views
 
         private void CreateBorderRoundedRect()
         {
-            LineSegment LineTo(float x, float y) => new LineSegment() { Point = new Point(x, y), };
-            ArcSegment ArcTo(Point end, float radius) => new ArcSegment() { Point = end, RotationAngle = 90.0, IsLargeArc = false, Size = new Size(radius, radius), SweepDirection = SweepDirection.Clockwise };
-
-            PathGeometry pathGeometry = new PathGeometry();
-            PathFigureCollection figureCollection = pathGeometry.Figures;
+            static LineSegment LineTo(float x, float y) => new LineSegment() { Point = new Point(x, y), };
+            static ArcSegment ArcTo(Point end, float radius) => new ArcSegment() { Point = end, RotationAngle = 90.0, IsLargeArc = false, Size = new Size(radius, radius), SweepDirection = SweepDirection.Clockwise };
 
             PathFigure figure = new PathFigure()
             {
@@ -187,30 +183,26 @@ namespace Countdown.Views
                 IsFilled = false,
             };
 
-            figureCollection.Add(figure);
+            PathGeometry pathGeometry = new PathGeometry();
+            pathGeometry.Figures.Add(figure);
+
+            float textLHS = (float)(HeadingMargin - BorderEndPadding);
+            float textRHS = (float)(HeadingMargin + HeadingPresenter.ActualWidth + BorderStartPadding);
 
             float halfStrokeThickness = (float)(BorderThickness.Left * 0.5);
-            float textRHS;
-            float textLHS;
-
-            if (FlowDirection == FlowDirection.LeftToRight)
-            {
-                textLHS = (float)(HeadingPresenter.Margin.Left - BorderEndPadding);
-                textRHS = (float)(HeadingPresenter.Margin.Left + HeadingPresenter.ActualWidth + BorderStartPadding);
-            }
-            else
-            {
-                textLHS = (float)(ActualSize.X - (HeadingPresenter.Margin.Left + HeadingPresenter.ActualWidth + BorderStartPadding));
-                textRHS = (float)(ActualSize.X - HeadingPresenter.Margin.Left + BorderEndPadding);
-            }
-
             float headingCenter = (float)(HeadingPresenter.ActualHeight * Math.Clamp(HeadingBaseLineRatio, 0.0, 1.0));
 
             // right hand side of text
-            figure.StartPoint = new Point(textRHS, headingCenter);
-
             float radius = (float)CornerRadius.TopRight;
-            figure.Segments.Add(LineTo(ActualSize.X - (radius + halfStrokeThickness), headingCenter));
+            float xArcStart = ActualSize.X - (radius + halfStrokeThickness);
+
+            if (textRHS < xArcStart) // check the first line is required, otherwise start at the arc
+            {
+                figure.StartPoint = new Point(textRHS, headingCenter);
+                figure.Segments.Add(LineTo(xArcStart, headingCenter));
+            }
+            else
+                figure.StartPoint = new Point(xArcStart, headingCenter);
 
             if (radius > 0) // top right corner
             {
@@ -219,7 +211,6 @@ namespace Countdown.Views
             }
 
             radius = (float)CornerRadius.BottomRight;
-
             figure.Segments.Add(LineTo(ActualSize.X - halfStrokeThickness, ActualSize.Y - (radius + halfStrokeThickness)));
 
             if (radius > 0) // bottom right corner
@@ -246,7 +237,9 @@ namespace Countdown.Views
                 figure.Segments.Add(ArcTo(arcEnd, radius));
             }
 
-            figure.Segments.Add(LineTo(textLHS, headingCenter));
+            // check if the last line is required, the arc may be too large
+            if (radius + halfStrokeThickness < textLHS)
+                figure.Segments.Add(LineTo(textLHS, headingCenter));
 
             // add the new path geometry in to the visual tree
             BorderPath.Data = pathGeometry;
