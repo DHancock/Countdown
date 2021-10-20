@@ -36,12 +36,7 @@
                 <Setter Property="SelectionMode" Value="Extended"/>
             </Style>
 
-            <Style TargetType="local:GroupBorder">
-                <Setter Property="CornerRadius" Value="{StaticResource OverlayCornerRadius}"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="BorderBrush" Value="LightGray"/>
-            </Style>
-
+            <!-- make all the result lists start at the same x coordinate -->
             <GridLength x:Key="InputGridWidth">350</GridLength>
 
         </ResourceDictionary>

@@ -7,6 +7,7 @@
     xmlns:vm="using:Countdown.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:w3c="using:AssyntSoftware.WinUI3Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -49,7 +50,7 @@
             </Grid.ColumnDefinitions>
             <local:Clock Grid.Column="0" Grid.Row="0" Width="200" Height="200" Ticks="{x:Bind ViewModel.StopwatchController.Ticks, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-            <local:GroupBorder Heading="Conundrum" Grid.Column="0" Grid.Row="1">
+            <w3c:GroupBox Heading="Conundrum" Grid.Column="0" Grid.Row="1">
                 <StackPanel Orientation="Horizontal">
                     <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -61,9 +62,9 @@
                     <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutoTabStyle="Off"/>
                 </StackPanel>
-            </local:GroupBorder>
+            </w3c:GroupBox>
 
-            <local:GroupBorder Heading="Solution" Grid.Column="0" Grid.Row="2">
+            <w3c:GroupBox Heading="Solution" Grid.Column="0" Grid.Row="2">
                 <StackPanel Orientation="Horizontal">
                     <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(0, 1), Mode=OneWay}"/>
                     <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(1, 1), Mode=OneWay}"/>
@@ -75,7 +76,7 @@
                     <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(7, 1), Mode=OneWay}"/>
                     <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(8, 1), Mode=OneWay}"/>
                 </StackPanel>
-            </local:GroupBorder>
+            </w3c:GroupBox>
 
             <Grid Grid.Column="0" Grid.Row="3">
                 <Grid.ColumnDefinitions>

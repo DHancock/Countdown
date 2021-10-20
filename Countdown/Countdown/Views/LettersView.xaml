@@ -7,6 +7,7 @@
     xmlns:vm="using:Countdown.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:w3c="using:AssyntSoftware.WinUI3Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -42,7 +43,7 @@
             </Grid.ColumnDefinitions>
             <local:Clock Grid.Column="0" Grid.Row="0" Width="200" Height="200" Ticks="{x:Bind ViewModel.StopwatchController.Ticks, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-            <local:GroupBorder Heading="Tiles" Grid.Column="0" Grid.Row="1">
+            <w3c:GroupBox Heading="Tiles" Grid.Column="0" Grid.Row="1">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <local:CountdownTextBox Text="{x:Bind ViewModel.Letter_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -70,7 +71,7 @@
                         </Button>
                     </Grid>
                 </StackPanel>
-            </local:GroupBorder>
+            </w3c:GroupBox>
 
             <Grid Grid.Column="0" Grid.Row="3">
                 <Grid.ColumnDefinitions>
