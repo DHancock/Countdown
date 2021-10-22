@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Input;
 using Microsoft.UI.Xaml;
 
 namespace Countdown.ViewModels
@@ -17,7 +14,7 @@ namespace Countdown.ViewModels
         private StopwatchStateEnum stopwatchState;
         private long ticks;
 
-        private readonly DispatcherTimer dispatcherTimer ;
+        private readonly DispatcherTimer dispatcherTimer;
         private long startTicks;
         private long startTime;
 
@@ -40,12 +37,12 @@ namespace Countdown.ViewModels
 
 
         private void DispatcherTimer_Tick(object? sender, object e)
-        { 
+        {
             if (StopwatchState == StopwatchStateEnum.Running)
             {
-                long newtime = DateTime.UtcNow.Ticks - startTime;
+                long newTicks = DateTime.UtcNow.Ticks - startTime;
 
-                if (newtime >= cForwardDurationTicks)
+                if (newTicks >= cForwardDurationTicks)
                 {
                     Utils.User32Sound.PlayExclamation();
                     StopwatchState = StopwatchStateEnum.Stopped;
@@ -53,22 +50,22 @@ namespace Countdown.ViewModels
                     Ticks = cForwardDurationTicks;
                 }
                 else
-                    Ticks = newtime;
+                    Ticks = newTicks;
             }
             else if (StopwatchState == StopwatchStateEnum.Rewinding)
             {
                 // accelerate elapsed time by the rewind speed
                 long elapsed = (DateTime.UtcNow.Ticks - startTime) * (cForwardDurationTicks / cRewindDurationTicks);
-                long newTime = startTicks - elapsed;
+                long newTicks = startTicks - elapsed;
 
-                if (newTime <= 0)
+                if (newTicks <= 0)
                 {
                     Ticks = 0;
                     dispatcherTimer.Stop();
                     StopwatchState = StopwatchStateEnum.AtStart;
                 }
                 else
-                    Ticks = newTime;
+                    Ticks = newTicks;
             }
         }
 
