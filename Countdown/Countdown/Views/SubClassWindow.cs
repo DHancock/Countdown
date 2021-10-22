@@ -123,7 +123,12 @@ namespace Countdown.Views
                 hIcon.DangerousAddRef(ref refAdded);
 
                 if (refAdded)
+                {
                     result = PInvoke.SendMessage(hWnd, WM_SETICON, iconType, hIcon.DangerousGetHandle());
+
+                    if (result.Value != 0)
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
             }
             finally
             {

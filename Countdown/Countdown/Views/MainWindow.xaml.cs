@@ -74,7 +74,7 @@ namespace Countdown.Views
                 case "StopwatchView": ((StopwatchView)e.Content).ViewModel = rootViewModel.StopwatchViewModel; break;
                 case "SettingsView": ((SettingsView)e.Content).ViewModel = rootViewModel.SettingsViewModel; break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(e.Content));
+                    throw new ArgumentOutOfRangeException(nameof(e.SourcePageType.Name));
             }
         }
     }
