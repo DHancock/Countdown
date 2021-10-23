@@ -11,12 +11,9 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <Button Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Grid.Column="0" VerticalAlignment="Bottom" Margin="20,0,0,20" Style="{StaticResource StartStopButtonStyle}"/>
-        <local:Clock x:Name="stopwatch" Margin="10, 0, 10, 10" Grid.Column="1" Ticks="{x:Bind ViewModel.StopwatchController.Ticks, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <Button Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Grid.Column="0" VerticalAlignment="Bottom" Margin="10,0,0,10" Style="{StaticResource StartStopButtonStyle}"/>
+        <Viewbox Margin="0" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <local:Clock Ticks="{x:Bind ViewModel.StopwatchController.Ticks, Mode=OneWay}"/>
+        </Viewbox>
     </Grid>
 </Page>

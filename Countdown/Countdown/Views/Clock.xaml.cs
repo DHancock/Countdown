@@ -10,40 +10,35 @@ using Microsoft.UI.Composition;
 using Windows.Foundation;
 using Windows.UI;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace Countdown.Views
 {
     internal sealed partial class Clock : UserControl
     {
-        private readonly Compositor compositor;
-        private readonly ContainerVisual containerVisual;
-        private Size previousSize = Size.Empty;
+        private static ContainerVisual? sContainerVisual;
+        private Vector2 ContainerSize { get; } = new Vector2(200);
 
         public Clock()
         {
             this.InitializeComponent();
 
-            compositor = ElementCompositionPreview.GetElementVisual(this).Compositor;
-            containerVisual = compositor.CreateContainerVisual();
-            ElementCompositionPreview.SetElementChildVisual(this, containerVisual);
-
-            SizeChanged += (s, e) =>
+            Loaded += (s, e) =>
             {
-                if (e.NewSize != previousSize)
+                Clock clock = (Clock)s;
+
+                if (sContainerVisual is null)
                 {
-                    previousSize = e.NewSize;
-
-                    Clock clock = (Clock)s;
-                    clock.containerVisual.Children.RemoveAll();
-
+                    Compositor compositor = ElementCompositionPreview.GetElementVisual(clock).Compositor;
+                    sContainerVisual = compositor.CreateContainerVisual();
+                    
                     clock.InitialiseDrawingParams();
-                    clock.CreateFace();
-                    clock.CreateTickTrail();
-                    clock.CreateFaceTickMarks();
-                    clock.CreateHand();
+                    clock.CreateFace(compositor);
+                    clock.CreateTickTrail(compositor);
+                    clock.CreateFaceTickMarks(compositor);
+                    clock.CreateHand(compositor);
                 }
+
+                if (ElementCompositionPreview.GetElementChildVisual(clock) is null)
+                    ElementCompositionPreview.SetElementChildVisual(clock, sContainerVisual);
             };
         }
 
@@ -78,9 +73,6 @@ namespace Countdown.Views
 
         private float ClockSize { get; set; }
         private Vector2 Center { get; set; }
-        private Vector2 DropShadowOffset { get; set; }
-        private bool IsSmallClock { get; set; }
-
 
         public long Ticks
         {
@@ -112,7 +104,7 @@ namespace Countdown.Views
                 long segments = CalculateVisibleTickTrailSegmentCount();
                 int index = 0;
 
-                foreach (Visual visual in containerVisual.Children)
+                foreach (Visual visual in sContainerVisual!.Children)
                 {
                     if (visual.Comment == TrickTrailComment)
                         visual.IsVisible = index++ < segments;
@@ -130,13 +122,11 @@ namespace Countdown.Views
 
         private void InitialiseDrawingParams()
         {
-            IsSmallClock = ActualSize.Y < 300;
-            DropShadowOffset = new Vector2(ActualSize.Y / 200.0f);
-            ClockSize = ActualSize.Y * 0.95f;
-            Center = new Vector2(ActualSize.X * 0.5f, ActualSize.Y * 0.5f);
+            ClockSize = ContainerSize.Y * 0.95f;
+            Center = new Vector2(ContainerSize.X * 0.5f, ContainerSize.Y * 0.5f);
         }
 
-        private void CreateTickTrail()
+        private void CreateTickTrail(Compositor compositor)
         {
             float radius = ClockSize * 0.5f;
             float outerRadius = radius * cTickTrailOuterRadiusPercent;
@@ -153,11 +143,7 @@ namespace Countdown.Views
             using CanvasPathBuilder builder = new CanvasPathBuilder(null);
 
             builder.BeginFigure(topLeft.Cartesian);
-
-            if (IsSmallClock)
-                builder.AddLine(topRight.Cartesian);
-            else
-                builder.AddArc(topRight.Cartesian, outerRadius, outerRadius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+            builder.AddArc(topRight.Cartesian, outerRadius, outerRadius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
 
             builder.AddLine(bottomRight.Cartesian);
             builder.AddLine(bottomLeft.Cartesian);
@@ -182,18 +168,18 @@ namespace Countdown.Views
 
                 // create a visual for the shape
                 ShapeVisual shapeVisual = compositor.CreateShapeVisual();
-                shapeVisual.Size = ActualSize;
+                shapeVisual.Size = ContainerSize;
                 shapeVisual.Shapes.Add(tickSegment);
                 shapeVisual.IsVisible = segment < visibleSegments;
                 shapeVisual.Comment = TrickTrailComment; // used to identify this shape
 
-                containerVisual.Children.InsertAtTop(shapeVisual);
+                sContainerVisual!.Children.InsertAtTop(shapeVisual);
             }
         }
 
 
 
-        private void CreateFace()
+        private void CreateFace(Compositor compositor)
         {
             CompositionSpriteShape CreateCircle(double radius, float stroke, Vector2 offset, Color fillColour, Color strokeColour)
             {
@@ -240,31 +226,31 @@ namespace Countdown.Views
 
             // create a visual for the shape container
             ShapeVisual shapeVisual = compositor.CreateShapeVisual();
-            shapeVisual.Size = ActualSize;
+            shapeVisual.Size = ContainerSize;
             shapeVisual.Shapes.Add(shapeContainer);
 
             // create a surface brush to use as a mask for the drop shadow
             CompositionVisualSurface surface = compositor.CreateVisualSurface();
-            surface.SourceSize = ActualSize;
+            surface.SourceSize = ContainerSize;
             surface.SourceVisual = shapeVisual;   // TODO it may be quicker to use a simpler shape
 
             // create the drop shadow
             DropShadow shadow = compositor.CreateDropShadow();
             shadow.Mask = compositor.CreateSurfaceBrush(surface);
-            shadow.Offset = new Vector3(DropShadowOffset, 0f);
+            shadow.Offset = new Vector3(new Vector2(1.5f), 0f);
             shadow.Color = Colors.DimGray;
 
             // create a visual for the shadow
             SpriteVisual shadowVisual = compositor.CreateSpriteVisual();
-            shadowVisual.Size = ActualSize;
+            shadowVisual.Size = ContainerSize;
             shadowVisual.Shadow = shadow;
 
             // insert into the tree 
-            containerVisual.Children.InsertAtBottom(shapeVisual);
-            containerVisual.Children.InsertAtBottom(shadowVisual);
+            sContainerVisual!.Children.InsertAtBottom(shapeVisual);
+            sContainerVisual!.Children.InsertAtBottom(shadowVisual);
         }
 
-        private void CreateFaceTickMarks()
+        private void CreateFaceTickMarks(Compositor compositor)
         {
             CompositionSpriteShape CreateLine(Vector2 start, Vector2 end, float thickness, CompositionColorBrush brush, CompositionStrokeCap endCap)
             {
@@ -288,7 +274,7 @@ namespace Countdown.Views
             float stroke = ClockSize * cTickMarksStrokePercentage;
             double startLength = ClockSize * 0.5f * cTickMarksInnerRadiusPercentage;
             double endLength = ClockSize * 0.5f * cTickMarksOuterRadiusPercentage;
-            CompositionStrokeCap endCap = IsSmallClock ? CompositionStrokeCap.Flat : CompositionStrokeCap.Round;
+            CompositionStrokeCap endCap = CompositionStrokeCap.Round;
 
             for (int degrees = 30; degrees < 360; degrees += 30)
             {
@@ -315,14 +301,14 @@ namespace Countdown.Views
 
             // create a visual for the shapes
             ShapeVisual shapeVisual = compositor.CreateShapeVisual();
-            shapeVisual.Size = ActualSize;
+            shapeVisual.Size = ContainerSize;
             shapeVisual.Shapes.Add(shapeContainer);
 
             // insert into tree
-            containerVisual.Children.InsertAtTop(shapeVisual);
+            sContainerVisual!.Children.InsertAtTop(shapeVisual);
         }
 
-        private void CreateHand()
+        private void CreateHand(Compositor compositor)
         {
             using CanvasPathBuilder builder = new CanvasPathBuilder(null);
 
@@ -354,14 +340,14 @@ namespace Countdown.Views
 
             // create a visual for the shape
             ShapeVisual shapeVisual = compositor.CreateShapeVisual();
-            shapeVisual.Size = ActualSize;
+            shapeVisual.Size = ContainerSize;
             shapeVisual.Shapes.Add(secondHand);
             shapeVisual.CenterPoint = new Vector3(Center, 0f);
             shapeVisual.RotationAngleInDegrees = CalculateSecondHandAngle();
             shapeVisual.Comment = SecondHandComment; // used to identify this shape
 
             // add to visual tree
-            containerVisual.Children.InsertAtTop(shapeVisual);
+            sContainerVisual!.Children.InsertAtTop(shapeVisual);
         }
 
         private float CalculateSecondHandAngle()
@@ -373,21 +359,7 @@ namespace Countdown.Views
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            // Infinity means this is inside a scrollable control, stack panel etc.
-            if (double.IsInfinity(availableSize.Height) && double.IsInfinity(availableSize.Width))
-            {
-                const double cDefaultSize = 250.0;
-                availableSize.Width = availableSize.Height = cDefaultSize;
-            }
-            else
-            {
-                // The availableSize will already have been adjusted to take account of
-                // min and max Size properties
-                availableSize.Width = Math.Min(availableSize.Width, availableSize.Height);
-                availableSize.Height = availableSize.Width;
-            }
-
-            return availableSize;
+            return ContainerSize.ToSize();
         }
 
         private readonly struct Vector

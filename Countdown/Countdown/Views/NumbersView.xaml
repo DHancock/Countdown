@@ -38,7 +38,7 @@
                 <ColumnDefinition Width="{StaticResource InputGridWidth}"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <local:Clock Grid.Column="0" Grid.Row="0" Width="200" Height="200" Ticks="{x:Bind ViewModel.StopwatchController.Ticks, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <local:Clock Grid.Column="0" Grid.Row="0" Ticks="{x:Bind ViewModel.StopwatchController.Ticks, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
             <w3c:GroupBox Grid.Column="0" Grid.Row="1" Heading="Tiles">
               <StackPanel Orientation="Horizontal">
