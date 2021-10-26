@@ -13,7 +13,7 @@
     <Grid>
         <Button Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Grid.Column="0" VerticalAlignment="Bottom" Margin="10,0,0,10" Style="{StaticResource StartStopButtonStyle}"/>
         <Viewbox Margin="0" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <local:Clock Ticks="{x:Bind ViewModel.StopwatchController.Ticks, Mode=OneWay}"/>
+            <local:Clock State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
         </Viewbox>
     </Grid>
 </Page>

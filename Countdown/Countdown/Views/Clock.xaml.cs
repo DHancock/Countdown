@@ -10,12 +10,13 @@ using Microsoft.UI.Composition;
 using Windows.Foundation;
 using Windows.UI;
 
+using Countdown.ViewModels;
+
 namespace Countdown.Views
 {
     internal sealed partial class Clock : UserControl
     {
-        private static ContainerVisual? sContainerVisual;
-        private Vector2 ContainerSize { get; } = new Vector2(200);
+        private static CompositionClock? sCompositionClock;
 
         public Clock()
         {
@@ -23,365 +24,466 @@ namespace Countdown.Views
 
             Loaded += (s, e) =>
             {
-                Clock clock = (Clock)s;
+                Clock xamlClock = (Clock)s;
 
-                if (sContainerVisual is null)
-                {
-                    Compositor compositor = ElementCompositionPreview.GetElementVisual(clock).Compositor;
-                    sContainerVisual = compositor.CreateContainerVisual();
-                    
-                    clock.InitialiseDrawingParams();
-                    clock.CreateFace(compositor);
-                    clock.CreateTickTrail(compositor);
-                    clock.CreateFaceTickMarks(compositor);
-                    clock.CreateHand(compositor);
-                }
+                if (sCompositionClock is null)
+                    sCompositionClock = new CompositionClock(xamlClock);
+                else
+                    sCompositionClock.XamlClock = xamlClock;
 
-                if (ElementCompositionPreview.GetElementChildVisual(clock) is null)
-                    ElementCompositionPreview.SetElementChildVisual(clock, sContainerVisual);
+                ElementCompositionPreview.SetElementChildVisual(xamlClock, sCompositionClock.Visual);
             };
         }
 
 
-        private const float cOuterFrameStrokePercentage = 0.01f;
-        private const float cInnerFrameStrokePercentage = 0.02f;
-
-        private const float cTickMarksStrokePercentage = 0.01f;
-        private const float cTickMarksOuterRadiusPercentage = 0.83f;
-        private const float cTickMarksInnerRadiusPercentage = 0.74f;
-
-        private const float cHandStrokePercentage = 0.01f;
-        private const float cHandTipRadiusPercentage = 0.90f;
-        private const double cHandSectorAngle = 25.0;
-        private const float cHandArcRadiusPercentage = 0.055f;
-
-        private const float cTickTrailOuterRadiusPercent = 0.92f;
-        private const float cTickTrailInnerRadiusPercent = 0.38f;
-
-        private const string TrickTrailComment = "t";
-        private const string SecondHandComment = "s";
-
-        // TODO: dark mode?
-        private static readonly Color OuterFrameColour = Colors.LightGray;
-        private static readonly Color InnerFrameColour = Color.FromArgb(0xFF, 0x00, 0x68, 0xC7);
-        private static readonly Color TickMarksColour = Colors.DarkGray;
-        private static readonly Color FaceColour = Colors.Ivory;
-        private static readonly Color TickTrailColour = Color.FromArgb(0xFF, 0xFF, 0xFF, 0xD2);
-        private static readonly Color HandFillColour = Color.FromArgb(0xFF, 0x00, 0x8B, 0xCE);
-        private static readonly Color HandStrokeColour = Colors.Gray;
-
-
-        private float ClockSize { get; set; }
-        private Vector2 Center { get; set; }
-
-        public long Ticks
+        public StopwatchState State
         {
-            get { return (long)GetValue(TicksProperty); }
-            set { SetValue(TicksProperty, value); }
+            get { return (StopwatchState)GetValue(StateProperty); }
+            set { SetValue(StateProperty, value); }
         }
 
-        public static readonly DependencyProperty TicksProperty =
-                DependencyProperty.Register(nameof(Ticks),
-                typeof(long),
+
+        public static readonly DependencyProperty StateProperty =
+                DependencyProperty.Register(nameof(State),
+                typeof(StopwatchState),
                 typeof(Clock),
-                new PropertyMetadata(0L, OnTicksPropertyChanged));
+                new PropertyMetadata(StopwatchState.Undefined, StatePropertyChanged));
 
-        private static void OnTicksPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            Clock clock = (Clock)d;
-            clock.UpdateSecondHandAndTickTrail();
-        }
 
-        private int CalculateVisibleTickTrailSegmentCount()
+        private static void StatePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            return (int)((Ticks + (TimeSpan.TicksPerSecond / 12)) / TimeSpan.TicksPerSecond);
-        }
-
-        private void UpdateSecondHandAndTickTrail()
-        {
-            try
+            if (sCompositionClock is not null)
             {
-                long segments = CalculateVisibleTickTrailSegmentCount();
-                int index = 0;
+                StopwatchState oldValue = (StopwatchState)e.OldValue;
 
-                foreach (Visual visual in sContainerVisual!.Children)
+                if (oldValue == StopwatchState.Undefined) // a new page has been loaded
+                    return;
+
+                switch ((StopwatchState)e.NewValue)
                 {
-                    if (visual.Comment == TrickTrailComment)
-                        visual.IsVisible = index++ < segments;
-                    else if (visual.Comment == SecondHandComment)
-                        visual.RotationAngleInDegrees = CalculateSecondHandAngle();
+                    case StopwatchState.Running: sCompositionClock.Animations.StartForwardAnimations(); break;
+                    case StopwatchState.Rewinding: sCompositionClock.Animations.StartRewindAnimations(); break;
+                    case StopwatchState.Stopped: sCompositionClock.Animations.StopAnimations(); break;
+
+                    case StopwatchState.AtStart:
+                    case StopwatchState.Undefined: break;
+
+                    default: throw new InvalidOperationException();
                 }
             }
-            catch
+        }
+
+
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            return CompositionClock.ContainerSize.ToSize();
+        }
+
+
+        private class CompositionClock
+        {
+            public ContainerVisual Visual { get; }
+            public static Vector2 ContainerSize { get; } = new Vector2(200);
+            public AnimationList Animations { get; }
+            public Clock XamlClock { get; set; }
+
+            public CompositionClock(Clock xamlClock)
             {
-                // If the application is closed while the animation is running, WinRT will dispose of the 
-                // local copies of composition objects even if I'm holding references to them. Hence an
-                // object disposed exception. Not a big deal, we're bailing... 
+                Compositor compositor = ElementCompositionPreview.GetElementVisual(xamlClock).Compositor;
+                Visual = compositor.CreateContainerVisual();
+                Animations = new AnimationList(compositor);
+                XamlClock = xamlClock;
+
+                // allow room for the drop shadow
+                float clockSize = ContainerSize.Y * 0.95f;
+                Vector2 center = new Vector2(ContainerSize.X * 0.5f);
+
+                CreateFace(compositor, center, clockSize);
+                CreateTickTrail(compositor, center, clockSize);
+                CreateFaceTickMarks(compositor, center, clockSize);
+                CreateHand(compositor, center, clockSize);
             }
-        }
 
-        private void InitialiseDrawingParams()
-        {
-            ClockSize = ContainerSize.Y * 0.95f;
-            Center = new Vector2(ContainerSize.X * 0.5f, ContainerSize.Y * 0.5f);
-        }
 
-        private void CreateTickTrail(Compositor compositor)
-        {
-            float radius = ClockSize * 0.5f;
-            float outerRadius = radius * cTickTrailOuterRadiusPercent;
-            float innerRadius = radius * cTickTrailInnerRadiusPercent;
+            private const float cOuterFrameStrokePercentage = 0.01f;
+            private const float cInnerFrameStrokePercentage = 0.02f;
 
-            const double startAngle = 179.5;
-            const double endAngle = 174.5;
+            private const float cTickMarksStrokePercentage = 0.01f;
+            private const float cTickMarksOuterRadiusPercentage = 0.83f;
+            private const float cTickMarksInnerRadiusPercentage = 0.74f;
 
-            Vector topLeft = new Vector(outerRadius, startAngle, Center);
-            Vector topRight = new Vector(outerRadius, endAngle, Center);
-            Vector bottomLeft = new Vector(innerRadius, startAngle, Center);
-            Vector bottomRight = new Vector(innerRadius, endAngle, Center);
+            private const float cHandStrokePercentage = 0.01f;
+            private const float cHandTipRadiusPercentage = 0.90f;
+            private const float cHandSectorAngle = 25.0f;
+            private const float cHandArcRadiusPercentage = 0.055f;
 
-            using CanvasPathBuilder builder = new CanvasPathBuilder(null);
+            private const float cTickTrailOuterRadiusPercent = 0.92f;
+            private const float cTickTrailInnerRadiusPercent = 0.38f;
 
-            builder.BeginFigure(topLeft.Cartesian);
-            builder.AddArc(topRight.Cartesian, outerRadius, outerRadius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+            // TODO: dark mode?
+            private static readonly Color OuterFrameColour = Colors.LightGray;
+            private static readonly Color InnerFrameColour = Color.FromArgb(0xFF, 0x00, 0x68, 0xC7);
+            private static readonly Color TickMarksColour = Colors.DarkGray;
+            private static readonly Color FaceColour = Colors.Ivory;
+            private static readonly Color TickTrailColour = Color.FromArgb(0xFF, 0xFF, 0xFF, 0xD2);
+            private static readonly Color HandFillColour = Color.FromArgb(0xFF, 0x00, 0x8B, 0xCE);
+            private static readonly Color HandStrokeColour = Colors.Gray;
 
-            builder.AddLine(bottomRight.Cartesian);
-            builder.AddLine(bottomLeft.Cartesian);
-            builder.EndFigure(CanvasFigureLoop.Closed);
-
-            // create a composition geometry from the canvas path data
-            using CanvasGeometry canvasGeometry = CanvasGeometry.CreatePath(builder);
-            CompositionPathGeometry pathGeometry = compositor.CreatePathGeometry();
-            pathGeometry.Path = new CompositionPath(canvasGeometry);
-
-            CompositionBrush brush = compositor.CreateColorBrush(TickTrailColour);
-            long visibleSegments = CalculateVisibleTickTrailSegmentCount();
-
-            // create every trail element visual, then change its visibility as required
-            for (int segment = 0; segment < 30; segment++)
+            private void CreateTickTrail(Compositor compositor, Vector2 center, float clockSize)
             {
+                float radius = clockSize * 0.5f;
+                float outerRadius = radius * cTickTrailOuterRadiusPercent;
+                float innerRadius = radius * cTickTrailInnerRadiusPercent;
+
+                const float startAngle = 179.5f;
+                const float endAngle = 174.5f;
+
+                Vector topLeft = new Vector(outerRadius, startAngle, center);
+                Vector topRight = new Vector(outerRadius, endAngle, center);
+                Vector bottomLeft = new Vector(innerRadius, startAngle, center);
+                Vector bottomRight = new Vector(innerRadius, endAngle, center);
+
+                using CanvasPathBuilder builder = new CanvasPathBuilder(null);
+
+                builder.BeginFigure(topLeft.Cartesian);
+                builder.AddArc(topRight.Cartesian, outerRadius, outerRadius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+
+                builder.AddLine(bottomRight.Cartesian);
+                builder.AddLine(bottomLeft.Cartesian);
+                builder.EndFigure(CanvasFigureLoop.Closed);
+
+                // create a composition geometry from the canvas path data
+                using CanvasGeometry canvasGeometry = CanvasGeometry.CreatePath(builder);
+                CompositionPathGeometry pathGeometry = compositor.CreatePathGeometry();
+                pathGeometry.Path = new CompositionPath(canvasGeometry);
+
+                CompositionBrush brush = compositor.CreateColorBrush(TickTrailColour);
+
+                // create every trail element visual, then change its opacity as required
+                for (int segment = 0; segment < 30; segment++)
+                {
+                    // create a shape from the geometry
+                    CompositionSpriteShape tickSegment = compositor.CreateSpriteShape(pathGeometry);
+                    tickSegment.FillBrush = brush;
+                    tickSegment.CenterPoint = center;
+                    tickSegment.RotationAngleInDegrees = segment * 6f;  // one second is 6 degrees
+
+                    // create a visual for the shape
+                    ShapeVisual shapeVisual = compositor.CreateShapeVisual();
+                    shapeVisual.Size = ContainerSize;
+                    shapeVisual.Shapes.Add(tickSegment);
+                    shapeVisual.Opacity = 0.0f;
+
+                    Animations.AddTickTrailSegment(shapeVisual, segment);
+
+                    Visual.Children.InsertAtTop(shapeVisual);
+                }
+            }
+
+
+
+            private void CreateFace(Compositor compositor, Vector2 center, float clockSize)
+            {
+                CompositionSpriteShape CreateCircle(double radius, float stroke, Vector2 offset, Color fillColour, Color strokeColour)
+                {
+                    CompositionEllipseGeometry circleGeometry = compositor.CreateEllipseGeometry();
+                    circleGeometry.Radius = new Vector2((float)radius);
+
+                    CompositionSpriteShape circleShape = compositor.CreateSpriteShape(circleGeometry);
+                    circleShape.Offset = offset;
+                    circleShape.FillBrush = compositor.CreateColorBrush(fillColour);
+
+                    if (stroke > 0.0f)
+                    {
+                        circleShape.StrokeThickness = stroke;
+                        circleShape.StrokeBrush = compositor.CreateColorBrush(strokeColour);
+                    }
+
+                    return circleShape;
+                }
+
+                CompositionContainerShape shapeContainer = compositor.CreateContainerShape();
+
+                // outer frame
+                float radius = clockSize * 0.5f;
+                float outerFrameStroke = clockSize * cOuterFrameStrokePercentage;
+                radius -= outerFrameStroke * 0.5f;
+
+                shapeContainer.Shapes.Add(CreateCircle(radius, outerFrameStroke, center, Colors.Transparent, OuterFrameColour));
+
+                // inner frame
+                float innerFrameStroke = clockSize * cInnerFrameStrokePercentage;
+                radius -= (outerFrameStroke + innerFrameStroke) * 0.5f;
+
+                shapeContainer.Shapes.Add(CreateCircle(radius, innerFrameStroke, center, Colors.Transparent, InnerFrameColour));
+
+                // tick marks around inner frame
+                float tickRadius = innerFrameStroke / 5.0f;      // TODO constants, and color static
+
+                for (float degrees = 0; degrees < 360.0; degrees += 30.0f)
+                    shapeContainer.Shapes.Add(CreateCircle(tickRadius, 0f, new Vector(radius, degrees, center).Cartesian, Colors.Silver, Colors.Transparent));
+
+                // clock face fill
+                radius -= innerFrameStroke * 0.5f;
+                shapeContainer.Shapes.Add(CreateCircle(radius, 0f, center, FaceColour, Colors.Transparent));
+
+                // create a visual for the shape container
+                ShapeVisual shapeVisual = compositor.CreateShapeVisual();
+                shapeVisual.Size = ContainerSize;
+                shapeVisual.Shapes.Add(shapeContainer);
+
+                // create a surface brush to use as a mask for the drop shadow
+                CompositionVisualSurface surface = compositor.CreateVisualSurface();
+                surface.SourceSize = ContainerSize;
+                surface.SourceVisual = shapeVisual;   // TODO it may be quicker to use a simpler shape
+
+                // create the drop shadow
+                DropShadow shadow = compositor.CreateDropShadow();
+                shadow.Mask = compositor.CreateSurfaceBrush(surface);
+                shadow.Offset = new Vector3(new Vector2(1.5f), 0f);
+                shadow.Color = Colors.DimGray;
+
+                // create a visual for the shadow
+                SpriteVisual shadowVisual = compositor.CreateSpriteVisual();
+                shadowVisual.Size = ContainerSize;
+                shadowVisual.Shadow = shadow;
+
+                // insert into the tree 
+                Visual.Children.InsertAtBottom(shapeVisual);
+                Visual.Children.InsertAtBottom(shadowVisual);
+            }
+
+            private void CreateFaceTickMarks(Compositor compositor, Vector2 center, float clockSize)
+            {
+                CompositionSpriteShape CreateLine(Vector2 start, Vector2 end, float thickness, CompositionColorBrush brush, CompositionStrokeCap endCap)
+                {
+                    CompositionLineGeometry lineGeometry = compositor.CreateLineGeometry();
+                    lineGeometry.Start = start;
+                    lineGeometry.End = end;
+
+                    CompositionSpriteShape lineShape = compositor.CreateSpriteShape(lineGeometry);
+                    lineShape.StrokeThickness = thickness;
+                    lineShape.StrokeBrush = brush;
+                    lineShape.StrokeEndCap = endCap;
+                    lineShape.StrokeStartCap = endCap;
+
+                    return lineShape;
+                }
+
+                CompositionContainerShape shapeContainer = compositor.CreateContainerShape();
+                CompositionColorBrush brush = compositor.CreateColorBrush(TickMarksColour);
+
+                // add the 5 second tick marks
+                float stroke = clockSize * cTickMarksStrokePercentage;
+                float startLength = clockSize * 0.5f * cTickMarksInnerRadiusPercentage;
+                float endLength = clockSize * 0.5f * cTickMarksOuterRadiusPercentage;
+                CompositionStrokeCap endCap = CompositionStrokeCap.Round;
+
+                for (int degrees = 30; degrees < 360; degrees += 30)
+                {
+                    if (degrees % 90 > 0)
+                    {
+                        Vector2 inner = new Vector(startLength, degrees, center).Cartesian;
+                        Vector2 outer = new Vector(endLength, degrees, center).Cartesian;
+                        shapeContainer.Shapes.Add(CreateLine(inner, outer, stroke, brush, endCap));
+                    }
+                }
+
+                // now the cross hairs
+                float radius = (clockSize * 0.5f) - (clockSize * (cOuterFrameStrokePercentage + cInnerFrameStrokePercentage));
+
+                // horizontal cross hair
+                Vector2 start = new Vector2(center.X - radius, center.Y);
+                Vector2 end = new Vector2(center.X + radius, center.Y);
+                shapeContainer.Shapes.Add(CreateLine(start, end, stroke, brush, CompositionStrokeCap.Flat));
+
+                // vertical cross hair
+                start = new Vector2(center.X, center.Y - radius);
+                end = new Vector2(center.X, center.Y + radius);
+                shapeContainer.Shapes.Add(CreateLine(start, end, stroke, brush, CompositionStrokeCap.Flat));
+
+                // create a visual for the shapes
+                ShapeVisual shapeVisual = compositor.CreateShapeVisual();
+                shapeVisual.Size = ContainerSize;
+                shapeVisual.Shapes.Add(shapeContainer);
+
+                // insert into tree
+                Visual.Children.InsertAtTop(shapeVisual);
+            }
+
+            private void CreateHand(Compositor compositor, Vector2 center, float clockSize)
+            {
+                using CanvasPathBuilder builder = new CanvasPathBuilder(null);
+
+                Vector tip = new Vector(clockSize * 0.5f * cHandTipRadiusPercentage, 0.0f, center);
+                builder.BeginFigure(tip.Cartesian);
+
+                float radius = clockSize * cHandArcRadiusPercentage;
+
+                Vector arcStartPoint = new Vector(radius, -cHandSectorAngle, center);
+                builder.AddLine(arcStartPoint.Cartesian);
+
+                Vector arcEndPoint = new Vector(radius, cHandSectorAngle, center);
+                builder.AddArc(arcEndPoint.Cartesian, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Large);
+                builder.EndFigure(CanvasFigureLoop.Closed);
+
+                float handStroke = clockSize * cHandStrokePercentage;
+
+                // create a composition geometry from the canvas path data
+                using CanvasGeometry canvasGeometry = CanvasGeometry.CreatePath(builder);
+                CompositionPathGeometry pathGeometry = compositor.CreatePathGeometry();
+                pathGeometry.Path = new CompositionPath(canvasGeometry);
+
                 // create a shape from the geometry
-                CompositionSpriteShape tickSegment = compositor.CreateSpriteShape(pathGeometry);
-                tickSegment.FillBrush = brush;
-                tickSegment.CenterPoint = Center;
-                tickSegment.RotationAngleInDegrees = segment * 6f;  // one second is 6 degrees
+                CompositionSpriteShape secondHand = compositor.CreateSpriteShape(pathGeometry);
+                secondHand.FillBrush = compositor.CreateColorBrush(HandFillColour);
+                secondHand.StrokeThickness = handStroke;
+                secondHand.StrokeLineJoin = CompositionStrokeLineJoin.Round;
+                secondHand.StrokeBrush = compositor.CreateColorBrush(HandStrokeColour);
 
                 // create a visual for the shape
                 ShapeVisual shapeVisual = compositor.CreateShapeVisual();
                 shapeVisual.Size = ContainerSize;
-                shapeVisual.Shapes.Add(tickSegment);
-                shapeVisual.IsVisible = segment < visibleSegments;
-                shapeVisual.Comment = TrickTrailComment; // used to identify this shape
+                shapeVisual.Shapes.Add(secondHand);
+                shapeVisual.CenterPoint = new Vector3(center, 0f);
+                shapeVisual.RotationAngleInDegrees = 180.0f;
 
-                sContainerVisual!.Children.InsertAtTop(shapeVisual);
+                Animations.AddHand(shapeVisual);
+
+                // add to visual tree
+                Visual.Children.InsertAtTop(shapeVisual);
             }
-        }
 
-
-
-        private void CreateFace(Compositor compositor)
-        {
-            CompositionSpriteShape CreateCircle(double radius, float stroke, Vector2 offset, Color fillColour, Color strokeColour)
+            public class AnimationList
             {
-                CompositionEllipseGeometry circleGeometry = compositor.CreateEllipseGeometry();
-                circleGeometry.Radius = new Vector2((float)radius);
+                private const float cOneDegreeTime = 1.0f / 180.0f;
+                private readonly (Visual visual, KeyFrameAnimation animation)[] list = new (Visual visual, KeyFrameAnimation animation)[31];
 
-                CompositionSpriteShape circleShape = compositor.CreateSpriteShape(circleGeometry);
-                circleShape.Offset = offset;
-                circleShape.FillBrush = compositor.CreateColorBrush(fillColour);
+                private readonly Compositor compositor;
+                private readonly LinearEasingFunction linearEasingFunction;
+                private CompositionScopedBatch? batch;
 
-                if (stroke > 0.0f)
+                public AnimationList(Compositor compositor)
                 {
-                    circleShape.StrokeThickness = stroke;
-                    circleShape.StrokeBrush = compositor.CreateColorBrush(strokeColour);
+                    this.compositor = compositor;
+                    linearEasingFunction = compositor.CreateLinearEasingFunction();
                 }
 
-                return circleShape;
-            }
-
-            CompositionContainerShape shapeContainer = compositor.CreateContainerShape();
-
-            // outer frame
-            double radius = ClockSize * 0.5f;
-            float outerFrameStroke = ClockSize * cOuterFrameStrokePercentage;
-            radius -= outerFrameStroke * 0.5f;
-
-            shapeContainer.Shapes.Add(CreateCircle(radius, outerFrameStroke, Center, Colors.Transparent, OuterFrameColour));
-
-            // inner frame
-            float innerFrameStroke = ClockSize * cInnerFrameStrokePercentage;
-            radius -= (outerFrameStroke + innerFrameStroke) * 0.5f;
-
-            shapeContainer.Shapes.Add(CreateCircle(radius, innerFrameStroke, Center, Colors.Transparent, InnerFrameColour));
-
-            // tick marks around inner frame
-            double tickRadius = innerFrameStroke / 5.0;      // TODO constants, and color static
-
-            for (double degrees = 0; degrees < 360.0; degrees += 30.0)
-                shapeContainer.Shapes.Add(CreateCircle(tickRadius, 0f, new Vector(radius, degrees, Center).Cartesian, Colors.Silver, Colors.Transparent));
-
-            // clock face fill
-            radius -= innerFrameStroke * 0.5f;
-            shapeContainer.Shapes.Add(CreateCircle(radius, 0f, Center, FaceColour, Colors.Transparent));
-
-            // create a visual for the shape container
-            ShapeVisual shapeVisual = compositor.CreateShapeVisual();
-            shapeVisual.Size = ContainerSize;
-            shapeVisual.Shapes.Add(shapeContainer);
-
-            // create a surface brush to use as a mask for the drop shadow
-            CompositionVisualSurface surface = compositor.CreateVisualSurface();
-            surface.SourceSize = ContainerSize;
-            surface.SourceVisual = shapeVisual;   // TODO it may be quicker to use a simpler shape
-
-            // create the drop shadow
-            DropShadow shadow = compositor.CreateDropShadow();
-            shadow.Mask = compositor.CreateSurfaceBrush(surface);
-            shadow.Offset = new Vector3(new Vector2(1.5f), 0f);
-            shadow.Color = Colors.DimGray;
-
-            // create a visual for the shadow
-            SpriteVisual shadowVisual = compositor.CreateSpriteVisual();
-            shadowVisual.Size = ContainerSize;
-            shadowVisual.Shadow = shadow;
-
-            // insert into the tree 
-            sContainerVisual!.Children.InsertAtBottom(shapeVisual);
-            sContainerVisual!.Children.InsertAtBottom(shadowVisual);
-        }
-
-        private void CreateFaceTickMarks(Compositor compositor)
-        {
-            CompositionSpriteShape CreateLine(Vector2 start, Vector2 end, float thickness, CompositionColorBrush brush, CompositionStrokeCap endCap)
-            {
-                CompositionLineGeometry lineGeometry = compositor.CreateLineGeometry();
-                lineGeometry.Start = start;
-                lineGeometry.End = end;
-
-                CompositionSpriteShape lineShape = compositor.CreateSpriteShape(lineGeometry);
-                lineShape.StrokeThickness = thickness;
-                lineShape.StrokeBrush = brush;
-                lineShape.StrokeEndCap = endCap;
-                lineShape.StrokeStartCap = endCap;
-
-                return lineShape;
-            }
-
-            CompositionContainerShape shapeContainer = compositor.CreateContainerShape();
-            CompositionColorBrush brush = compositor.CreateColorBrush(TickMarksColour);
-
-            // add the 5 second tick marks
-            float stroke = ClockSize * cTickMarksStrokePercentage;
-            double startLength = ClockSize * 0.5f * cTickMarksInnerRadiusPercentage;
-            double endLength = ClockSize * 0.5f * cTickMarksOuterRadiusPercentage;
-            CompositionStrokeCap endCap = CompositionStrokeCap.Round;
-
-            for (int degrees = 30; degrees < 360; degrees += 30)
-            {
-                if (degrees % 90 > 0)
+                public void AddHand(Visual visual)
                 {
-                    Vector2 inner = new Vector(startLength, degrees, Center).Cartesian;
-                    Vector2 outer = new Vector(endLength, degrees, Center).Cartesian;
-                    shapeContainer.Shapes.Add(CreateLine(inner, outer, stroke, brush, endCap));
+                    ScalarKeyFrameAnimation animation = compositor.CreateScalarKeyFrameAnimation();
+
+                    animation.InsertKeyFrame(0.00f, 180.0f);
+                    animation.InsertKeyFrame(1.00f, 360.0f, linearEasingFunction);
+                    animation.Target = nameof(visual.RotationAngleInDegrees);
+
+                    list[0].visual = visual;
+                    list[0].animation = animation;
+                }
+
+                public void AddTickTrailSegment(Visual visual, int index)
+                {
+                    float onTime = (6.0f * ++index * cOneDegreeTime) - (cOneDegreeTime / 2.0f);
+
+                    ScalarKeyFrameAnimation animation = compositor.CreateScalarKeyFrameAnimation();
+
+                    animation.InsertKeyFrame(0.0f, 0.0f);
+                    animation.InsertKeyFrame(onTime - 0.001f, 0.0f);
+                    animation.InsertKeyFrame(onTime, 1.0f, linearEasingFunction);
+                    animation.InsertKeyFrame(1.0f, 1.0f);
+                    animation.Target = nameof(visual.Opacity);
+
+                    list[index].visual = visual;
+                    list[index].animation = animation;
+                }
+
+                public void StartForwardAnimations()
+                {
+                    if (batch is not null)
+                        batch.Completed -= Batch_Completed;
+
+                    batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
+                    batch.Completed += Batch_Completed;
+
+                    for (int index = 0; index < list.Length; index++)
+                    {
+                        list[index].animation.Direction = AnimationDirection.Normal;
+                        list[index].animation.Duration = TimeSpan.FromSeconds(30.0);
+
+                        list[index].visual.StartAnimation(list[index].animation.Target, list[index].animation);
+                    }
+
+                    batch.End();
+                }
+
+                private void Batch_Completed(object sender, CompositionBatchCompletedEventArgs args)
+                {
+                    if (sCompositionClock is not null)
+                    {
+                        if (sCompositionClock.XamlClock.State == StopwatchState.Running)
+                        {
+                            Utils.User32Sound.PlayExclamation();
+                            sCompositionClock.XamlClock.State = StopwatchState.Stopped;
+                        }
+                        else if (sCompositionClock.XamlClock.State == StopwatchState.Rewinding)
+                            sCompositionClock.XamlClock.State = StopwatchState.AtStart;
+                    }
+                }
+
+                public void StopAnimations()
+                {
+                    for (int index = 0; index < list.Length; index++)
+                        list[index].visual.StopAnimation(list[index].animation.Target);
+                }
+
+                public void StartRewindAnimations()
+                {
+                    if (batch is not null)
+                        batch.Completed -= Batch_Completed;
+
+                    batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
+                    batch.Completed += Batch_Completed;
+
+                    float startPoint = 1.0f - (cOneDegreeTime * (list[0].visual.RotationAngleInDegrees - 180.0f));
+
+                    for (int index = 0; index < list.Length; index++)
+                    {
+                        list[index].animation.Direction = AnimationDirection.Reverse;
+                        list[index].animation.Duration = TimeSpan.FromSeconds(1.0);
+
+                        list[index].visual.StartAnimation(list[index].animation.Target, list[index].animation);
+
+                        AnimationController? ac = list[index].visual.TryGetAnimationController(list[index].animation.Target);
+
+                        if (ac is not null)
+                            ac.Progress = startPoint;
+                    }
+
+                    batch.End();
                 }
             }
 
-            // now the cross hairs
-            float radius = (ClockSize * 0.5f) - (ClockSize * (cOuterFrameStrokePercentage + cInnerFrameStrokePercentage));
-
-            // horizontal cross hair
-            Vector2 start = new Vector2(Center.X - radius, Center.Y);
-            Vector2 end = new Vector2(Center.X + radius, Center.Y);
-            shapeContainer.Shapes.Add(CreateLine(start, end, stroke, brush, CompositionStrokeCap.Flat));
-
-            // vertical cross hair
-            start = new Vector2(Center.X, Center.Y - radius);
-            end = new Vector2(Center.X, Center.Y + radius);
-            shapeContainer.Shapes.Add(CreateLine(start, end, stroke, brush, CompositionStrokeCap.Flat));
-
-            // create a visual for the shapes
-            ShapeVisual shapeVisual = compositor.CreateShapeVisual();
-            shapeVisual.Size = ContainerSize;
-            shapeVisual.Shapes.Add(shapeContainer);
-
-            // insert into tree
-            sContainerVisual!.Children.InsertAtTop(shapeVisual);
-        }
-
-        private void CreateHand(Compositor compositor)
-        {
-            using CanvasPathBuilder builder = new CanvasPathBuilder(null);
-
-            Vector tip = new Vector(ClockSize * 0.5 * cHandTipRadiusPercentage, 0.0, Center);
-            builder.BeginFigure(tip.Cartesian);
-
-            float radius = ClockSize * cHandArcRadiusPercentage;
-
-            Vector arcStartPoint = new Vector(radius, -cHandSectorAngle, Center);
-            builder.AddLine(arcStartPoint.Cartesian);
-
-            Vector arcEndPoint = new Vector(radius, cHandSectorAngle, Center);
-            builder.AddArc(arcEndPoint.Cartesian, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Large);
-            builder.EndFigure(CanvasFigureLoop.Closed);
-
-            float handStroke = ClockSize * cHandStrokePercentage;
-
-            // create a composition geometry from the canvas path data
-            using CanvasGeometry canvasGeometry = CanvasGeometry.CreatePath(builder);
-            CompositionPathGeometry pathGeometry = compositor.CreatePathGeometry();
-            pathGeometry.Path = new CompositionPath(canvasGeometry);
-
-            // create a shape from the geometry
-            CompositionSpriteShape secondHand = compositor.CreateSpriteShape(pathGeometry);
-            secondHand.FillBrush = compositor.CreateColorBrush(HandFillColour);
-            secondHand.StrokeThickness = handStroke;
-            secondHand.StrokeLineJoin = CompositionStrokeLineJoin.Round;
-            secondHand.StrokeBrush = compositor.CreateColorBrush(HandStrokeColour);
-
-            // create a visual for the shape
-            ShapeVisual shapeVisual = compositor.CreateShapeVisual();
-            shapeVisual.Size = ContainerSize;
-            shapeVisual.Shapes.Add(secondHand);
-            shapeVisual.CenterPoint = new Vector3(Center, 0f);
-            shapeVisual.RotationAngleInDegrees = CalculateSecondHandAngle();
-            shapeVisual.Comment = SecondHandComment; // used to identify this shape
-
-            // add to visual tree
-            sContainerVisual!.Children.InsertAtTop(shapeVisual);
-        }
-
-        private float CalculateSecondHandAngle()
-        {
-            // one second is 6 degrees
-            // zero degrees is at 6 o'clock and sweeps clockwise
-            return 180.0f + ((Ticks * 6.0f) / TimeSpan.TicksPerSecond);
-        }
-
-        protected override Size MeasureOverride(Size availableSize)
-        {
-            return ContainerSize.ToSize();
-        }
-
-        private readonly struct Vector
-        {
-            private readonly double length;
-            private readonly double degrees;
-            private readonly Vector2 offset;
-
-            public Vector(double length, double degrees, Vector2 offset)
+            private readonly struct Vector
             {
-                this.length = length;
-                this.degrees = degrees;
-                this.offset = offset;
-            }
+                private readonly float length;
+                private readonly float degrees;
+                private readonly Vector2 offset;
 
-            public Vector2 Cartesian
-            {
-                get
+                public Vector(float length, float degrees, Vector2 offset)
                 {
-                    double radians = degrees * (Math.PI / 180.0);
-                    return new Vector2((float)Math.FusedMultiplyAdd(length, Math.Sin(radians), offset.X),
-                                        (float)Math.FusedMultiplyAdd(length, Math.Cos(radians), offset.Y));
+                    this.length = length;
+                    this.degrees = degrees;
+                    this.offset = offset;
+                }
+
+                public Vector2 Cartesian
+                {
+                    get
+                    {
+                        float radians = degrees * (MathF.PI / 180.0f);
+                        return new Vector2((float)MathF.FusedMultiplyAdd(length, MathF.Sin(radians), offset.X),
+                                            (float)MathF.FusedMultiplyAdd(length, MathF.Cos(radians), offset.Y));
+                    }
                 }
             }
         }
