@@ -52,24 +52,22 @@ namespace Countdown.Views
 
         private static void StatePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (sCompositionClock is not null)
+            if (sCompositionClock is null)
+                return;
+
+            if ((StopwatchState)e.OldValue == StopwatchState.Undefined) // a new page has been loaded
+                return;
+
+            switch ((StopwatchState)e.NewValue)
             {
-                StopwatchState oldValue = (StopwatchState)e.OldValue;
+                case StopwatchState.Running: sCompositionClock.Animations.StartForwardAnimations(); break;
+                case StopwatchState.Rewinding: sCompositionClock.Animations.StartRewindAnimations(); break;
+                case StopwatchState.Stopped: sCompositionClock.Animations.StopAnimations(); break;
 
-                if (oldValue == StopwatchState.Undefined) // a new page has been loaded
-                    return;
+                case StopwatchState.AtStart:
+                case StopwatchState.Undefined: break;
 
-                switch ((StopwatchState)e.NewValue)
-                {
-                    case StopwatchState.Running: sCompositionClock.Animations.StartForwardAnimations(); break;
-                    case StopwatchState.Rewinding: sCompositionClock.Animations.StartRewindAnimations(); break;
-                    case StopwatchState.Stopped: sCompositionClock.Animations.StopAnimations(); break;
-
-                    case StopwatchState.AtStart:
-                    case StopwatchState.Undefined: break;
-
-                    default: throw new InvalidOperationException();
-                }
+                default: throw new InvalidOperationException();
             }
         }
 
@@ -126,7 +124,7 @@ namespace Countdown.Views
             private static readonly Color TickMarksColour = Colors.DarkGray;
             private static readonly Color FaceColour = Colors.Ivory;
             private static readonly Color TickTrailColour = Color.FromArgb(0xFF, 0xFF, 0xFF, 0xD2);
-            private static readonly Color HandFillColour = Color.FromArgb(0xFF, 0x00, 0x8B, 0xCE);
+            private static readonly Color HandFillColour = InnerFrameColour;
             private static readonly Color HandStrokeColour = Colors.Gray;
 
             private void CreateTickTrail(Compositor compositor, Vector2 center, float clockSize)
@@ -184,10 +182,10 @@ namespace Countdown.Views
 
             private void CreateFace(Compositor compositor, Vector2 center, float clockSize)
             {
-                CompositionSpriteShape CreateCircle(double radius, float stroke, Vector2 offset, Color fillColour, Color strokeColour)
+                CompositionSpriteShape CreateCircle(float radius, float stroke, Vector2 offset, Color fillColour, Color strokeColour)
                 {
                     CompositionEllipseGeometry circleGeometry = compositor.CreateEllipseGeometry();
-                    circleGeometry.Radius = new Vector2((float)radius);
+                    circleGeometry.Radius = new Vector2(radius);
 
                     CompositionSpriteShape circleShape = compositor.CreateSpriteShape(circleGeometry);
                     circleShape.Offset = offset;
@@ -383,6 +381,7 @@ namespace Countdown.Views
 
                 public void AddTickTrailSegment(Visual visual, int index)
                 {
+                    // switch segment zero on at 5.5 degrees, the next at 11.5, then 17.5 etc.
                     float onTime = (6.0f * ++index * cOneDegreeTime) - (cOneDegreeTime / 2.0f);
 
                     ScalarKeyFrameAnimation animation = compositor.CreateScalarKeyFrameAnimation();
@@ -418,16 +417,16 @@ namespace Countdown.Views
 
                 private void Batch_Completed(object sender, CompositionBatchCompletedEventArgs args)
                 {
-                    if (sCompositionClock is not null)
+                    if (sCompositionClock is null)
+                        return;
+
+                    if (sCompositionClock.XamlClock.State == StopwatchState.Running)
                     {
-                        if (sCompositionClock.XamlClock.State == StopwatchState.Running)
-                        {
-                            Utils.User32Sound.PlayExclamation();
-                            sCompositionClock.XamlClock.State = StopwatchState.Stopped;
-                        }
-                        else if (sCompositionClock.XamlClock.State == StopwatchState.Rewinding)
-                            sCompositionClock.XamlClock.State = StopwatchState.AtStart;
+                        Utils.User32Sound.PlayExclamation();
+                        sCompositionClock.XamlClock.State = StopwatchState.Stopped;
                     }
+                    else if (sCompositionClock.XamlClock.State == StopwatchState.Rewinding)
+                        sCompositionClock.XamlClock.State = StopwatchState.AtStart;
                 }
 
                 public void StopAnimations()
