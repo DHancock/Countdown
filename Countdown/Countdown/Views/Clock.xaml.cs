@@ -71,7 +71,6 @@ namespace Countdown.Views
             }
         }
 
-
         protected override Size MeasureOverride(Size availableSize)
         {
             return CompositionClock.ContainerSize.ToSize();
@@ -145,7 +144,6 @@ namespace Countdown.Views
 
                 builder.BeginFigure(topLeft.Cartesian);
                 builder.AddArc(topRight.Cartesian, outerRadius, outerRadius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
-
                 builder.AddLine(bottomRight.Cartesian);
                 builder.AddLine(bottomLeft.Cartesian);
                 builder.EndFigure(CanvasFigureLoop.Closed);
@@ -177,8 +175,6 @@ namespace Countdown.Views
                     Visual.Children.InsertAtTop(shapeVisual);
                 }
             }
-
-
 
             private void CreateFace(Compositor compositor, Vector2 center, float clockSize)
             {
@@ -351,138 +347,138 @@ namespace Countdown.Views
                 // add to visual tree
                 Visual.Children.InsertAtTop(shapeVisual);
             }
+        }
 
-            public class AnimationList
+        private class AnimationList
+        {
+            private const float cOneDegreeTime = 1.0f / 180.0f;
+            private readonly (Visual visual, KeyFrameAnimation animation)[] list = new (Visual visual, KeyFrameAnimation animation)[31];
+
+            private readonly Compositor compositor;
+            private readonly LinearEasingFunction linearEasingFunction;
+            private CompositionScopedBatch? batch;
+
+            public AnimationList(Compositor compositor)
             {
-                private const float cOneDegreeTime = 1.0f / 180.0f;
-                private readonly (Visual visual, KeyFrameAnimation animation)[] list = new (Visual visual, KeyFrameAnimation animation)[31];
-
-                private readonly Compositor compositor;
-                private readonly LinearEasingFunction linearEasingFunction;
-                private CompositionScopedBatch? batch;
-
-                public AnimationList(Compositor compositor)
-                {
-                    this.compositor = compositor;
-                    linearEasingFunction = compositor.CreateLinearEasingFunction();
-                }
-
-                public void AddHand(Visual visual)
-                {
-                    ScalarKeyFrameAnimation animation = compositor.CreateScalarKeyFrameAnimation();
-
-                    animation.InsertKeyFrame(0.00f, 180.0f);
-                    animation.InsertKeyFrame(1.00f, 360.0f, linearEasingFunction);
-                    animation.Target = nameof(visual.RotationAngleInDegrees);
-
-                    list[0].visual = visual;
-                    list[0].animation = animation;
-                }
-
-                public void AddTickTrailSegment(Visual visual, int index)
-                {
-                    // switch segment zero on at 5.5 degrees, the next at 11.5, then 17.5 etc.
-                    float onTime = (6.0f * ++index * cOneDegreeTime) - (cOneDegreeTime / 2.0f);
-
-                    ScalarKeyFrameAnimation animation = compositor.CreateScalarKeyFrameAnimation();
-
-                    animation.InsertKeyFrame(0.0f, 0.0f);
-                    animation.InsertKeyFrame(onTime - 0.001f, 0.0f);
-                    animation.InsertKeyFrame(onTime, 1.0f, linearEasingFunction);
-                    animation.InsertKeyFrame(1.0f, 1.0f);
-                    animation.Target = nameof(visual.Opacity);
-
-                    list[index].visual = visual;
-                    list[index].animation = animation;
-                }
-
-                public void StartForwardAnimations()
-                {
-                    if (batch is not null)
-                        batch.Completed -= Batch_Completed;
-
-                    batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
-                    batch.Completed += Batch_Completed;
-
-                    for (int index = 0; index < list.Length; index++)
-                    {
-                        list[index].animation.Direction = AnimationDirection.Normal;
-                        list[index].animation.Duration = TimeSpan.FromSeconds(30.0);
-
-                        list[index].visual.StartAnimation(list[index].animation.Target, list[index].animation);
-                    }
-
-                    batch.End();
-                }
-
-                private void Batch_Completed(object sender, CompositionBatchCompletedEventArgs args)
-                {
-                    if (sCompositionClock is null)
-                        return;
-
-                    if (sCompositionClock.XamlClock.State == StopwatchState.Running)
-                    {
-                        Utils.User32Sound.PlayExclamation();
-                        sCompositionClock.XamlClock.State = StopwatchState.Stopped;
-                    }
-                    else if (sCompositionClock.XamlClock.State == StopwatchState.Rewinding)
-                        sCompositionClock.XamlClock.State = StopwatchState.AtStart;
-                }
-
-                public void StopAnimations()
-                {
-                    for (int index = 0; index < list.Length; index++)
-                        list[index].visual.StopAnimation(list[index].animation.Target);
-                }
-
-                public void StartRewindAnimations()
-                {
-                    if (batch is not null)
-                        batch.Completed -= Batch_Completed;
-
-                    batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
-                    batch.Completed += Batch_Completed;
-
-                    float startPoint = 1.0f - (cOneDegreeTime * (list[0].visual.RotationAngleInDegrees - 180.0f));
-
-                    for (int index = 0; index < list.Length; index++)
-                    {
-                        list[index].animation.Direction = AnimationDirection.Reverse;
-                        list[index].animation.Duration = TimeSpan.FromSeconds(1.0);
-
-                        list[index].visual.StartAnimation(list[index].animation.Target, list[index].animation);
-
-                        AnimationController? ac = list[index].visual.TryGetAnimationController(list[index].animation.Target);
-
-                        if (ac is not null)
-                            ac.Progress = startPoint;
-                    }
-
-                    batch.End();
-                }
+                this.compositor = compositor;
+                linearEasingFunction = compositor.CreateLinearEasingFunction();
             }
 
-            private readonly struct Vector
+            public void AddHand(Visual visual)
             {
-                private readonly float length;
-                private readonly float degrees;
-                private readonly Vector2 offset;
+                ScalarKeyFrameAnimation animation = compositor.CreateScalarKeyFrameAnimation();
 
-                public Vector(float length, float degrees, Vector2 offset)
+                animation.InsertKeyFrame(0.0f, 180.0f);
+                animation.InsertKeyFrame(1.0f, 360.0f, linearEasingFunction);
+                animation.Target = nameof(visual.RotationAngleInDegrees);
+
+                list[0].visual = visual;
+                list[0].animation = animation;
+            }
+
+            public void AddTickTrailSegment(Visual visual, int index)
+            {
+                // switch segment zero on at 5.5 degrees, the next at 11.5, then 17.5 etc.
+                float onTime = (6.0f * ++index * cOneDegreeTime) - (cOneDegreeTime / 2.0f);
+
+                ScalarKeyFrameAnimation animation = compositor.CreateScalarKeyFrameAnimation();
+
+                animation.InsertKeyFrame(0.0f, 0.0f);
+                animation.InsertKeyFrame(onTime - 0.001f, 0.0f);
+                animation.InsertKeyFrame(onTime, 1.0f, linearEasingFunction);
+                animation.InsertKeyFrame(1.0f, 1.0f);
+                animation.Target = nameof(visual.Opacity);
+
+                list[index].visual = visual;
+                list[index].animation = animation;
+            }
+
+            public void StartForwardAnimations()
+            {
+                if (batch is not null)
+                    batch.Completed -= Batch_Completed;
+
+                batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
+                batch.Completed += Batch_Completed;
+
+                for (int index = 0; index < list.Length; index++)
                 {
-                    this.length = length;
-                    this.degrees = degrees;
-                    this.offset = offset;
+                    list[index].animation.Direction = AnimationDirection.Normal;
+                    list[index].animation.Duration = TimeSpan.FromSeconds(30.0);
+
+                    list[index].visual.StartAnimation(list[index].animation.Target, list[index].animation);
                 }
 
-                public Vector2 Cartesian
+                batch.End();
+            }
+
+            private void Batch_Completed(object sender, CompositionBatchCompletedEventArgs args)
+            {
+                if (sCompositionClock is null)
+                    return;
+
+                if (sCompositionClock.XamlClock.State == StopwatchState.Running)
                 {
-                    get
-                    {
-                        float radians = degrees * (MathF.PI / 180.0f);
-                        return new Vector2((float)MathF.FusedMultiplyAdd(length, MathF.Sin(radians), offset.X),
-                                            (float)MathF.FusedMultiplyAdd(length, MathF.Cos(radians), offset.Y));
-                    }
+                    Utils.User32Sound.PlayExclamation();
+                    sCompositionClock.XamlClock.State = StopwatchState.Stopped;
+                }
+                else if (sCompositionClock.XamlClock.State == StopwatchState.Rewinding)
+                    sCompositionClock.XamlClock.State = StopwatchState.AtStart;
+            }
+
+            public void StopAnimations()
+            {
+                for (int index = 0; index < list.Length; index++)
+                    list[index].visual.StopAnimation(list[index].animation.Target);
+            }
+
+            public void StartRewindAnimations()
+            {
+                if (batch is not null)
+                    batch.Completed -= Batch_Completed;
+
+                batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
+                batch.Completed += Batch_Completed;
+
+                float startPoint = 1.0f - (cOneDegreeTime * (list[0].visual.RotationAngleInDegrees - 180.0f));
+
+                for (int index = 0; index < list.Length; index++)
+                {
+                    list[index].animation.Direction = AnimationDirection.Reverse;
+                    list[index].animation.Duration = TimeSpan.FromSeconds(1.0);
+
+                    list[index].visual.StartAnimation(list[index].animation.Target, list[index].animation);
+
+                    AnimationController? ac = list[index].visual.TryGetAnimationController(list[index].animation.Target);
+
+                    if (ac is not null)
+                        ac.Progress = startPoint;
+                }
+
+                batch.End();
+            }
+        }
+
+        private readonly struct Vector
+        {
+            private readonly float length;
+            private readonly float degrees;
+            private readonly Vector2 offset;
+
+            public Vector(float length, float degrees, Vector2 offset)
+            {
+                this.length = length;
+                this.degrees = degrees;
+                this.offset = offset;
+            }
+
+            public Vector2 Cartesian
+            {
+                get
+                {
+                    float radians = degrees * (MathF.PI / 180.0f);
+                    return new Vector2(MathF.FusedMultiplyAdd(length, MathF.Sin(radians), offset.X),
+                                        MathF.FusedMultiplyAdd(length, MathF.Cos(radians), offset.Y));
                 }
             }
         }
