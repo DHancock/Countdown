@@ -13,6 +13,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Resources\Themes.xaml" />
     <None Remove="Resources\wordlist.dat" />
     <None Remove="Views\Clock.xaml" />
     <None Remove="Views\ConundrumView.xaml" />
@@ -39,6 +40,9 @@
     <None Update="Resources\app_16.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Page Update="Resources\Themes.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Update="Resources\xapp_16.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

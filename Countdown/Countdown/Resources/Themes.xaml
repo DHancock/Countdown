@@ -1,0 +1,51 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Countdown.Resources"
+    xmlns:views="using:Countdown.Views">
+
+
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="HighContrast">
+            <Color x:Key="FaceColour">White</Color>
+            <Color x:Key="TickTrailColour">Gray</Color>
+            <Color x:Key="InnerFrameColour">Black</Color>
+            <Color x:Key="OuterFrameColour">Gray</Color>
+            <Color x:Key="FrameTickColour">White</Color>
+            <Color x:Key="TickMarksColour">Black</Color>
+            <Color x:Key="HandStrokeColour">Black</Color>
+            <Color x:Key="HandFillColour">White</Color>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <Color x:Key="FaceColour">Black</Color>
+            <Color x:Key="TickTrailColour">#FF252525</Color>
+            <Color x:Key="InnerFrameColour">MidnightBlue</Color>
+            <Color x:Key="OuterFrameColour">DarkSlateGray</Color>
+            <Color x:Key="FrameTickColour">Gray</Color>
+            <Color x:Key="TickMarksColour">#FF484848</Color>
+            <Color x:Key="HandStrokeColour">#FF484848</Color>
+            <Color x:Key="HandFillColour">MidnightBlue</Color>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+            <Color x:Key="FaceColour">Ivory</Color>
+            <Color x:Key="TickTrailColour">#FFFFFFD2</Color>
+            <Color x:Key="InnerFrameColour">#FF0068C7</Color>
+            <Color x:Key="OuterFrameColour">LightGray</Color>
+            <Color x:Key="FrameTickColour">Silver</Color>
+            <Color x:Key="TickMarksColour">Silver</Color>
+            <Color x:Key="HandStrokeColour">Gray</Color>
+            <Color x:Key="HandFillColour">#FF0068C7</Color>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+    <Style TargetType="views:Clock">
+        <Setter Property="FaceColour" Value="{ThemeResource FaceColour}"/>
+        <Setter Property="TickTrailColour" Value="{ThemeResource TickTrailColour}"/>
+        <Setter Property="InnerFrameColour" Value="{ThemeResource InnerFrameColour}"/>
+        <Setter Property="OuterFrameColour" Value="{ThemeResource OuterFrameColour}"/>
+        <Setter Property="FrameTickColour" Value="{ThemeResource FrameTickColour}"/>
+        <Setter Property="TickMarksColour" Value="{ThemeResource TickMarksColour}"/>
+        <Setter Property="HandStrokeColour" Value="{ThemeResource HandStrokeColour}"/>
+        <Setter Property="HandFillColour" Value="{ThemeResource HandFillColour}"/>
+    </Style>
+</ResourceDictionary>

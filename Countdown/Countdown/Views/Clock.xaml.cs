@@ -35,20 +35,19 @@ namespace Countdown.Views
             };
         }
 
-
         public StopwatchState State
         {
             get { return (StopwatchState)GetValue(StateProperty); }
             set { SetValue(StateProperty, value); }
         }
 
-
         public static readonly DependencyProperty StateProperty =
                 DependencyProperty.Register(nameof(State),
+
+
                 typeof(StopwatchState),
                 typeof(Clock),
                 new PropertyMetadata(StopwatchState.Undefined, StatePropertyChanged));
-
 
         private static void StatePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -76,12 +75,120 @@ namespace Countdown.Views
             return CompositionClock.ContainerSize.ToSize();
         }
 
+        public Color FaceColour
+        {
+            get { return (Color)GetValue(FaceColourProperty); }
+            set { SetValue(FaceColourProperty, value); }
+        }
 
-        private class CompositionClock
+        public static readonly DependencyProperty FaceColourProperty =
+            DependencyProperty.Register(nameof(FaceColour),
+                typeof(Color),
+                typeof(Clock),
+                new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.Face, (Color)e.NewValue)));
+
+        public Color TickTrailColour
+        {
+            get { return (Color)GetValue(TickTrailColourProperty); }
+            set { SetValue(TickTrailColourProperty, value); }
+        }
+
+        public static readonly DependencyProperty TickTrailColourProperty =
+            DependencyProperty.Register(nameof(TickTrailColour),
+                typeof(Color),
+                typeof(Clock),
+                new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.TickTrail, (Color)e.NewValue)));
+
+        public Color InnerFrameColour
+        {
+            get { return (Color)GetValue(InnerFrameColourProperty); }
+            set { SetValue(InnerFrameColourProperty, value); }
+        }
+
+        public static readonly DependencyProperty InnerFrameColourProperty =
+            DependencyProperty.Register(nameof(InnerFrameColour),
+                typeof(Color),
+                typeof(Clock),
+                new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.InnerFrame, (Color)e.NewValue)));
+
+        public Color OuterFrameColour
+        {
+            get { return (Color)GetValue(OuterFrameColourProperty); }
+            set { SetValue(OuterFrameColourProperty, value); }
+        }
+
+        public static readonly DependencyProperty OuterFrameColourProperty =
+            DependencyProperty.Register(nameof(OuterFrameColour),
+                typeof(Color),
+                typeof(Clock),
+                new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.OuterFrame, (Color)e.NewValue)));
+
+        public Color FrameTickColour
+        {
+            get { return (Color)GetValue(FrameTickColourProperty); }
+            set { SetValue(FrameTickColourProperty, value); }
+        }
+
+        public static readonly DependencyProperty FrameTickColourProperty =
+            DependencyProperty.Register(nameof(FrameTickColour),
+                typeof(Color),
+                typeof(Clock),
+                new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.FrameTick, (Color)e.NewValue)));
+
+        public Color TickMarksColour
+        {
+            get { return (Color)GetValue(TickMarksColourProperty); }
+            set { SetValue(TickMarksColourProperty, value); }
+        }
+
+        public static readonly DependencyProperty TickMarksColourProperty =
+            DependencyProperty.Register(nameof(TickMarksColour),
+                typeof(Color),
+                typeof(Clock),
+                new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.TickMarks, (Color)e.NewValue)));
+
+        public Color HandStrokeColour
+        {
+            get { return (Color)GetValue(HandStrokeColourProperty); }
+            set { SetValue(HandStrokeColourProperty, value); }
+        }
+
+        public static readonly DependencyProperty HandStrokeColourProperty =
+            DependencyProperty.Register(nameof(HandStrokeColour),
+                typeof(Color),
+                typeof(Clock),
+                new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.HandStroke, (Color)e.NewValue)));
+
+        public Color HandFillColour
+        {
+            get { return (Color)GetValue(HandFillColourProperty); }
+            set { SetValue(HandFillColourProperty, value); }
+        }
+
+        public static readonly DependencyProperty HandFillColourProperty =
+            DependencyProperty.Register(nameof(HandFillColour),
+                typeof(Color),
+                typeof(Clock),
+                new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.HandFill, (Color)e.NewValue)));
+
+        private static void UpdateBrush(BrushId brushIndex, Color newColour)
+        {
+            if (sCompositionClock is null)
+                return;
+
+            CompositionColorBrush brush = sCompositionClock.Brushes[brushIndex];
+
+            if (brush is not null && (brush.Color != newColour))
+                brush.Color = newColour;
+        }
+
+
+        private sealed class CompositionClock
         {
             public ContainerVisual Visual { get; }
             public static Vector2 ContainerSize { get; } = new Vector2(200);
             public AnimationList Animations { get; }
+            public BrushList Brushes { get; }
             public Clock XamlClock { get; set; }
 
             public CompositionClock(Clock xamlClock)
@@ -89,10 +196,11 @@ namespace Countdown.Views
                 Compositor compositor = ElementCompositionPreview.GetElementVisual(xamlClock).Compositor;
                 Visual = compositor.CreateContainerVisual();
                 Animations = new AnimationList(compositor);
+                Brushes = new BrushList(compositor, xamlClock);
                 XamlClock = xamlClock;
 
                 // allow room for the drop shadow
-                float clockSize = ContainerSize.Y * 0.95f;
+                float clockSize = ContainerSize.X * 0.95f;
                 Vector2 center = new Vector2(ContainerSize.X * 0.5f);
 
                 CreateFace(compositor, center, clockSize);
@@ -100,7 +208,6 @@ namespace Countdown.Views
                 CreateFaceTickMarks(compositor, center, clockSize);
                 CreateHand(compositor, center, clockSize);
             }
-
 
             private const float cOuterFrameStrokePercentage = 0.01f;
             private const float cInnerFrameStrokePercentage = 0.02f;
@@ -116,15 +223,6 @@ namespace Countdown.Views
 
             private const float cTickTrailOuterRadiusPercent = 0.92f;
             private const float cTickTrailInnerRadiusPercent = 0.38f;
-
-            // TODO: dark mode?
-            private static readonly Color OuterFrameColour = Colors.LightGray;
-            private static readonly Color InnerFrameColour = Color.FromArgb(0xFF, 0x00, 0x68, 0xC7);
-            private static readonly Color TickMarksColour = Colors.DarkGray;
-            private static readonly Color FaceColour = Colors.Ivory;
-            private static readonly Color TickTrailColour = Color.FromArgb(0xFF, 0xFF, 0xFF, 0xD2);
-            private static readonly Color HandFillColour = InnerFrameColour;
-            private static readonly Color HandStrokeColour = Colors.Gray;
 
             private void CreateTickTrail(Compositor compositor, Vector2 center, float clockSize)
             {
@@ -153,14 +251,12 @@ namespace Countdown.Views
                 CompositionPathGeometry pathGeometry = compositor.CreatePathGeometry();
                 pathGeometry.Path = new CompositionPath(canvasGeometry);
 
-                CompositionBrush brush = compositor.CreateColorBrush(TickTrailColour);
-
                 // create every trail element visual, then change its opacity as required
                 for (int segment = 0; segment < 30; segment++)
                 {
                     // create a shape from the geometry
                     CompositionSpriteShape tickSegment = compositor.CreateSpriteShape(pathGeometry);
-                    tickSegment.FillBrush = brush;
+                    tickSegment.FillBrush = Brushes[BrushId.TickTrail];
                     tickSegment.CenterPoint = center;
                     tickSegment.RotationAngleInDegrees = segment * 6f;  // one second is 6 degrees
 
@@ -178,19 +274,19 @@ namespace Countdown.Views
 
             private void CreateFace(Compositor compositor, Vector2 center, float clockSize)
             {
-                CompositionSpriteShape CreateCircle(float radius, float stroke, Vector2 offset, Color fillColour, Color strokeColour)
+                CompositionSpriteShape CreateCircle(float radius, float stroke, Vector2 offset, BrushId fillBrushId, BrushId strokeBrushId)
                 {
                     CompositionEllipseGeometry circleGeometry = compositor.CreateEllipseGeometry();
                     circleGeometry.Radius = new Vector2(radius);
 
                     CompositionSpriteShape circleShape = compositor.CreateSpriteShape(circleGeometry);
                     circleShape.Offset = offset;
-                    circleShape.FillBrush = compositor.CreateColorBrush(fillColour);
+                    circleShape.FillBrush = Brushes[fillBrushId];
 
                     if (stroke > 0.0f)
                     {
                         circleShape.StrokeThickness = stroke;
-                        circleShape.StrokeBrush = compositor.CreateColorBrush(strokeColour);
+                        circleShape.StrokeBrush = Brushes[strokeBrushId];
                     }
 
                     return circleShape;
@@ -203,23 +299,23 @@ namespace Countdown.Views
                 float outerFrameStroke = clockSize * cOuterFrameStrokePercentage;
                 radius -= outerFrameStroke * 0.5f;
 
-                shapeContainer.Shapes.Add(CreateCircle(radius, outerFrameStroke, center, Colors.Transparent, OuterFrameColour));
+                shapeContainer.Shapes.Add(CreateCircle(radius, outerFrameStroke, center, BrushId.Transparent, BrushId.OuterFrame));
 
                 // inner frame
                 float innerFrameStroke = clockSize * cInnerFrameStrokePercentage;
                 radius -= (outerFrameStroke + innerFrameStroke) * 0.5f;
 
-                shapeContainer.Shapes.Add(CreateCircle(radius, innerFrameStroke, center, Colors.Transparent, InnerFrameColour));
+                shapeContainer.Shapes.Add(CreateCircle(radius, innerFrameStroke, center, BrushId.Transparent, BrushId.InnerFrame));
 
                 // tick marks around inner frame
                 float tickRadius = innerFrameStroke / 5.0f;      // TODO constants, and color static
 
                 for (float degrees = 0; degrees < 360.0; degrees += 30.0f)
-                    shapeContainer.Shapes.Add(CreateCircle(tickRadius, 0f, new Vector(radius, degrees, center).Cartesian, Colors.Silver, Colors.Transparent));
+                    shapeContainer.Shapes.Add(CreateCircle(tickRadius, 0f, new Vector(radius, degrees, center).Cartesian, BrushId.FrameTick, BrushId.Transparent));
 
                 // clock face fill
                 radius -= innerFrameStroke * 0.5f;
-                shapeContainer.Shapes.Add(CreateCircle(radius, 0f, center, FaceColour, Colors.Transparent));
+                shapeContainer.Shapes.Add(CreateCircle(radius, 0f, center, BrushId.Face, BrushId.Transparent));
 
                 // create a visual for the shape container
                 ShapeVisual shapeVisual = compositor.CreateShapeVisual();
@@ -249,7 +345,7 @@ namespace Countdown.Views
 
             private void CreateFaceTickMarks(Compositor compositor, Vector2 center, float clockSize)
             {
-                CompositionSpriteShape CreateLine(Vector2 start, Vector2 end, float thickness, CompositionColorBrush brush, CompositionStrokeCap endCap)
+                CompositionSpriteShape CreateLine(Vector2 start, Vector2 end, float thickness, BrushId brushId, CompositionStrokeCap endCap)
                 {
                     CompositionLineGeometry lineGeometry = compositor.CreateLineGeometry();
                     lineGeometry.Start = start;
@@ -257,7 +353,7 @@ namespace Countdown.Views
 
                     CompositionSpriteShape lineShape = compositor.CreateSpriteShape(lineGeometry);
                     lineShape.StrokeThickness = thickness;
-                    lineShape.StrokeBrush = brush;
+                    lineShape.StrokeBrush = Brushes[brushId];
                     lineShape.StrokeEndCap = endCap;
                     lineShape.StrokeStartCap = endCap;
 
@@ -265,7 +361,6 @@ namespace Countdown.Views
                 }
 
                 CompositionContainerShape shapeContainer = compositor.CreateContainerShape();
-                CompositionColorBrush brush = compositor.CreateColorBrush(TickMarksColour);
 
                 // add the 5 second tick marks
                 float stroke = clockSize * cTickMarksStrokePercentage;
@@ -279,7 +374,7 @@ namespace Countdown.Views
                     {
                         Vector2 inner = new Vector(startLength, degrees, center).Cartesian;
                         Vector2 outer = new Vector(endLength, degrees, center).Cartesian;
-                        shapeContainer.Shapes.Add(CreateLine(inner, outer, stroke, brush, endCap));
+                        shapeContainer.Shapes.Add(CreateLine(inner, outer, stroke, BrushId.TickMarks, endCap));
                     }
                 }
 
@@ -289,12 +384,12 @@ namespace Countdown.Views
                 // horizontal cross hair
                 Vector2 start = new Vector2(center.X - radius, center.Y);
                 Vector2 end = new Vector2(center.X + radius, center.Y);
-                shapeContainer.Shapes.Add(CreateLine(start, end, stroke, brush, CompositionStrokeCap.Flat));
+                shapeContainer.Shapes.Add(CreateLine(start, end, stroke, BrushId.TickMarks, CompositionStrokeCap.Flat));
 
                 // vertical cross hair
                 start = new Vector2(center.X, center.Y - radius);
                 end = new Vector2(center.X, center.Y + radius);
-                shapeContainer.Shapes.Add(CreateLine(start, end, stroke, brush, CompositionStrokeCap.Flat));
+                shapeContainer.Shapes.Add(CreateLine(start, end, stroke, BrushId.TickMarks, CompositionStrokeCap.Flat));
 
                 // create a visual for the shapes
                 ShapeVisual shapeVisual = compositor.CreateShapeVisual();
@@ -330,10 +425,10 @@ namespace Countdown.Views
 
                 // create a shape from the geometry
                 CompositionSpriteShape secondHand = compositor.CreateSpriteShape(pathGeometry);
-                secondHand.FillBrush = compositor.CreateColorBrush(HandFillColour);
+                secondHand.FillBrush = Brushes[BrushId.HandFill];
                 secondHand.StrokeThickness = handStroke;
                 secondHand.StrokeLineJoin = CompositionStrokeLineJoin.Round;
-                secondHand.StrokeBrush = compositor.CreateColorBrush(HandStrokeColour);
+                secondHand.StrokeBrush = Brushes[BrushId.HandStroke];
 
                 // create a visual for the shape
                 ShapeVisual shapeVisual = compositor.CreateShapeVisual();
@@ -349,7 +444,7 @@ namespace Countdown.Views
             }
         }
 
-        private class AnimationList
+        private sealed class AnimationList
         {
             private const float cOneDegreeTime = 1.0f / 180.0f;
             private readonly (Visual visual, KeyFrameAnimation animation)[] list = new (Visual visual, KeyFrameAnimation animation)[31];
@@ -456,6 +551,34 @@ namespace Countdown.Views
                 }
 
                 batch.End();
+            }
+        }
+
+        private enum BrushId { Transparent, Face, TickTrail, InnerFrame, OuterFrame, FrameTick, TickMarks, HandStroke, HandFill }
+
+        private sealed class BrushList
+        {
+            private readonly CompositionColorBrush[] list = new CompositionColorBrush[9];
+
+            public BrushList(Compositor compositor, Clock xamlClock)
+            {
+                this[BrushId.Transparent] = compositor.CreateColorBrush(Colors.Transparent);
+                this[BrushId.Face] = compositor.CreateColorBrush(xamlClock.FaceColour);
+                this[BrushId.TickTrail] = compositor.CreateColorBrush(xamlClock.TickTrailColour);
+
+                this[BrushId.InnerFrame] = compositor.CreateColorBrush(xamlClock.InnerFrameColour);
+                this[BrushId.OuterFrame] = compositor.CreateColorBrush(xamlClock.OuterFrameColour);
+                this[BrushId.FrameTick] = compositor.CreateColorBrush(xamlClock.FrameTickColour);
+
+                this[BrushId.TickMarks] = compositor.CreateColorBrush(xamlClock.TickMarksColour);
+                this[BrushId.HandStroke] = compositor.CreateColorBrush(xamlClock.HandStrokeColour);
+                this[BrushId.HandFill] = compositor.CreateColorBrush(xamlClock.HandFillColour);
+            }
+
+            public CompositionColorBrush this[BrushId i]
+            {
+                get { return list[(int)i]; }
+                private set { list[(int)i] = value; }
             }
         }
 

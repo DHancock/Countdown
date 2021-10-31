@@ -21,6 +21,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <ResourceDictionary Source="ms-appx:///Microsoft.UI.Xaml/DensityStyles/Compact.xaml" />
+                <ResourceDictionary Source="ms-appx:///Resources/Themes.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="StartStopButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
