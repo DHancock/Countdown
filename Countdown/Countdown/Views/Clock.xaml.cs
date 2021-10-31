@@ -43,8 +43,6 @@ namespace Countdown.Views
 
         public static readonly DependencyProperty StateProperty =
                 DependencyProperty.Register(nameof(State),
-
-
                 typeof(StopwatchState),
                 typeof(Clock),
                 new PropertyMetadata(StopwatchState.Undefined, StatePropertyChanged));
