@@ -292,12 +292,20 @@ namespace Countdown.Views
 
                 CompositionContainerShape shapeContainer = compositor.CreateContainerShape();
 
+                // create a visual for the shape container
+                ShapeVisual shapeVisual = compositor.CreateShapeVisual();
+                shapeVisual.Size = ContainerSize;
+                shapeVisual.Shapes.Add(shapeContainer);
+
                 // outer frame
                 float radius = clockSize * 0.5f;
                 float outerFrameStroke = clockSize * cOuterFrameStrokePercentage;
                 radius -= outerFrameStroke * 0.5f;
 
-                shapeContainer.Shapes.Add(CreateCircle(radius, outerFrameStroke, center, BrushId.Transparent, BrushId.OuterFrame));
+                shapeContainer.Shapes.Add(CreateCircle(radius, outerFrameStroke, center, BrushId.OuterFrame, BrushId.OuterFrame));
+
+                // create the drop shadow now from the simplest shape
+                SpriteVisual shadowVisual = CreateDropShadow(compositor, shapeVisual);
 
                 // inner frame
                 float innerFrameStroke = clockSize * cInnerFrameStrokePercentage;
@@ -315,15 +323,17 @@ namespace Countdown.Views
                 radius -= innerFrameStroke * 0.5f;
                 shapeContainer.Shapes.Add(CreateCircle(radius, 0f, center, BrushId.Face, BrushId.Transparent));
 
-                // create a visual for the shape container
-                ShapeVisual shapeVisual = compositor.CreateShapeVisual();
-                shapeVisual.Size = ContainerSize;
-                shapeVisual.Shapes.Add(shapeContainer);
+                // insert into the tree 
+                Visual.Children.InsertAtBottom(shapeVisual);
+                Visual.Children.InsertAtBottom(shadowVisual);
+            }
 
+            private static SpriteVisual CreateDropShadow(Compositor compositor, ShapeVisual sourceVisual)
+            {
                 // create a surface brush to use as a mask for the drop shadow
                 CompositionVisualSurface surface = compositor.CreateVisualSurface();
                 surface.SourceSize = ContainerSize;
-                surface.SourceVisual = shapeVisual;   // TODO it may be quicker to use a simpler shape
+                surface.SourceVisual = sourceVisual;
 
                 // create the drop shadow
                 DropShadow shadow = compositor.CreateDropShadow();
@@ -336,9 +346,7 @@ namespace Countdown.Views
                 shadowVisual.Size = ContainerSize;
                 shadowVisual.Shadow = shadow;
 
-                // insert into the tree 
-                Visual.Children.InsertAtBottom(shapeVisual);
-                Visual.Children.InsertAtBottom(shadowVisual);
+                return shadowVisual;
             }
 
             private void CreateFaceTickMarks(Compositor compositor, Vector2 center, float clockSize)
