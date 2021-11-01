@@ -2,11 +2,12 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Countdown.Resources"
-    xmlns:views="using:Countdown.Views">
-
+    xmlns:views="using:Countdown.Views"
+    xmlns:w3c="using:AssyntSoftware.WinUI3Controls">
 
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="HighContrast">
+            <!-- stopwatch -->
             <Color x:Key="FaceColour">White</Color>
             <Color x:Key="TickTrailColour">Gray</Color>
             <Color x:Key="InnerFrameColour">Black</Color>
@@ -15,8 +16,12 @@
             <Color x:Key="TickMarksColour">Black</Color>
             <Color x:Key="HandStrokeColour">Black</Color>
             <Color x:Key="HandFillColour">White</Color>
+            <!-- GroupBox border -->
+            <Color x:Key="BorderColour">Black</Color>
         </ResourceDictionary>
+
         <ResourceDictionary x:Key="Dark">
+            <!-- stopwatch -->
             <Color x:Key="FaceColour">Black</Color>
             <Color x:Key="TickTrailColour">#FF252525</Color>
             <Color x:Key="InnerFrameColour">MidnightBlue</Color>
@@ -25,8 +30,12 @@
             <Color x:Key="TickMarksColour">#FF484848</Color>
             <Color x:Key="HandStrokeColour">#FF484848</Color>
             <Color x:Key="HandFillColour">MidnightBlue</Color>
+            <!-- GroupBox border -->
+            <Color x:Key="BorderColour">#FF484848</Color>
         </ResourceDictionary>
+
         <ResourceDictionary x:Key="Light">
+            <!-- stopwatch -->
             <Color x:Key="FaceColour">Ivory</Color>
             <Color x:Key="TickTrailColour">#FFFFFFD2</Color>
             <Color x:Key="InnerFrameColour">#FF0068C7</Color>
@@ -35,6 +44,8 @@
             <Color x:Key="TickMarksColour">Silver</Color>
             <Color x:Key="HandStrokeColour">Gray</Color>
             <Color x:Key="HandFillColour">#FF0068C7</Color>
+            <!-- GroupBox border -->
+            <Color x:Key="BorderColour">LightGray</Color>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
@@ -47,5 +58,9 @@
         <Setter Property="TickMarksColour" Value="{ThemeResource TickMarksColour}"/>
         <Setter Property="HandStrokeColour" Value="{ThemeResource HandStrokeColour}"/>
         <Setter Property="HandFillColour" Value="{ThemeResource HandFillColour}"/>
+    </Style>
+
+    <Style TargetType="w3c:GroupBox">
+        <Setter Property="BorderBrush" Value="{ThemeResource BorderColour}"/>
     </Style>
 </ResourceDictionary>
