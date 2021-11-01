@@ -299,17 +299,15 @@ namespace Countdown.Views
 
                 // outer frame
                 float radius = clockSize * 0.5f;
-                float outerFrameStroke = clockSize * cOuterFrameStrokePercentage;
-                radius -= outerFrameStroke * 0.5f;
-
-                shapeContainer.Shapes.Add(CreateCircle(radius, outerFrameStroke, center, BrushId.OuterFrame, BrushId.OuterFrame));
+                shapeContainer.Shapes.Add(CreateCircle(radius, 0f, center, BrushId.OuterFrame, BrushId.OuterFrame));
 
                 // create the drop shadow now from the simplest shape
                 SpriteVisual shadowVisual = CreateDropShadow(compositor, shapeVisual);
 
                 // inner frame
+                float outerFrameStroke = clockSize * cOuterFrameStrokePercentage;
                 float innerFrameStroke = clockSize * cInnerFrameStrokePercentage;
-                radius -= (outerFrameStroke + innerFrameStroke) * 0.5f;
+                radius -= outerFrameStroke + (innerFrameStroke * 0.5f);
 
                 shapeContainer.Shapes.Add(CreateCircle(radius, innerFrameStroke, center, BrushId.Transparent, BrushId.InnerFrame));
 
