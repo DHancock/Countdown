@@ -6,5 +6,5 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <!-- the clock is draw entirely using Microsoft.UI.Composition APIs -->
+    <!-- the clock is drawn entirely using Microsoft.UI.Composition APIs -->
 </UserControl>
