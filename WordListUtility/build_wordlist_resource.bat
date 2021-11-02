@@ -8,7 +8,7 @@ set ProjectDir=%~3
 set SolutionDir=%~4
 
 set InputDir=%ProjectDir%Input
-set OutputFile=%SolutionDir%Countdown\Resources\wordlist.dat
+set OutputFile=%SolutionDir%Countdown\Countdown\Resources\wordlist.dat
 
 echo InputDir   = %InputDir%
 echo OutputFile = %OutputFile%
