@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "Countdown (Package)", "Countdown\Countdown (Package)\Countdown (Package).wapproj", "{FBDC53FA-4515-4F28-8146-D7E39B3C4604}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Countdown", "Countdown\Countdown\Countdown.csproj", "{84E7CC44-9EC5-4088-88BF-7CFE7591D29B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DD7D1EB0-141E-45FE-B2B1-3CC507C0F3B6} = {DD7D1EB0-141E-45FE-B2B1-3CC507C0F3B6}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordListUtility", "WordListUtility\WordListUtility.csproj", "{DD7D1EB0-141E-45FE-B2B1-3CC507C0F3B6}"
 EndProject
