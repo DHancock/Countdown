@@ -36,21 +36,17 @@
         </Style>
     </Page.Resources>
 
-    <RelativePanel>
-        <Grid x:Name="InputGrid"  RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{StaticResource InputGridWidth}"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <local:Clock Grid.Column="0" Grid.Row="0" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{StaticResource InputGridWidth}"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-            <w3c:GroupBox Heading="Conundrum" Grid.Column="0" Grid.Row="1">
+        <StackPanel Grid.Column="0">
+
+            <local:Clock State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+            <w3c:GroupBox Heading="Conundrum">
                 <StackPanel Orientation="Horizontal">
                     <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -64,7 +60,7 @@
                 </StackPanel>
             </w3c:GroupBox>
 
-            <w3c:GroupBox Heading="Solution" Grid.Column="0" Grid.Row="2">
+            <w3c:GroupBox Heading="Solution">
                 <StackPanel Orientation="Horizontal">
                     <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(0, 1), Mode=OneWay}"/>
                     <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(1, 1), Mode=OneWay}"/>
@@ -78,7 +74,7 @@
                 </StackPanel>
             </w3c:GroupBox>
 
-            <Grid Grid.Column="0" Grid.Row="3">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -89,9 +85,9 @@
                 <Button Grid.Column="1" HorizontalAlignment="Center" Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Style="{StaticResource StartStopButtonStyle}"/>
                 <Button Grid.Column="2" Content="Solve" Command="{x:Bind ViewModel.SolveCommand}"/>
             </Grid>
-        </Grid>
+        </StackPanel>
 
-        <ListView x:Name="ConundrumList" RelativePanel.RightOf="InputGrid" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True" ItemsSource="{x:Bind ViewModel.SolutionList, Mode=OneWay}" >
+        <ListView x:Name="ConundrumList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.SolutionList, Mode=OneWay}">
             <ListView.Resources>
                 <StandardUICommand x:Name="CopyCommand" Kind="Copy" ExecuteRequested="CopyCommand_ExecuteRequested" CanExecuteRequested="CopyCommand_CanExecuteRequested"/>
                 <StandardUICommand x:Name="DeleteCommand" Kind="Delete" ExecuteRequested="DeleteCommand_ExecuteRequested" CanExecuteRequested="DeleteCommand_CanExecuteRequested"/>
@@ -121,5 +117,5 @@
                 </MenuFlyout>
             </ListView.ContextFlyout>
         </ListView>
-    </RelativePanel>
+    </Grid>
 </Page>

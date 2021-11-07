@@ -26,21 +26,17 @@
 
     </Page.Resources>
 
-    <RelativePanel>
-        <Grid x:Name="InputGrid"  RelativePanel.AlignLeftWithPanel="True" RelativePanel.AlignTopWithPanel="True">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{StaticResource InputGridWidth}"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <local:Clock Grid.Column="0" Grid.Row="0" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{StaticResource InputGridWidth}"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-            <w3c:GroupBox Grid.Column="0" Grid.Row="1" Heading="Tiles">
+        <StackPanel Grid.Column="0">
+
+            <local:Clock State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+            <w3c:GroupBox Heading="Tiles">
               <StackPanel Orientation="Horizontal">
                     <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -51,11 +47,11 @@
                 </StackPanel>
             </w3c:GroupBox>
 
-            <w3c:GroupBox Grid.Column="0" Grid.Row="2" Heading="Target">
+            <w3c:GroupBox Heading="Target">
                 <local:CountdownTextBox Style="{StaticResource ctbs}" Width="40" Text="{x:Bind ViewModel.Target, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </w3c:GroupBox>
 
-            <Grid Grid.Column="0" Grid.Row="3">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -77,9 +73,9 @@
                 <Button Grid.Column="1" HorizontalAlignment="Center" Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Style="{StaticResource StartStopButtonStyle}"/>
                 <Button Grid.Column="2" Content="Solve" Command="{x:Bind ViewModel.SolveCommand}"/>
             </Grid>
-        </Grid>
+        </StackPanel>
 
-        <ListView x:Name="EquationList" RelativePanel.RightOf="InputGrid" RelativePanel.AlignBottomWithPanel="True" RelativePanel.AlignTopWithPanel="True" RelativePanel.AlignRightWithPanel="True" ItemsSource="{x:Bind ViewModel.EquationList, Mode=OneWay}" >
+        <ListView x:Name="EquationList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.EquationList, Mode=OneWay}" >
             <ListView.Resources>
                 <StandardUICommand x:Name="CopyCommand" Kind="Copy" ExecuteRequested="CopyCommand_ExecuteRequested" CanExecuteRequested="CopyCommand_CanExecuteRequested"/>
             </ListView.Resources>
@@ -94,5 +90,5 @@
                 </MenuFlyout>
             </ListView.ContextFlyout>
         </ListView>
-    </RelativePanel>
+    </Grid>
 </Page>
