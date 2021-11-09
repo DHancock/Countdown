@@ -19,7 +19,7 @@ namespace Countdown.Views
     {
         private readonly ViewModel rootViewModel = new ViewModel();
 
-        private readonly FrameNavigationOptions frameNavigationOptions = new()
+        private readonly FrameNavigationOptions frameNavigationOptions = new FrameNavigationOptions()
         {
             TransitionInfoOverride = new SuppressNavigationTransitionInfo(),
             IsNavigationStackEnabled = false,
@@ -49,8 +49,8 @@ namespace Countdown.Views
 
         private void InitializeTheme()
         {
-            if (RootNavigationView.RequestedTheme != rootViewModel.SettingsViewModel.SelectedTheme)
-                RootNavigationView.RequestedTheme = rootViewModel.SettingsViewModel.SelectedTheme;
+            if (RootNavigationView.RequestedTheme != SettingsViewModel.SelectedTheme)
+                RootNavigationView.RequestedTheme = SettingsViewModel.SelectedTheme;
         }
 
         private void RootNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)

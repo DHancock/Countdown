@@ -47,29 +47,30 @@ namespace Countdown.Models
         {
             get
             {
-                List<LetterTile> defaultConsonants = new List<LetterTile>(ConsonantList.cConsonantCount);
-
-                defaultConsonants.Add(new LetterTile('B', 2));
-                defaultConsonants.Add(new LetterTile('C', 3));
-                defaultConsonants.Add(new LetterTile('D', 6));
-                defaultConsonants.Add(new LetterTile('F', 2));
-                defaultConsonants.Add(new LetterTile('G', 3));
-                defaultConsonants.Add(new LetterTile('H', 2));
-                defaultConsonants.Add(new LetterTile('J', 1));
-                defaultConsonants.Add(new LetterTile('K', 1));
-                defaultConsonants.Add(new LetterTile('L', 5));
-                defaultConsonants.Add(new LetterTile('M', 4));
-                defaultConsonants.Add(new LetterTile('N', 8));
-                defaultConsonants.Add(new LetterTile('P', 4));
-                defaultConsonants.Add(new LetterTile('Q', 1));
-                defaultConsonants.Add(new LetterTile('R', 9));
-                defaultConsonants.Add(new LetterTile('S', 9));
-                defaultConsonants.Add(new LetterTile('T', 9));
-                defaultConsonants.Add(new LetterTile('V', 1));
-                defaultConsonants.Add(new LetterTile('W', 1));
-                defaultConsonants.Add(new LetterTile('X', 1));
-                defaultConsonants.Add(new LetterTile('Y', 1));
-                defaultConsonants.Add(new LetterTile('Z', 1));
+                List<LetterTile> defaultConsonants = new List<LetterTile>(ConsonantList.cConsonantCount)
+                {
+                    new LetterTile('B', 2),
+                    new LetterTile('C', 3),
+                    new LetterTile('D', 6),
+                    new LetterTile('F', 2),
+                    new LetterTile('G', 3),
+                    new LetterTile('H', 2),
+                    new LetterTile('J', 1),
+                    new LetterTile('K', 1),
+                    new LetterTile('L', 5),
+                    new LetterTile('M', 4),
+                    new LetterTile('N', 8),
+                    new LetterTile('P', 4),
+                    new LetterTile('Q', 1),
+                    new LetterTile('R', 9),
+                    new LetterTile('S', 9),
+                    new LetterTile('T', 9),
+                    new LetterTile('V', 1),
+                    new LetterTile('W', 1),
+                    new LetterTile('X', 1),
+                    new LetterTile('Y', 1),
+                    new LetterTile('Z', 1)
+                };
 
                 return new ConsonantList(defaultConsonants);
             }
@@ -81,13 +82,14 @@ namespace Countdown.Models
         {
             get
             {
-                List<LetterTile> defaultVowels = new List<LetterTile>(VowelList.cVowelCount);
-
-                defaultVowels.Add(new LetterTile('A', 2));
-                defaultVowels.Add(new LetterTile('E', 3));
-                defaultVowels.Add(new LetterTile('I', 6));
-                defaultVowels.Add(new LetterTile('O', 2));
-                defaultVowels.Add(new LetterTile('U', 3));
+                List<LetterTile> defaultVowels = new List<LetterTile>(VowelList.cVowelCount)
+                {
+                    new LetterTile('A', 2),
+                    new LetterTile('E', 3),
+                    new LetterTile('I', 6),
+                    new LetterTile('O', 2),
+                    new LetterTile('U', 3)
+                };
 
                 return new VowelList(defaultVowels);
             }

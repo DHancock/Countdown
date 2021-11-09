@@ -7,6 +7,7 @@
     xmlns:local="using:Countdown.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Countdown.ViewModels"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -14,9 +15,9 @@
 
         <StackPanel>
             <TextBlock Text="Theme Mode" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-            <RadioButton Content="Light" IsChecked="{x:Bind ViewModel.IsLightTheme, Mode=TwoWay}"/>
-            <RadioButton Content="Dark" IsChecked="{x:Bind ViewModel.IsDarkTheme, Mode=TwoWay}"/>
-            <RadioButton Content="Use system setting" IsChecked="{x:Bind ViewModel.IsSystemTheme, Mode=TwoWay}"/>
+            <RadioButton Content="Light" IsChecked="{x:Bind vm:SettingsViewModel.IsLightTheme, Mode=TwoWay}"/>
+            <RadioButton Content="Dark" IsChecked="{x:Bind vm:SettingsViewModel.IsDarkTheme, Mode=TwoWay}"/>
+            <RadioButton Content="Use system setting" IsChecked="{x:Bind vm:SettingsViewModel.IsSystemTheme, Mode=TwoWay}"/>
         </StackPanel>
     </Grid>
 </Page>

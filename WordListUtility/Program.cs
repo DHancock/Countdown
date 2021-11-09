@@ -27,19 +27,16 @@ namespace WordListUtility
             return error_fail;
         }
 
-
-
         private class App
         {
             private string InputDir { get; }
             private string OutputFile { get; }
             private Dictionary<string, List<string>> WordLists { get; } = new Dictionary<string, List<string>>();
 
-
             public App(string[] args)
             {
                 if (args.Length != 2)
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(nameof(args));
 
                 InputDir = args[0];
                 OutputFile = args[1];

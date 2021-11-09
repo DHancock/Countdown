@@ -8,7 +8,7 @@ namespace Countdown.ViewModels
     internal sealed class SettingsViewModel : PropertyChangedBase
     {
 
-        public ElementTheme SelectedTheme
+        public static ElementTheme SelectedTheme
         {
             get => Settings.CurrentTheme;
 
@@ -23,19 +23,19 @@ namespace Countdown.ViewModels
         }
 
 
-        public bool IsLightTheme
+        public static bool IsLightTheme
         {
             get { return SelectedTheme == ElementTheme.Light; }
             set { if (value) SelectedTheme = ElementTheme.Light; }
         }
 
-        public bool IsDarkTheme
+        public static bool IsDarkTheme
         {
             get { return SelectedTheme == ElementTheme.Dark; }
             set { if (value) SelectedTheme = ElementTheme.Dark; }
         }
 
-        public bool IsSystemTheme
+        public static bool IsSystemTheme
         {
             get { return SelectedTheme == ElementTheme.Default; }
             set { if (value) SelectedTheme = ElementTheme.Default; }
