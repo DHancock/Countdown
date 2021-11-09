@@ -82,7 +82,7 @@ namespace WordListUtility
                 const int min_word_length = 4;
                 const int max_word_length = 9;
 
-                FileStream fs = File.OpenRead(path);
+                using FileStream fs = File.OpenRead(path);
 
                 if (fs != null)
                 {
@@ -121,7 +121,7 @@ namespace WordListUtility
                 const string word_seperator = " ";
                 const string line_seperator = ".";
 
-                FileStream fs = File.Create(OutputFile);
+                using FileStream fs = File.Create(OutputFile);
 
                 if (fs != null)
                 {
