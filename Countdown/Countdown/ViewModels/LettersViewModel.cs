@@ -35,17 +35,14 @@ namespace Countdown.ViewModels
                                                             nameof(Letter_8)};
 
         // property backing stores
-        //private WordItem scrollToItem;
         private IEnumerable<GroupedWordList>? wordList;
 
         public RelayCommand ClearCommand { get; }
         public RelayCommand PickVowelCommand { get; }
         public RelayCommand PickConsonantCommand { get; }
-        //public ICommand ScrollToCommand { get; }
         public RelayTaskCommand SolveCommand { get; }
         public ICommand ChooseLettersCommand { get; }
         public ICommand ChooseOptionCommand { get; }
-        public ICommand GoToDefinitionCommand { get; }
         public Model Model { get; }
         public StopwatchController StopwatchController { get; }
 
@@ -57,14 +54,10 @@ namespace Countdown.ViewModels
 
             ChooseLettersCommand = new RelayCommand(ExecuteChooseLetters);
             SolveCommand = new RelayTaskCommand(ExecuteSolveAsync, CanSolve);
-            //ScrollToCommand = new RelayCommand(ExecuteScrollTo, CanScrollTo);       TODO: remove
-
             ClearCommand = new RelayCommand(ExecuteClear, CanClear);
             PickVowelCommand = new RelayCommand(ExecutePickVowel, CanPickVowel);
             PickConsonantCommand = new RelayCommand(ExecutePickConsonant, CanPickConsonant);
             ChooseOptionCommand = new RelayCommand(ExecuteChooseOption);
-
-            GoToDefinitionCommand = new RelayCommand(ExecuteGoToDefinition, CanGoToDefinition);
 
             // initialise letter menu selected item
             TileOptionIndex = Settings.ChooseLettersIndex;
@@ -190,7 +183,6 @@ namespace Countdown.ViewModels
             return LetterTile.IsUpperVowel(letter[0]);
         }
 
-
         private static bool IsUpperConsonant(string letter)
         {
             if (string.IsNullOrEmpty(letter))
@@ -199,27 +191,6 @@ namespace Countdown.ViewModels
             return LetterTile.IsUpperLetter(letter[0]) && !LetterTile.IsUpperVowel(letter[0]);
         }
 
-
-        /// <summary>
-        /// Bound to the contents of the search text box
-        /// </summary>
-        //public string SearchText { get; set; }
-
-
-        /// <summary>
-        /// A property that the list view binds with. When this changes it 
-        /// scrolls that item into view if necessary and selects it
-        /// </summary>
-        //public WordItem ScrollToItem
-        //{
-        //    get => scrollToItem;
-        //    set
-        //    {
-        //        scrollToItem = value;    TODO: remove?
-        //        RaisePropertyChanged();
-        //    }
-        //}
-
         /// <summary>
         /// Expose the list so it can be bound to by the ui 
         /// </summary>
@@ -227,14 +198,6 @@ namespace Countdown.ViewModels
         {
             get => wordList ?? new List<GroupedWordList>();
             set => HandlePropertyChanged(ref wordList, value);
-        }
-
-        private bool WordListContains(string word)
-        {
-            //if (word?.Length >= WordDictionary.cMinLetters)
-            //    return WordList?.BinarySearch(new WordItem(word)) >= 0;
-
-            return false;
         }
 
         private void ExecuteClear(object? _)
@@ -261,7 +224,6 @@ namespace Countdown.ViewModels
 
         public double ClearButtonPathOpacity
         {
-            // WinUi doesn't have data triggers (for performance presumably, good idea...)
             get => clearButtonPathOpacity;
             set => HandlePropertyChanged(ref clearButtonPathOpacity, value);
         }
@@ -312,33 +274,6 @@ namespace Countdown.ViewModels
             return consonants < max_consonants && Model.Letters.Any(c => string.IsNullOrEmpty(c));
         }
 
-
-
-        //private void ExecuteScrollTo(object _)
-        //{
-        //    if (WordList != null)
-        //    {
-        //        int index = WordList.BinarySearch(new WordItem(SearchText));
-
-        //        if (index >= 0)
-        //        {
-        //            // expand the group that the search word belongs too
-        //            int firstItem = WordList.BinarySearch(new WordItem(new string('a', SearchText.Length)));
-
-        //            if (firstItem < 0)
-        //            {
-        //                WordList[~firstItem].IsExpanded = true;
-
-        //                // select and scroll into view
-        //                ScrollToItem = WordList[index];
-        //            }
-        //        }
-        //    }
-        //}
-
-        //private bool CanScrollTo(object _) => WordListContains(SearchText);     
-
-
         private async Task ExecuteSolveAsync(object? _)
         {
             // copy the model data now, converting to lower case 
@@ -356,14 +291,6 @@ namespace Countdown.ViewModels
                        orderby g.Key descending
                        select new GroupedWordList(g.OrderByDescending(x => x), g.Key);
         }
-
-
-
-
-
-
-
-
 
         private bool CanSolve(object? _, bool isExecuting)
         {
@@ -407,39 +334,6 @@ namespace Countdown.ViewModels
             else
                 TileOptionIndex = 0;
         }
-
-
-
-
-
-        private void ExecuteGoToDefinition(object? p)
-        {
-            //if (p is string format)
-            //{
-            //    try
-            //    {
-            //        foreach (WordItem e in WordList)
-            //        {
-            //            if (e.IsSelected)
-            //            {
-            //                ProcessStartInfo psi = new()
-            //                {
-            //                    UseShellExecute = true,
-            //                    FileName = string.Format(CultureInfo.InvariantCulture, format, e.Content),
-            //                };
-
-            //                _ = Process.Start(psi);
-            //            }
-            //        }
-            //    }
-            //    catch
-            //    {
-            //        // fail silently...
-            //    }
-            //}
-        }
-
-        private bool CanGoToDefinition(object? _) => false; // WordList?.Count(e => e.IsSelected) is > 0 and < 11;
 
         public bool IsTileOptionChecked(int option)
         {
