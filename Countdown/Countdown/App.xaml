@@ -26,7 +26,7 @@
             </Style>
 
             <!-- make all the result lists start at the same x coordinate -->
-            <GridLength x:Key="InputGridWidth">350</GridLength>
+            <GridLength x:Key="InputGridWidth">340</GridLength>
 
         </ResourceDictionary>
     </Application.Resources>
