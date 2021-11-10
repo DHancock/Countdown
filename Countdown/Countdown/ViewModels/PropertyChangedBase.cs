@@ -1,24 +1,23 @@
-﻿namespace Countdown.ViewModels
+﻿namespace Countdown.ViewModels;
+
+abstract internal class PropertyChangedBase : INotifyPropertyChanged
 {
-    abstract internal class PropertyChangedBase : INotifyPropertyChanged
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected void RaisePropertyChanged([CallerMemberName] string propertyName = "")
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 
-        protected void RaisePropertyChanged([CallerMemberName] string propertyName = "")
+    protected bool HandlePropertyChanged<T>(ref T propertyValue, T newValue, [CallerMemberName] string propertyName = "")
+    {
+        if ((propertyValue is null) || (!propertyValue.Equals(newValue)))
         {
+            propertyValue = newValue;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            return true;
         }
 
-        protected bool HandlePropertyChanged<T>(ref T propertyValue, T newValue, [CallerMemberName] string propertyName = "")
-        {
-            if ((propertyValue is null) || (!propertyValue.Equals(newValue)))
-            {
-                propertyValue = newValue;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-                return true;
-            }
-
-            return false;
-        }
+        return false;
     }
 }

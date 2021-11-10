@@ -1,75 +1,74 @@
-﻿namespace Countdown.ViewModels
+﻿namespace Countdown.ViewModels;
+
+public enum StopwatchState { Undefined, AtStart, Running, Stopped, Rewinding }
+
+internal sealed class StopwatchController : PropertyChangedBase
 {
-    public enum StopwatchState { Undefined, AtStart, Running, Stopped, Rewinding }
+    private StopwatchState stopwatchState = StopwatchState.AtStart;
+    private string commandText = string.Empty;
+    
+    public RelayCommand TimerCommand { get; }
 
-    internal sealed class StopwatchController : PropertyChangedBase
+    public StopwatchController()
     {
-        private StopwatchState stopwatchState = StopwatchState.AtStart;
-        private string commandText = string.Empty;
-        
-        public RelayCommand TimerCommand { get; }
+        TimerCommand = new RelayCommand(ExecuteTimer, CanExecuteTimer);
+        CommandText = ConvertStateToCommandText();
+    }
 
-        public StopwatchController()
+    public StopwatchState State
+    {
+        get => stopwatchState;
+
+        set
         {
-            TimerCommand = new RelayCommand(ExecuteTimer, CanExecuteTimer);
-            CommandText = ConvertStateToCommandText();
-        }
-
-        public StopwatchState State
-        {
-            get => stopwatchState;
-
-            set
+            if (stopwatchState != value)
             {
-                if (stopwatchState != value)
-                {
-                    stopwatchState = value;
-                    RaisePropertyChanged();
-                    CommandText = ConvertStateToCommandText();
-                    TimerCommand.RaiseCanExecuteChanged();
-                }
+                stopwatchState = value;
+                RaisePropertyChanged();
+                CommandText = ConvertStateToCommandText();
+                TimerCommand.RaiseCanExecuteChanged();
             }
         }
+    }
 
-        private string ConvertStateToCommandText()
+    private string ConvertStateToCommandText()
+    {
+        switch (State)
         {
-            switch (State)
-            {
-                case StopwatchState.AtStart: return "Start Timer";
-                case StopwatchState.Running: return "Stop Timer";
-                case StopwatchState.Stopped: return "Reset Timer";
-                case StopwatchState.Rewinding: return "Rewinding";
-                default: throw new InvalidOperationException();
-            }
+            case StopwatchState.AtStart: return "Start Timer";
+            case StopwatchState.Running: return "Stop Timer";
+            case StopwatchState.Stopped: return "Reset Timer";
+            case StopwatchState.Rewinding: return "Rewinding";
+            default: throw new InvalidOperationException();
         }
+    }
 
-        public string CommandText
+    public string CommandText
+    {
+        get => commandText;
+        private set => HandlePropertyChanged(ref commandText, value);
+    }
+
+
+    private void ExecuteTimer(object? _)
+    {
+        switch (State)
         {
-            get => commandText;
-            private set => HandlePropertyChanged(ref commandText, value);
+            case StopwatchState.AtStart: State = StopwatchState.Running; break;
+            case StopwatchState.Stopped: State = StopwatchState.Rewinding; break;
+            case StopwatchState.Running: State = StopwatchState.Stopped; break;
+            default: throw new InvalidOperationException();
         }
+    }
 
-
-        private void ExecuteTimer(object? _)
+    private bool CanExecuteTimer(object? _)
+    {
+        switch (State)
         {
-            switch (State)
-            {
-                case StopwatchState.AtStart: State = StopwatchState.Running; break;
-                case StopwatchState.Stopped: State = StopwatchState.Rewinding; break;
-                case StopwatchState.Running: State = StopwatchState.Stopped; break;
-                default: throw new InvalidOperationException();
-            }
-        }
-
-        private bool CanExecuteTimer(object? _)
-        {
-            switch (State)
-            {
-                case StopwatchState.AtStart:
-                case StopwatchState.Stopped:
-                case StopwatchState.Running: return true;
-                default: return false;
-            }
+            case StopwatchState.AtStart:
+            case StopwatchState.Stopped:
+            case StopwatchState.Running: return true;
+            default: return false;
         }
     }
 }

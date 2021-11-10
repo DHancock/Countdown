@@ -1,37 +1,36 @@
 ﻿using Countdown.ViewModels;
 
-namespace Countdown.Views
+namespace Countdown.Views;
+
+/// <summary>
+/// An empty page that can be used on its own or navigated to within a Frame.
+/// </summary>
+internal sealed partial class NumbersView : Page
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    internal sealed partial class NumbersView : Page
+    public NumbersView()
     {
-        public NumbersView()
+        this.InitializeComponent();
+    }
+
+    public NumbersViewModel? ViewModel { get; set; }
+
+    private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        foreach (EquationItem equationItem in EquationList.SelectedItems)
+            sb.AppendLine(equationItem.ToString());
+
+        if (sb.Length > 0)
         {
-            this.InitializeComponent();
+            DataPackage dp = new();
+            dp.SetText(sb.ToString());
+            Clipboard.SetContent(dp);
         }
+    }
 
-        public NumbersViewModel? ViewModel { get; set; }
-
-        private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            foreach (EquationItem equationItem in EquationList.SelectedItems)
-                sb.AppendLine(equationItem.ToString());
-
-            if (sb.Length > 0)
-            {
-                DataPackage dp = new();
-                dp.SetText(sb.ToString());
-                Clipboard.SetContent(dp);
-            }
-        }
-
-        private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
-        {
-            args.CanExecute = EquationList.SelectedItems.Any();
-        }
+    private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
+    {
+        args.CanExecute = EquationList.SelectedItems.Any();
     }
 }

@@ -1,13 +1,12 @@
-﻿namespace Countdown.ViewModels
-{
-    internal sealed class StopwatchViewModel
-    {
-        // bindable property
-        public StopwatchController StopwatchController { get; }
+﻿namespace Countdown.ViewModels;
 
-        public StopwatchViewModel(StopwatchController sc)
-        {
-            StopwatchController = sc;
-        }
+internal sealed class StopwatchViewModel
+{
+    // bindable property
+    public StopwatchController StopwatchController { get; }
+
+    public StopwatchViewModel(StopwatchController sc)
+    {
+        StopwatchController = sc;
     }
 }
