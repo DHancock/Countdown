@@ -1,6 +1,6 @@
 ﻿using Countdown.Models;
+
 using Microsoft.UI.Xaml;
-using System.Windows.Input;
 
 
 namespace Countdown.ViewModels

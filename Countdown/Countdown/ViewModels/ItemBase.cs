@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Countdown.ViewModels
+﻿namespace Countdown.ViewModels
 {
     internal abstract class ItemBase : IComparable<ItemBase>
     {

@@ -11,6 +11,7 @@
     <ApplicationIcon />
     <StartupObject />
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Resources\Themes.xaml" />

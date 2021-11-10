@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 using Countdown.ViewModels;
 
 namespace Countdown.Models

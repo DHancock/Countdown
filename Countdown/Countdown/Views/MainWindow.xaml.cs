@@ -1,8 +1,9 @@
-﻿using System;
-using Countdown.ViewModels;
+﻿using Countdown.ViewModels;
+
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
+
 using Windows.Foundation;
 
 // To learn more about WinUI, the WinUI project structure,

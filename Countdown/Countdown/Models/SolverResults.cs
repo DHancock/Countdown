@@ -1,6 +1,4 @@
 ﻿using Countdown.ViewModels;
-using System;
-using System.Collections.Generic;
 
 namespace Countdown.Models
 {

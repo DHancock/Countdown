@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Countdown.ViewModels
+﻿namespace Countdown.ViewModels
 {
     /// <summary>
     /// A list item used in the letters result ui list

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Countdown.ViewModels
+﻿namespace Countdown.ViewModels
 {
     public enum StopwatchState { Undefined, AtStart, Running, Stopped, Rewinding }
 

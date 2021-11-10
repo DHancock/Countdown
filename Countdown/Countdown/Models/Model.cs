@@ -1,8 +1,6 @@
 ﻿using Countdown.ViewModels;
-using System;
-using System.Collections.Generic;
+
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 
 namespace Countdown.Models

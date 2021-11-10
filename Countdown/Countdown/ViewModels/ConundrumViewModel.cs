@@ -1,14 +1,9 @@
 ﻿using Countdown.Models;
-using Microsoft.UI.Xaml.Input;
-using System;
-using System.Collections.Generic;
+
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Windows.Input;
-using Windows.ApplicationModel.DataTransfer;
 
 namespace Countdown.ViewModels
 {
