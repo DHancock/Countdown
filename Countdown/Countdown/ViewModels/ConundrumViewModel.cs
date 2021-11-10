@@ -1,10 +1,5 @@
 ﻿using Countdown.Models;
 
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Globalization;
-using System.Windows.Input;
-
 namespace Countdown.ViewModels
 {
     internal sealed class ConundrumViewModel : PropertyChangedBase

@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Windows.Win32;
-
-namespace Countdown.Utils
+﻿namespace Countdown.Utils
 {
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members")]
     internal static class User32Sound

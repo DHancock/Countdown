@@ -1,15 +1,5 @@
 ﻿using Countdown.ViewModels;
 
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
-
-using System.Text;
-
-using Windows.ApplicationModel.DataTransfer;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace Countdown.Views
 {
     /// <summary>

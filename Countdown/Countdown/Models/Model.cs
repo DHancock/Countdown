@@ -1,8 +1,5 @@
 ﻿using Countdown.ViewModels;
 
-using System.Diagnostics;
-
-
 namespace Countdown.Models
 {
     internal class Model

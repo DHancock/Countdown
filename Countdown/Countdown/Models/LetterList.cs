@@ -1,7 +1,4 @@
-﻿using System.Collections.ObjectModel;
-
-
-namespace Countdown.Models
+﻿namespace Countdown.Models
 {
 
     internal abstract class LetterList : ReadOnlyCollection<LetterTile>

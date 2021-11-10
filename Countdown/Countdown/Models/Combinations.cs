@@ -1,8 +1,4 @@
-﻿using System.Collections;
-
-#nullable enable
-
-namespace Countdown.Models
+﻿namespace Countdown.Models
 {
     /// <summary>
     /// Class that generates combinations of k items from the supplied collection 

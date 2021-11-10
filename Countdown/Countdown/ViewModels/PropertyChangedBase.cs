@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
-namespace Countdown.ViewModels
+﻿namespace Countdown.ViewModels
 {
     abstract internal class PropertyChangedBase : INotifyPropertyChanged
     {

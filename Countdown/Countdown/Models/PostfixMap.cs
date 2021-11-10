@@ -1,9 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text;
-
-using Windows.ApplicationModel.DataTransfer;
-
-namespace Countdown.Models
+﻿namespace Countdown.Models
 {
     /// <summary>
     /// The PostfixMap class creates a map that is used to build postfix equations. There are

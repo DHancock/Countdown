@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Countdown.Models
+﻿namespace Countdown.Models
 {
     internal sealed class VowelList : LetterList
     {

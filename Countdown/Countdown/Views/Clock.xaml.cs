@@ -1,15 +1,4 @@
-﻿using System.Numerics;
-using Microsoft.Graphics.Canvas.Geometry;
-using Microsoft.UI;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Hosting;
-using Microsoft.UI.Composition;
-
-using Windows.Foundation;
-using Windows.UI;
-
-using Countdown.ViewModels;
+﻿using Countdown.ViewModels;
 
 namespace Countdown.Views
 {

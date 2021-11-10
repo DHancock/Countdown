@@ -1,8 +1,5 @@
 ﻿using Countdown.Models;
 
-using Microsoft.UI.Xaml;
-
-
 namespace Countdown.ViewModels
 {
     internal sealed class SettingsViewModel : PropertyChangedBase

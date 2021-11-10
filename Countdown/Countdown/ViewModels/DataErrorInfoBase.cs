@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.ComponentModel;
-
-namespace Countdown.ViewModels
+﻿namespace Countdown.ViewModels
 {
     abstract internal class DataErrorInfoBase : PropertyChangedBase, INotifyDataErrorInfo
     {

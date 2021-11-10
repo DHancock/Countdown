@@ -1,10 +1,4 @@
-﻿using System.Diagnostics;
-
-using Microsoft.UI.Xaml;
-
-using Windows.Storage;
-
-namespace Countdown.Models
+﻿namespace Countdown.Models
 {
     internal class Settings
     {

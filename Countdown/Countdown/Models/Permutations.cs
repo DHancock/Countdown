@@ -1,8 +1,4 @@
-﻿using System.Collections;
-
-#nullable enable
-
-namespace Countdown.Models
+﻿namespace Countdown.Models
 {
     /// <summary>
     /// Generates all permutations for a collection of objects. 

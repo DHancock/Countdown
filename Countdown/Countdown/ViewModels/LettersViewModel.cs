@@ -1,8 +1,5 @@
 ﻿using Countdown.Models;
 
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
-
 namespace Countdown.ViewModels
 {
     internal sealed class LettersViewModel : DataErrorInfoBase

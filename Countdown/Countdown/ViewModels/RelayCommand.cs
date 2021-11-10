@@ -1,6 +1,4 @@
-﻿using System.Windows.Input;
-
-namespace Countdown.ViewModels
+﻿namespace Countdown.ViewModels
 {
     internal sealed class RelayCommand : ICommand
     {

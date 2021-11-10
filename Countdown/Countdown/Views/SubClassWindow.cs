@@ -1,19 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.UI.Controls;
-using Windows.Win32.UI.WindowsAndMessaging;
-
-using WinRT.Interop;
-using Microsoft.UI.Xaml;
-using Windows.Foundation;
-using Microsoft.Win32.SafeHandles;
-using System.ComponentModel;
-
-#nullable enable
-
-namespace Countdown.Views
+﻿namespace Countdown.Views
 {
     // this code is largely based on https://github.com/marb2000/DesktopWindow
     // but modified to use CsWin32 windows API generator rather than using hard

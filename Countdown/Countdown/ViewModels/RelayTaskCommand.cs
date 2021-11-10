@@ -1,7 +1,4 @@
-﻿using System.Windows.Input;
-
-
-namespace Countdown.ViewModels
+﻿namespace Countdown.ViewModels
 {
     /// <summary>
     /// An ICommand implementation that calls an asynchronous task Execute() method in 
