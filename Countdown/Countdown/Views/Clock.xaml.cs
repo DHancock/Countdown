@@ -591,9 +591,9 @@ namespace Countdown.Views
             {
                 get
                 {
-                    float radians = degrees * (MathF.PI / 180.0f);
-                    return new Vector2(MathF.FusedMultiplyAdd(length, MathF.Sin(radians), offset.X),
-                                        MathF.FusedMultiplyAdd(length, MathF.Cos(radians), offset.Y));
+                    (float sin, float cos) = MathF.SinCos(degrees * (MathF.PI / 180.0f));
+                    return new Vector2(MathF.FusedMultiplyAdd(length, sin, offset.X),
+                                        MathF.FusedMultiplyAdd(length, cos, offset.Y));
                 }
             }
         }
