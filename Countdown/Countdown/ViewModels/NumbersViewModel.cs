@@ -276,14 +276,8 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     public List<EquationItem> EquationList
     {
         get => equationList ?? new List<EquationItem>();
-        set
-        {
-            equationList = value;
-            RaisePropertyChanged(nameof(EquationList));
-        }
+        private set => HandlePropertyChanged(ref equationList, value);
     }
-
-
 
     private void ExecuteChooseOption(object? p)
     {

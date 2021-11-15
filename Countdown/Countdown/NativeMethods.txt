@@ -9,3 +9,4 @@ SetWindowPos
 LoadImage
 SendMessage
 GetSystemMetrics
+SystemParametersInfo

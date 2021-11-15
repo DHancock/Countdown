@@ -1,15 +1,25 @@
-﻿using Countdown.ViewModels;
+﻿using Countdown.Utils;
+using Countdown.ViewModels;
 
 namespace Countdown.Views;
 
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
 internal sealed partial class ConundrumView : Page
 {
     public ConundrumView()
     {
         this.InitializeComponent();
+
+        Loaded += (s, e) =>
+        {
+            Debug.Assert(NavigationCacheMode != NavigationCacheMode.Disabled);
+
+            if (ConundrumList.Items.Any() && SystemParameters.WindowAnimationsEnabled)
+            {
+                // trigger the list add items animation
+                ConundrumList.ItemsSource = null;
+                Bindings.Update();
+            }
+        };
     }
 
     public ConundrumViewModel? ViewModel { get; set; }

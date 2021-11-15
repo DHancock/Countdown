@@ -186,7 +186,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     public IEnumerable<GroupedWordList> WordList
     {
         get => wordList ?? new List<GroupedWordList>();
-        set => HandlePropertyChanged(ref wordList, value);
+        private set => HandlePropertyChanged(ref wordList, value);
     }
 
     private void ExecuteClear(object? _)
