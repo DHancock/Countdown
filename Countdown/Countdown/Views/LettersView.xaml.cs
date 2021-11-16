@@ -8,18 +8,6 @@ internal sealed partial class LettersView : Page
     public LettersView()
     {
         this.InitializeComponent();
-
-        Loaded += (s, e) =>
-        {
-            Debug.Assert(NavigationCacheMode != NavigationCacheMode.Disabled);
-
-            if (WordList.Items.Any() && SystemParameters.WindowAnimationsEnabled)
-            {
-                // trigger the list add items animation
-                WordList.ItemsSource = null;
-                Bindings.Update();
-            }
-        };
     }
 
     public LettersViewModel? ViewModel { get; set; }

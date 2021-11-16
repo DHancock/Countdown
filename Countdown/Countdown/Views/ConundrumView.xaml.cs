@@ -8,18 +8,6 @@ internal sealed partial class ConundrumView : Page
     public ConundrumView()
     {
         this.InitializeComponent();
-
-        Loaded += (s, e) =>
-        {
-            Debug.Assert(NavigationCacheMode != NavigationCacheMode.Disabled);
-
-            if (ConundrumList.Items.Any() && SystemParameters.WindowAnimationsEnabled)
-            {
-                // trigger the list add items animation
-                ConundrumList.ItemsSource = null;
-                Bindings.Update();
-            }
-        };
     }
 
     public ConundrumViewModel? ViewModel { get; set; }

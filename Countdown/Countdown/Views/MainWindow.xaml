@@ -23,7 +23,7 @@
             <NavigationViewItem Icon="Setting" Tag="SettingsView" AccessKey="S"/>
         </NavigationView.MenuItems>
 
-        <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" CacheSize="{x:Bind RootNavigationView.MenuItems.Count}"/>
+        <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated"/>
     </NavigationView>
 
 </local:SubClassWindow>
