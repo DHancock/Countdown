@@ -40,10 +40,16 @@ internal sealed partial class Clock : UserControl
         if (sCompositionClock is null)
             return;
 
-        if ((StopwatchState)e.OldValue == StopwatchState.Undefined) // a new page has been loaded
+        StopwatchState oldState = (StopwatchState)e.OldValue; // unbox objects
+        StopwatchState newState = (StopwatchState)e.NewValue;
+
+        if (oldState == StopwatchState.Undefined) // a new page has been loaded
             return;
 
-        switch ((StopwatchState)e.NewValue)
+        if (oldState == newState) // bindings have been re-evaluated
+            return;
+
+        switch (newState)
         {
             case StopwatchState.Running: sCompositionClock.Animations.StartForwardAnimations(); break;
             case StopwatchState.Rewinding: sCompositionClock.Animations.StartRewindAnimations(); break;
