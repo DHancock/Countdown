@@ -21,6 +21,12 @@ internal sealed partial class Clock : UserControl
 
             ElementCompositionPreview.SetElementChildVisual(xamlClock, sCompositionClock.Visual);
         };
+
+        Unloaded += (s, e) =>
+        {
+            // remove the visual, there is no reference counting of visuals
+            ElementCompositionPreview.SetElementChildVisual((Clock)s, null);
+        };
     }
 
     public StopwatchState State
@@ -185,7 +191,7 @@ internal sealed partial class Clock : UserControl
 
         public CompositionClock(Clock xamlClock)
         {
-            Compositor compositor = ElementCompositionPreview.GetElementVisual(xamlClock).Compositor;
+            Compositor compositor = App.MainWindow!.Compositor;
             Visual = compositor.CreateContainerVisual();
             Animations = new AnimationList(compositor);
             Brushes = new BrushList(compositor, xamlClock);
@@ -490,6 +496,7 @@ internal sealed partial class Clock : UserControl
         {
             if (batch is not null)
                 batch.Completed -= Batch_Completed;
+
 
             batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
             batch.Completed += Batch_Completed;
