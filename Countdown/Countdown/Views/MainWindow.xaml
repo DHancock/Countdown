@@ -7,23 +7,24 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <NavigationView
-        x:Name="RootNavigationView"
-        PaneDisplayMode="Top"
-        IsBackButtonVisible="Collapsed"
-        IsSettingsVisible="False"
-        SelectionFollowsFocus="Disabled"
-        SelectionChanged="RootNavigationView_SelectionChanged">
+    <Page x:Name="BackgroundPage" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <NavigationView
+            x:Name="RootNavigationView"
+            PaneDisplayMode="Top"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="False"
+            SelectionFollowsFocus="Disabled"
+            SelectionChanged="RootNavigationView_SelectionChanged">
 
-        <NavigationView.MenuItems>
-            <NavigationViewItem Content="Numbers" Tag="NumbersView" AccessKey="N"/>
-            <NavigationViewItem Content="Letters" Tag="LettersView" AccessKey="L"/>
-            <NavigationViewItem Content="Conundrum" Tag="ConundrumView" AccessKey="O"/>
-            <NavigationViewItem Content="Stopwatch" Tag="StopwatchView" AccessKey="T"/>
-            <NavigationViewItem Icon="Setting" Tag="SettingsView" AccessKey="S"/>
-        </NavigationView.MenuItems>
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Numbers" Tag="NumbersView" AccessKey="N"/>
+                <NavigationViewItem Content="Letters" Tag="LettersView" AccessKey="L"/>
+                <NavigationViewItem Content="Conundrum" Tag="ConundrumView" AccessKey="O"/>
+                <NavigationViewItem Content="Stopwatch" Tag="StopwatchView" AccessKey="T"/>
+                <NavigationViewItem Icon="Setting" Tag="SettingsView" AccessKey="S"/>
+            </NavigationView.MenuItems>
 
-        <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated"/>
-    </NavigationView>
-
+            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated"/>
+        </NavigationView>
+    </Page>
 </local:SubClassWindow>

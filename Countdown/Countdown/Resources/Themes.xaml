@@ -6,7 +6,7 @@
 
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="HighContrast">
-            <!-- stopwatch -->
+            <!-- stopwatch TODO: change to use system brushes -->
             <Color x:Key="FaceColour">White</Color>
             <Color x:Key="TickTrailColour">Gray</Color>
             <Color x:Key="InnerFrameColour">Black</Color>
@@ -15,8 +15,6 @@
             <Color x:Key="TickMarksColour">Black</Color>
             <Color x:Key="HandStrokeColour">Black</Color>
             <Color x:Key="HandFillColour">White</Color>
-            <!-- GroupBox border -->
-            <Color x:Key="BorderColour">Black</Color>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Dark">
@@ -29,8 +27,6 @@
             <Color x:Key="TickMarksColour">#FF484848</Color>
             <Color x:Key="HandStrokeColour">#FF484848</Color>
             <Color x:Key="HandFillColour">MidnightBlue</Color>
-            <!-- GroupBox border -->
-            <Color x:Key="BorderColour">#FF484848</Color>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
@@ -43,8 +39,6 @@
             <Color x:Key="TickMarksColour">Silver</Color>
             <Color x:Key="HandStrokeColour">Gray</Color>
             <Color x:Key="HandFillColour">#FF0068C7</Color>
-            <!-- GroupBox border -->
-            <Color x:Key="BorderColour">LightGray</Color>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
@@ -57,9 +51,5 @@
         <Setter Property="TickMarksColour" Value="{ThemeResource TickMarksColour}"/>
         <Setter Property="HandStrokeColour" Value="{ThemeResource HandStrokeColour}"/>
         <Setter Property="HandFillColour" Value="{ThemeResource HandFillColour}"/>
-    </Style>
-
-    <Style TargetType="w3c:GroupBox">
-        <Setter Property="BorderBrush" Value="{ThemeResource BorderColour}"/>
     </Style>
 </ResourceDictionary>

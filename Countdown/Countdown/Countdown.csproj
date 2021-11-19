@@ -26,13 +26,13 @@
 
 
   <ItemGroup>
-    <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="1.0.0" />
-    <PackageReference Include="Microsoft.Graphics.Win2D" Version="0.8.2.23" />
-    <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.5" />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.1.588-beta">
+    <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.0.0.30" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.1.619-beta">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.0" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 

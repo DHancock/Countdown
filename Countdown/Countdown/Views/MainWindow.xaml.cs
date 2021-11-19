@@ -17,7 +17,6 @@ internal sealed partial class MainWindow : SubClassWindow
 
 
     public MainWindow()
-
     {
         this.InitializeComponent();
 
@@ -39,8 +38,8 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private void InitializeTheme()
     {
-        if (RootNavigationView.RequestedTheme != SettingsViewModel.SelectedTheme)
-            RootNavigationView.RequestedTheme = SettingsViewModel.SelectedTheme;
+        if (BackgroundPage.RequestedTheme != SettingsViewModel.SelectedTheme)
+            BackgroundPage.RequestedTheme = SettingsViewModel.SelectedTheme;
     }
 
     private void RootNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
