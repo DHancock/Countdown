@@ -104,7 +104,7 @@
                                     <ColumnDefinition MinWidth="150" />
                                     <ColumnDefinition MinWidth="100" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{x:Bind Title}" HorizontalAlignment="Left" Foreground="MediumBlue" FontWeight="SemiBold" FontSize="16"/>
+                                <TextBlock Grid.Column="0" Text="{x:Bind Title}" HorizontalAlignment="Left" Foreground="{ThemeResource WordListGroupHeaderTextBrush}" FontWeight="SemiBold" FontSize="16"/>
                                 <TextBlock Grid.Column="1" Text="{x:Bind Count}" HorizontalAlignment="Right" Foreground="DarkGray" FontSize="16"/>
                             </Grid>
                         </DataTemplate>

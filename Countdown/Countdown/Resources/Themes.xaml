@@ -14,12 +14,13 @@
             <Color x:Key="HandStrokeColour">Black</Color>
             <Color x:Key="HandFillColour">White</Color>
             <!-- lists-->
-            <StaticResource x:Key="ResultsListBackgroundBrush" ResourceKey="SystemControlBackgroundBaseLowBrush" />
+            <StaticResource x:Key="ResultsListBackgroundBrush" ResourceKey="SystemControlBackgroundBaseLowBrush"/>
+            <StaticResource x:Key="WordListGroupHeaderTextBrush" ResourceKey="SystemColorButtonTextColorBrush"/>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Dark">
             <!-- stopwatch -->
-            <Color x:Key="FaceColour">Black</Color>
+            <Color x:Key="FaceColour">#FF181818</Color>
             <Color x:Key="TickTrailColour">#FF252525</Color>
             <Color x:Key="InnerFrameColour">MidnightBlue</Color>
             <Color x:Key="OuterFrameColour">DarkSlateGray</Color>
@@ -29,6 +30,7 @@
             <Color x:Key="HandFillColour">MidnightBlue</Color>
             <!-- lists-->
             <SolidColorBrush x:Key="ResultsListBackgroundBrush">#FF272727</SolidColorBrush>
+            <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
@@ -43,6 +45,7 @@
             <Color x:Key="HandFillColour">#FF0068C7</Color>
             <!-- lists-->
             <SolidColorBrush x:Key="ResultsListBackgroundBrush">White</SolidColorBrush>
+            <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
