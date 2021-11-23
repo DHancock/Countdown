@@ -6,7 +6,7 @@
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="HighContrast">
             <!-- stopwatch -->
-            <Style x:Key="ClockTheme" TargetType="views:Clock">
+            <Style x:Key="ClockStyle" TargetType="views:Clock">
                 <Setter Property="FaceColour" Value="{ThemeResource SystemColorWindowColor}"/>
                 <Setter Property="TickTrailColour" Value="{ThemeResource SystemColorHotlightColor}"/>
                 <Setter Property="InnerFrameColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
@@ -14,7 +14,7 @@
                 <Setter Property="FrameTickColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
                 <Setter Property="TickMarksColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
                 <Setter Property="HandStrokeColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
-                <Setter Property="HandFillColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
+                <Setter Property="HandFillColour" Value="{ThemeResource SystemColorWindowColor}"/>
             </Style>
 
             <!-- lists -->
@@ -27,7 +27,7 @@
 
         <ResourceDictionary x:Key="Dark">
             <!-- stopwatch -->
-            <Style x:Key="ClockTheme" TargetType="views:Clock">
+            <Style x:Key="ClockStyle" TargetType="views:Clock">
                 <Setter Property="FaceColour" Value="#FF181818"/>
                 <Setter Property="TickTrailColour" Value="#FF252525"/>
                 <Setter Property="InnerFrameColour" Value="MidnightBlue"/>
@@ -48,7 +48,7 @@
 
         <ResourceDictionary x:Key="Light">
             <!-- stopwatch -->
-            <Style x:Key="ClockTheme" TargetType="views:Clock">
+            <Style x:Key="ClockStyle" TargetType="views:Clock">
                 <Setter Property="FaceColour" Value="Ivory"/>
                 <Setter Property="TickTrailColour" Value="#FFFFFFD2"/>
                 <Setter Property="InnerFrameColour" Value="#FF0068C7"/>

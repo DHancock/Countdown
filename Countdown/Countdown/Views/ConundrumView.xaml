@@ -43,7 +43,7 @@
 
         <StackPanel Grid.Column="0">
 
-            <local:Clock Style="{ThemeResource ClockTheme}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <local:Clock Style="{ThemeResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
             <w3c:GroupBox Heading="Conundrum">
                 <StackPanel Orientation="Horizontal">
