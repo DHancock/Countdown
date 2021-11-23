@@ -12,18 +12,7 @@
                 <ResourceDictionary Source="ms-appx:///Microsoft.UI.Xaml/DensityStyles/Compact.xaml" />
                 <ResourceDictionary Source="ms-appx:///Resources/Themes.xaml" />
             </ResourceDictionary.MergedDictionaries>
-
-            <Style TargetType="views:Clock">
-                <Setter Property="FaceColour" Value="{ThemeResource FaceColour}"/>
-                <Setter Property="TickTrailColour" Value="{ThemeResource TickTrailColour}"/>
-                <Setter Property="InnerFrameColour" Value="{ThemeResource InnerFrameColour}"/>
-                <Setter Property="OuterFrameColour" Value="{ThemeResource OuterFrameColour}"/>
-                <Setter Property="FrameTickColour" Value="{ThemeResource FrameTickColour}"/>
-                <Setter Property="TickMarksColour" Value="{ThemeResource TickMarksColour}"/>
-                <Setter Property="HandStrokeColour" Value="{ThemeResource HandStrokeColour}"/>
-                <Setter Property="HandFillColour" Value="{ThemeResource HandFillColour}"/>
-            </Style>
-            
+           
             <Style x:Key="StartStopButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                 <!-- stops the layout adjusting when the button's content changes -->
                 <Setter Property="MinWidth" Value="105"/>
@@ -34,6 +23,8 @@
                 <Setter Property="Margin" Value="5"/>
                 <Setter Property="SelectionMode" Value="Extended"/>
                 <Setter Property="Background" Value="{ThemeResource ResultsListBackgroundBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBoderBrush}"/>
+                <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBoderThickness}"/>
                 <Setter Property="CornerRadius" Value="6"/>
             </Style>
 

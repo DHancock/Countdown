@@ -36,8 +36,8 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Column="0">
-        
-            <local:Clock State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+            <local:Clock Style="{ThemeResource ClockTheme}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
             <w3c:GroupBox Heading="Tiles">
                 <StackPanel>
@@ -105,7 +105,7 @@
                                     <ColumnDefinition MinWidth="100" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="{x:Bind Title}" HorizontalAlignment="Left" Foreground="{ThemeResource WordListGroupHeaderTextBrush}" FontWeight="SemiBold" FontSize="16"/>
-                                <TextBlock Grid.Column="1" Text="{x:Bind Count}" HorizontalAlignment="Right" Foreground="DarkGray" FontSize="16"/>
+                                <TextBlock Grid.Column="1" Text="{x:Bind Count}" HorizontalAlignment="Right" Foreground="{ThemeResource WordListGroupHeaderCountBrush}" FontSize="16"/>
                             </Grid>
                         </DataTemplate>
                     </GroupStyle.HeaderTemplate>
