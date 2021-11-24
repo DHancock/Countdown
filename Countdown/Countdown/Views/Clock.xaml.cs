@@ -180,6 +180,27 @@ internal sealed partial class Clock : UserControl
             brush.Color = newColour;
     }
 
+    public bool DropShadowVisible
+    {
+        get { return (bool)GetValue(DropShadowVisibleProperty); }
+        set { SetValue(DropShadowVisibleProperty, value); }
+    }
+
+    public static readonly DependencyProperty DropShadowVisibleProperty =
+        DependencyProperty.Register(nameof(DropShadowVisible),
+            typeof(bool),
+            typeof(Clock),
+            new PropertyMetadata(true, (d, e) => UpdateDropShadowVisibility((bool)e.NewValue)));
+
+    private static void UpdateDropShadowVisibility(bool isVisible)
+    {
+        if (sCompositionClock is null)
+            return;
+
+        if (sCompositionClock.DropShadowVisibility != isVisible)
+            sCompositionClock.DropShadowVisibility = isVisible;
+    }
+
 
     private sealed class CompositionClock
     {
@@ -188,6 +209,7 @@ internal sealed partial class Clock : UserControl
         public AnimationList Animations { get; }
         public BrushList Brushes { get; }
         public Clock XamlClock { get; set; }
+        private SpriteVisual DropShadowVisual { get; }
 
         public CompositionClock(Clock xamlClock)
         {
@@ -201,7 +223,9 @@ internal sealed partial class Clock : UserControl
             float clockSize = ContainerSize.X * 0.95f;
             Vector2 center = new Vector2(ContainerSize.X * 0.5f);
 
-            CreateFace(compositor, center, clockSize);
+            DropShadowVisual = CreateFace(compositor, center, clockSize);
+            DropShadowVisual.IsVisible = xamlClock.DropShadowVisible;
+
             CreateTickTrail(compositor, center, clockSize);
             CreateFaceTickMarks(compositor, center, clockSize);
             CreateHand(compositor, center, clockSize);
@@ -270,7 +294,7 @@ internal sealed partial class Clock : UserControl
             }
         }
 
-        private void CreateFace(Compositor compositor, Vector2 center, float clockSize)
+        private SpriteVisual CreateFace(Compositor compositor, Vector2 center, float clockSize)
         {
             CompositionSpriteShape CreateCircle(float radius, float stroke, Vector2 offset, BrushId fillBrushId, BrushId strokeBrushId)
             {
@@ -324,6 +348,8 @@ internal sealed partial class Clock : UserControl
             // insert into the tree 
             Visual.Children.InsertAtBottom(shapeVisual);
             Visual.Children.InsertAtBottom(shadowVisual);
+
+            return shadowVisual;
         }
 
         private static SpriteVisual CreateDropShadow(Compositor compositor, ShapeVisual sourceVisual)
@@ -445,6 +471,12 @@ internal sealed partial class Clock : UserControl
 
             // add to visual tree
             Visual.Children.InsertAtTop(shapeVisual);
+        }
+
+        internal bool DropShadowVisibility
+        {
+            set => DropShadowVisual.IsVisible = value;
+            get => DropShadowVisual.IsVisible;
         }
     }
 
