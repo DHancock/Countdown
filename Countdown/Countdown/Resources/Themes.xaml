@@ -14,7 +14,7 @@
                 <Setter Property="FrameTickColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
                 <Setter Property="TickMarksColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
                 <Setter Property="HandStrokeColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
-                <Setter Property="HandFillColour" Value="{ThemeResource SystemColorWindowColor}"/>
+                <Setter Property="HandFillColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
             </Style>
 
             <!-- lists -->
