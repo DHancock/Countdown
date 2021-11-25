@@ -20,6 +20,7 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         this.InitializeComponent();
 
+        Title = "Countdown";
         Icon = $"Resources\\app_16.ico";
 
         MinWidth = 660;

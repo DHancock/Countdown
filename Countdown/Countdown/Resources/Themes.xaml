@@ -24,6 +24,12 @@
             <Thickness x:Key="ResultsListBoderThickness">1</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+
+            <!-- navigation view -->
+            <Thickness x:Key="TopNavigationViewContentGridBorderThickness">0,1,0,0</Thickness>
+            <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="{ThemeResource SystemColorWindowColor}"/>
+            <SolidColorBrush x:Key="PageBackgroundThemeBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+            
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Dark">
@@ -46,6 +52,12 @@
             <Thickness x:Key="ResultsListBoderThickness">0</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush">DarkGray</SolidColorBrush>
+
+            <!-- navigation view -->
+            <Thickness x:Key="TopNavigationViewContentGridBorderThickness">0</Thickness>
+            <StaticResource x:Key="NavigationViewTopPaneBackground" ResourceKey="ApplicationPageBackgroundThemeBrush"/>
+            <SolidColorBrush x:Key="PageBackgroundThemeBrush">Transparent</SolidColorBrush>
+            
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
@@ -68,6 +80,12 @@
             <Thickness x:Key="ResultsListBoderThickness">0</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush">DarkGray</SolidColorBrush>
+
+            <!-- navigation view -->
+            <Thickness x:Key="TopNavigationViewContentGridBorderThickness">0</Thickness>
+            <StaticResource x:Key="NavigationViewTopPaneBackground" ResourceKey="ApplicationPageBackgroundThemeBrush"/>
+            <SolidColorBrush x:Key="PageBackgroundThemeBrush">Transparent</SolidColorBrush>
+            
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 

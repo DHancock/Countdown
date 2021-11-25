@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Page x:Name="BackgroundPage" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page x:Name="BackgroundPage" Background="{ThemeResource PageBackgroundThemeBrush}">
         <NavigationView
             x:Name="RootNavigationView"
             PaneDisplayMode="Top"
@@ -15,7 +15,7 @@
             IsSettingsVisible="False"
             SelectionFollowsFocus="Disabled"
             SelectionChanged="RootNavigationView_SelectionChanged">
-
+            
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Numbers" Tag="NumbersView" AccessKey="N"/>
                 <NavigationViewItem Content="Letters" Tag="LettersView" AccessKey="L"/>
