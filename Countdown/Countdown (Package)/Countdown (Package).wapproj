@@ -64,7 +64,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="2.0.0" />
+    <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="2.0.1" />
     <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.0.0.30" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.0" />
   </ItemGroup>
