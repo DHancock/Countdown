@@ -28,7 +28,7 @@
             <!-- navigation view -->
             <Thickness x:Key="TopNavigationViewContentGridBorderThickness">0,1,0,0</Thickness>
             <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="{ThemeResource SystemColorWindowColor}"/>
-            <SolidColorBrush x:Key="BackgroundPageThemeBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+            <SolidColorBrush x:Key="BackgroundPageThemeBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
             
         </ResourceDictionary>
 
