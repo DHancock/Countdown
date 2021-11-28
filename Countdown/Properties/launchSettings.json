@@ -1,7 +1,10 @@
 {
   "profiles": {
-    "Countdown": {
+    "Countdown (Package)": {
       "commandName": "MsixPackage"
+    },
+    "Countdown (Unpackaged)": {
+      "commandName": "Project"
     }
   }
 }
