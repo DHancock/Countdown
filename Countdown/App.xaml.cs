@@ -14,6 +14,9 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
+
+        //if (!Microsoft.Windows.ApplicationModel.DynamicDependency.Bootstrap.TryInitialize(0x00010000, out int hresult))
+        //    System.Diagnostics.Debug.Fail($"Bootstrap initialise failed: {hresult}");
     }
 
     /// <summary>
