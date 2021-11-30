@@ -180,14 +180,14 @@ internal sealed partial class Clock : UserControl
             brush.Color = newColour;
     }
 
-    public bool DropShadowVisible
+    public bool DropShadowIsVisible
     {
-        get { return (bool)GetValue(DropShadowVisibleProperty); }
-        set { SetValue(DropShadowVisibleProperty, value); }
+        get { return (bool)GetValue(DropShadowIsVisibleProperty); }
+        set { SetValue(DropShadowIsVisibleProperty, value); }
     }
 
-    public static readonly DependencyProperty DropShadowVisibleProperty =
-        DependencyProperty.Register(nameof(DropShadowVisible),
+    public static readonly DependencyProperty DropShadowIsVisibleProperty =
+        DependencyProperty.Register(nameof(DropShadowIsVisible),
             typeof(bool),
             typeof(Clock),
             new PropertyMetadata(true, (d, e) => UpdateDropShadowVisibility((bool)e.NewValue)));
@@ -197,8 +197,8 @@ internal sealed partial class Clock : UserControl
         if (sCompositionClock is null)
             return;
 
-        if (sCompositionClock.DropShadowVisibility != isVisible)
-            sCompositionClock.DropShadowVisibility = isVisible;
+        if (sCompositionClock.DropShadowIsVisible != isVisible)
+            sCompositionClock.DropShadowIsVisible = isVisible;
     }
 
 
@@ -224,7 +224,7 @@ internal sealed partial class Clock : UserControl
             Vector2 center = new Vector2(ContainerSize.X * 0.5f);
 
             DropShadowVisual = CreateFace(compositor, center, clockSize);
-            DropShadowVisual.IsVisible = xamlClock.DropShadowVisible;
+            DropShadowVisual.IsVisible = xamlClock.DropShadowIsVisible;
 
             CreateTickTrail(compositor, center, clockSize);
             CreateFaceTickMarks(compositor, center, clockSize);
@@ -473,7 +473,7 @@ internal sealed partial class Clock : UserControl
             Visual.Children.InsertAtTop(shapeVisual);
         }
 
-        internal bool DropShadowVisibility
+        internal bool DropShadowIsVisible
         {
             set => DropShadowVisual.IsVisible = value;
             get => DropShadowVisual.IsVisible;

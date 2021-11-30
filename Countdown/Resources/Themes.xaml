@@ -15,7 +15,7 @@
                 <Setter Property="TickMarksColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
                 <Setter Property="HandStrokeColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
                 <Setter Property="HandFillColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
-                <Setter Property="DropShadowVisible" Value="False"/>
+                <Setter Property="DropShadowIsVisible" Value="False"/>
             </Style>
 
             <!-- lists -->
@@ -43,7 +43,7 @@
                 <Setter Property="TickMarksColour" Value="#FF484848"/>
                 <Setter Property="HandStrokeColour" Value="#FF383838"/>
                 <Setter Property="HandFillColour" Value="MidnightBlue"/>
-                <Setter Property="DropShadowVisible" Value="True"/>
+                <Setter Property="DropShadowIsVisible" Value="True"/>
             </Style>
 
             <!-- lists -->
@@ -71,7 +71,7 @@
                 <Setter Property="TickMarksColour" Value="Silver"/>
                 <Setter Property="HandStrokeColour" Value="Gray"/>
                 <Setter Property="HandFillColour" Value="#FF0068C7"/>
-                <Setter Property="DropShadowVisible" Value="True"/>
+                <Setter Property="DropShadowIsVisible" Value="True"/>
             </Style>
             
             <!-- lists -->
