@@ -1,43 +1,76 @@
 ﻿namespace Countdown.Models;
 
-internal class Settings
+internal static class Settings
 {
+    private static bool sImplemented = true;
 
+    // fallback store for values if ApplicationData isn't implemented
+    private static int sChooseNumbersIndex = 1;
+    private static int sChooseLettersIndex = 1;
+    private static ElementTheme sCurrentTheme = ElementTheme.Default;
 
 
     public static int ChooseNumbersIndex
     {
-        get
-        {
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue(nameof(ChooseNumbersIndex), out object? value))
-                return (int)(value ?? 0);
-
-            return 0;
-        }
-        set
-        {
-            ApplicationData.Current.LocalSettings.Values[nameof(ChooseNumbersIndex)] = value;
-        }
+        get => GetValue(sChooseNumbersIndex);
+        set => SetValue(value, ref sChooseNumbersIndex);    
     }
 
     public static int ChooseLettersIndex
     {
-        get
-        {
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue(nameof(ChooseLettersIndex), out object? value))
-                return (int)(value ?? 0);
+        get => GetValue(sChooseLettersIndex);
+        set => SetValue(value, ref sChooseLettersIndex);
+    }
 
-            return 0;
-        }
-        set
-        {
-            ApplicationData.Current.LocalSettings.Values[nameof(ChooseLettersIndex)] = value;
-        }
+    public static ElementTheme CurrentTheme
+    {
+        get => GetValue(sCurrentTheme);
+        set => SetValue(value, ref sCurrentTheme);
     }
 
 
 
-    public static ConsonantList DefaultConsonants
+    private static T GetValue<T>(T fallbackValue, [CallerMemberName] string key = "")
+    {
+        if (sImplemented)
+        {
+            try
+            {
+                if (ApplicationData.Current.LocalSettings.Values.TryGetValue(key, out object? value))
+                    return (T)value;
+            }
+            catch (InvalidOperationException) // it hasn't been implemented in WindowsAppSDK 1.0.0
+            {
+                sImplemented = false;
+            }
+        }
+
+        return fallbackValue;
+    }
+
+
+    private static void SetValue<T>(T value, ref T fallbackStore, [CallerMemberName] string key = "")
+    {
+        if (sImplemented)
+        {
+            try
+            {
+                ApplicationData.Current.LocalSettings.Values[key] = value;
+            }
+            catch (InvalidOperationException) // it hasn't been implemented in WindowsAppSDK 1.0.0
+            {
+                sImplemented = false;
+            }
+        }
+
+        if (!sImplemented)
+            fallbackStore = value;
+    }
+
+
+
+
+    public static ConsonantList Consonants
     {
         get
         {
@@ -72,7 +105,7 @@ internal class Settings
 
 
 
-    public static VowelList DefaultVowels
+    public static VowelList Vowels
     {
         get
         {
@@ -86,63 +119,6 @@ internal class Settings
             };
 
             return new VowelList(defaultVowels);
-        }
-    }
-
-
-
-
-
-    public static VowelList Vowels
-    {
-        get
-        {
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue(nameof(Vowels), out object? value) && (value is VowelList list))
-                return list;
-
-            return DefaultVowels;
-        }
-
-        set
-        {
-            ApplicationData.Current.LocalSettings.Values[nameof(Vowels)] = value;
-        }
-    }
-
-    public static ConsonantList Consonants
-    {
-        get
-        {
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue(nameof(Consonants), out object? value) && (value is ConsonantList list))
-                return list;
-
-            return DefaultConsonants;
-        }
-
-        set
-        {
-            ApplicationData.Current.LocalSettings.Values[nameof(Consonants)] = value;
-        }
-    }
-
-
-    public static ElementTheme CurrentTheme
-    {
-        get
-        {
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue(nameof(CurrentTheme), out object? value) && (value is string theme))
-                return Enum.Parse<ElementTheme>(theme);
-
-            if (App.MainWindow?.Content is FrameworkElement fe)
-                return fe.RequestedTheme;
-
-            return Application.Current.RequestedTheme == ApplicationTheme.Light ? ElementTheme.Light : ElementTheme.Dark;
-        }
-
-        set
-        {
-            Debug.Assert(Enum.IsDefined(typeof(ElementTheme), value));
-            ApplicationData.Current.LocalSettings.Values[nameof(CurrentTheme)] = value.ToString();
         }
     }
 }
