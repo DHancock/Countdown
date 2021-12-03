@@ -11,13 +11,7 @@ internal static class Extensions
             Random random = new Random();
 
             for (int index = list.Count - 1; index > 0; --index)
-            {
-                int next = random.Next(index + 1);
-
-                T temp = list[next];
-                list[next] = list[index];
-                list[index] = temp;
-            }
+                Swap(list, index, random.Next(index + 1));
         }
 
         return list;
@@ -52,12 +46,10 @@ internal static class Extensions
                     {
                         int altIndex = random.Next(list.Count);
 
-                        if (TestAltIndex<T>(list, altIndex, current, comparer))
+                        if (CheckSwapWontCreateAnotherDuplicate(list, altIndex, current, comparer))
                         {
-                            T altValue = list[altIndex];
-                            list[altIndex] = current;
-                            list[index] = altValue;
-                            previous = altValue;
+                            Swap(list, index, altIndex);
+                            previous = list[altIndex];
                             break;
                         }
                     }
@@ -70,20 +62,26 @@ internal static class Extensions
 
     private static int ClampIndex(int index, int size)
     {
-        if (index < 0)
-            return size + index;
-        else if (index >= size)
-            return index - size;
+        int remainder = index % size;
 
-        return index;
+        if (index < 0)
+            return (remainder == 0) ? 0 : size + remainder;
+
+        return remainder;
     }
 
-    private static bool TestAltIndex<T>(IList<T> list, int index, T testValue, IEqualityComparer comparer)
+    private static bool CheckSwapWontCreateAnotherDuplicate<T>(IList<T> list, int index, T testValue, IEqualityComparer comparer)
     {
-        // check that a swap won't create a new duplicate
-        return !comparer.Equals(testValue, list[index]) && 
-                !comparer.Equals(testValue, list[ClampIndex(index - 1, list.Count)]) && 
+        return !comparer.Equals(testValue, list[index]) &&
+                !comparer.Equals(testValue, list[ClampIndex(index - 1, list.Count)]) &&
                 !comparer.Equals(testValue, list[ClampIndex(index + 1, list.Count)]);
+    }
+
+    private static void Swap<T>(IList<T> list, int i1, int i2)
+    {
+        T temp = list[i1];
+        list[i1] = list[i2];
+        list[i2] = temp;
     }
 }
 

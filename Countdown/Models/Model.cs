@@ -71,7 +71,6 @@ internal class Model
     // solve the conundrum game
     public string Solve() => wordDictionary.SolveConundrum(Conundrum);
 
-
     /// <summary>
     /// Automatically chooses six tiles and a target. 
     /// Tiles can have 0 to 4 large tiles from the set (25, 50, 75, 100) without repetition,
@@ -79,13 +78,12 @@ internal class Model
     /// a maximum of two of each value. 
     /// The target can be between 100 and 999.
     /// </summary>
-    /// <param name="tileOption"></param>
-    public void GenerateNumberData(int tileOption)
+    /// <param name="largeTileCount"></param>
+    public void GenerateNumberData(int largeTileCount)
     {
         int[] largeTiles = { 25, 50, 75, 100 };
         int[] smallTiles = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
-        int largeTileCount = tileOption;
         int smallTileCount = cTileCount - largeTileCount;
         int tileIndex = 0;
 
@@ -102,7 +100,6 @@ internal class Model
         for (int index = 0; index < smallTileCount; index++)
             Tiles[tileIndex++] = smallTiles[index];
 
-
         Target = new Random().Next(cMinTarget, cMaxTarget + 1);
     }
 
@@ -115,13 +112,6 @@ internal class Model
             Conundrum[index] = conundrum[index].ToString();
     }
 
-
-    public bool HasConundrums => wordDictionary.HasConundrums;
-
-    public char GetVowel() => vowelList.GetLetter();
-
-    public char GetConsonant() => consonantList.GetLetter();
-
     public void GenerateLettersData(int vowelCount)
     {
         for (int index = 0; index < cLetterCount; index++)
@@ -133,5 +123,9 @@ internal class Model
         }
     }
 
+    public bool HasConundrums => wordDictionary.HasConundrums;
 
+    public char GetVowel() => vowelList.GetLetter();
+
+    public char GetConsonant() => consonantList.GetLetter();
 }
