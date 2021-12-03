@@ -2,13 +2,14 @@
 
 internal sealed class VowelList : LetterList
 {
-    public const int cVowelCount = 5;
-
-    public VowelList(IList<LetterTile> source) : base(source)
+    public VowelList() : base(new List<LetterTile>(5)
     {
-        Debug.Assert(Count == cVowelCount);
-        Debug.Assert(this.All(c => LetterTile.IsUpperVowel(c.Letter)));
+        new LetterTile('A', 2),
+        new LetterTile('E', 3),
+        new LetterTile('I', 6),
+        new LetterTile('O', 2),
+        new LetterTile('U', 3)    
+    })
+    {
     }
-
-    public void ResetTo(VowelList toThis) => base.ResetTo(toThis);
 }

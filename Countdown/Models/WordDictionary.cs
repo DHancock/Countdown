@@ -101,17 +101,14 @@ internal class WordDictionary
 
 
 
-    public char[] GetConundrum(Random random)
+    public char[] GetConundrum()
     {
-        if (random is null)
-            throw new ArgumentNullException(nameof(random));
-
         loadingEvent.Wait();  // until finished loading resources
 
         if (conundrumWords.Count > 0)
         {
             // move a random distance into dictionary
-            int index = random.Next(conundrumWords.Count);
+            int index = new Random().Next(conundrumWords.Count);
 
             IEnumerator<byte[]> e = conundrumWords.Values.GetEnumerator();
 

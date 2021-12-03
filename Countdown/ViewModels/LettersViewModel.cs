@@ -302,13 +302,10 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     {
         int vowelCount = TileOptionIndex + 3;   // option zero is "3 vowels and 6 consonants"
 
+        Model.GenerateLettersData(vowelCount);
+
         for (int index = 0; index < Model.cLetterCount; index++)
         {
-            if (index < vowelCount)
-                Model.Letters[index] = Model.GetVowel().ToString();
-            else
-                Model.Letters[index] = Model.GetConsonant().ToString();
-
             RaisePropertyChanged(propertyNames[index]);
             ClearValidationError(propertyNames[index]);
         }

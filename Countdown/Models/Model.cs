@@ -1,4 +1,5 @@
-﻿using Countdown.ViewModels;
+﻿using Countdown.Utils;
+using Countdown.ViewModels;
 
 namespace Countdown.Models;
 
@@ -20,72 +21,12 @@ internal class Model
     // conundrum model data
     public string[] Conundrum { get; } = new string[cLetterCount];
 
-    // ok for non-cryptographic applications
-    private readonly Random random = new Random();
-    // handles word dictionaries
     private readonly WordDictionary wordDictionary = new WordDictionary();
+    private readonly ConsonantList consonantList = new ConsonantList();
+    private readonly VowelList vowelList = new VowelList();
 
 
-    public Model()
-    {
-    }
-
-
-    /// <summary>
-    /// Automatically chooses six tiles and a target. 
-    /// Tiles can have 0 to 4 large tiles from the set (25, 50, 75, 100) without repetition,
-    /// the remaining tiles are picked from the set (1, 2, 3, 4, 5, 6, 7, 8, 9, 10) allowing
-    /// a maximum of two of each value. 
-    /// The target can be between 100 and 999.
-    /// </summary>
-    /// <param name="tileOption"></param>
-    public void GenerateNumberData(int tileOption)
-    {
-        int[] largeTiles = { 25, 50, 75, 100 };
-        int[] smallTiles = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-
-        if ((tileOption < 0) || (tileOption > largeTiles.Length))
-            throw new ArgumentOutOfRangeException(nameof(tileOption));
-
-        int largeTileCount = tileOption;
-        int smallTileCount = Tiles.Length - largeTileCount;
-
-        // pick large tiles
-        PickCards(largeTileCount, largeTiles, 0);
-
-        // pick small tiles
-        PickCards(smallTileCount, smallTiles, largeTileCount);
-
-        // pick target
-        Target = random.Next(cMinTarget, cMaxTarget + 1);
-    }
-
-
-    /// <summary>
-    /// Picks tiles randomly from the supplied array and loads the correspond ui 
-    /// text boxes
-    /// </summary>
-    /// <param name="cardCount"></param>
-    /// <param name="possibleCards"></param>
-    /// <param name="tileIndex"></param>
-    private void PickCards(int cardCount, int[] possibleTiles, int tileIndex)
-    {
-        while (cardCount > 0)
-        {
-            int rnd = random.Next(possibleTiles.Length);
-
-            if (possibleTiles[rnd] != 0) // check the tile hasn't already been used
-            {
-                Tiles[tileIndex++] = possibleTiles[rnd];
-
-                possibleTiles[rnd] = 0;  // mark this tile as used
-                --cardCount;
-            }
-        }
-    }
-
-
-
+    // solve the numbers game
     public static SolverResults Solve(int[] tiles, int target)
     {
         Stopwatch stopWatch = new Stopwatch();
@@ -124,40 +65,73 @@ internal class Model
     }
 
 
-
     // solve the letters game
     public List<WordItem> Solve(char[] letters) => wordDictionary.Solve(letters);
 
+    // solve the conundrum game
+    public string Solve() => wordDictionary.SolveConundrum(Conundrum);
+
+
+    /// <summary>
+    /// Automatically chooses six tiles and a target. 
+    /// Tiles can have 0 to 4 large tiles from the set (25, 50, 75, 100) without repetition,
+    /// the remaining tiles are picked from the set (1, 2, 3, 4, 5, 6, 7, 8, 9, 10) allowing
+    /// a maximum of two of each value. 
+    /// The target can be between 100 and 999.
+    /// </summary>
+    /// <param name="tileOption"></param>
+    public void GenerateNumberData(int tileOption)
+    {
+        int[] largeTiles = { 25, 50, 75, 100 };
+        int[] smallTiles = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+        int largeTileCount = tileOption;
+        int smallTileCount = cTileCount - largeTileCount;
+        int tileIndex = 0;
+
+        if (largeTileCount > 0)
+        {
+            largeTiles.Shuffle();
+
+            for (int index = 0; index < largeTileCount; index++)
+                Tiles[tileIndex++] = largeTiles[index];
+        }
+
+        smallTiles.Shuffle();
+
+        for (int index = 0; index < smallTileCount; index++)
+            Tiles[tileIndex++] = smallTiles[index];
+
+
+        Target = new Random().Next(cMinTarget, cMaxTarget + 1);
+    }
 
     public void GenerateConundrum()
     {
-        char[] conundrum = wordDictionary.GetConundrum(random);
+        IList<char> conundrum = wordDictionary.GetConundrum().Shuffle();
 
-        if (conundrum.Length == cLetterCount)
-        {
-            // shuffle the letters
-            for (int index = conundrum.Length - 1; index > 0; --index)
-            {
-                int next = random.Next(index + 1);
-
-                char temp = conundrum[next];
-                conundrum[next] = conundrum[index];
-                conundrum[index] = temp;
-            }
-
-            // convert to the models required format
-            for (int index = 0; index < conundrum.Length; ++index)
-                Conundrum[index] = conundrum[index].ToString();
-        }
+        // convert to the models required format
+        for (int index = 0; index < conundrum.Count; ++index)
+            Conundrum[index] = conundrum[index].ToString();
     }
-
 
 
     public bool HasConundrums => wordDictionary.HasConundrums;
 
-    public string Solve() => wordDictionary.SolveConundrum(Conundrum);
+    public char GetVowel() => vowelList.GetLetter();
 
-    public char GetVowel() => Settings.Vowels.GetLetter(random);
+    public char GetConsonant() => consonantList.GetLetter();
 
-    public char GetConsonant() => Settings.Consonants.GetLetter(random);
+    public void GenerateLettersData(int vowelCount)
+    {
+        for (int index = 0; index < cLetterCount; index++)
+        {
+            if (index < vowelCount)
+                Letters[index] = GetVowel().ToString();
+            else
+                Letters[index] = GetConsonant().ToString();
+        }
+    }
+
+
 }
