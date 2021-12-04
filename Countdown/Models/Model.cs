@@ -122,7 +122,7 @@ internal class Model
                 Letters[index] = GetConsonant().ToString();
         }
 
-        Letters.Shuffle();
+        Letters.Shuffle().ReduceDuplicateSequences();
     }
 
     public bool HasConundrums => wordDictionary.HasConundrums;
