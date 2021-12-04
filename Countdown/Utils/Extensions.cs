@@ -18,12 +18,12 @@ internal static class Extensions
     }
 
 
-    public static IList<T> ReduceDuplicateSequences<T>(this IList<T> list)
+    public static IList<T> ReduceDuplicateSequences<T>(this IList<T> list, IEqualityComparer? equalityComparer = null)
     {
         if (list.Count > 2)
         {
             Random random = new Random();
-            IEqualityComparer comparer = EqualityComparer<T>.Default;
+            IEqualityComparer comparer = equalityComparer ?? EqualityComparer<T>.Default;
 
             int duplicateCount = 0;
             T previous = list[0];
@@ -62,7 +62,10 @@ internal static class Extensions
 
     private static int ClampIndex(int index, int size)
     {
-        int remainder = index % size;
+        if (size <= 0)
+            throw new ArgumentOutOfRangeException(nameof(size));
+
+        int remainder = index % size; 
 
         if (index < 0)
             return (remainder == 0) ? 0 : size + remainder;
