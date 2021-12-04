@@ -121,6 +121,8 @@ internal class Model
             else
                 Letters[index] = GetConsonant().ToString();
         }
+
+        Letters.Shuffle();
     }
 
     public bool HasConundrums => wordDictionary.HasConundrums;
