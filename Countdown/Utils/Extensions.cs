@@ -6,7 +6,7 @@ internal static class Extensions
 
     public static IList<T> Shuffle<T>(this IList<T> list)
     {
-        if (list.Count > 0)
+        if (list.Count > 1)
         {
             Random random = new Random();
 
@@ -20,7 +20,7 @@ internal static class Extensions
 
     public static IList<T> ReduceDuplicateSequences<T>(this IList<T> list)
     {
-        if (list.Count > 0)
+        if (list.Count > 2)
         {
             Random random = new Random();
             IEqualityComparer comparer = EqualityComparer<T>.Default;
@@ -40,7 +40,7 @@ internal static class Extensions
                 if (duplicateCount > 0)
                 {
                     duplicateCount = 0;
-                    int attempts = 20;
+                    int attempts = 10;
 
                     while (attempts-- > 0)  // an occasional duplicate is ok, infinite loops aren't
                     {
