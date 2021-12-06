@@ -77,9 +77,9 @@ internal class SubClassWindow : Window
 
     private void SetWindowIcon()
     {
-        FreeLibrarySafeHandle module = PInvoke.GetModuleHandle($"{Process.GetCurrentProcess().ProcessName}.exe");
+        BOOL result = PInvoke.GetModuleHandleEx(0, Assembly.GetExecutingAssembly().Location, out FreeLibrarySafeHandle module);
 
-        if (module.IsInvalid)
+        if ((result.Value == 0) || module.IsInvalid)
             throw new Win32Exception(Marshal.GetLastWin32Error());
 
         WPARAM ICON_SMALL = 0;

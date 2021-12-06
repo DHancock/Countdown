@@ -9,4 +9,4 @@ SetWindowPos
 LoadImage
 SendMessage
 GetSystemMetrics
-GetModuleHandle
+GetModuleHandleEx
