@@ -13,6 +13,7 @@
     <WindowsPackageType>None</WindowsPackageType>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>Resources\app_16.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Resources\Themes.xaml" />
@@ -50,7 +51,7 @@
 
   <ItemGroup>
     <None Update="Resources\app_16.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <Page Update="Resources\Themes.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -83,6 +84,6 @@
        Tools extension to be activated for this project even if the Windows App SDK Nuget
        package has not yet been restored -->
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnablePreviewMsixTooling)'=='true'">
-    <ProjectCapability Include="Msix"/>
+    <ProjectCapability Include="Msix" />
   </ItemGroup>
 </Project>

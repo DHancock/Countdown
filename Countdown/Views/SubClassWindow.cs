@@ -36,6 +36,8 @@ internal class SubClassWindow : Window
             throw new Win32Exception(Marshal.GetLastWin32Error());
 
         oldWndDelegate = Marshal.GetDelegateForFunctionPointer<WNDPROC>(oldProcPtr);
+
+        SetWindowIcon();
     }
 
 
@@ -72,29 +74,28 @@ internal class SubClassWindow : Window
         }
     }
 
-    protected string Icon
-    {
-        set
-        {
-            try
-            {
-                WPARAM ICON_SMALL = 0;
-                WPARAM ICON_BIG = 1;
 
-                LoadIcon(value, ICON_SMALL, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXSMICON));
-                LoadIcon(value, ICON_BIG, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON));
-            }
-            catch (Win32Exception)
-            {
-            }
-        }
+    private void SetWindowIcon()
+    {
+        FreeLibrarySafeHandle module = PInvoke.GetModuleHandle($"{Process.GetCurrentProcess().ProcessName}.exe");
+
+        if (module.IsInvalid)
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+
+        WPARAM ICON_SMALL = 0;
+        WPARAM ICON_BIG = 1;
+        const string appIconResourceId = "#32512";
+
+        SetWindowIcon(module, appIconResourceId, ICON_SMALL, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXSMICON));
+        SetWindowIcon(module, appIconResourceId, ICON_BIG, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON));
     }
 
-    private void LoadIcon(string fileName, WPARAM iconType, int size)
+
+    private void SetWindowIcon(FreeLibrarySafeHandle module, string iconId, WPARAM iconType, int size)
     {
         const uint WM_SETICON = 0x0080;
 
-        SafeFileHandle hIcon = PInvoke.LoadImage(null, fileName, GDI_IMAGE_TYPE.IMAGE_ICON, size, size, IMAGE_FLAGS.LR_LOADFROMFILE);
+        SafeFileHandle hIcon = PInvoke.LoadImage(module, iconId, GDI_IMAGE_TYPE.IMAGE_ICON, size, size, IMAGE_FLAGS.LR_DEFAULTCOLOR);
 
         if (hIcon.IsInvalid)
             throw new Win32Exception(Marshal.GetLastWin32Error());
