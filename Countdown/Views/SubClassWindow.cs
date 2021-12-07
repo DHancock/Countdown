@@ -77,7 +77,7 @@ internal class SubClassWindow : Window
 
     private void SetWindowIcon()
     {
-        BOOL result = PInvoke.GetModuleHandleEx(0, Assembly.GetExecutingAssembly().Location, out FreeLibrarySafeHandle module);
+        BOOL result = PInvoke.GetModuleHandleEx(0, null, out FreeLibrarySafeHandle module);
 
         if ((result.Value == 0) || module.IsInvalid)
             throw new Win32Exception(Marshal.GetLastWin32Error());
