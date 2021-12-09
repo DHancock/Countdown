@@ -27,6 +27,10 @@ internal sealed partial class MainWindow : SubClassWindow
 
         WindowSize = new Size(MinWidth, MinHeight);
 
+        // Restoring window state or position isn't implemented because saving
+        // user settings isn't supported in WindowsAppSDK 1.0.0 when unpackaged 
+        CenterInPrimaryDisplay();
+
         InitializeTheme();
 
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events

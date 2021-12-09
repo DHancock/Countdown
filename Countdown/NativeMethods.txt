@@ -6,6 +6,7 @@ GetDpiForWindow
 POINT
 MINMAXINFO
 SetWindowPos
+GetWindowRect
 LoadImage
 SendMessage
 GetSystemMetrics

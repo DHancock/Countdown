@@ -122,4 +122,26 @@ internal class SubClassWindow : Window
                 hIcon.DangerousRelease();
         }
     }
+
+
+    protected void CenterInPrimaryDisplay()
+    {
+        BOOL result = PInvoke.GetWindowRect(hWnd, out RECT lpRect);
+        
+        if (result.Value == 0)
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+
+        DisplayArea primary = DisplayArea.Primary;
+
+        int top = (primary.WorkArea.Height - (lpRect.bottom - lpRect.top)) / 2;
+        int left = (primary.WorkArea.Width - (lpRect.right - lpRect.left)) / 2;
+
+        top = Math.Max(top, 0); // guarantee the title bar is visible
+        left = Math.Max(left, 0);
+
+        result = PInvoke.SetWindowPos(hWnd, (HWND)0, left, top, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER);
+
+        if (result.Value == 0)
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+    }
 }
