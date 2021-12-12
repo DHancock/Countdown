@@ -7,7 +7,7 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class MainWindow : SubClassWindow
 {
-    private readonly ViewModel rootViewModel = new ViewModel();
+    private readonly ViewModel rootViewModel;
 
     private readonly FrameNavigationOptions frameNavigationOptions = new FrameNavigationOptions()
     {
@@ -20,12 +20,18 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         this.InitializeComponent();
 
+        rootViewModel = new ViewModel(ReadSettings());
+
+        WindowClosing += (s, e) => SaveSettings();
+
         Title = "Countdown";
 
         MinWidth = 660;
         MinHeight = 500;
 
         WindowSize = new Size(MinWidth, MinHeight);
+
+        
 
         // Restoring window state or position isn't implemented because saving
         // user settings isn't supported in WindowsAppSDK 1.0.0 when unpackaged 
@@ -39,11 +45,10 @@ internal sealed partial class MainWindow : SubClassWindow
             RootNavigationView.SelectedItem = RootNavigationView.MenuItems[0];
     }
 
-
     private void InitializeTheme()
     {
-        if (BackgroundPage.RequestedTheme != SettingsViewModel.SelectedTheme)
-            BackgroundPage.RequestedTheme = SettingsViewModel.SelectedTheme;
+        if (BackgroundPage.RequestedTheme != rootViewModel.SettingsViewModel.SelectedTheme)
+            BackgroundPage.RequestedTheme = rootViewModel.SettingsViewModel.SelectedTheme;
     }
 
     private void RootNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -68,6 +73,47 @@ internal sealed partial class MainWindow : SubClassWindow
             case "SettingsView": ((SettingsView)e.Content).ViewModel = rootViewModel.SettingsViewModel; break;
             default:
                 throw new InvalidOperationException();
+        }
+    }
+
+
+    private static string ReadSettings()
+    {
+        string path = GetSettingsFilePath();
+
+        if (File.Exists(path))
+        {
+            try
+            {
+                return File.ReadAllText(path, Encoding.Unicode);
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.ToString());
+            }
+        }
+
+        return String.Empty;
+    }
+
+    private async void SaveSettings()
+    {
+        try
+        {
+            string path = GetSettingsFilePath();
+            string? directory = Path.GetDirectoryName(path);
+
+            if (string.IsNullOrWhiteSpace(directory))
+                throw new InvalidOperationException();
+
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+
+            await File.WriteAllTextAsync(path, rootViewModel.SerializeSettings(), Encoding.Unicode, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            Debug.Fail(ex.ToString());
         }
     }
 }

@@ -25,6 +25,13 @@ internal class Model
     private readonly ConsonantList consonantList = new ConsonantList();
     private readonly VowelList vowelList = new VowelList();
 
+    public Settings Settings { get; }
+
+
+    public Model(Settings settings)
+    {
+        Settings = settings;
+    }
 
     // solve the numbers game
     public static SolverResults Solve(int[] tiles, int target)

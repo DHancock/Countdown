@@ -13,6 +13,7 @@ internal class SubClassWindow : Window
     private readonly WNDPROC newWndDelegate;
     private readonly WNDPROC oldWndDelegate;
 
+    public event CancelEventHandler? WindowClosing;
 
     public SubClassWindow()
     {
@@ -44,6 +45,7 @@ internal class SubClassWindow : Window
     private LRESULT NewWindowProc(HWND hWnd, uint Msg, WPARAM wParam, LPARAM lParam)
     {
         const uint WM_GETMINMAXINFO = 0x0024;
+        const uint WM_CLOSE = 0x0010;
 
         if (Msg == WM_GETMINMAXINFO)
         {
@@ -54,6 +56,14 @@ internal class SubClassWindow : Window
             minMaxInfo.ptMinTrackSize.x = (int)(MinWidth * scalingFactor);
             minMaxInfo.ptMinTrackSize.y = (int)(MinHeight * scalingFactor);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
+        }
+        else if (Msg == WM_CLOSE)
+        {
+            CancelEventArgs e = new CancelEventArgs();  
+            OnWindowClosing(e);
+
+            if (e.Cancel)
+                return new LRESULT(0);
         }
 
         return PInvoke.CallWindowProc(oldWndDelegate, hWnd, Msg, wParam, lParam);
@@ -143,5 +153,29 @@ internal class SubClassWindow : Window
 
         if (result.Value == 0)
             throw new Win32Exception(Marshal.GetLastWin32Error());
+    }
+
+    protected static string GetSettingsFilePath()
+    {
+        const string cSettingsFileName = "{0B8391E1-FEB9-46CD-A38E-C66984A4A160}.json";
+        const string cSettingsDirName = "Countdown";
+
+        Guid FOLDERID_LocalAppData = new Guid("{F1B32785-6FBA-4FCF-9D55-7B8E7F157091}");
+        HRESULT result = PInvoke.SHGetKnownFolderPath(FOLDERID_LocalAppData, (uint)KNOWN_FOLDER_FLAG.KF_FLAG_DEFAULT, null, out PWSTR ppszPath);
+
+        if (result.Value != 0)
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+
+        string path = Path.Join(ppszPath.ToString(), cSettingsDirName, cSettingsFileName);
+
+        // SHGetKnownFolderPath() allocates memory for the path, ToString() duplicates it
+        unsafe { PInvoke.CoTaskMemFree(ppszPath.Value); }
+
+        return path;
+    }
+
+    protected void OnWindowClosing(CancelEventArgs args)
+    {
+        WindowClosing?.Invoke(this, args);
     }
 }

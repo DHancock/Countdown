@@ -9,6 +9,7 @@ global using System.Numerics;
 global using System.Runtime.CompilerServices;
 global using System.Runtime.InteropServices;
 global using System.Text;
+global using System.Text.Json;
 global using System.Windows.Input;
 
 global using Microsoft.Graphics.Canvas.Geometry;
@@ -26,11 +27,11 @@ global using Microsoft.Win32.SafeHandles;
 
 global using Windows.ApplicationModel.DataTransfer;
 global using Windows.Foundation;
-global using Windows.Storage;
 global using Windows.System;
 global using Windows.UI;
 global using Windows.Win32;
 global using Windows.Win32.Foundation;
+global using Windows.Win32.UI.Shell;
 global using Windows.Win32.UI.WindowsAndMessaging;
 
 global using WinRT.Interop;

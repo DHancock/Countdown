@@ -9,9 +9,6 @@ internal sealed class LettersViewModel : DataErrorInfoBase
 
     private double clearButtonPathOpacity = 1.0;
 
-    // which item in the letter option list is selected
-    private int tileOptionIndex = 0;
-
     // property names for change events when generating data and error notifications
     private static readonly string[] propertyNames = { nameof(Letter_0),
                                                         nameof(Letter_1),
@@ -48,8 +45,8 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         PickConsonantCommand = new RelayCommand(ExecutePickConsonant, CanPickConsonant);
         ChooseOptionCommand = new RelayCommand(ExecuteChooseOption);
 
-        // initialise letter menu selected item
-        TileOptionIndex = Settings.ChooseLettersIndex;
+        // initialise letters
+        ChooseLettersCommand.Execute(null);
     }
 
     /// <summary>
@@ -289,12 +286,11 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     // which item in the choose letter menu is selected
     public int TileOptionIndex
     {
-        get => tileOptionIndex;
+        get => Model.Settings.ChooseLettersIndex;
         set
         {
-            tileOptionIndex = value;
+            Model.Settings.ChooseLettersIndex = value;
             ChooseLettersCommand.Execute(null);
-            Settings.ChooseLettersIndex = value;
         }
     }
 

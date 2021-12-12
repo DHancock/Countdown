@@ -10,9 +10,6 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     // the solver results that the ui can bind to
     private List<EquationItem>? equationList;
 
-    // which item in the tile option list is selected
-    private int tileOptionIndex;
-
     // property names for change events when generating data and error notifications
     private static readonly string[] propertyNames = { nameof(Tile_0),
                                                         nameof(Tile_1),
@@ -35,13 +32,10 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
 
         ChooseNumbersCommand = new RelayCommand(ExecuteChoose);
         SolveCommand = new RelayTaskCommand(ExecuteSolveAsync, CanSolve);
-
-
-
         ChooseOptionCommand = new RelayCommand(ExecuteChooseOption);
 
-        // initialise tile and target values
-        TileOptionIndex = Settings.ChooseNumbersIndex;
+        // initialise numbers
+        ChooseNumbersCommand.Execute(null);
     }
 
     public string Tile_0
@@ -204,12 +198,11 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
 
     public int TileOptionIndex
     {
-        get => tileOptionIndex;
+        get => Model.Settings.ChooseNumbersIndex;
         set
         {
-            tileOptionIndex = value;
+            Model.Settings.ChooseNumbersIndex = value;
             ChooseNumbersCommand.Execute(null);
-            Settings.ChooseNumbersIndex = tileOptionIndex;
         }
     }
 
