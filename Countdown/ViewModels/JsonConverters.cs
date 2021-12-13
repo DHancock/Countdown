@@ -54,9 +54,9 @@ internal class WINDOWPLACEMENTConverter : JsonConverter<WINDOWPLACEMENT>
     public override void Write(Utf8JsonWriter writer, WINDOWPLACEMENT value, JsonSerializerOptions options)
     {
         writer.WriteStartObject();
-        writer.WriteNumber(nameof(WINDOWPLACEMENT.length), value.length);
-        writer.WriteNumber(nameof(WINDOWPLACEMENT.flags), (uint)value.flags);
-        writer.WriteNumber(nameof(WINDOWPLACEMENT.showCmd), (uint)value.showCmd);
+        writer.WriteNumber(nameof(value.length), value.length);
+        writer.WriteNumber(nameof(value.flags), (uint)value.flags);
+        writer.WriteNumber(nameof(value.showCmd), (uint)value.showCmd);
 
         WriteObject(nameof(value.ptMaxPosition), value.ptMaxPosition, writer, options);
         WriteObject(nameof(value.ptMinPosition), value.ptMinPosition, writer, options);
@@ -64,7 +64,7 @@ internal class WINDOWPLACEMENTConverter : JsonConverter<WINDOWPLACEMENT>
         writer.WriteEndObject();
     }
 
-    private void WriteObject<T>(string name, T value, Utf8JsonWriter writer, JsonSerializerOptions options)
+    private static void WriteObject<T>(string name, T value, Utf8JsonWriter writer, JsonSerializerOptions options)
     {
         writer.WriteStartObject(name);
         JsonSerializer.Serialize<T>(writer, value, options);
