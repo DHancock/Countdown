@@ -174,6 +174,42 @@ internal class SubClassWindow : Window
         return path;
     }
 
+
+    protected WINDOWPLACEMENT GetWindowPlacement()
+    {
+        WINDOWPLACEMENT placement = default;
+
+        BOOL result = PInvoke.GetWindowPlacement(hWnd, ref placement);
+
+        if (result.Value == 0)
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+
+        return placement;
+    }
+
+
+    protected void SetWindowPlacement(WINDOWPLACEMENT placement)
+    {
+        if (placement.length == 0)  // first time, no saved state
+        {
+            WindowSize = new Size(MinWidth, MinHeight);
+            CenterInPrimaryDisplay();
+            Activate();
+        }
+        else
+        {
+            if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
+                placement.showCmd = SHOW_WINDOW_CMD.SW_SHOWNORMAL;
+
+            // calling SetWindowPlacement() also activates the window
+            BOOL result = PInvoke.SetWindowPlacement(hWnd, placement);
+
+            if (result.Value == 0)
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+        }
+    }
+
+
     protected void OnWindowClosing(CancelEventArgs args)
     {
         WindowClosing?.Invoke(this, args);

@@ -32,7 +32,7 @@ internal sealed class ViewModel
         {
             try
             {
-                Settings? settings = JsonSerializer.Deserialize<Settings>(data);
+                Settings? settings = JsonSerializer.Deserialize<Settings>(data, GetSerializerOptions());
 
                 if (settings is not null)
                     return settings;
@@ -42,9 +42,25 @@ internal sealed class ViewModel
                 Debug.Fail(ex.Message);
             }
         }
-        
+
         return new Settings();
     }
 
-    public string SerializeSettings() => JsonSerializer.Serialize(model.Settings);
+    public string SerializeSettings() => JsonSerializer.Serialize(model.Settings, GetSerializerOptions());
+
+    public void UpdateWindowPlacement(WINDOWPLACEMENT placement) => model.Settings.WindowPlacement = placement;
+
+    public WINDOWPLACEMENT GetSavedWindowPlacement() => model.Settings.WindowPlacement;
+
+    private static JsonSerializerOptions GetSerializerOptions()
+    {
+        JsonSerializerOptions serializerOptions = new JsonSerializerOptions();
+        serializerOptions.WriteIndented = true;
+
+        serializerOptions.Converters.Add(new WINDOWPLACEMENTConverter());
+        serializerOptions.Converters.Add(new POINTConverter());
+        serializerOptions.Converters.Add(new RECTConverter());
+
+        return serializerOptions;
+    }
 }

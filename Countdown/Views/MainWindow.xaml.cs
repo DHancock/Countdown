@@ -22,20 +22,18 @@ internal sealed partial class MainWindow : SubClassWindow
 
         rootViewModel = new ViewModel(ReadSettings());
 
-        WindowClosing += (s, e) => SaveSettings();
+        WindowClosing += (s, e) =>
+        {
+            if (s is MainWindow window)
+            {
+                window.rootViewModel.UpdateWindowPlacement(window.GetWindowPlacement());
+                window.SaveSettings();
+            }
+        };
 
         Title = "Countdown";
-
         MinWidth = 660;
         MinHeight = 500;
-
-        WindowSize = new Size(MinWidth, MinHeight);
-
-        
-
-        // Restoring window state or position isn't implemented because saving
-        // user settings isn't supported in WindowsAppSDK 1.0.0 when unpackaged 
-        CenterInPrimaryDisplay();
 
         InitializeTheme();
 
@@ -43,6 +41,8 @@ internal sealed partial class MainWindow : SubClassWindow
         // see https://github.com/microsoft/microsoft-ui-xaml/issues/5744
         if (RootNavigationView.SelectionFollowsFocus == NavigationViewSelectionFollowsFocus.Disabled)
             RootNavigationView.SelectedItem = RootNavigationView.MenuItems[0];
+
+        SetWindowPlacement(rootViewModel.GetSavedWindowPlacement());
     }
 
     private void InitializeTheme()
