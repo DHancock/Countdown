@@ -1,9 +1,5 @@
 ﻿MessageBeep
-CallWindowProc
-SetWindowLong
-SetWindowLongPtr
 GetDpiForWindow
-POINT
 MINMAXINFO
 SetWindowPos
 GetWindowRect
@@ -16,3 +12,5 @@ KNOWN_FOLDER_FLAG
 CoTaskMemFree
 GetWindowPlacement
 SetWindowPlacement
+SetWindowSubclass
+DefSubclassProc

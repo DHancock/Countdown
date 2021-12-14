@@ -10,8 +10,7 @@ internal class SubClassWindow : Window
     public double MinHeight { get; set; }
 
     private readonly HWND hWnd;
-    private readonly WNDPROC newWndDelegate;
-    private readonly WNDPROC oldWndDelegate;
+    private readonly SUBCLASSPROC subClassDelegate;
 
     public event CancelEventHandler? WindowClosing;
 
@@ -23,26 +22,18 @@ internal class SubClassWindow : Window
             throw new InvalidOperationException();
 
         hWnd = (HWND)handle;
+        subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
-        newWndDelegate = new WNDPROC(NewWindowProc);
-        IntPtr newProcPtr = Marshal.GetFunctionPointerForDelegate(newWndDelegate);
-        IntPtr oldProcPtr;
-
-        if (IntPtr.Size == 8)
-            oldProcPtr = PInvoke.SetWindowLongPtr(hWnd, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, newProcPtr);
-        else
-            oldProcPtr = (IntPtr)PInvoke.SetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_WNDPROC, newProcPtr.ToInt32());
-
-        if (oldProcPtr == IntPtr.Zero)
+        BOOL result = PInvoke.SetWindowSubclass(hWnd, subClassDelegate, 0, 0);
+        
+        if (result.Value == 0)
             throw new Win32Exception(Marshal.GetLastWin32Error());
-
-        oldWndDelegate = Marshal.GetDelegateForFunctionPointer<WNDPROC>(oldProcPtr);
 
         SetWindowIcon();
     }
 
 
-    private LRESULT NewWindowProc(HWND hWnd, uint Msg, WPARAM wParam, LPARAM lParam)
+    private LRESULT NewSubWindowProc(HWND hWnd, uint Msg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
         const uint WM_GETMINMAXINFO = 0x0024;
         const uint WM_CLOSE = 0x0010;
@@ -59,14 +50,14 @@ internal class SubClassWindow : Window
         }
         else if (Msg == WM_CLOSE)
         {
-            CancelEventArgs e = new CancelEventArgs();  
+            CancelEventArgs e = new CancelEventArgs();
             OnWindowClosing(e);
 
             if (e.Cancel)
                 return new LRESULT(0);
         }
 
-        return PInvoke.CallWindowProc(oldWndDelegate, hWnd, Msg, wParam, lParam);
+        return PInvoke.DefSubclassProc(hWnd, Msg, wParam, lParam);
     }
 
 
