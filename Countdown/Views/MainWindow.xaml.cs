@@ -66,11 +66,11 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         switch (e.SourcePageType.Name)
         {
-            case "NumbersView": ((NumbersView)e.Content).ViewModel = rootViewModel.NumbersViewModel; break;
-            case "LettersView": ((LettersView)e.Content).ViewModel = rootViewModel.LettersViewModel; break;
-            case "ConundrumView": ((ConundrumView)e.Content).ViewModel = rootViewModel.ConundrumViewModel; break;
-            case "StopwatchView": ((StopwatchView)e.Content).ViewModel = rootViewModel.StopwatchViewModel; break;
-            case "SettingsView": ((SettingsView)e.Content).ViewModel = rootViewModel.SettingsViewModel; break;
+            case nameof(NumbersView): ((NumbersView)e.Content).ViewModel = rootViewModel.NumbersViewModel; break;
+            case nameof(LettersView): ((LettersView)e.Content).ViewModel = rootViewModel.LettersViewModel; break;
+            case nameof(ConundrumView): ((ConundrumView)e.Content).ViewModel = rootViewModel.ConundrumViewModel; break;
+            case nameof(StopwatchView): ((StopwatchView)e.Content).ViewModel = rootViewModel.StopwatchViewModel; break;
+            case nameof(SettingsView): ((SettingsView)e.Content).ViewModel = rootViewModel.SettingsViewModel; break;
             default:
                 throw new InvalidOperationException();
         }
