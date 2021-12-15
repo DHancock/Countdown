@@ -24,9 +24,7 @@ internal class SubClassWindow : Window
         hWnd = (HWND)handle;
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
-        BOOL result = PInvoke.SetWindowSubclass(hWnd, subClassDelegate, 0, 0);
-        
-        if (result.Value == 0)
+        if (!PInvoke.SetWindowSubclass(hWnd, subClassDelegate, 0, 0))
             throw new Win32Exception(Marshal.GetLastWin32Error());
 
         SetWindowIcon();
@@ -68,9 +66,7 @@ internal class SubClassWindow : Window
             uint dpi = PInvoke.GetDpiForWindow(hWnd);
             double scalingFactor = dpi / 96.0;
 
-            BOOL result = PInvoke.SetWindowPos(hWnd, (HWND)0, 0, 0, (int)(value.Width * scalingFactor), (int)(value.Height * scalingFactor), SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER);
-
-            if (result.Value == 0)
+            if (!PInvoke.SetWindowPos(hWnd, (HWND)0, 0, 0, (int)(value.Width * scalingFactor), (int)(value.Height * scalingFactor), SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
                 throw new Win32Exception(Marshal.GetLastWin32Error());
         }
     }
@@ -78,9 +74,7 @@ internal class SubClassWindow : Window
 
     private void SetWindowIcon()
     {
-        BOOL result = PInvoke.GetModuleHandleEx(0, null, out FreeLibrarySafeHandle module);
-
-        if ((result.Value == 0) || module.IsInvalid)
+        if (!PInvoke.GetModuleHandleEx(0, null, out FreeLibrarySafeHandle module))
             throw new Win32Exception(Marshal.GetLastWin32Error());
 
         WPARAM ICON_SMALL = 0;
@@ -127,9 +121,7 @@ internal class SubClassWindow : Window
 
     protected void CenterInPrimaryDisplay()
     {
-        BOOL result = PInvoke.GetWindowRect(hWnd, out RECT lpRect);
-        
-        if (result.Value == 0)
+        if (!PInvoke.GetWindowRect(hWnd, out RECT lpRect))
             throw new Win32Exception(Marshal.GetLastWin32Error());
 
         DisplayArea primary = DisplayArea.Primary;
@@ -140,9 +132,7 @@ internal class SubClassWindow : Window
         top = Math.Max(top, 0); // guarantee the title bar is visible
         left = Math.Max(left, 0);
 
-        result = PInvoke.SetWindowPos(hWnd, (HWND)0, left, top, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER);
-
-        if (result.Value == 0)
+        if (!PInvoke.SetWindowPos(hWnd, (HWND)0, left, top, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
             throw new Win32Exception(Marshal.GetLastWin32Error());
     }
 
@@ -152,9 +142,9 @@ internal class SubClassWindow : Window
         const string cSettingsDirName = "Countdown";
 
         Guid FOLDERID_LocalAppData = new Guid("{F1B32785-6FBA-4FCF-9D55-7B8E7F157091}");
-        HRESULT result = PInvoke.SHGetKnownFolderPath(FOLDERID_LocalAppData, (uint)KNOWN_FOLDER_FLAG.KF_FLAG_DEFAULT, null, out PWSTR ppszPath);
+        HRESULT result = PInvoke.SHGetKnownFolderPath(FOLDERID_LocalAppData, (uint)(KNOWN_FOLDER_FLAG.KF_FLAG_CREATE | KNOWN_FOLDER_FLAG.KF_FLAG_INIT), null, out PWSTR ppszPath);
 
-        if (result.Value != 0)
+        if (result.Failed)
             throw new Win32Exception(Marshal.GetLastWin32Error());
 
         string path = Path.Join(ppszPath.ToString(), cSettingsDirName, cSettingsFileName);
@@ -170,9 +160,7 @@ internal class SubClassWindow : Window
     {
         WINDOWPLACEMENT placement = default;
 
-        BOOL result = PInvoke.GetWindowPlacement(hWnd, ref placement);
-
-        if (result.Value == 0)
+        if (!PInvoke.GetWindowPlacement(hWnd, ref placement))
             throw new Win32Exception(Marshal.GetLastWin32Error());
 
         return placement;
@@ -192,10 +180,8 @@ internal class SubClassWindow : Window
             if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
                 placement.showCmd = SHOW_WINDOW_CMD.SW_SHOWNORMAL;
 
-            // calling SetWindowPlacement() also activates the window
-            BOOL result = PInvoke.SetWindowPlacement(hWnd, placement);
-
-            if (result.Value == 0)
+            // SetWindowPlacement() also activates the window
+            if (!PInvoke.SetWindowPlacement(hWnd, placement))
                 throw new Win32Exception(Marshal.GetLastWin32Error());
         }
     }
