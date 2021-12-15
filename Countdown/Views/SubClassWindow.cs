@@ -97,16 +97,12 @@ internal class SubClassWindow : Window
         if (hIcon.IsInvalid)
             throw new Win32Exception(Marshal.GetLastPInvokeError());
 
-        bool refAdded = false;
-        hIcon.DangerousAddRef(ref refAdded);
-
-        if (!refAdded)
-            throw new InvalidOperationException(); // fatal error, SafeFileHandle must not release the shared icon 
-
         Marshal.SetLastPInvokeError(S_OK);
 
         LRESULT previousIcon = PInvoke.SendMessage(hWnd, WM_SETICON, iconType, hIcon.DangerousGetHandle());
         Debug.Assert(previousIcon == (LRESULT)0);
+
+        hIcon.SetHandleAsInvalid(); // SafeFileHandle must not release the shared icon
 
         if (Marshal.GetLastPInvokeError() != S_OK)
             throw new Win32Exception(Marshal.GetLastPInvokeError());
