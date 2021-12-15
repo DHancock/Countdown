@@ -9,6 +9,8 @@ internal class SubClassWindow : Window
     public double MinWidth { get; set; }
     public double MinHeight { get; set; }
 
+    private const int S_OK = 0;
+
     private readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
 
@@ -25,7 +27,7 @@ internal class SubClassWindow : Window
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
         if (!PInvoke.SetWindowSubclass(hWnd, subClassDelegate, 0, 0))
-            throw new Win32Exception(Marshal.GetLastWin32Error());
+            throw new Win32Exception(Marshal.GetLastPInvokeError());
 
         SetWindowIcon();
     }
@@ -52,7 +54,7 @@ internal class SubClassWindow : Window
             OnWindowClosing(e);
 
             if (e.Cancel)
-                return new LRESULT(0);
+                return new LRESULT(S_OK);
         }
 
         return PInvoke.DefSubclassProc(hWnd, Msg, wParam, lParam);
@@ -67,7 +69,7 @@ internal class SubClassWindow : Window
             double scalingFactor = dpi / 96.0;
 
             if (!PInvoke.SetWindowPos(hWnd, (HWND)0, 0, 0, (int)(value.Width * scalingFactor), (int)(value.Height * scalingFactor), SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                throw new Win32Exception(Marshal.GetLastPInvokeError());
         }
     }
 
@@ -75,7 +77,7 @@ internal class SubClassWindow : Window
     private void SetWindowIcon()
     {
         if (!PInvoke.GetModuleHandleEx(0, null, out FreeLibrarySafeHandle module))
-            throw new Win32Exception(Marshal.GetLastWin32Error());
+            throw new Win32Exception(Marshal.GetLastPInvokeError());
 
         WPARAM ICON_SMALL = 0;
         WPARAM ICON_BIG = 1;
@@ -91,38 +93,30 @@ internal class SubClassWindow : Window
         const uint WM_SETICON = 0x0080;
 
         SafeFileHandle hIcon = PInvoke.LoadImage(module, iconId, GDI_IMAGE_TYPE.IMAGE_ICON, size, size, IMAGE_FLAGS.LR_DEFAULTCOLOR);
-
+        
         if (hIcon.IsInvalid)
-            throw new Win32Exception(Marshal.GetLastWin32Error());
+            throw new Win32Exception(Marshal.GetLastPInvokeError());
 
         bool refAdded = false;
-        LRESULT result = new LRESULT(0);
+        hIcon.DangerousAddRef(ref refAdded);
 
-        try
-        {
-            hIcon.DangerousAddRef(ref refAdded);
+        if (!refAdded)
+            throw new InvalidOperationException(); // fatal error, SafeFileHandle must not release the shared icon 
 
-            if (refAdded)
-            {
-                result = PInvoke.SendMessage(hWnd, WM_SETICON, iconType, hIcon.DangerousGetHandle());
+        Marshal.SetLastPInvokeError(S_OK);
 
-                if (result.Value != 0)
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-        }
-        finally
-        {
-            // only decrement the SafeHandle reference count if SendMessage fails 
-            if ((result.Value != 0) && refAdded)
-                hIcon.DangerousRelease();
-        }
+        LRESULT previousIcon = PInvoke.SendMessage(hWnd, WM_SETICON, iconType, hIcon.DangerousGetHandle());
+        Debug.Assert(previousIcon == (LRESULT)0);
+
+        if (Marshal.GetLastPInvokeError() != S_OK)
+            throw new Win32Exception(Marshal.GetLastPInvokeError());
     }
 
 
     protected void CenterInPrimaryDisplay()
     {
         if (!PInvoke.GetWindowRect(hWnd, out RECT lpRect))
-            throw new Win32Exception(Marshal.GetLastWin32Error());
+            throw new Win32Exception(Marshal.GetLastPInvokeError());
 
         DisplayArea primary = DisplayArea.Primary;
 
@@ -133,7 +127,7 @@ internal class SubClassWindow : Window
         left = Math.Max(left, 0);
 
         if (!PInvoke.SetWindowPos(hWnd, (HWND)0, left, top, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
-            throw new Win32Exception(Marshal.GetLastWin32Error());
+            throw new Win32Exception(Marshal.GetLastPInvokeError());
     }
 
     protected static string GetSettingsFilePath()
@@ -145,7 +139,7 @@ internal class SubClassWindow : Window
         HRESULT result = PInvoke.SHGetKnownFolderPath(FOLDERID_LocalAppData, (uint)(KNOWN_FOLDER_FLAG.KF_FLAG_CREATE | KNOWN_FOLDER_FLAG.KF_FLAG_INIT), null, out PWSTR ppszPath);
 
         if (result.Failed)
-            throw new Win32Exception(Marshal.GetLastWin32Error());
+            throw new Win32Exception(Marshal.GetLastPInvokeError());
 
         string path = Path.Join(ppszPath.ToString(), cSettingsDirName, cSettingsFileName);
 
@@ -161,7 +155,7 @@ internal class SubClassWindow : Window
         WINDOWPLACEMENT placement = default;
 
         if (!PInvoke.GetWindowPlacement(hWnd, ref placement))
-            throw new Win32Exception(Marshal.GetLastWin32Error());
+            throw new Win32Exception(Marshal.GetLastPInvokeError());
 
         return placement;
     }
@@ -182,7 +176,7 @@ internal class SubClassWindow : Window
 
             // SetWindowPlacement() also activates the window
             if (!PInvoke.SetWindowPlacement(hWnd, placement))
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                throw new Win32Exception(Marshal.GetLastPInvokeError());
         }
     }
 
