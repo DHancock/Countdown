@@ -97,8 +97,6 @@ internal class SubClassWindow : Window
         if (hIcon.IsInvalid)
             throw new Win32Exception(Marshal.GetLastPInvokeError());
 
-        Marshal.SetLastPInvokeError(S_OK);
-
         try
         {
             LRESULT previousIcon = PInvoke.SendMessage(hWnd, WM_SETICON, iconType, hIcon.DangerousGetHandle());
