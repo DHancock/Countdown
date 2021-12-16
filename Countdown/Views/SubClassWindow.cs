@@ -99,10 +99,15 @@ internal class SubClassWindow : Window
 
         Marshal.SetLastPInvokeError(S_OK);
 
-        LRESULT previousIcon = PInvoke.SendMessage(hWnd, WM_SETICON, iconType, hIcon.DangerousGetHandle());
-        Debug.Assert(previousIcon == (LRESULT)0);
-
-        hIcon.SetHandleAsInvalid(); // SafeFileHandle must not release the shared icon
+        try
+        {
+            LRESULT previousIcon = PInvoke.SendMessage(hWnd, WM_SETICON, iconType, hIcon.DangerousGetHandle());
+            Debug.Assert(previousIcon == (LRESULT)0);
+        }
+        finally
+        {
+            hIcon.SetHandleAsInvalid(); // SafeFileHandle must not release the shared icon
+        }
 
         if (Marshal.GetLastPInvokeError() != S_OK)
             throw new Win32Exception(Marshal.GetLastPInvokeError());
