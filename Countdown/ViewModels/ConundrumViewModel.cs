@@ -11,7 +11,7 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
     public ObservableCollection<ConundrumItem> SolutionList { get; } = new ObservableCollection<ConundrumItem>();
 
     // property backing store
-    private string solution = new string(space_char, 8);
+    private string solution = new string(space_char, Model.cLetterCount);
 
     public ICommand ChooseCommand { get; }
     public RelayCommand SolveCommand { get; }
