@@ -1,65 +1,37 @@
 ﻿namespace Countdown.ViewModels;
 
-abstract internal class DataErrorInfoBase : PropertyChangedBase, INotifyDataErrorInfo
+abstract internal class DataErrorInfoBase : PropertyChangedBase
 {
-    // the key is the property name 
-    private readonly Dictionary<string, List<string>> errors = new Dictionary<string, List<string>>();
+    public readonly ObservableCollection<string> ErrorText;
 
-
-    public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
-
-    private void RaiseErrorsChanged(string propertyName)
+    public DataErrorInfoBase(int propertyCount)
     {
-        ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+        ErrorText = new ObservableCollection<string>();
+
+        for (int index = 0; index < propertyCount; index++)
+            ErrorText.Add(string.Empty);
     }
 
 
-    public IEnumerable GetErrors(string? propertyName)
-    {
-        if (string.IsNullOrEmpty(propertyName) || !errors.ContainsKey(propertyName))
-            return new List<string>();
+    public bool HasErrors => ErrorText.Any(x => !string.IsNullOrEmpty(x));
+    
 
-        return errors[propertyName];
-    }
-
-    public bool HasErrors
+    protected void SetValidationError(int index, string message)
     {
-        get { return errors.Count > 0; }
+        if (string.CompareOrdinal(ErrorText[index], message) != 0)
+            ErrorText[index] = message;
     }
 
 
-
-    /// <summary>
-    /// In this implementation only one error message per property
-    /// is allowed. Raises errors changed event if the message
-    /// isn't already in the dictionary
-    /// </summary>
-    /// <param name="key">the property name</param>
-    /// <param name="message"></param>
-    protected void SetValidationError(string key, string message)
+    protected void ClearValidationError(int index)
     {
-        bool addEntry = true;
-
-        // check if the message already exists first
-        if (errors.TryGetValue(key, out List<string>? list))
-            addEntry = (list is null) || (list.Count != 1) || (list[0] != message);
-
-        if (addEntry)
-        {
-            errors[key] = new List<string>() { message };
-            RaiseErrorsChanged(key);
-        }
+        ErrorText[index] = string.Empty;
     }
 
 
-    /// <summary>
-    /// Clear the error for a property if it exists and 
-    /// raises the errors changed event
-    /// </summary>
-    /// <param name="key">the property name</param>
-    protected void ClearValidationError(string key)
+    protected void ClearAllErrors()
     {
-        if (errors.Remove(key))
-            RaiseErrorsChanged(key);
+        for (int index = 0; index < ErrorText.Count; index++)
+            ClearValidationError(index);
     }
 }

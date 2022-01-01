@@ -11,18 +11,10 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
-
-        <Style x:Key="ctbs" TargetType="local:CountdownTextBox" BasedOn="{StaticResource DefaultTextBoxStyle}">
-            <Setter Property="ContentStyle" Value="Number" />
-            <Setter Property="Margin" Value="5" />
-            <Setter Property="MaxLength" Value="3" />
-            <Setter Property="MinWidth" Value="40" />
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="TextAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Style x:Name="ctbs" TargetType="local:CountdownTextBox">
+            <Setter Property="ContentStyle" Value="Number"/>
+            <Setter Property="AutoTabStyle" Value="Off"/>
         </Style>
-
     </Page.Resources>
 
     <Grid>
@@ -37,17 +29,17 @@
 
             <w3c:GroupBox Heading="Tiles">
               <StackPanel Orientation="Horizontal">
-                    <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[0], Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[1], Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[2], Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[3], Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[4], Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[5], Mode=OneWay}"/>
                 </StackPanel>
             </w3c:GroupBox>
 
             <w3c:GroupBox Heading="Target">
-                <local:CountdownTextBox Style="{StaticResource ctbs}" Width="40" Text="{x:Bind ViewModel.Target, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Target, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[6], Mode=OneWay}"/>
             </w3c:GroupBox>
 
             <Grid>

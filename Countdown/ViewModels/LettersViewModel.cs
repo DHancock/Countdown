@@ -21,7 +21,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
                                                         nameof(Letter_8)};
 
     // property backing stores
-    private IEnumerable<GroupedWordList>? wordList;
+    private IEnumerable<GroupedWordList> wordList = new List<GroupedWordList>();
 
     public RelayCommand ClearCommand { get; }
     public RelayCommand PickVowelCommand { get; }
@@ -33,7 +33,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     public StopwatchController StopwatchController { get; }
 
 
-    public LettersViewModel(Model model, StopwatchController sc)
+    public LettersViewModel(Model model, StopwatchController sc) : base(propertyNames.Length)
     {
         Model = model;
         StopwatchController = sc;
@@ -121,7 +121,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
 
     private void ValidateLetters()
     {
-        bool[] errors = new bool[Model.cLetterCount];
+        ClearAllErrors();
 
         int vowelCount = Model.Letters.Count(c => IsUpperVowel(c));
 
@@ -130,10 +130,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
             for (int index = 0; index < Model.Letters.Length; index++)
             {
                 if (IsUpperVowel(Model.Letters[index]))
-                {
-                    SetValidationError(propertyNames[index], $"A maximum of {max_vowels} vowels are allowed");
-                    errors[index] = true;
-                }
+                    SetValidationError(index, $"A maximum of {max_vowels} vowels are allowed");
             }
         }
         else
@@ -145,19 +142,9 @@ internal sealed class LettersViewModel : DataErrorInfoBase
                 for (int index = 0; index < Model.Letters.Length; index++)
                 {
                     if (IsUpperConsonant(Model.Letters[index]))
-                    {
-                        SetValidationError(propertyNames[index], $"A maximum of {max_consonants} consonants are allowed");
-                        errors[index] = true;
-                    }
+                        SetValidationError(index, $"A maximum of {max_consonants} consonants are allowed");
                 }
             }
-        }
-
-        // remove any preexisting error states on valid properties
-        for (int index = 0; index < errors.Length; index++)
-        {
-            if (!errors[index])
-                ClearValidationError(propertyNames[index]);
         }
     }
 
@@ -182,7 +169,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     /// </summary>
     public IEnumerable<GroupedWordList> WordList
     {
-        get => wordList ?? new List<GroupedWordList>();
+        get => wordList;
         private set => HandlePropertyChanged(ref wordList, value);
     }
 
@@ -194,7 +181,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
             {
                 Model.Letters[index] = string.Empty;
                 RaisePropertyChanged(propertyNames[index]);
-                ClearValidationError(propertyNames[index]);
+                ClearValidationError(index);
             }
         }
 
@@ -303,7 +290,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         for (int index = 0; index < Model.cLetterCount; index++)
         {
             RaisePropertyChanged(propertyNames[index]);
-            ClearValidationError(propertyNames[index]);
+            ClearValidationError(index);
         }
 
         UpdateCommandsExecuteStatus();

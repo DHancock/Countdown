@@ -30,6 +30,9 @@
             <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="{ThemeResource SystemColorWindowColor}"/>
             <SolidColorBrush x:Key="BackgroundPageThemeBrush" Color="{ThemeResource SystemColorWindowTextColor}"/>
             
+            <!-- text boxes -->
+            <SolidColorBrush x:Key="TextBoxErrorBorderBrush" Color="{ThemeResource SystemColorHotlightColor}"/>
+            <x:Double x:Key="TextBoxErrorBorderOpacity">1.0</x:Double>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Dark">
@@ -57,7 +60,10 @@
             <Thickness x:Key="TopNavigationViewContentGridBorderThickness">0</Thickness>
             <StaticResource x:Key="NavigationViewTopPaneBackground" ResourceKey="ApplicationPageBackgroundThemeBrush"/>
             <SolidColorBrush x:Key="BackgroundPageThemeBrush">Transparent</SolidColorBrush>
-            
+
+            <!-- text boxes -->
+            <SolidColorBrush x:Key="TextBoxErrorBorderBrush" Color="Red"/>
+            <x:Double x:Key="TextBoxErrorBorderOpacity">0.75</x:Double>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
@@ -85,7 +91,11 @@
             <Thickness x:Key="TopNavigationViewContentGridBorderThickness">0</Thickness>
             <StaticResource x:Key="NavigationViewTopPaneBackground" ResourceKey="ApplicationPageBackgroundThemeBrush"/>
             <SolidColorBrush x:Key="BackgroundPageThemeBrush">Transparent</SolidColorBrush>
-            
+
+            <!-- text boxes -->
+            <SolidColorBrush x:Key="TextControlBackground">White</SolidColorBrush>
+            <SolidColorBrush x:Key="TextBoxErrorBorderBrush" Color="Red"/>
+            <x:Double x:Key="TextBoxErrorBorderOpacity">0.75</x:Double>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 

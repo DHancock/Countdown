@@ -10,22 +10,12 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
     public StopwatchController StopwatchController { get; }
     public ObservableCollection<ConundrumItem> SolutionList { get; } = new ObservableCollection<ConundrumItem>();
 
-    // property names for change events when generating data 
-    private static readonly string[] propertyNames = { nameof(Conundrum_0),
-                                                        nameof(Conundrum_1),
-                                                        nameof(Conundrum_2),
-                                                        nameof(Conundrum_3),
-                                                        nameof(Conundrum_4),
-                                                        nameof(Conundrum_5),
-                                                        nameof(Conundrum_6),
-                                                        nameof(Conundrum_7),
-                                                        nameof(Conundrum_8)};
     // property backing store
-    private string solution = "         ";
+    private string solution = new string(space_char, 8);
 
     public ICommand ChooseCommand { get; }
     public RelayCommand SolveCommand { get; }
-    public ICommand GoToDefinitionCommand { get; }
+    //public ICommand GoToDefinitionCommand { get; }
 
 
     public ConundrumViewModel(Model model, StopwatchController sc)
@@ -36,7 +26,8 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
         SolveCommand = new RelayCommand(ExecuteSolve, CanSolve);
         ChooseCommand = new RelayCommand(ExecuteChoose, CanChoose);
 
-        GoToDefinitionCommand = new RelayCommand(ExecuteGoToDefinition, CanGoToDefinition);
+        //GoToDefinitionCommand = new RelayCommand(ExecuteGoToDefinition, CanGoToDefinition);
+
         ExecuteChoose(null);
     }
 
@@ -47,59 +38,59 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
     public string Conundrum_0
     {
         get { return Model.Conundrum[0]; }
-        set { SetConundrum(value, ref Model.Conundrum[0], nameof(Conundrum_0)); }
+        set { SetConundrum(value, ref Model.Conundrum[0]); }
     }
 
     public string Conundrum_1
     {
         get { return Model.Conundrum[1]; }
-        set { SetConundrum(value, ref Model.Conundrum[1], nameof(Conundrum_1)); }
+        set { SetConundrum(value, ref Model.Conundrum[1]); }
     }
 
     public string Conundrum_2
     {
         get { return Model.Conundrum[2]; }
-        set { SetConundrum(value, ref Model.Conundrum[2], nameof(Conundrum_2)); }
+        set { SetConundrum(value, ref Model.Conundrum[2]); }
     }
 
     public string Conundrum_3
     {
         get { return Model.Conundrum[3]; }
-        set { SetConundrum(value, ref Model.Conundrum[3], nameof(Conundrum_3)); }
+        set { SetConundrum(value, ref Model.Conundrum[3]); }
     }
 
     public string Conundrum_4
     {
         get { return Model.Conundrum[4]; }
-        set { SetConundrum(value, ref Model.Conundrum[4], nameof(Conundrum_4)); }
+        set { SetConundrum(value, ref Model.Conundrum[4]); }
     }
 
     public string Conundrum_5
     {
         get { return Model.Conundrum[5]; }
-        set { SetConundrum(value, ref Model.Conundrum[5], nameof(Conundrum_5)); }
+        set { SetConundrum(value, ref Model.Conundrum[5]); }
     }
 
     public string Conundrum_6
     {
         get { return Model.Conundrum[6]; }
-        set { SetConundrum(value, ref Model.Conundrum[6], nameof(Conundrum_6)); }
+        set { SetConundrum(value, ref Model.Conundrum[6]); }
     }
 
     public string Conundrum_7
     {
         get { return Model.Conundrum[7]; }
-        set { SetConundrum(value, ref Model.Conundrum[7], nameof(Conundrum_7)); }
+        set { SetConundrum(value, ref Model.Conundrum[7]); }
     }
 
     public string Conundrum_8
     {
         get { return Model.Conundrum[8]; }
-        set { SetConundrum(value, ref Model.Conundrum[8], nameof(Conundrum_8)); }
+        set { SetConundrum(value, ref Model.Conundrum[8]); }
     }
 
 
-    private void SetConundrum(string newValue, ref string existing, string propertyName)
+    private void SetConundrum(string newValue, ref string existing, [CallerMemberName] string propertyName = "")
     {
         if (newValue != existing)
         {
@@ -139,8 +130,15 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
 
         Model.GenerateConundrum();
 
-        foreach (string property in propertyNames)
-            RaisePropertyChanged(property);
+        RaisePropertyChanged(nameof(Conundrum_0));
+        RaisePropertyChanged(nameof(Conundrum_1));
+        RaisePropertyChanged(nameof(Conundrum_2));
+        RaisePropertyChanged(nameof(Conundrum_3));
+        RaisePropertyChanged(nameof(Conundrum_4));
+        RaisePropertyChanged(nameof(Conundrum_5));
+        RaisePropertyChanged(nameof(Conundrum_6));
+        RaisePropertyChanged(nameof(Conundrum_7));
+        RaisePropertyChanged(nameof(Conundrum_8));
 
         SolveCommand.RaiseCanExecuteChanged();
     }
@@ -173,7 +171,7 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
 
     private bool CanSolve(object? _)
     {
-        return string.IsNullOrWhiteSpace(Solution) && !Model.Conundrum.Any(s => string.IsNullOrEmpty(s)) && (Model.Solve() != null);
+        return string.IsNullOrWhiteSpace(Solution) && !Model.Conundrum.Any(s => string.IsNullOrEmpty(s)) && !string.IsNullOrEmpty(Model.Solve());
     }
 
 

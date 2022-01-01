@@ -8,15 +8,10 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     private const int cEmptyTileValue = -1;
 
     // the solver results that the ui can bind to
-    private List<EquationItem>? equationList;
+    private List<EquationItem> equationList = new List<EquationItem>();
 
-    // property names for change events when generating data and error notifications
-    private static readonly string[] propertyNames = { nameof(Tile_0),
-                                                        nameof(Tile_1),
-                                                        nameof(Tile_2),
-                                                        nameof(Tile_3),
-                                                        nameof(Tile_4),
-                                                        nameof(Tile_5) };
+    // the number of input text boxes which need validating (6 tiles plus the target)
+    private const int cInputCount = 7;  
 
     public ICommand ChooseNumbersCommand { get; }
     public RelayTaskCommand SolveCommand { get; }
@@ -25,7 +20,7 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     public StopwatchController StopwatchController { get; }
    
 
-    public NumbersViewModel(Model model, StopwatchController sc)
+    public NumbersViewModel(Model model, StopwatchController sc) : base(cInputCount)
     {
         Model = model;
         StopwatchController = sc;
@@ -156,12 +151,12 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
                 searchResult[index] = Array.BinarySearch(validTileValues, Model.Tiles[index]);
 
                 if (searchResult[index] < 0) // not found, an invalid value
-                    SetValidationError(propertyNames[index], "Tile values must be from 1 to 10, or 25, 50, 75 or 100");
+                    SetValidationError(index, "Tile values must be from 1 to 10, or 25, 50, 75 or 100");
                 else
                     tileCount[searchResult[index]] += 1; // count how many of each value
             }
             else
-                ClearValidationError(propertyNames[index]);
+                ClearValidationError(index);
         }
 
         // check the tile counts of valid tiles
@@ -174,26 +169,28 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
                 if (tileCount[searchResult[index]] > validTileCount)
                 {
                     if (validTileCount == 1)
-                        SetValidationError(propertyNames[index], "Only one 25, 50, 75 or 100 tile is allowed.");
+                        SetValidationError(index, "Only one 25, 50, 75 or 100 tile is allowed.");
                     else
-                        SetValidationError(propertyNames[index], "Only two tiles with the same value of 10 or less are allowed.");
+                        SetValidationError(index, "Only two tiles with the same value of 10 or less are allowed.");
                 }
                 else
-                    ClearValidationError(propertyNames[index]);
+                    ClearValidationError(index);
             }
         }
 
-        // No checking if the number of large and small tiles match the selected menu option
+        // No checking if the number of large and small tiles match the choose menu option
         // It will only be incorrect if the user enters tiles manually and as long as they are valid
         // tiles so be it...
     }
 
     private void ValidateTarget()
     {
+        const int cIndex = cInputCount - 1;
+
         if (((Model.Target < Model.cMinTarget) || (Model.Target > Model.cMaxTarget)) && (Model.Target != cEmptyTileValue))
-            SetValidationError(nameof(Target), $"The target must be between {Model.cMinTarget} and {Model.cMaxTarget}");
+            SetValidationError(cIndex, $"The target must be between {Model.cMinTarget} and {Model.cMaxTarget}");
         else
-            ClearValidationError(nameof(Target));
+            ClearValidationError(cIndex);
     }
 
     public int TileOptionIndex
@@ -210,15 +207,17 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     {
         Model.GenerateNumberData(TileOptionIndex);
 
-        // notify the ui of the updated data and clear any error states
-        foreach (string propertyName in propertyNames)
-        {
-            RaisePropertyChanged(propertyName);
-            ClearValidationError(propertyName);
-        }
-
+        // notify the ui of the updated data 
+        RaisePropertyChanged(nameof(Tile_0));
+        RaisePropertyChanged(nameof(Tile_1));
+        RaisePropertyChanged(nameof(Tile_2));
+        RaisePropertyChanged(nameof(Tile_3));
+        RaisePropertyChanged(nameof(Tile_4));
+        RaisePropertyChanged(nameof(Tile_5));
         RaisePropertyChanged(nameof(Target));
-        ClearValidationError(nameof(Target));
+
+        // clear any error states
+        ClearAllErrors();
 
         SolveCommand.RaiseCanExecuteChanged();
     }
@@ -260,7 +259,7 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
 
     private bool CanSolve(object? _, bool isExecuting)
     {
-        return !(HasErrors || isExecuting || Model.Tiles.Any(x => x is cEmptyTileValue) || Model.Target is cEmptyTileValue);
+        return !(HasErrors || isExecuting || Model.Tiles.Contains(cEmptyTileValue) || Model.Target is cEmptyTileValue);
     }
 
     /// <summary>
@@ -268,7 +267,7 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     /// </summary>
     public List<EquationItem> EquationList
     {
-        get => equationList ?? new List<EquationItem>();
+        get => equationList;
         private set => HandlePropertyChanged(ref equationList, value);
     }
 

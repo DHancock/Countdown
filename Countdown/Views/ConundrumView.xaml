@@ -11,27 +11,13 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
-        <!-- a Read Only TextBox style, simpler than styling a label -->
-        <Style x:Key="RO" TargetType="TextBox" BasedOn="{StaticResource DefaultTextBoxStyle}">
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="IsHitTestVisible" Value="False"/>
-            <Setter Property="IsTabStop" Value="False"/>
-            <Setter Property="Margin" Value="3,4" />
-            <Setter Property="MaxLength" Value="1" />
-            <Setter Property="MinWidth" Value="30" />
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="TextAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="CharacterCasing" Value="Upper"/>
+        <Style x:Name="RW" TargetType="local:CountdownTextBox">
+            <Setter Property="ContentStyle" Value="Letter"/>
+            <Setter Property="AutoTabStyle" Value="AlwaysTab"/>
         </Style>
 
-        <!-- a Read Write CountdownTextBox style limiting input to uppercase Latin letters -->
-        <Style x:Key="RW" TargetType="local:CountdownTextBox" BasedOn="{StaticResource RO}">
-            <Setter Property="IsReadOnly" Value="False"/>
-            <Setter Property="IsHitTestVisible" Value="True"/>
-            <Setter Property="IsTabStop" Value="True"/>
-            <Setter Property="AutoTabStyle" Value="AlwaysTab"/>
+        <Style x:Name="RO" TargetType="local:CountdownTextBox" BasedOn="{StaticResource RW}">
+            <Setter Property="IsReadOnly" Value="true"/>
         </Style>
     </Page.Resources>
 
@@ -61,15 +47,15 @@
 
             <w3c:GroupBox Heading="Solution">
                 <StackPanel Orientation="Horizontal">
-                    <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(0, 1), Mode=OneWay}"/>
-                    <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(1, 1), Mode=OneWay}"/>
-                    <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(2, 1), Mode=OneWay}"/>
-                    <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(3, 1), Mode=OneWay}"/>
-                    <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(4, 1), Mode=OneWay}"/>
-                    <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(5, 1), Mode=OneWay}"/>
-                    <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(6, 1), Mode=OneWay}"/>
-                    <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(7, 1), Mode=OneWay}"/>
-                    <TextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(8, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(0, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(1, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(2, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(3, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(4, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(5, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(6, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(7, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(8, 1), Mode=OneWay}"/>
                 </StackPanel>
             </w3c:GroupBox>
 
