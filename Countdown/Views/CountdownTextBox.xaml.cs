@@ -107,7 +107,7 @@
             else
             {
                 textBox.MaxLength = 3;
-                textBox.MinWidth = 40;
+                textBox.MinWidth = 42;
             }
         }
 
@@ -172,7 +172,7 @@
 
         private void Tb_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
         {
-            args.Cancel = args?.NewText?.All(GetPredicate()) == false;
+            args.Cancel = !args.NewText.All(GetPredicate());
         }
 
         /// <summary>
