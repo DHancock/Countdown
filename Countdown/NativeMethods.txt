@@ -7,9 +7,6 @@ LoadImage
 SendMessage
 GetSystemMetrics
 GetModuleHandleEx
-SHGetKnownFolderPath
-KNOWN_FOLDER_FLAG
-CoTaskMemFree
 GetWindowPlacement
 SetWindowPlacement
 SetWindowSubclass

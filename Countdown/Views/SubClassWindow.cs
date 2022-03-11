@@ -134,18 +134,7 @@ internal class SubClassWindow : Window
         const string cSettingsFileName = "{0B8391E1-FEB9-46CD-A38E-C66984A4A160}.json";
         const string cSettingsDirName = "Countdown";
 
-        Guid FOLDERID_LocalAppData = new Guid("{F1B32785-6FBA-4FCF-9D55-7B8E7F157091}");
-        HRESULT result = PInvoke.SHGetKnownFolderPath(FOLDERID_LocalAppData, (uint)(KNOWN_FOLDER_FLAG.KF_FLAG_CREATE | KNOWN_FOLDER_FLAG.KF_FLAG_INIT), null, out PWSTR ppszPath);
-
-        if (result.Failed)
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-        string path = Path.Join(ppszPath.ToString(), cSettingsDirName, cSettingsFileName);
-
-        // SHGetKnownFolderPath() allocates memory for the path, ToString() duplicates it
-        unsafe { PInvoke.CoTaskMemFree(ppszPath.Value); }
-
-        return path;
+        return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), cSettingsDirName, cSettingsFileName);
     }
 
 
