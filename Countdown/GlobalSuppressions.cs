@@ -7,3 +7,5 @@
 [assembly: SuppressMessage("Style", "IDE0066:Convert switch statement to expression")]
 [assembly: SuppressMessage("Style", "IDE0090:Use 'new(...)'")]
 [assembly: SuppressMessage("Style", "IDE0057:Use range operator")]
+[assembly: SuppressMessage("Style", "IDE0180:Use tuple to swap values")]
+[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
