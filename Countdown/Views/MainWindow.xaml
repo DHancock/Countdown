@@ -21,7 +21,6 @@
                 <NavigationViewItem Content="Letters" Tag="LettersView" AccessKey="L"/>
                 <NavigationViewItem Content="Conundrum" Tag="ConundrumView" AccessKey="O"/>
                 <NavigationViewItem Content="Stopwatch" Tag="StopwatchView" AccessKey="T"/>
-                <NavigationViewItem Icon="Setting" Tag="SettingsView" AccessKey="S"/>
             </NavigationView.MenuItems>
 
             <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated"/>

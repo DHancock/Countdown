@@ -37,12 +37,32 @@ internal sealed partial class MainWindow : SubClassWindow
 
         InitializeTheme();
 
+        RootNavigationView.MenuItems.Add(CreateSettingsNavigationViewItem());
+
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events
         // see https://github.com/microsoft/microsoft-ui-xaml/issues/5744
         if (RootNavigationView.SelectionFollowsFocus == NavigationViewSelectionFollowsFocus.Disabled)
             RootNavigationView.SelectedItem = RootNavigationView.MenuItems[0];
 
         SetWindowPlacement(rootViewModel.GetSavedWindowPlacement());
+    }
+
+    private object CreateSettingsNavigationViewItem()
+    {
+        return new NavigationViewItem()
+        {
+            Tag = nameof(SettingsView),
+            AccessKey = "S",
+
+            Icon = new AnimatedIcon()
+            {
+                Source = new AnimatedSettingsVisualSource(),
+                FallbackIconSource = new SymbolIconSource()
+                {
+                    Symbol = Symbol.Setting,
+                },
+            },
+        };
     }
 
     private void InitializeTheme()
