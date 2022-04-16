@@ -28,7 +28,7 @@
             <local:Clock Style="{ThemeResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
             <w3c:GroupBox Heading="Tiles">
-              <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal">
                     <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[0], Mode=OneWay}"/>
                     <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[1], Mode=OneWay}"/>
                     <local:CountdownTextBox Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[2], Mode=OneWay}"/>
