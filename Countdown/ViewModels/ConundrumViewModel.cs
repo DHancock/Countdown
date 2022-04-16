@@ -10,12 +10,10 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
     public StopwatchController StopwatchController { get; }
     public ObservableCollection<ConundrumItem> SolutionList { get; } = new ObservableCollection<ConundrumItem>();
 
-    // property backing store
     private string solution = new string(space_char, Model.cLetterCount);
 
     public ICommand ChooseCommand { get; }
     public RelayCommand SolveCommand { get; }
-    //public ICommand GoToDefinitionCommand { get; }
 
 
     public ConundrumViewModel(Model model, StopwatchController sc)
@@ -25,8 +23,6 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
 
         SolveCommand = new RelayCommand(ExecuteSolve, CanSolve);
         ChooseCommand = new RelayCommand(ExecuteChoose, CanChoose);
-
-        //GoToDefinitionCommand = new RelayCommand(ExecuteGoToDefinition, CanGoToDefinition);
 
         ExecuteChoose(null);
     }
@@ -100,7 +96,6 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
         }
     }
 
-
     public string Solution
     {
         get { return solution; }
@@ -110,19 +105,6 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
             RaisePropertyChanged(nameof(Solution));
         }
     }
-
-    //public object ScrollToItem
-    //{
-    //    get { return scrollToItem; }
-    //    set
-    //    {
-    //        scrollToItem = value;
-    //        RaisePropertyChanged();
-    //    }
-    //}
-
-
-
 
     private void ExecuteChoose(object? _)
     {
@@ -143,11 +125,7 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
         SolveCommand.RaiseCanExecuteChanged();
     }
 
-
-
     private bool CanChoose(object? _) => Model.HasConundrums;
-
-
 
     private void ExecuteSolve(object? _)
     {
@@ -168,41 +146,8 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
         }
     }
 
-
     private bool CanSolve(object? _)
     {
         return string.IsNullOrWhiteSpace(Solution) && !Model.Conundrum.Any(s => string.IsNullOrEmpty(s)) && !string.IsNullOrEmpty(Model.Solve());
     }
-
-
-
-
-    private void ExecuteGoToDefinition(object? p)
-    {
-        if (p is string formatStr)
-        {
-            try
-            {
-                foreach (ConundrumItem e in SolutionList)
-                {
-                    if (true)
-                    {
-                        ProcessStartInfo psi = new()
-                        {
-                            UseShellExecute = true,
-                            FileName = string.Format(CultureInfo.InvariantCulture, formatStr, e.Solution),
-                        };
-
-                        _ = Process.Start(psi);
-                    }
-                }
-            }
-            catch
-            {
-                // fail silently...
-            }
-        }
-    }
-
-    private bool CanGoToDefinition(object? _) => false; // SolutionList.Count(e => e.IsSelected) == 1;
 }
