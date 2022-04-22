@@ -8,6 +8,7 @@ namespace Countdown.Views;
 internal sealed partial class MainWindow : SubClassWindow
 {
     private readonly ViewModel rootViewModel;
+    private readonly AppWindow appWindow;
 
     private readonly FrameNavigationOptions frameNavigationOptions = new FrameNavigationOptions()
     {
@@ -20,24 +21,34 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         this.InitializeComponent();
 
+        RootNavigationView.MenuItems.Add(CreateSettingsNavigationViewItem());
+
         rootViewModel = new ViewModel(ReadSettings());
 
-        WindowClosing += (s, e) =>
-        {
-            if (s is MainWindow window)
-            {
-                window.rootViewModel.UpdateWindowPlacement(window.GetWindowPlacement());
-                window.SaveSettings();
-            }
-        };
-
-        Title = "Countdown";
         MinWidth = 660;
         MinHeight = 500;
 
         InitializeTheme();
 
-        RootNavigationView.MenuItems.Add(CreateSettingsNavigationViewItem());
+        appWindow = GetAppWindowForCurrentWindow();
+
+        appWindow.Closing += (s, a) =>
+        {
+            rootViewModel.UpdateWindowPlacement(GetWindowPlacement());
+            SaveSettings();
+        };
+
+        if (AppWindowTitleBar.IsCustomizationSupported() && appWindow.TitleBar is not null)
+        {
+            appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            SetTitleBar(CustomTitleBar);
+        }
+        else
+        {
+            SetWindowIcon();
+            appWindow.Title = CustomTitle.Text;
+            CustomTitleBar.Visibility = Visibility.Collapsed;
+        }
 
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events
         // see https://github.com/microsoft/microsoft-ui-xaml/issues/5744
@@ -47,13 +58,19 @@ internal sealed partial class MainWindow : SubClassWindow
         SetWindowPlacement(rootViewModel.GetSavedWindowPlacement());
     }
 
+    private AppWindow GetAppWindowForCurrentWindow()
+    {
+        IntPtr windowHandle = WindowNative.GetWindowHandle(this);
+        WindowId windowId = Win32Interop.GetWindowIdFromWindow(windowHandle);
+        return AppWindow.GetFromWindowId(windowId);
+    }
+
     private object CreateSettingsNavigationViewItem()
     {
         return new NavigationViewItem()
         {
             Tag = nameof(SettingsView),
             AccessKey = "S",
-
             Icon = new AnimatedIcon()
             {
                 Source = new AnimatedSettingsVisualSource(),
@@ -67,8 +84,8 @@ internal sealed partial class MainWindow : SubClassWindow
 
     private void InitializeTheme()
     {
-        if (BackgroundPage.RequestedTheme != rootViewModel.SettingsViewModel.SelectedTheme)
-            BackgroundPage.RequestedTheme = rootViewModel.SettingsViewModel.SelectedTheme;
+        if (LayoutRoot.RequestedTheme != rootViewModel.SettingsViewModel.SelectedTheme)
+            LayoutRoot.RequestedTheme = rootViewModel.SettingsViewModel.SelectedTheme;
     }
 
     private void RootNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)

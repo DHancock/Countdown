@@ -14,8 +14,6 @@ internal class SubClassWindow : Window
     private readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
 
-    public event CancelEventHandler? WindowClosing;
-
     public SubClassWindow()
     {
         IntPtr handle = WindowNative.GetWindowHandle(this);
@@ -28,15 +26,12 @@ internal class SubClassWindow : Window
 
         if (!PInvoke.SetWindowSubclass(hWnd, subClassDelegate, 0, 0))
             throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-        SetWindowIcon();
     }
 
 
     private LRESULT NewSubWindowProc(HWND hWnd, uint Msg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
         const uint WM_GETMINMAXINFO = 0x0024;
-        const uint WM_CLOSE = 0x0010;
 
         if (Msg == WM_GETMINMAXINFO)
         {
@@ -47,14 +42,6 @@ internal class SubClassWindow : Window
             minMaxInfo.ptMinTrackSize.x = (int)(MinWidth * scalingFactor);
             minMaxInfo.ptMinTrackSize.y = (int)(MinHeight * scalingFactor);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
-        }
-        else if (Msg == WM_CLOSE)
-        {
-            CancelEventArgs e = new CancelEventArgs();
-            OnWindowClosing(e);
-
-            if (e.Cancel)
-                return new LRESULT(S_OK);
         }
 
         return PInvoke.DefSubclassProc(hWnd, Msg, wParam, lParam);
@@ -74,7 +61,7 @@ internal class SubClassWindow : Window
     }
 
 
-    private void SetWindowIcon()
+    protected void SetWindowIcon()
     {
         if (!PInvoke.GetModuleHandleEx(0, null, out FreeLibrarySafeHandle module))
             throw new Win32Exception(Marshal.GetLastPInvokeError());
@@ -166,11 +153,5 @@ internal class SubClassWindow : Window
             if (!PInvoke.SetWindowPlacement(hWnd, placement))
                 throw new Win32Exception(Marshal.GetLastPInvokeError());
         }
-    }
-
-
-    protected void OnWindowClosing(CancelEventArgs args)
-    {
-        WindowClosing?.Invoke(this, args);
     }
 }
