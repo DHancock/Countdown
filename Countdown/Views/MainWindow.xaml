@@ -13,10 +13,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="CustomTitleBar" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="32"/>
-            </Grid.RowDefinitions>
+        <Grid x:Name="CustomTitleBar" Height="32" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <TextBlock x:Name="CustomTitle" Text="Countdown" Margin="15,0,0,0" VerticalAlignment="Center" />
         </Grid>
         

@@ -1,8 +1,9 @@
 ﻿using Countdown.Models;
+using Countdown.Utils;
 
 namespace Countdown.ViewModels;
 
-internal sealed class SettingsViewModel : PropertyChangedBase
+internal sealed class SettingsViewModel
 {
     private readonly Model model;
 
@@ -17,11 +18,8 @@ internal sealed class SettingsViewModel : PropertyChangedBase
 
         set
         {
-            if (App.MainWindow?.Content is FrameworkElement fe)
-            {
-                fe.RequestedTheme = value;
-                model.Settings.CurrentTheme = value;
-            }
+            model.Settings.CurrentTheme = value;
+            ThemeHelper.Instance.UpdateTheme(value);
         }
     }
 

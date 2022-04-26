@@ -1,4 +1,5 @@
-﻿using Countdown.ViewModels;
+﻿using Countdown.Utils;
+using Countdown.ViewModels;
 
 namespace Countdown.Views;
 
@@ -28,8 +29,6 @@ internal sealed partial class MainWindow : SubClassWindow
         MinWidth = 660;
         MinHeight = 500;
 
-        InitializeTheme();
-
         appWindow = GetAppWindowForCurrentWindow();
 
         appWindow.Closing += (s, a) =>
@@ -42,13 +41,17 @@ internal sealed partial class MainWindow : SubClassWindow
         {
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             SetTitleBar(CustomTitleBar);
+            ThemeHelper.Instance.Register(LayoutRoot, appWindow.TitleBar);
         }
         else
         {
             SetWindowIcon();
             appWindow.Title = CustomTitle.Text;
             CustomTitleBar.Visibility = Visibility.Collapsed;
+            ThemeHelper.Instance.Register(LayoutRoot);
         }
+
+        ThemeHelper.Instance.UpdateTheme(rootViewModel.SettingsViewModel.SelectedTheme);
 
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events
         // see https://github.com/microsoft/microsoft-ui-xaml/issues/5744
@@ -64,6 +67,7 @@ internal sealed partial class MainWindow : SubClassWindow
         WindowId windowId = Win32Interop.GetWindowIdFromWindow(windowHandle);
         return AppWindow.GetFromWindowId(windowId);
     }
+
 
     private object CreateSettingsNavigationViewItem()
     {
@@ -82,11 +86,6 @@ internal sealed partial class MainWindow : SubClassWindow
         };
     }
 
-    private void InitializeTheme()
-    {
-        if (LayoutRoot.RequestedTheme != rootViewModel.SettingsViewModel.SelectedTheme)
-            LayoutRoot.RequestedTheme = rootViewModel.SettingsViewModel.SelectedTheme;
-    }
 
     private void RootNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
