@@ -3,7 +3,6 @@ global using System.Collections.ObjectModel;
 global using System.ComponentModel;
 global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;
-global using System.Globalization;
 global using System.IO.Compression;
 global using System.Numerics;
 global using System.Runtime.CompilerServices;
