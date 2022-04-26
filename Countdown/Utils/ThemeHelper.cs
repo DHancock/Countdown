@@ -45,6 +45,8 @@ namespace Countdown.Utils
         {
             if (titleBar is not null)
             {
+                Debug.Assert(AppWindowTitleBar.IsCustomizationSupported());
+
                 if (requestedTheme == ElementTheme.Default)
                     requestedTheme = (App.Current.RequestedTheme == ApplicationTheme.Light) ? ElementTheme.Light : ElementTheme.Dark;
 
