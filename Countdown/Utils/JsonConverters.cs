@@ -1,4 +1,4 @@
-﻿namespace Countdown.ViewModels;
+﻿namespace Countdown.Utils;
 
 internal class WINDOWPLACEMENTConverter : JsonConverter<WINDOWPLACEMENT>
 {
