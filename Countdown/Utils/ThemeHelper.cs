@@ -33,7 +33,6 @@
         {
             if ((root is not null) && (root.RequestedTheme != requestedTheme))
                 root.RequestedTheme = requestedTheme;
-
         }
 
         private void UpdateTitleBar(ElementTheme requestedTheme)
