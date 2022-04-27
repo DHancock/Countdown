@@ -1,5 +1,4 @@
-﻿
-namespace Countdown.Utils
+﻿namespace Countdown.Utils
 {
     internal sealed class ThemeHelper
     {
@@ -24,15 +23,11 @@ namespace Countdown.Utils
             this.root = root;
         }
 
-
-
         public void UpdateTheme(ElementTheme requestedTheme)
         {
             UpdateRoot(requestedTheme);
             UpdateTitleBar(requestedTheme);
         }
-
-
 
         private void UpdateRoot(ElementTheme requestedTheme)
         {
