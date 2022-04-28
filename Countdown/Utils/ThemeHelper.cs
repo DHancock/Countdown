@@ -12,15 +12,15 @@
         {
         }
 
-        public void Register(FrameworkElement root, AppWindowTitleBar titleBar)
+        public void Register(FrameworkElement root, AppWindowTitleBar? titleBar)
         {
+            this.root = root;
             this.titleBar = titleBar;
-            Register(root);
         }
 
         public void Register(FrameworkElement root)
         {
-            this.root = root;
+            Register(root, null);
         }
 
         public void UpdateTheme(ElementTheme requestedTheme)
