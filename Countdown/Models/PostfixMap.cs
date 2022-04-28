@@ -33,13 +33,9 @@
 /// </summary>
 internal sealed class PostfixMap
 {
-    /// <summary>
-    /// thread safe singleton initialization
-    /// </summary>
     public static readonly PostfixMap Instance = new PostfixMap();
 
     private readonly List<List<int[]>> map;
-
 
     private PostfixMap()
     {
@@ -125,19 +121,26 @@ internal sealed class PostfixMap
         map[4].Add(new[] { 2, 0, 1, 0, 1, 0, 2, 0, 0 });
         map[4].Add(new[] { 2, 0, 1, 0, 1, 0, 1, 0, 1, 0 });
 
-#if false
+#if GENERATE_MAP
         GenerateMap();
 #endif
     }
 
+    /// <summary>
+    /// index is the number of tiles in the equation that the map entry is used for
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public List<int[]> this[int tileCount] => map[tileCount - 2];
+
+
+#if GENERATE_MAP
 
     private static void GenerateMap()
     {
         SetClipBoardText(ConvertToText(CreateMap()));
         Debugger.Break();
     }
-
-
 
     private static void SetClipBoardText(string text)
     {
@@ -161,8 +164,6 @@ internal sealed class PostfixMap
             }
         }
     }
-
-
 
     private static string ConvertToText(List<List<List<int>>> localMap)
     {
@@ -206,8 +207,6 @@ internal sealed class PostfixMap
 
         return sb.ToString();
     }
-
-
 
     /// <summary>
     /// Counts variations of operators in equations constructed with the number of tiles
@@ -317,11 +316,5 @@ internal sealed class PostfixMap
 
         map.Add(row);
     }
-
-    /// <summary>
-    /// index is the number of tiles in the equation that this map entry is used for
-    /// </summary>
-    /// <param name="index"></param>
-    /// <returns></returns>
-    public List<int[]> this[int tileCount] => map[tileCount - 2];
+#endif
 }
