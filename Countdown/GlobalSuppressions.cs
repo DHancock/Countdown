@@ -4,6 +4,7 @@
 // a specific target and scoped to a namespace, type, member, etc.
 
 [assembly: SuppressMessage("Style", "IDE0017:Simplify object initialization")]
+[assembly: SuppressMessage("Style", "IDE0028:Simplify collection initialization")]
 [assembly: SuppressMessage("Style", "IDE0066:Convert switch statement to expression")]
 [assembly: SuppressMessage("Style", "IDE0090:Use 'new(...)'")]
 [assembly: SuppressMessage("Style", "IDE0057:Use range operator")]
