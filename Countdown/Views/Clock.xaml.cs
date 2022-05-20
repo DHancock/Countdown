@@ -549,6 +549,9 @@ internal sealed partial class Clock : UserControl
             if (sCompositionClock is null)
                 return;
 
+            if (!sCompositionClock.XamlClock.IsLoaded)
+                return;
+
             if (sCompositionClock.XamlClock.State == StopwatchState.Running)
             {
                 Utils.User32Sound.PlayExclamation();
