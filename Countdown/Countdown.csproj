@@ -15,6 +15,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Resources\app_16.ico</ApplicationIcon>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+	
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Resources\Themes.xaml" />
@@ -29,12 +30,12 @@
   
   <ItemGroup>
     <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="2.0.1" />
-    <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.0.1" />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.1.635-beta">
+    <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.0.3.1" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.10-beta">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.1.0-preview2" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.1.3" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 

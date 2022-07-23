@@ -55,7 +55,7 @@ internal class SubClassWindow : Window
             uint dpi = PInvoke.GetDpiForWindow(hWnd);
             double scalingFactor = dpi / 96.0;
 
-            if (!PInvoke.SetWindowPos(hWnd, (HWND)0, 0, 0, (int)(value.Width * scalingFactor), (int)(value.Height * scalingFactor), SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
+            if (!PInvoke.SetWindowPos(hWnd, (HWND)IntPtr.Zero, 0, 0, (int)(value.Width * scalingFactor), (int)(value.Height * scalingFactor), SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
                 throw new Win32Exception(Marshal.GetLastPInvokeError());
         }
     }
@@ -112,7 +112,7 @@ internal class SubClassWindow : Window
         top = Math.Max(top, 0); // guarantee the title bar is visible
         left = Math.Max(left, 0);
 
-        if (!PInvoke.SetWindowPos(hWnd, (HWND)0, left, top, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
+        if (!PInvoke.SetWindowPos(hWnd, (HWND)IntPtr.Zero, left, top, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
             throw new Win32Exception(Marshal.GetLastPInvokeError());
     }
 
