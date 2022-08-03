@@ -16,12 +16,8 @@ internal class SubClassWindow : Window
 
     public SubClassWindow()
     {
-        IntPtr handle = WindowNative.GetWindowHandle(this);
+        hWnd = (HWND)WindowNative.GetWindowHandle(this);
 
-        if (handle == IntPtr.Zero)
-            throw new InvalidOperationException();
-
-        hWnd = (HWND)handle;
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
         if (!PInvoke.SetWindowSubclass(hWnd, subClassDelegate, 0, 0))
@@ -29,11 +25,11 @@ internal class SubClassWindow : Window
     }
 
 
-    private LRESULT NewSubWindowProc(HWND hWnd, uint Msg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
+    private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
         const uint WM_GETMINMAXINFO = 0x0024;
 
-        if (Msg == WM_GETMINMAXINFO)
+        if (uMsg == WM_GETMINMAXINFO)
         {
             uint dpi = PInvoke.GetDpiForWindow(hWnd);
             double scalingFactor = dpi / 96.0;
@@ -44,7 +40,7 @@ internal class SubClassWindow : Window
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
 
-        return PInvoke.DefSubclassProc(hWnd, Msg, wParam, lParam);
+        return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 
 
@@ -118,8 +114,8 @@ internal class SubClassWindow : Window
 
     protected static string GetSettingsFilePath()
     {
-        const string cSettingsFileName = "{0B8391E1-FEB9-46CD-A38E-C66984A4A160}.json";
-        const string cSettingsDirName = "Countdown";
+        const string cSettingsFileName = "settings.json";
+        const string cSettingsDirName = "Countdown.0B8391E1-FEB9-46CD-A38E-C66984A4A160";
 
         return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), cSettingsDirName, cSettingsFileName);
     }
