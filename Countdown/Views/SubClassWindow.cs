@@ -27,9 +27,7 @@ internal class SubClassWindow : Window
 
     private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
-        const uint WM_GETMINMAXINFO = 0x0024;
-
-        if (uMsg == WM_GETMINMAXINFO)
+        if (uMsg == PInvoke.WM_GETMINMAXINFO)
         {
             uint dpi = PInvoke.GetDpiForWindow(hWnd);
             double scalingFactor = dpi / 96.0;
@@ -145,7 +143,6 @@ internal class SubClassWindow : Window
             if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
                 placement.showCmd = SHOW_WINDOW_CMD.SW_SHOWNORMAL;
 
-            // SetWindowPlacement() also activates the window
             if (!PInvoke.SetWindowPlacement(hWnd, placement))
                 throw new Win32Exception(Marshal.GetLastPInvokeError());
         }

@@ -11,3 +11,4 @@ GetWindowPlacement
 SetWindowPlacement
 SetWindowSubclass
 DefSubclassProc
+WM_GETMINMAXINFO
