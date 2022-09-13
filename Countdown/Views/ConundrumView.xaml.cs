@@ -21,7 +21,7 @@ internal sealed partial class ConundrumView : Page
         List<object> items = new List<object>(ConundrumList.SelectedItems);
         IList<ConundrumItem> source = (IList<ConundrumItem>)ConundrumList.ItemsSource;
 
-        foreach (ConundrumItem item in items)
+        foreach (ConundrumItem item in items.Cast<ConundrumItem>())
             source.Remove(item);
     }
 
@@ -29,7 +29,7 @@ internal sealed partial class ConundrumView : Page
     {
         StringBuilder sb = new StringBuilder();
 
-        foreach (ConundrumItem c in ConundrumList.SelectedItems)
+        foreach (ConundrumItem c in ConundrumList.SelectedItems.Cast<ConundrumItem>())
             sb.AppendLine(c.ToString());
 
         if (sb.Length > 0)

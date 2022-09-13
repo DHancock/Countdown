@@ -15,7 +15,7 @@ internal sealed partial class NumbersView : Page
     {
         StringBuilder sb = new StringBuilder();
 
-        foreach (EquationItem equationItem in EquationList.SelectedItems)
+        foreach (EquationItem equationItem in EquationList.SelectedItems.Cast<EquationItem>())
             sb.AppendLine(equationItem.ToString());
 
         if (sb.Length > 0)

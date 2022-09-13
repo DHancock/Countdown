@@ -15,7 +15,7 @@ internal sealed partial class LettersView : Page
     {
         StringBuilder sb = new StringBuilder();
 
-        foreach (WordItem wordItem in WordList.SelectedItems)
+        foreach (WordItem wordItem in WordList.SelectedItems.Cast<WordItem>())
             sb.AppendLine(wordItem.ToString());
          
         if (sb.Length > 0)
