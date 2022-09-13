@@ -33,8 +33,13 @@ internal sealed partial class MainWindow : SubClassWindow
 
         appWindow.Closing += (s, a) =>
         {
-            rootViewModel.UpdateWindowPlacement(GetWindowPlacement());
+            rootViewModel.WindowPlacement = GetWindowPlacement();
             SaveSettings();
+        };
+
+        this.Activated += (s, a) =>
+        {
+            ThemeHelper.Instance.UpdateTheme(rootViewModel.SettingsViewModel.SelectedTheme);
         };
 
         if (AppWindowTitleBar.IsCustomizationSupported() && appWindow.TitleBar is not null)
@@ -51,14 +56,12 @@ internal sealed partial class MainWindow : SubClassWindow
             ThemeHelper.Instance.Register(LayoutRoot);
         }
 
-        ThemeHelper.Instance.UpdateTheme(rootViewModel.SettingsViewModel.SelectedTheme);
-
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events
         // see https://github.com/microsoft/microsoft-ui-xaml/issues/5744
         if (RootNavigationView.SelectionFollowsFocus == NavigationViewSelectionFollowsFocus.Disabled)
             RootNavigationView.SelectedItem = RootNavigationView.MenuItems[0];
 
-        SetWindowPlacement(rootViewModel.GetSavedWindowPlacement());
+        SetWindowPlacement(rootViewModel.WindowPlacement);
     }
 
     private AppWindow GetAppWindowForCurrentWindow()

@@ -49,19 +49,18 @@ internal sealed class ViewModel
 
     public string SerializeSettings() => JsonSerializer.Serialize(model.Settings, GetSerializerOptions());
 
-    public void UpdateWindowPlacement(WINDOWPLACEMENT placement) => model.Settings.WindowPlacement = placement;
-
-    public WINDOWPLACEMENT GetSavedWindowPlacement() => model.Settings.WindowPlacement;
+    public WINDOWPLACEMENT WindowPlacement
+    {
+        get => model.Settings.WindowPlacement;
+        set => model.Settings.WindowPlacement = value;
+    }
 
     private static JsonSerializerOptions GetSerializerOptions()
     {
-        JsonSerializerOptions serializerOptions = new JsonSerializerOptions();
-        serializerOptions.WriteIndented = true;
-
-        serializerOptions.Converters.Add(new WINDOWPLACEMENTConverter());
-        serializerOptions.Converters.Add(new POINTConverter());
-        serializerOptions.Converters.Add(new RECTConverter());
-
-        return serializerOptions;
+        return new JsonSerializerOptions()
+        {
+            WriteIndented = true,
+            IncludeFields = true,
+        };
     }
 }
