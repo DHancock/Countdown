@@ -15,7 +15,6 @@ internal abstract class LetterList
         letters = new List<char>(copies * frequencyCount);
 
         foreach (LetterTile letterTile in source)
-
         {
             for (int i = 0; i < (letterTile.Frequency * copies); i++)
                 letters.Add(letterTile.Letter);

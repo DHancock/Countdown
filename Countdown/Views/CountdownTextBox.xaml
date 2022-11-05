@@ -11,11 +11,9 @@
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="ErrorStates">
                 <VisualState x:Name="ErrorVisible">
-                    <Storyboard>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ErrorBorder" Storyboard.TargetProperty="BorderBrush">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource TextBoxErrorBorderBrush}" />
-                        </ObjectAnimationUsingKeyFrames>
-                    </Storyboard>
+                    <VisualState.Setters>
+                        <Setter Target="ErrorBorder.BorderBrush" Value="{ThemeResource TextBoxErrorBorderBrush}"/>
+                    </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="ErrorInvisible"/>
             </VisualStateGroup>

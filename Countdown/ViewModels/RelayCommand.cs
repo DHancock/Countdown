@@ -6,6 +6,9 @@ internal sealed class RelayCommand : ICommand
     private readonly Func<object?, bool> canExecute;
     public event EventHandler? CanExecuteChanged;
 
+    public RelayCommand(Action<object?> execute) : this(execute, o => true)
+    {
+    }
 
     public RelayCommand(Action<object?> execute, Func<object?, bool> canExecute)
     {
@@ -13,22 +16,9 @@ internal sealed class RelayCommand : ICommand
         this.canExecute = canExecute;
     }
 
-    public RelayCommand(Action<object?> execute) : this(execute, (_) => true)
-    {
-    }
+    public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
 
-    public bool CanExecute(object? parameter)
-    {
-        return canExecute(parameter);
-    }
+    public bool CanExecute(object? param) => canExecute(param);
 
-    public void Execute(object? parameter)
-    {
-        execute(parameter);
-    }
-
-    public void RaiseCanExecuteChanged()
-    {
-        CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-    }
+    public void Execute(object? param) => execute(param);
 }

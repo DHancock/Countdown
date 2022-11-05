@@ -13,7 +13,7 @@ internal abstract class ItemBase : IComparable<ItemBase>
     {
         // shorter strings first, then reverse alphabetical (numbers before parenthesis)
         int lengthCompare = Content.Length - other!.Content.Length;
-        return lengthCompare == 0 ? string.Compare(other.Content, Content, StringComparison.Ordinal) : lengthCompare;
+        return lengthCompare == 0 ? string.CompareOrdinal(Content, other.Content) : lengthCompare;
     }
 
     public override string ToString() => Content;
