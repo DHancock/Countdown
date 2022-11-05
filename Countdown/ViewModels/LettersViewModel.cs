@@ -273,10 +273,10 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     // which item in the choose letter menu is selected
     public int TileOptionIndex
     {
-        get => Model.Settings.ChooseLettersIndex;
+        get => Settings.Data.ChooseLettersIndex;
         set
         {
-            Model.Settings.ChooseLettersIndex = value;
+            Settings.Data.ChooseLettersIndex = value;
             ChooseLettersCommand.Execute(null);
         }
     }

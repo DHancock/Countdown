@@ -1,5 +1,4 @@
 ﻿using Countdown.Models;
-using Countdown.Utils;
 
 namespace Countdown.ViewModels;
 
@@ -13,9 +12,9 @@ internal sealed class ViewModel
 
     private readonly Model model;
 
-    public ViewModel(string settingsData)
+    public ViewModel()
     {
-        model = new Model(DeserializeSettings(settingsData));
+        model = new Model();
 
         StopwatchController sc = new StopwatchController();
 
@@ -23,44 +22,6 @@ internal sealed class ViewModel
         LettersViewModel = new LettersViewModel(model, sc);
         ConundrumViewModel = new ConundrumViewModel(model, sc);
         StopwatchViewModel = new StopwatchViewModel(sc);
-        SettingsViewModel = new SettingsViewModel(model);
-    }
-
-
-    private static Settings DeserializeSettings(string data)
-    {
-        if (!string.IsNullOrWhiteSpace(data))
-        {
-            try
-            {
-                Settings? settings = JsonSerializer.Deserialize<Settings>(data, GetSerializerOptions());
-
-                if (settings is not null)
-                    return settings;
-            }
-            catch (Exception ex)
-            {
-                Debug.Fail(ex.Message);
-            }
-        }
-
-        return new Settings();
-    }
-
-    public string SerializeSettings() => JsonSerializer.Serialize(model.Settings, GetSerializerOptions());
-
-    public WINDOWPLACEMENT WindowPlacement
-    {
-        get => model.Settings.WindowPlacement;
-        set => model.Settings.WindowPlacement = value;
-    }
-
-    private static JsonSerializerOptions GetSerializerOptions()
-    {
-        return new JsonSerializerOptions()
-        {
-            WriteIndented = true,
-            IncludeFields = true,
-        };
+        SettingsViewModel = new SettingsViewModel();
     }
 }

@@ -9,7 +9,6 @@ namespace Countdown.Views;
 internal sealed partial class MainWindow : SubClassWindow
 {
     private readonly ViewModel rootViewModel;
-    private readonly AppWindow appWindow;
 
     private readonly FrameNavigationOptions frameNavigationOptions = new FrameNavigationOptions()
     {
@@ -24,20 +23,16 @@ internal sealed partial class MainWindow : SubClassWindow
 
         RootNavigationView.MenuItems.Add(CreateSettingsNavigationViewItem());
 
-        rootViewModel = new ViewModel(ReadSettings());
+        rootViewModel = new ViewModel();
 
-        MinWidth = 660;
-        MinHeight = 500;
-
-        appWindow = GetAppWindowForCurrentWindow();
-
-        appWindow.Closing += (s, a) =>
+        appWindow.Closing += async (s, a) =>
         {
-            rootViewModel.WindowPlacement = GetWindowPlacement();
-            SaveSettings();
+            Settings.Data.RestoreBounds = RestoreBounds;
+            Settings.Data.WindowState = WindowState;
+            await Settings.Data.Save();
         };
 
-        this.Activated += (s, a) =>
+        Activated += (s, a) =>
         {
             ThemeHelper.Instance.UpdateTheme(rootViewModel.SettingsViewModel.SelectedTheme);
         };
@@ -50,7 +45,7 @@ internal sealed partial class MainWindow : SubClassWindow
         }
         else
         {
-            SetWindowIcon();
+            SetWindowIconFromAppIcon();
             appWindow.Title = CustomTitle.Text;
             CustomTitleBar.Visibility = Visibility.Collapsed;
             ThemeHelper.Instance.Register(LayoutRoot);
@@ -61,16 +56,45 @@ internal sealed partial class MainWindow : SubClassWindow
         if (RootNavigationView.SelectionFollowsFocus == NavigationViewSelectionFollowsFocus.Disabled)
             RootNavigationView.SelectedItem = RootNavigationView.MenuItems[0];
 
-        SetWindowPlacement(rootViewModel.WindowPlacement);
+        if (Settings.Data.IsFirstRun)
+        {
+            appWindow.MoveAndResize(CenterInPrimaryDisplay());
+        }
+        else
+        {
+            appWindow.MoveAndResize(ValidateRestoreBounds(Settings.Data.RestoreBounds));
+
+            if (Settings.Data.WindowState == WindowState.Minimized)
+                WindowState = WindowState.Normal;
+            else
+                WindowState = Settings.Data.WindowState;
+        }
     }
 
-    private AppWindow GetAppWindowForCurrentWindow()
+    private RectInt32 ValidateRestoreBounds(Rect windowArea)
     {
-        IntPtr windowHandle = WindowNative.GetWindowHandle(this);
-        WindowId windowId = Win32Interop.GetWindowIdFromWindow(windowHandle);
-        return AppWindow.GetFromWindowId(windowId);
-    }
+        if (windowArea == Rect.Empty)
+            return CenterInPrimaryDisplay();
 
+        Rect workingArea = GetWorkingAreaOfClosestMonitor(windowArea);
+        Point topLeft = new Point(windowArea.X, windowArea.Y);
+
+        if ((topLeft.Y + windowArea.Height) > workingArea.Bottom)
+            topLeft.Y = workingArea.Bottom - windowArea.Height;
+
+        if (topLeft.Y < workingArea.Top)
+            topLeft.Y = workingArea.Top;
+
+        if ((topLeft.X + windowArea.Width) > workingArea.Right)
+            topLeft.X = workingArea.Right - windowArea.Width;
+
+        if (topLeft.X < workingArea.Left)
+            topLeft.X = workingArea.Left;
+
+        Size size = new Size(Math.Min(windowArea.Width, workingArea.Width), Math.Min(windowArea.Height, workingArea.Height));
+
+        return ConvertToRectInt32(new Rect(topLeft, size));
+    }
 
     private object CreateSettingsNavigationViewItem()
     {
@@ -88,7 +112,6 @@ internal sealed partial class MainWindow : SubClassWindow
             },
         };
     }
-
 
     private void RootNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
@@ -112,47 +135,6 @@ internal sealed partial class MainWindow : SubClassWindow
             case nameof(SettingsView): ((SettingsView)e.Content).ViewModel = rootViewModel.SettingsViewModel; break;
             default:
                 throw new InvalidOperationException();
-        }
-    }
-
-
-    private static string ReadSettings()
-    {
-        string path = GetSettingsFilePath();
-
-        if (File.Exists(path))
-        {
-            try
-            {
-                return File.ReadAllText(path, Encoding.Unicode);
-            }
-            catch (Exception ex)
-            {
-                Debug.Fail(ex.ToString());
-            }
-        }
-
-        return String.Empty;
-    }
-
-    private async void SaveSettings()
-    {
-        try
-        {
-            string path = GetSettingsFilePath();
-            string? directory = Path.GetDirectoryName(path);
-
-            if (string.IsNullOrWhiteSpace(directory))
-                throw new InvalidOperationException();
-
-            if (!Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
-
-            await File.WriteAllTextAsync(path, rootViewModel.SerializeSettings(), Encoding.Unicode, CancellationToken.None);
-        }
-        catch (Exception ex)
-        {
-            Debug.Fail(ex.ToString());
         }
     }
 }

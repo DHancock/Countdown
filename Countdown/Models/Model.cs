@@ -25,12 +25,8 @@ internal class Model
     private readonly ConsonantList consonantList = new ConsonantList();
     private readonly VowelList vowelList = new VowelList();
 
-    public Settings Settings { get; }
-
-
-    public Model(Settings settings)
+    public Model()
     {
-        Settings = settings;
     }
 
     // solve the numbers game
@@ -70,7 +66,6 @@ internal class Model
 
         return results;
     }
-
 
     // solve the letters game
     public List<WordItem> Solve(char[] letters) => wordDictionary.Solve(letters);

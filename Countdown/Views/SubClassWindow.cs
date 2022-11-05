@@ -1,22 +1,22 @@
 ﻿namespace Countdown.Views;
 
-// this code is largely based on https://github.com/marb2000/DesktopWindow
-// but modified to use CsWin32 windows API generator rather than using hard
-// wired interop definitions
+public enum WindowState { Normal, Minimized, Maximized }
 
 internal class SubClassWindow : Window
 {
-    public double MinWidth { get; set; }
-    public double MinHeight { get; set; }
+    private const double cMinWidth = 660;
+    private const double cMinHeight = 500;
+    private const double cInitialWidth = cMinWidth;
+    private const double cInitialHeight = cMinHeight;
 
-    private const int S_OK = 0;
-
-    private readonly HWND hWnd;
+    protected readonly HWND hWnd;
     private readonly SUBCLASSPROC subClassDelegate;
+    protected readonly AppWindow appWindow;
 
     public SubClassWindow()
     {
         hWnd = (HWND)WindowNative.GetWindowHandle(this);
+        appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(hWnd));
 
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
@@ -24,57 +24,184 @@ internal class SubClassWindow : Window
             throw new Win32Exception(Marshal.GetLastPInvokeError());
     }
 
-
     private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
         if (uMsg == PInvoke.WM_GETMINMAXINFO)
         {
-            uint dpi = PInvoke.GetDpiForWindow(hWnd);
-            double scalingFactor = dpi / 96.0;
+            double scalingFactor = GetScaleFactor();
 
             MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
-            minMaxInfo.ptMinTrackSize.X = (int)(MinWidth * scalingFactor);
-            minMaxInfo.ptMinTrackSize.Y = (int)(MinHeight * scalingFactor);
+            minMaxInfo.ptMinTrackSize.X = Convert.ToInt32(cMinWidth * scalingFactor);
+            minMaxInfo.ptMinTrackSize.Y = Convert.ToInt32(cMinHeight * scalingFactor);
             Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
 
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 
-
-    protected Size WindowSize
+    public WindowState WindowState
     {
+        get
+        {
+            if (appWindow.Presenter is OverlappedPresenter op)
+            {
+                switch (op.State)
+                {
+                    case OverlappedPresenterState.Minimized: return WindowState.Minimized;
+                    case OverlappedPresenterState.Maximized: return WindowState.Maximized;
+                    case OverlappedPresenterState.Restored: return WindowState.Normal;
+                }
+            }
+
+            return WindowState.Normal;
+        }
+
         set
         {
-            uint dpi = PInvoke.GetDpiForWindow(hWnd);
-            double scalingFactor = dpi / 96.0;
-
-            if (!PInvoke.SetWindowPos(hWnd, (HWND)IntPtr.Zero, 0, 0, (int)(value.Width * scalingFactor), (int)(value.Height * scalingFactor), SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
-                throw new Win32Exception(Marshal.GetLastPInvokeError());
+            if (appWindow.Presenter is OverlappedPresenter op)
+            {
+                switch (value)
+                {
+                    case WindowState.Minimized: op.Minimize(); break;
+                    case WindowState.Maximized: op.Maximize(); break;
+                    case WindowState.Normal: op.Restore(); break;
+                }
+            }
         }
     }
 
+    public Rect RestoreBounds
+    {
+        get
+        {
+            if (WindowState == WindowState.Normal)
+                return new Rect(appWindow.Position.X, appWindow.Position.Y, appWindow.Size.Width, appWindow.Size.Height);
 
-    protected void SetWindowIcon()
+            const int WS_EX_TOOLWINDOW = 0x00000080;
+
+            int styleEx = PInvoke.GetWindowLong(hWnd, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE);
+
+            if (styleEx == 0)
+                throw new Win32Exception(Marshal.GetLastPInvokeError());
+
+            int deltaX = 0, deltaY = 0;
+
+            // unless it's a tool window, the normal position is relative to the working area
+            if ((styleEx & WS_EX_TOOLWINDOW) == 0)
+            {
+                HMONITOR hMonitor = PInvoke.MonitorFromWindow(hWnd, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONULL);
+
+                if (hMonitor != 0)
+                {
+                    MONITORINFO monitorInfo = default;
+                    monitorInfo.cbSize = (uint)Unsafe.SizeOf<MONITORINFO>();
+
+                    if (!PInvoke.GetMonitorInfo(hMonitor, ref monitorInfo))
+                        throw new Win32Exception(Marshal.GetLastPInvokeError());
+
+                    RECT workAreaRect = monitorInfo.rcWork;
+                    RECT screenAreaRect = monitorInfo.rcMonitor;
+
+                    deltaX = workAreaRect.left - screenAreaRect.left;
+                    deltaY = workAreaRect.top - screenAreaRect.top;
+                }
+            }
+
+            WINDOWPLACEMENT wp = default;
+
+            if (!PInvoke.GetWindowPlacement(hWnd, ref wp))
+                throw new Win32Exception(Marshal.GetLastPInvokeError());
+
+            return new Rect(wp.rcNormalPosition.left + deltaX, wp.rcNormalPosition.top + deltaY,
+                            wp.rcNormalPosition.Width, wp.rcNormalPosition.Height);
+        }
+    }
+
+    public static Rect GetWorkingAreaOfClosestMonitor(Rect windowBounds)
+    {
+        HMONITOR hMonitor = PInvoke.MonitorFromRect(ConvertToRECT(windowBounds), MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST);
+
+        MONITORINFO monitorInfo = new MONITORINFO();
+        monitorInfo.cbSize = (uint)Unsafe.SizeOf<MONITORINFO>();
+
+        if (!PInvoke.GetMonitorInfo(hMonitor, ref monitorInfo))
+            throw new Win32Exception(Marshal.GetLastPInvokeError());
+
+        return new Rect(monitorInfo.rcWork.X, monitorInfo.rcWork.Y, monitorInfo.rcWork.Width, monitorInfo.rcWork.Height);
+    }
+
+    private static RECT ConvertToRECT(Rect input)
+    {
+        RECT output = new RECT();
+
+        // avoids accumulating rounding errors
+        output.top = Convert.ToInt32(input.Y);
+        output.left = Convert.ToInt32(input.X);
+        output.bottom = output.top + Convert.ToInt32(input.Height);
+        output.right = output.left + Convert.ToInt32(input.Width);
+
+        return output;
+    }
+
+    protected static RectInt32 ConvertToRectInt32(Rect input)
+    {
+        RectInt32 output = new RectInt32();
+        RECT intermediate = ConvertToRECT(input);
+
+        output.X = intermediate.left;
+        output.Y = intermediate.top;
+        output.Width = intermediate.Width;
+        output.Height = intermediate.Height;
+
+        return output;
+    }
+
+    protected double GetScaleFactor()
+    {
+        uint dpi = PInvoke.GetDpiForWindow(hWnd);
+        Debug.Assert(dpi > 0);
+        return dpi / 96.0;
+    }
+
+    protected RectInt32 CenterInPrimaryDisplay()
+    {
+        double scalingFactor = GetScaleFactor();
+        RectInt32 pos = new RectInt32();
+
+        pos.Width = Convert.ToInt32(cInitialWidth * scalingFactor);
+        pos.Height = Convert.ToInt32(cInitialHeight * scalingFactor);
+
+        DisplayArea primary = DisplayArea.Primary;
+
+        pos.Y = (primary.WorkArea.Height - pos.Height) / 2;
+        pos.X = (primary.WorkArea.Width - pos.Width) / 2;
+
+        // guarantee title bar is visible
+        pos.Y = Math.Max(pos.Y, primary.WorkArea.Y);
+        pos.X = Math.Max(pos.X, primary.WorkArea.X);
+
+        return pos;
+    }
+
+    protected void SetWindowIconFromAppIcon()
     {
         if (!PInvoke.GetModuleHandleEx(0, null, out FreeLibrarySafeHandle module))
             throw new Win32Exception(Marshal.GetLastPInvokeError());
 
         WPARAM ICON_SMALL = 0;
         WPARAM ICON_BIG = 1;
-        const string appIconResourceId = "#32512";
+        const string cAppIconResourceId = "#32512";
 
-        SetWindowIcon(module, appIconResourceId, ICON_SMALL, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXSMICON));
-        SetWindowIcon(module, appIconResourceId, ICON_BIG, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON));
+        SetWindowIcon(module, cAppIconResourceId, ICON_SMALL, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXSMICON));
+        SetWindowIcon(module, cAppIconResourceId, ICON_BIG, PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON));
     }
-
 
     private void SetWindowIcon(FreeLibrarySafeHandle module, string iconId, WPARAM iconType, int size)
     {
         const uint WM_SETICON = 0x0080;
 
         SafeFileHandle hIcon = PInvoke.LoadImage(module, iconId, GDI_IMAGE_TYPE.IMAGE_ICON, size, size, IMAGE_FLAGS.LR_DEFAULTCOLOR);
-        
+
         if (hIcon.IsInvalid)
             throw new Win32Exception(Marshal.GetLastPInvokeError());
 
@@ -86,65 +213,6 @@ internal class SubClassWindow : Window
         finally
         {
             hIcon.SetHandleAsInvalid(); // SafeFileHandle must not release the shared icon
-        }
-
-        if (Marshal.GetLastPInvokeError() != S_OK)
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
-    }
-
-
-    protected void CenterInPrimaryDisplay()
-    {
-        if (!PInvoke.GetWindowRect(hWnd, out RECT lpRect))
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-        DisplayArea primary = DisplayArea.Primary;
-
-        int top = (primary.WorkArea.Height - (lpRect.bottom - lpRect.top)) / 2;
-        int left = (primary.WorkArea.Width - (lpRect.right - lpRect.left)) / 2;
-
-        top = Math.Max(top, 0); // guarantee the title bar is visible
-        left = Math.Max(left, 0);
-
-        if (!PInvoke.SetWindowPos(hWnd, (HWND)IntPtr.Zero, left, top, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER))
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
-    }
-
-    protected static string GetSettingsFilePath()
-    {
-        const string cSettingsFileName = "settings.json";
-        const string cSettingsDirName = "Countdown.0B8391E1-FEB9-46CD-A38E-C66984A4A160";
-
-        return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), cSettingsDirName, cSettingsFileName);
-    }
-
-
-    protected WINDOWPLACEMENT GetWindowPlacement()
-    {
-        WINDOWPLACEMENT placement = default;
-
-        if (!PInvoke.GetWindowPlacement(hWnd, ref placement))
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
-
-        return placement;
-    }
-
-
-    protected void SetWindowPlacement(WINDOWPLACEMENT placement)
-    {
-        if (placement.length == 0)  // first time, no saved state
-        {
-            WindowSize = new Size(MinWidth, MinHeight);
-            CenterInPrimaryDisplay();
-            Activate();
-        }
-        else
-        {
-            if (placement.showCmd == SHOW_WINDOW_CMD.SW_SHOWMINIMIZED)
-                placement.showCmd = SHOW_WINDOW_CMD.SW_SHOWNORMAL;
-
-            if (!PInvoke.SetWindowPlacement(hWnd, placement))
-                throw new Win32Exception(Marshal.GetLastPInvokeError());
         }
     }
 }

@@ -195,10 +195,10 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
 
     public int TileOptionIndex
     {
-        get => Model.Settings.ChooseNumbersIndex;
+        get => Settings.Data.ChooseNumbersIndex;
         set
         {
-            Model.Settings.ChooseNumbersIndex = value;
+            Settings.Data.ChooseNumbersIndex = value;
             ChooseNumbersCommand.Execute(null);
         }
     }

@@ -1,28 +1,23 @@
-﻿using Countdown.Models;
-using Countdown.Utils;
+﻿using Countdown.Utils;
 
 namespace Countdown.ViewModels;
 
 internal sealed class SettingsViewModel
 {
-    private readonly Model model;
-
-    public SettingsViewModel(Model model)
+    public SettingsViewModel()
     {
-        this.model = model;
     }
 
     public ElementTheme SelectedTheme
     {
-        get => model.Settings.CurrentTheme;
+        get => Settings.Data.CurrentTheme;
 
         set
         {
-            model.Settings.CurrentTheme = value;
+            Settings.Data.CurrentTheme = value;
             ThemeHelper.Instance.UpdateTheme(value);
         }
     }
-
 
     public bool IsLightTheme
     {
