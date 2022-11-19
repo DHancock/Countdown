@@ -20,7 +20,7 @@ internal class Settings
     public ElementTheme CurrentTheme { get; set; } = ElementTheme.Default;
     public WindowState WindowState { get; set; } = WindowState.Normal;
 
-    public Rect RestoreBounds { get; set; } = Rect.Empty;
+    public RectInt32 RestoreBounds { get; set; } = default;
 
     [JsonIgnore]
     public bool IsFirstRun { get; private set; } = true;

@@ -2,7 +2,7 @@
 
 namespace Countdown.ViewModels;
 
-internal sealed class SettingsViewModel
+internal sealed class SettingsViewModel : PropertyChangedBase
 {
     public SettingsViewModel()
     {
@@ -15,7 +15,7 @@ internal sealed class SettingsViewModel
         set
         {
             Settings.Data.CurrentTheme = value;
-            ThemeHelper.Instance.UpdateTheme(value);
+            RaisePropertyChanged();
         }
     }
 

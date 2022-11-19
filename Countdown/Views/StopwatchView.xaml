@@ -6,8 +6,7 @@
     xmlns:local="using:Countdown.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d">
 
     <Grid>
         <Button Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Grid.Column="0" VerticalAlignment="Bottom" Margin="10,0,0,10" Style="{StaticResource StartStopButtonStyle}"/>

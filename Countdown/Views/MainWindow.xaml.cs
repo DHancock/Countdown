@@ -8,6 +8,8 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class MainWindow : SubClassWindow
 {
+    private const string cWindowTitle = "Countdown";
+
     private readonly ViewModel rootViewModel;
 
     private readonly FrameNavigationOptions frameNavigationOptions = new FrameNavigationOptions()
@@ -21,6 +23,16 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         this.InitializeComponent();
 
+        if (!TrySetMicaBackdrop())  // acrylic also works, but isn't recommended according to the UI guidelines
+        {
+            layoutRoot.Loaded += (s, e) =>
+            {
+                // the visual states won't exist until after OnApplyTemplate() has completed
+                bool stateFound = VisualStateManager.GoToState(layoutRoot, "BackdropNotSupported", false);
+                Debug.Assert(stateFound);
+            };
+        }
+
         RootNavigationView.MenuItems.Add(CreateSettingsNavigationViewItem());
 
         rootViewModel = new ViewModel();
@@ -32,23 +44,18 @@ internal sealed partial class MainWindow : SubClassWindow
             await Settings.Data.Save();
         };
 
-        Activated += (s, a) =>
+        if (AppWindowTitleBar.IsCustomizationSupported())
         {
-            ThemeHelper.Instance.UpdateTheme(rootViewModel.SettingsViewModel.SelectedTheme);
-        };
-
-        if (AppWindowTitleBar.IsCustomizationSupported() && appWindow.TitleBar is not null)
-        {
+            customTitleBar.ParentAppWindow = appWindow;
+            customTitleBar.Title = cWindowTitle;
+            Activated += customTitleBar.ParentWindow_Activated;
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-            SetTitleBar(CustomTitleBar);
-            ThemeHelper.Instance.Register(LayoutRoot, appWindow.TitleBar);
         }
         else
         {
+            customTitleBar.Visibility = Visibility.Collapsed;
+            Title = cWindowTitle;
             SetWindowIconFromAppIcon();
-            appWindow.Title = CustomTitle.Text;
-            CustomTitleBar.Visibility = Visibility.Collapsed;
-            ThemeHelper.Instance.Register(LayoutRoot);
         }
 
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events
@@ -71,33 +78,36 @@ internal sealed partial class MainWindow : SubClassWindow
         }
     }
 
-    private RectInt32 ValidateRestoreBounds(Rect windowArea)
+    private RectInt32 ValidateRestoreBounds(RectInt32 windowArea)
     {
-        if (windowArea == Rect.Empty)
+        if (windowArea == default)
             return CenterInPrimaryDisplay();
 
-        Rect workingArea = GetWorkingAreaOfClosestMonitor(windowArea);
-        Point topLeft = new Point(windowArea.X, windowArea.Y);
+        RectInt32 workArea = DisplayArea.GetFromRect(windowArea, DisplayAreaFallback.Nearest).WorkArea;
+        PointInt32 position = new PointInt32(windowArea.X, windowArea.Y);
 
-        if ((topLeft.Y + windowArea.Height) > workingArea.Bottom)
-            topLeft.Y = workingArea.Bottom - windowArea.Height;
+        if ((position.Y + windowArea.Height) > (workArea.Y + workArea.Height))
+            position.Y = (workArea.Y + workArea.Height) - windowArea.Height;
 
-        if (topLeft.Y < workingArea.Top)
-            topLeft.Y = workingArea.Top;
+        if (position.Y < workArea.Y)
+            position.Y = workArea.Y;
 
-        if ((topLeft.X + windowArea.Width) > workingArea.Right)
-            topLeft.X = workingArea.Right - windowArea.Width;
+        if ((position.X + windowArea.Width) > (workArea.X + workArea.Width))
+            position.X = (workArea.X + workArea.Width) - windowArea.Width;
 
-        if (topLeft.X < workingArea.Left)
-            topLeft.X = workingArea.Left;
+        if (position.X < workArea.X)
+            position.X = workArea.X;
 
-        Size size = new Size(Math.Min(windowArea.Width, workingArea.Width), Math.Min(windowArea.Height, workingArea.Height));
+        SizeInt32 size = new SizeInt32(Math.Min(windowArea.Width, workArea.Width),
+                                        Math.Min(windowArea.Height, workArea.Height));
 
-        return ConvertToRectInt32(new Rect(topLeft, size));
+        return new RectInt32(position.X, position.Y, size.Width, size.Height);
     }
 
     private object CreateSettingsNavigationViewItem()
     {
+        // When defined in xaml, click handlers are required to start the animation.
+        // So might as well just define it in code where it works as is.
         return new NavigationViewItem()
         {
             Tag = nameof(SettingsView),
@@ -136,5 +146,22 @@ internal sealed partial class MainWindow : SubClassWindow
             default:
                 throw new InvalidOperationException();
         }
+    }
+
+    public static async Task<BitmapImage> LoadEmbeddedImageResource(string resourcePath)
+    {
+        BitmapImage bitmapImage = new BitmapImage();
+
+        using (Stream? resourceStream = typeof(App).Assembly.GetManifestResourceStream(resourcePath))
+        {
+            Debug.Assert(resourceStream is not null);
+
+            using (Windows.Storage.Streams.IRandomAccessStream stream = resourceStream.AsRandomAccessStream())
+            {
+                await bitmapImage.SetSourceAsync(stream);
+            }
+        }
+
+        return bitmapImage;
     }
 }

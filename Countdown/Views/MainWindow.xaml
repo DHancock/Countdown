@@ -7,18 +7,24 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid x:Name="LayoutRoot">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
+    <ContentControl x:Name="layoutRoot" Style="{StaticResource WindowContentStyle}" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}">
 
-        <Grid x:Name="CustomTitleBar" Height="32" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <TextBlock x:Name="CustomTitle" Text="Countdown" Margin="15,0,0,0" VerticalAlignment="Center" />
-        </Grid>
-        
-        <Page Grid.Row="1" Background="{ThemeResource BackgroundPageThemeBrush}">
+        <Grid>
+            <Grid.Resources>
+                <!-- required to make the NavigationView transparent, at least in top mode -->
+                <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent" />
+                <SolidColorBrush x:Key="NavigationViewItemBackground" Color="Transparent" />
+                <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
+            </Grid.Resources>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <local:CustomTitleBar x:Name="customTitleBar"/>
+
             <NavigationView
+                Grid.Row="1"
                 x:Name="RootNavigationView"
                 PaneDisplayMode="Top"
                 IsBackButtonVisible="Collapsed"
@@ -35,6 +41,7 @@
 
                 <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated"/>
             </NavigationView>
-        </Page>
-    </Grid>
+ 
+        </Grid>
+    </ContentControl>
 </local:SubClassWindow>

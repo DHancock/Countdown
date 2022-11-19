@@ -69,7 +69,7 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
         set => SetTile(ref Model.Tiles[5], value);
     }
 
-    private void SetTile(ref int existing, string data, [CallerMemberName] string propertyName = "")
+    private void SetTile(ref int existing, string data, [CallerMemberName] string? propertyName = default)
     {
         int temp = Convert(data);
 
