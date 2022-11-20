@@ -3,8 +3,6 @@ GetDpiForWindow
 MINMAXINFO
 SetWindowSubclass
 DefSubclassProc
-GetModuleHandleEx
-GetSystemMetrics
-LoadImage
 WM_GETMINMAXINFO
 CreateDispatcherQueueController
+LoadIcon
