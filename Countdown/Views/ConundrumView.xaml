@@ -30,45 +30,35 @@
 
             <local:Clock Style="{ThemeResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-            <w3c:GroupBox Heading="Conundrum">
-                <StackPanel Orientation="Horizontal">
-                    <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutoTabStyle="Off"/>
-                </StackPanel>
-            </w3c:GroupBox>
+            <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="LightGray" BorderThickness="1" CornerRadius="4">
+                <Grid RowDefinitions="*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
+                    <TextBlock Text="Conundrum" Grid.ColumnSpan="9"/>
+                    
+                    <local:CountdownTextBox Grid.Row="1" Grid.Column="0" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <local:CountdownTextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <local:CountdownTextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <local:CountdownTextBox Grid.Row="1" Grid.Column="3" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <local:CountdownTextBox Grid.Row="1" Grid.Column="4" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <local:CountdownTextBox Grid.Row="1" Grid.Column="5" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <local:CountdownTextBox Grid.Row="1" Grid.Column="6" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <local:CountdownTextBox Grid.Row="1" Grid.Column="7" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <local:CountdownTextBox Grid.Row="1" Grid.Column="8" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutoTabStyle="Off"/>
+                </Grid>
+            </Border>
 
-            <w3c:GroupBox Heading="Solution">
-                <StackPanel Orientation="Horizontal">
-                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(0, 1), Mode=OneWay}"/>
-                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(1, 1), Mode=OneWay}"/>
-                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(2, 1), Mode=OneWay}"/>
-                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(3, 1), Mode=OneWay}"/>
-                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(4, 1), Mode=OneWay}"/>
-                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(5, 1), Mode=OneWay}"/>
-                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(6, 1), Mode=OneWay}"/>
-                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(7, 1), Mode=OneWay}"/>
-                    <local:CountdownTextBox Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(8, 1), Mode=OneWay}"/>
-                </StackPanel>
-            </w3c:GroupBox>
+            <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="LightGray" BorderThickness="1" CornerRadius="4" Padding="15" Margin="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <Button Grid.Column="0" Content="Choose" Command="{x:Bind ViewModel.ChooseCommand}"/>
-                <Button Grid.Column="1" HorizontalAlignment="Center" Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Style="{StaticResource StartStopButtonStyle}"/>
-                <Button Grid.Column="2" Content="Solve" Command="{x:Bind ViewModel.SolveCommand}"/>
-            </Grid>
+                    <Button Grid.Column="0" Content="Choose" Command="{x:Bind ViewModel.ChooseCommand}"/>
+                    <Button Grid.Column="1" HorizontalAlignment="Center" Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Style="{StaticResource StartStopButtonStyle}"/>
+                    <Button Grid.Column="2" Content="Solve" Command="{x:Bind ViewModel.SolveCommand}"/>
+                </Grid>
+            </Border>
         </StackPanel>
 
         <ListView x:Name="ConundrumList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.SolutionList, Mode=OneWay}">
