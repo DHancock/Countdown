@@ -23,8 +23,8 @@
                 <Setter Property="Margin" Value="5"/>
                 <Setter Property="SelectionMode" Value="Extended"/>
                 <Setter Property="Background" Value="{ThemeResource ResultsListBackgroundBrush}"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBoderBrush}"/>
-                <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBoderThickness}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource CommonBoderBrush}"/>
+                <Setter Property="BorderThickness" Value="{ThemeResource CommonBoderThickness}"/>
                 <Setter Property="CornerRadius" Value="6"/>
             </Style>
 
@@ -32,14 +32,14 @@
             <Style x:Key="CommonBorderStyle" TargetType="Border">
                 <Setter Property="Margin" Value="7"/>
                 <Setter Property="Padding" Value="7"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBoderBrush}"/>
-                <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBoderThickness}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource CommonBoderBrush}"/>
+                <Setter Property="BorderThickness" Value="{ThemeResource CommonBoderThickness}"/>
                 <Setter Property="Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
                 <Setter Property="CornerRadius" Value="4"/>
             </Style>
 
             <!-- entry fields heading text -->
-            <Style x:Name="HeadingStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
+            <Style x:Key="HeadingStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
                 <Setter Property="Margin" Value="7,0,0,5"/>
             </Style>
             

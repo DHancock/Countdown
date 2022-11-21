@@ -18,10 +18,12 @@
                 <Setter Property="DropShadowIsVisible" Value="False"/>
             </Style>
 
+            <!-- borders -->
+            <SolidColorBrush x:Key="CommonBoderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+            <Thickness x:Key="CommonBoderThickness">1</Thickness>
+
             <!-- lists -->
             <SolidColorBrush x:Key="ResultsListBackgroundBrush" Color="{ThemeResource SystemColorWindowColor}"/>
-            <SolidColorBrush x:Key="ResultsListBoderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
-            <Thickness x:Key="ResultsListBoderThickness">1</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
 
@@ -49,17 +51,17 @@
                 <Setter Property="DropShadowIsVisible" Value="True"/>
             </Style>
 
+            <!-- borders -->
+            <SolidColorBrush x:Key="CommonBoderBrush" Color="Gray"/>
+            <Thickness x:Key="CommonBoderThickness">1</Thickness>
+
             <!-- lists -->
             <SolidColorBrush x:Key="ResultsListBackgroundBrush">#FF272727</SolidColorBrush>
-            <SolidColorBrush x:Key="ResultsListBoderBrush" Color="Transparent"/>
-            <Thickness x:Key="ResultsListBoderThickness">0</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush">DarkGray</SolidColorBrush>
 
             <!-- navigation view -->
             <Thickness x:Key="TopNavigationViewContentGridBorderThickness">0</Thickness>
-            <StaticResource x:Key="NavigationViewTopPaneBackground" ResourceKey="ApplicationPageBackgroundThemeBrush"/>
-            <SolidColorBrush x:Key="BackgroundPageThemeBrush">Transparent</SolidColorBrush>
 
             <!-- text boxes -->
             <SolidColorBrush x:Key="TextBoxErrorBorderBrush" Color="Red"/>
@@ -79,18 +81,18 @@
                 <Setter Property="HandFillColour" Value="#FF0068C7"/>
                 <Setter Property="DropShadowIsVisible" Value="True"/>
             </Style>
-            
+
+            <!-- borders -->
+            <SolidColorBrush x:Key="CommonBoderBrush" Color="LightGray"/>
+            <Thickness x:Key="CommonBoderThickness">1</Thickness>
+
             <!-- lists -->
-            <SolidColorBrush x:Key="ResultsListBackgroundBrush">White</SolidColorBrush>
-            <SolidColorBrush x:Key="ResultsListBoderBrush" Color="LightGray"/>
-            <Thickness x:Key="ResultsListBoderThickness">1</Thickness>
+            <SolidColorBrush x:Key="ResultsListBackgroundBrush">Snow</SolidColorBrush>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush">DarkGray</SolidColorBrush>
 
             <!-- navigation view -->
             <Thickness x:Key="TopNavigationViewContentGridBorderThickness">0</Thickness>
-            <StaticResource x:Key="NavigationViewTopPaneBackground" ResourceKey="ApplicationPageBackgroundThemeBrush"/>
-            <SolidColorBrush x:Key="BackgroundPageThemeBrush">Transparent</SolidColorBrush>
 
             <!-- text boxes -->
             <SolidColorBrush x:Key="TextControlBackground">White</SolidColorBrush>
