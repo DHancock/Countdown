@@ -6,15 +6,14 @@
     xmlns:vm="using:Countdown.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:w3c="using:AssyntSoftware.WinUI3Controls"
     mc:Ignorable="d">
 
     <Page.Resources>
-        <Style x:Name="ctbs" TargetType="local:CountdownTextBox">
+        <Style x:Key="ctbs" TargetType="local:CountdownTextBox">
             <Setter Property="ContentStyle" Value="Letter"/>
             <Setter Property="AutoTabStyle" Value="AlwaysTab"/>
         </Style>
-
+        
         <CollectionViewSource x:Name="WordListGrouping" Source="{x:Bind ViewModel.WordList, Mode=OneWay}" IsSourceGrouped="true"/>
     </Page.Resources>
 
@@ -28,9 +27,9 @@
 
             <local:Clock Style="{ThemeResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-            <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="LightGray" BorderThickness="1" CornerRadius="4" Padding="15" Margin="10">
+            <Border Style="{StaticResource CommonBorderStyle}">
                 <Grid RowDefinitions="*,*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
-                    <TextBlock Text="Tiles" Grid.ColumnSpan="9"/>
+                    <TextBlock Text="Tiles" Grid.ColumnSpan="9" Style="{StaticResource HeadingStyle}"/>
 
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="0" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[0], Mode=OneWay}"/>
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[1], Mode=OneWay}"/>
@@ -43,7 +42,7 @@
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="8" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[8], Mode=OneWay}" AutoTabStyle="Off"/>
 
 
-                    <Grid Margin="5,10" Grid.Row="2" Grid.ColumnSpan="9">
+                    <Grid Margin="0,19,0,10" Grid.Row="2" Grid.ColumnSpan="9">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -59,7 +58,7 @@
                 </Grid>
             </Border>
 
-            <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="LightGray" BorderThickness="1" CornerRadius="4" Padding="15" Margin="10">
+            <Border Style="{StaticResource CommonBorderStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />

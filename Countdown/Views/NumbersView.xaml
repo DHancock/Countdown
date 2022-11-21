@@ -6,14 +6,13 @@
     xmlns:vm="using:Countdown.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:w3c="using:AssyntSoftware.WinUI3Controls"
     mc:Ignorable="d">
 
     <Page.Resources>
-        <Style x:Name="ctbs" TargetType="local:CountdownTextBox">
+        <Style x:Key="ctbs" TargetType="local:CountdownTextBox">
             <Setter Property="ContentStyle" Value="Number"/>
             <Setter Property="AutoTabStyle" Value="Off"/>
-            <Setter Property="Margin" Value="5,0,5,5"/>
+            <Setter Property="Margin" Value="3,0,3,5"/>
         </Style>
     </Page.Resources>
 
@@ -27,9 +26,9 @@
 
             <local:Clock Style="{ThemeResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-            <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="LightGray" BorderThickness="1" CornerRadius="4" Padding="15" Margin="10">
+            <Border Style="{StaticResource CommonBorderStyle}">
                 <Grid RowDefinitions="*,*,*,*" ColumnDefinitions="*,*,*,*,*,*">
-                    <TextBlock Text="Tiles" Grid.ColumnSpan="9"/>
+                    <TextBlock Text="Tiles" Grid.ColumnSpan="9" Style="{StaticResource HeadingStyle}"/>
 
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="0" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[0], Mode=OneWay}"/>
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[1], Mode=OneWay}"/>
@@ -38,12 +37,12 @@
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="4" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[4], Mode=OneWay}"/>
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="5" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[5], Mode=OneWay}"/>
 
-                    <TextBlock Text="Target"  Grid.Row="2" Grid.ColumnSpan="9"/>
-                    <local:CountdownTextBox Grid.Row="3" Grid.ColumnSpan="2" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Target, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[6], Mode=OneWay}"/>
+                    <TextBlock Text="Target" Grid.Row="2" Grid.ColumnSpan="9" Style="{StaticResource HeadingStyle}"/>
+                    <local:CountdownTextBox Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Left" Width="60" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Target, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[6], Mode=OneWay}"/>
                 </Grid>
             </Border>
 
-            <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="LightGray" BorderThickness="1" CornerRadius="4" Padding="15" Margin="10">
+            <Border Style="{StaticResource CommonBorderStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -69,7 +68,7 @@
             </Border>
         </StackPanel>
 
-        <ListView x:Name="EquationList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.EquationList, Mode=OneWay}" BorderBrush="LightGray">
+        <ListView x:Name="EquationList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.EquationList, Mode=OneWay}">
             <ListView.Resources>
                 <StandardUICommand x:Name="CopyCommand" Kind="Copy" ExecuteRequested="CopyCommand_ExecuteRequested" CanExecuteRequested="CopyCommand_CanExecuteRequested"/>
             </ListView.Resources>

@@ -5,6 +5,10 @@
     xmlns:local="using:Countdown.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    MinWidth="700"
+    MinHeight="490"
+    InitialWidth="700"
+    InitialHeight="490"
     mc:Ignorable="d">
 
     <ContentControl x:Name="layoutRoot" Style="{StaticResource WindowContentStyle}" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}">

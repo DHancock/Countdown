@@ -82,8 +82,8 @@
             
             <!-- lists -->
             <SolidColorBrush x:Key="ResultsListBackgroundBrush">White</SolidColorBrush>
-            <SolidColorBrush x:Key="ResultsListBoderBrush" Color="Transparent"/>
-            <Thickness x:Key="ResultsListBoderThickness">0</Thickness>
+            <SolidColorBrush x:Key="ResultsListBoderBrush" Color="LightGray"/>
+            <Thickness x:Key="ResultsListBoderThickness">1</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush">DarkGray</SolidColorBrush>
 

@@ -23,17 +23,30 @@
                 <Setter Property="Margin" Value="5"/>
                 <Setter Property="SelectionMode" Value="Extended"/>
                 <Setter Property="Background" Value="{ThemeResource ResultsListBackgroundBrush}"/>
-                <!--<Setter Property="BorderBrush" Value="{ThemeResource ResultsListBoderBrush}"/>
-                <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBoderThickness}"/>-->
+                <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBoderBrush}"/>
+                <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBoderThickness}"/>
                 <Setter Property="CornerRadius" Value="6"/>
-                <Setter Property="BorderBrush" Value="LightGray"/>
-                <Setter Property="BorderThickness" Value="1"/>
             </Style>
 
+            <!-- explicit border style (an implicit style has side effects on Viewboxs, ScrollViewers etc.) -->
+            <Style x:Key="CommonBorderStyle" TargetType="Border">
+                <Setter Property="Margin" Value="7"/>
+                <Setter Property="Padding" Value="7"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBoderBrush}"/>
+                <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBoderThickness}"/>
+                <Setter Property="Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
+                <Setter Property="CornerRadius" Value="4"/>
+            </Style>
+
+            <!-- entry fields heading text -->
+            <Style x:Name="HeadingStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
+                <Setter Property="Margin" Value="7,0,0,5"/>
+            </Style>
+            
             <!-- make all the result lists start at the same x coordinate -->
             <GridLength x:Key="InputGridWidth">340</GridLength>
 
-
+            <!-- window content control with global visual states -->
             <Style x:Key="WindowContentStyle" TargetType="ContentControl">
                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                 <Setter Property="VerticalContentAlignment" Value="Stretch" />

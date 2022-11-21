@@ -6,17 +6,18 @@
     xmlns:vm="using:Countdown.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:w3c="using:AssyntSoftware.WinUI3Controls"
     mc:Ignorable="d">
 
     <Page.Resources>
-        <Style x:Name="RW" TargetType="local:CountdownTextBox">
+        <Style x:Key="RW" TargetType="local:CountdownTextBox">
             <Setter Property="ContentStyle" Value="Letter"/>
             <Setter Property="AutoTabStyle" Value="AlwaysTab"/>
         </Style>
-
-        <Style x:Name="RO" TargetType="local:CountdownTextBox" BasedOn="{StaticResource RW}">
+        <Style x:Key="RO" TargetType="local:CountdownTextBox" BasedOn="{StaticResource RW}">
             <Setter Property="IsReadOnly" Value="true"/>
+        </Style>
+        <Style x:Key="SolutionTitle" TargetType="TextBlock" BasedOn="{StaticResource HeadingStyle}">
+            <Setter Property="Margin" Value="7,7,7,7"/>
         </Style>
     </Page.Resources>
 
@@ -30,9 +31,10 @@
 
             <local:Clock Style="{ThemeResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-            <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="LightGray" BorderThickness="1" CornerRadius="4">
-                <Grid RowDefinitions="*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
-                    <TextBlock Text="Conundrum" Grid.ColumnSpan="9"/>
+            <Border Style="{StaticResource CommonBorderStyle}">
+                <Grid RowDefinitions="*,*,*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
+                    
+                    <TextBlock Text="Conundrum" Grid.ColumnSpan="9" Style="{StaticResource HeadingStyle}"/>
                     
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="0" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -43,10 +45,23 @@
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="6" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="7" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="8" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutoTabStyle="Off"/>
+
+
+                    <TextBlock Text="Solution" Grid.Row="2" Grid.ColumnSpan="9" Style="{StaticResource SolutionTitle}"/>
+
+                    <local:CountdownTextBox Grid.Row="3" Grid.Column="0" Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(0, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(1, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(2, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="3" Grid.Column="3" Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(3, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="3" Grid.Column="4" Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(4, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="3" Grid.Column="5" Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(5, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="3" Grid.Column="6" Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(6, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="3" Grid.Column="7" Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(7, 1), Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="3" Grid.Column="8" Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(8, 1), Mode=OneWay}"/>              
                 </Grid>
             </Border>
 
-            <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="LightGray" BorderThickness="1" CornerRadius="4" Padding="15" Margin="10">
+            <Border Style="{StaticResource CommonBorderStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -73,16 +88,11 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="{x:Bind Content}" Grid.Column="0" HorizontalAlignment="Left"/>
-                        <TextBlock Text="{x:Bind Solution}" Grid.Column="1" HorizontalAlignment="Left"/>
+                        <TextBlock Text="{x:Bind Solution}" Grid.Column="0" HorizontalAlignment="Left"/>
+                        <TextBlock Text="{x:Bind Content}" Grid.Column="1" HorizontalAlignment="Left"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment"  Value="Stretch"/>
-                </Style>
-            </ListView.ItemContainerStyle>
             <ListView.ContextFlyout>
                 <MenuFlyout>
                     <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
