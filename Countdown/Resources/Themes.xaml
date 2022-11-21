@@ -24,6 +24,8 @@
 
             <!-- lists -->
             <SolidColorBrush x:Key="ResultsListBackgroundBrush" Color="{ThemeResource SystemColorWindowColor}"/>
+            <SolidColorBrush x:Key="ResultsListBoderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+            <Thickness x:Key="ResultsListBoderThickness">1</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
 
@@ -57,6 +59,8 @@
 
             <!-- lists -->
             <SolidColorBrush x:Key="ResultsListBackgroundBrush">#FF272727</SolidColorBrush>
+            <StaticResource x:Key="ResultsListBoderBrush" ResourceKey="CommonBoderBrush"/>
+            <StaticResource x:Key="ResultsListBoderThickness" ResourceKey="CommonBoderThickness"/>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush">DarkGray</SolidColorBrush>
 
@@ -88,9 +92,11 @@
 
             <!-- lists -->
             <SolidColorBrush x:Key="ResultsListBackgroundBrush">Snow</SolidColorBrush>
+            <StaticResource x:Key="ResultsListBoderBrush" ResourceKey="CommonBoderBrush"/>
+            <StaticResource x:Key="ResultsListBoderThickness" ResourceKey="CommonBoderThickness"/>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush">DarkGray</SolidColorBrush>
-
+            
             <!-- navigation view -->
             <Thickness x:Key="TopNavigationViewContentGridBorderThickness">0</Thickness>
 
