@@ -7,6 +7,9 @@ namespace Countdown;
 /// </summary>
 public partial class App : Application
 {
+    public const string cDisplayName = "Countdown";
+    public const string cIconResourceID = "32512";
+    
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
     /// executed, and as such is the logical equivalent of main() or WinMain().

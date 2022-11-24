@@ -123,12 +123,26 @@ internal class SubClassWindow : Window
 
     protected void SetWindowIconFromAppIcon()
     {
-        const string cAppIconResourceId = "#32512";
-        DestroyIconSafeHandle hIcon = PInvoke.LoadIcon(null, cAppIconResourceId);
-
-        if (hIcon.IsInvalid) 
+        if (!PInvoke.GetModuleHandleEx(0, null, out FreeLibrarySafeHandle module))
             throw new Win32Exception(Marshal.GetLastPInvokeError());
 
-        appWindow.SetIcon(Win32Interop.GetIconIdFromIcon(hIcon.DangerousGetHandle()));
+        int size = PInvoke.GetSystemMetrics(SYSTEM_METRICS_INDEX.SM_CXICON);
+
+        if (size == 0)
+            throw new Win32Exception(); // get last error doesn't provide any extra information 
+
+        SafeFileHandle hIcon = PInvoke.LoadImage(module, $"#{App.cIconResourceID}", GDI_IMAGE_TYPE.IMAGE_ICON, size, size, IMAGE_FLAGS.LR_DEFAULTCOLOR);
+
+        if (hIcon.IsInvalid)
+            throw new Win32Exception(Marshal.GetLastPInvokeError());
+
+        try
+        {
+            appWindow.SetIcon(Win32Interop.GetIconIdFromIcon(hIcon.DangerousGetHandle()));
+        }
+        finally
+        {
+            hIcon.SetHandleAsInvalid(); // SafeFileHandle must not release the shared icon
+        }
     }
 }

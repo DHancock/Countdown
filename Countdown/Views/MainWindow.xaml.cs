@@ -1,5 +1,4 @@
-﻿using Countdown.Utils;
-using Countdown.ViewModels;
+﻿using Countdown.ViewModels;
 
 namespace Countdown.Views;
 
@@ -8,8 +7,6 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class MainWindow : SubClassWindow
 {
-    private const string cWindowTitle = "Countdown";
-
     private readonly ViewModel rootViewModel;
 
     private readonly FrameNavigationOptions frameNavigationOptions = new FrameNavigationOptions()
@@ -47,19 +44,20 @@ internal sealed partial class MainWindow : SubClassWindow
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
             customTitleBar.ParentAppWindow = appWindow;
-            customTitleBar.Title = cWindowTitle;
+            customTitleBar.Title = App.cDisplayName;
             Activated += customTitleBar.ParentWindow_Activated;
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
         }
         else
         {
             customTitleBar.Visibility = Visibility.Collapsed;
-            Title = cWindowTitle;
-            SetWindowIconFromAppIcon();
+            Title = App.cDisplayName;
         }
 
+        // always set the window icon, it's used in the task switcher
+        SetWindowIconFromAppIcon();
+
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events
-        // see https://github.com/microsoft/microsoft-ui-xaml/issues/5744
         if (RootNavigationView.SelectionFollowsFocus == NavigationViewSelectionFollowsFocus.Disabled)
             RootNavigationView.SelectedItem = RootNavigationView.MenuItems[0];
 

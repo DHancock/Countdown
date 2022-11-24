@@ -1,6 +1,6 @@
 ﻿namespace Countdown.Views;
 
-public sealed partial class CustomTitleBar : UserControl
+internal sealed partial class CustomTitleBar : UserControl
 {
     private AppWindow? parentAppWindow;
 
@@ -10,8 +10,6 @@ public sealed partial class CustomTitleBar : UserControl
 
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
-            LoadWindowIconImage();
-
             SizeChanged += (s, e) =>
             {
                 Debug.Assert(ParentAppWindow is not null);
@@ -27,12 +25,12 @@ public sealed partial class CustomTitleBar : UserControl
             {
                 UpdateTitleBarCaptionButtons();
             };
-        }
-    }
 
-    private async void LoadWindowIconImage()
-    {
-        windowIcon.Source = await MainWindow.LoadEmbeddedImageResource("Countdown.Resources.16.png");
+            Loaded += async (s, a) =>
+            {
+                windowIcon.Source = await MainWindow.LoadEmbeddedImageResource("Countdown.Resources.16.png");
+            };
+        }
     }
 
     public AppWindow? ParentAppWindow
