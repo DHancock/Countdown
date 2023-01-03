@@ -33,6 +33,8 @@ internal sealed partial class LettersView : Page
 
     private void LoadTreeView()
     {
+        WordTreeView.RootNodes.Clear();
+
         if (ViewModel is null || ViewModel.WordList is null)
             return;
 
