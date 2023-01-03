@@ -20,16 +20,6 @@ internal sealed partial class MainWindow : SubClassWindow
     {
         this.InitializeComponent();
 
-        if (!TrySetMicaBackdrop())  // acrylic also works, but isn't recommended according to the UI guidelines
-        {
-            layoutRoot.Loaded += (s, e) =>
-            {
-                // the visual states won't exist until after OnApplyTemplate() has completed
-                bool stateFound = VisualStateManager.GoToState(layoutRoot, "BackdropNotSupported", false);
-                Debug.Assert(stateFound);
-            };
-        }
-
         // the default settings button doesn't have an access key, and there's no way to set one
         RootNavigationView.FooterMenuItems.Add(CreateSettingsNavigationViewItem());
 

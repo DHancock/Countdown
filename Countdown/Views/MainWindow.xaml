@@ -5,47 +5,48 @@
     xmlns:local="using:Countdown.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
     MinWidth="700"
-    MinHeight="490"
+    MinHeight="485"
     InitialWidth="700"
-    InitialHeight="490"
-    mc:Ignorable="d">
+    InitialHeight="485">
 
-    <ContentControl x:Name="layoutRoot" Style="{StaticResource WindowContentStyle}" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}">
 
-        <Grid>
-            <Grid.Resources>
-                <!-- required to make the NavigationView transparent, at least in top mode -->
-                <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent" />
-                <SolidColorBrush x:Key="NavigationViewItemBackground" Color="Transparent" />
-                <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
-            </Grid.Resources>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+    <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}">
+        
+        <Grid.Resources>
+            <!-- required to make the NavigationView transparent, at least in top mode -->
+            <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="NavigationViewItemBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
+            <Thickness x:Key="TopNavigationViewContentGridBorderThickness">0</Thickness>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <local:CustomTitleBar x:Name="customTitleBar"/>
+        <local:CustomTitleBar x:Name="customTitleBar"/>
 
-            <NavigationView
-                Grid.Row="1"
-                x:Name="RootNavigationView"
-                PaneDisplayMode="Top"
-                IsBackButtonVisible="Collapsed"
-                IsSettingsVisible="False"
-                SelectionFollowsFocus="Disabled"
-                SelectionChanged="RootNavigationView_SelectionChanged">
+        <NavigationView
+            Grid.Row="1"
+            x:Name="RootNavigationView"
+            PaneDisplayMode="Top"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="False"
+            SelectionFollowsFocus="Disabled"
+            SelectionChanged="RootNavigationView_SelectionChanged">
 
-                <NavigationView.MenuItems>
-                    <NavigationViewItem Content="Numbers" Tag="NumbersView" AccessKey="N"/>
-                    <NavigationViewItem Content="Letters" Tag="LettersView" AccessKey="L"/>
-                    <NavigationViewItem Content="Conundrum" Tag="ConundrumView" AccessKey="O"/>
-                    <NavigationViewItem Content="Stopwatch" Tag="StopwatchView" AccessKey="T"/>
-                </NavigationView.MenuItems>
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Numbers" Tag="NumbersView" AccessKey="N"/>
+                <NavigationViewItem Content="Letters" Tag="LettersView" AccessKey="L"/>
+                <NavigationViewItem Content="Conundrum" Tag="ConundrumView" AccessKey="O"/>
+                <NavigationViewItem Content="Stopwatch" Tag="StopwatchView" AccessKey="T"/>
+            </NavigationView.MenuItems>
 
-                <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated"/>
-            </NavigationView>
- 
-        </Grid>
-    </ContentControl>
+            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated"/>
+        </NavigationView>
+
+    </Grid>
+
 </local:SubClassWindow>

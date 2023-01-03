@@ -29,7 +29,7 @@ public partial class App : Application
         m_window = new MainWindow();
     }
 
-    public static Window? MainWindow { get => ((App)Current).m_window; }
+    internal static MainWindow? MainWindow { get => (MainWindow?)((App)Current).m_window; }
 
     private Window? m_window;
 }
