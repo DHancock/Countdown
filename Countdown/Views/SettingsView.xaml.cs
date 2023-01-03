@@ -7,11 +7,20 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class SettingsView : Page
 {
+    private SettingsViewModel? viewModel;
+
     public SettingsView()
     {
         this.InitializeComponent();
     }
 
-    public SettingsViewModel? ViewModel { get; set; }
-
+    public SettingsViewModel? ViewModel 
+    { 
+        get => viewModel;
+        set
+        {
+            Debug.Assert(value is not null);
+            viewModel = value;
+        }
+    }
 }

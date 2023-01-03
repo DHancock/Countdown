@@ -3,7 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Countdown.Views"
-    xmlns:vm="using:Countdown.ViewModels"
+    xmlns:w3c="using:AssyntSoftware.WinUI3Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -47,10 +47,8 @@
 
             <local:Clock Style="{ThemeResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-            <Border Style="{StaticResource CommonBorderStyle}">
+            <w3c:GroupBox Heading="Tiles" Style="{StaticResource CommonGroupBoxStyle}">
                 <Grid RowDefinitions="*,*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
-                    <TextBlock Text="Tiles" Grid.ColumnSpan="9" Style="{StaticResource HeadingStyle}"/>
-
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="0" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[0], Mode=OneWay}"/>
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[1], Mode=OneWay}"/>
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[2], Mode=OneWay}"/>
@@ -60,7 +58,6 @@
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="6" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[6], Mode=OneWay}"/>
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="7" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[7], Mode=OneWay}"/>
                     <local:CountdownTextBox Grid.Row="1" Grid.Column="8" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[8], Mode=OneWay}" AutoTabStyle="Off"/>
-
 
                     <Grid Margin="0,19,0,10" Grid.Row="2" Grid.ColumnSpan="9">
                         <Grid.ColumnDefinitions>
@@ -76,30 +73,28 @@
                         </Button>
                     </Grid>
                 </Grid>
-            </Border>
+            </w3c:GroupBox>
 
-            <Border Style="{StaticResource CommonBorderStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-                    <SplitButton x:Name="ChooseNumbersOption" Content="Choose" Command="{x:Bind ViewModel.ChooseLettersCommand}">
-                        <SplitButton.Flyout>
-                            <MenuFlyout Placement="Bottom">
-                                <RadioMenuFlyoutItem Text="3 vowels and 6 consonants" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(0), Mode=OneTime}" CommandParameter="0" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="3"/>
-                                <RadioMenuFlyoutItem Text="4 vowels and 5 consonants" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(1), Mode=OneTime}" CommandParameter="1" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="4"/>
-                                <RadioMenuFlyoutItem Text="5 vowels and 4 consonants" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(2), Mode=OneTime}" CommandParameter="2" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="5"/>
-                            </MenuFlyout>
-                        </SplitButton.Flyout>
-                    </SplitButton>
+                <SplitButton x:Name="ChooseNumbersOption" Content="Choose" Command="{x:Bind ViewModel.ChooseLettersCommand}">
+                    <SplitButton.Flyout>
+                        <MenuFlyout Placement="Bottom">
+                            <RadioMenuFlyoutItem Text="3 vowels and 6 consonants" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(0), Mode=OneTime}" CommandParameter="0" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="3"/>
+                            <RadioMenuFlyoutItem Text="4 vowels and 5 consonants" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(1), Mode=OneTime}" CommandParameter="1" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="4"/>
+                            <RadioMenuFlyoutItem Text="5 vowels and 4 consonants" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(2), Mode=OneTime}" CommandParameter="2" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="5"/>
+                        </MenuFlyout>
+                    </SplitButton.Flyout>
+                </SplitButton>
 
-                    <Button Grid.Column="1" HorizontalAlignment="Center" Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Style="{StaticResource StartStopButtonStyle}"/>
-                    <Button Grid.Column="2" Content="Solve" Command="{x:Bind ViewModel.SolveCommand}"/>
-                </Grid>
-            </Border>
+                <Button Grid.Column="1" HorizontalAlignment="Center" Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Style="{StaticResource StartStopButtonStyle}"/>
+                <Button Grid.Column="2" Content="Solve" Command="{x:Bind ViewModel.SolveCommand}"/>
+            </Grid>
         </StackPanel>
 
         <Grid Grid.Column="1" Margin="5">

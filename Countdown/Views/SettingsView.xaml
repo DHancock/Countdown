@@ -8,13 +8,29 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Margin="20, 20, 0, 0">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto">
+        <Grid Margin="20,30,20,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="400"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <StackPanel>
-            <TextBlock Text="Theme Mode" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-            <RadioButton Content="Light" IsChecked="{x:Bind ViewModel.IsLightTheme, Mode=TwoWay}"/>
-            <RadioButton Content="Dark" IsChecked="{x:Bind ViewModel.IsDarkTheme, Mode=TwoWay}"/>
-            <RadioButton Content="Use system setting" IsChecked="{x:Bind ViewModel.IsSystemTheme, Mode=TwoWay}"/>
-        </StackPanel>
-    </Grid>
+            <StackPanel>
+                <Expander Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon Glyph="&#xE2B1;"/>
+                            <TextBlock Text="App Theme"/>
+                        </StackPanel>
+                    </Expander.Header>
+
+                    <StackPanel>
+                        <RadioButton Content="Light" IsChecked="{x:Bind ViewModel.IsLightTheme, Mode=TwoWay}"/>
+                        <RadioButton Content="Dark" IsChecked="{x:Bind ViewModel.IsDarkTheme, Mode=TwoWay}"/>
+                        <RadioButton Content="Use system setting" IsChecked="{x:Bind ViewModel.IsSystemTheme, Mode=TwoWay}"/>
+                    </StackPanel>
+                </Expander>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </Page>

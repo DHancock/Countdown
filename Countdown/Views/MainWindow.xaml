@@ -11,11 +11,9 @@
     InitialWidth="700"
     InitialHeight="485">
 
-
-    <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}">
-        
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}">
         <Grid.Resources>
-            <!-- required to make the NavigationView transparent, at least in top mode -->
+            <!--required to make the NavigationView transparent, at least in top mode-->
             <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent" />
             <SolidColorBrush x:Key="NavigationViewItemBackground" Color="Transparent" />
             <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
@@ -44,9 +42,7 @@
                 <NavigationViewItem Content="Stopwatch" Tag="StopwatchView" AccessKey="T"/>
             </NavigationView.MenuItems>
 
-            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated"/>
+            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" IsNavigationStackEnabled="False"/>
         </NavigationView>
-
     </Grid>
-
 </local:SubClassWindow>

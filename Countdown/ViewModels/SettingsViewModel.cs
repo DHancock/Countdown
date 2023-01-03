@@ -1,6 +1,4 @@
-﻿using Countdown.Utils;
-
-namespace Countdown.ViewModels;
+﻿namespace Countdown.ViewModels;
 
 internal sealed class SettingsViewModel : PropertyChangedBase
 {
