@@ -68,7 +68,7 @@ internal class Model
     }
 
     // solve the letters game
-    public List<WordItem> Solve(char[] letters) => wordDictionary.Solve(letters);
+    public List<string> Solve(char[] letters) => wordDictionary.Solve(letters);
 
     // solve the conundrum game
     public string Solve() => wordDictionary.SolveConundrum(Conundrum);

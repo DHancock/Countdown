@@ -13,8 +13,28 @@
             <Setter Property="ContentStyle" Value="Letter"/>
             <Setter Property="AutoTabStyle" Value="AlwaysTab"/>
         </Style>
-        
-        <CollectionViewSource x:Name="WordListGrouping" Source="{x:Bind ViewModel.WordList, Mode=OneWay}" IsSourceGrouped="true"/>
+
+        <DataTemplate x:Key="WordHeadingTemplate" x:DataType="TreeViewNode">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition MinWidth="110" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{x:Bind ((local:TreeViewWordItem)Content).Text}" Foreground="{ThemeResource WordListGroupHeaderTextBrush}" FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="1" Text="{x:Bind Children.Count}" Foreground="{ThemeResource WordListGroupHeaderCountBrush}"/>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="WordItemTemplate" x:DataType="TreeViewNode">
+            <Grid>
+                <TextBlock Text="{x:Bind ((local:TreeViewWordItem)Content).Text}"/>
+            </Grid>
+        </DataTemplate>
+
+        <local:WordItemTemplateSelector x:Key="WordTreeTemplateSelector"
+            WordHeadingTemplate="{StaticResource WordHeadingTemplate}"
+            WordItemTemplate="{StaticResource WordItemTemplate}" />
+
     </Page.Resources>
 
     <Grid>
@@ -82,36 +102,30 @@
             </Border>
         </StackPanel>
 
-        <ListView x:Name="WordList" Grid.Column="1" ItemsSource="{x:Bind WordListGrouping.View, Mode=OneWay}">
-            <ListView.Resources>
-                <StandardUICommand x:Name="CopyCommand" Kind="Copy" ExecuteRequested="CopyCommand_ExecuteRequested" CanExecuteRequested="CopyCommand_CanExecuteRequested"/>
-            </ListView.Resources>
-            <ListView.GroupStyle>
-                <GroupStyle>
-                    <GroupStyle.HeaderTemplate>
-                        <DataTemplate x:DataType="vm:GroupedWordList">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition MinWidth="150" />
-                                    <ColumnDefinition MinWidth="100" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{x:Bind Title}" HorizontalAlignment="Left" Foreground="{ThemeResource WordListGroupHeaderTextBrush}" FontWeight="SemiBold" FontSize="16"/>
-                                <TextBlock Grid.Column="1" Text="{x:Bind Count}" HorizontalAlignment="Right" Foreground="{ThemeResource WordListGroupHeaderCountBrush}" FontSize="16"/>
-                            </Grid>
-                        </DataTemplate>
-                    </GroupStyle.HeaderTemplate>
-                </GroupStyle>
-            </ListView.GroupStyle>
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="vm:WordItem">
-                    <TextBlock Text="{x:Bind Content}"/>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-            <ListView.ContextFlyout>
-                <MenuFlyout >
-                    <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
-                </MenuFlyout>
-            </ListView.ContextFlyout>
-        </ListView>
+        <Grid Grid.Column="1" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <AutoSuggestBox x:Name="SuggestionBox"
+                TextChanged="AutoSuggestBox_TextChanged"
+                SuggestionChosen="AutoSuggestBox_SuggestionChosen"
+                QueryIcon="Find"
+                QuerySubmitted="AutoSuggestBox_QuerySubmitted"/>
+
+            <Border Grid.Row="1" Style="{StaticResource TreeViewBorderStyle}" Margin="0,5,0,0">
+                <TreeView x:Name="WordTreeView" ItemTemplateSelector="{StaticResource WordTreeTemplateSelector}">
+                    <TreeView.Resources>
+                        <StandardUICommand x:Name="CopyCommand" Kind="Copy" ExecuteRequested="CopyCommand_ExecuteRequested" CanExecuteRequested="CopyCommand_CanExecuteRequested"/>
+                    </TreeView.Resources>
+                    <TreeView.ContextFlyout>
+                        <MenuFlyout >
+                            <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
+                        </MenuFlyout>
+                    </TreeView.ContextFlyout>
+                </TreeView>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

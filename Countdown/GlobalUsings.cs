@@ -8,6 +8,7 @@ global using Microsoft.UI.Xaml.Controls.AnimatedVisuals;
 global using Microsoft.UI.Xaml.Data;
 global using Microsoft.UI.Xaml.Hosting;
 global using Microsoft.UI.Xaml.Input;
+global using Microsoft.UI.Xaml.Media;
 global using Microsoft.UI.Xaml.Media.Animation;
 global using Microsoft.UI.Xaml.Media.Imaging;
 global using Microsoft.UI.Xaml.Navigation;
@@ -34,7 +35,6 @@ global using Windows.System;
 global using Windows.UI;
 global using Windows.Win32;
 global using Windows.Win32.Foundation;
-global using Windows.Win32.System.WinRT;
 global using Windows.Win32.UI.Shell;
 global using Windows.Win32.UI.WindowsAndMessaging;
 

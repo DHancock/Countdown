@@ -21,7 +21,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
                                                         nameof(Letter_8)};
 
     // property backing stores
-    private IEnumerable<GroupedWordList> wordList = new List<GroupedWordList>();
+    private IEnumerable<string> wordList = new List<string>();
 
     public RelayCommand ClearCommand { get; }
     public RelayCommand PickVowelCommand { get; }
@@ -167,7 +167,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     /// <summary>
     /// Expose the list so it can be bound to by the ui 
     /// </summary>
-    public IEnumerable<GroupedWordList> WordList
+    public IEnumerable<string> WordList
     {
         get => wordList;
         private set => HandlePropertyChanged(ref wordList, value);
@@ -256,13 +256,8 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         for (int index = 0; index < Model.cLetterCount; ++index)
             letters[index] = (char)(Model.Letters[index][0] | 0x20); // to lower
 
-        List<WordItem> results = await Task.Run(() => Model.Solve(letters));
-
-        // update the ui
-        WordList = from wordItem in results
-                   group wordItem by wordItem.Content.Length into g
-                   orderby g.Key descending
-                   select new GroupedWordList(g.OrderByDescending(x => x), g.Key);
+        List<string> results = await Task.Run(() => Model.Solve(letters));
+        WordList = results;
     }
 
     private bool CanSolve(object? _, bool isExecuting)

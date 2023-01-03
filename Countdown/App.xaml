@@ -28,6 +28,15 @@
                 <Setter Property="CornerRadius" Value="6"/>
             </Style>
 
+            <!-- a tree view doesn't have a built in border, so wrap it in a border with this style -->
+            <Style x:Key="TreeViewBorderStyle" TargetType="Border">
+                <Setter Property="Padding" Value="5,0,0,0"/>
+                <Setter Property="Background" Value="{ThemeResource ResultsListBackgroundBrush}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBoderBrush}"/>
+                <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBoderThickness}"/>
+                <Setter Property="CornerRadius" Value="6"/>
+            </Style>
+            
             <!-- explicit border style (an implicit style has side effects on Viewboxs, ScrollViewers etc.) -->
             <Style x:Key="CommonBorderStyle" TargetType="Border">
                 <Setter Property="Margin" Value="7"/>

@@ -30,14 +30,14 @@ internal class WordDictionary
     /// </summary>
     /// <param name="letters"></param>
     /// <returns></returns>
-    public List<WordItem> Solve(char[] letters)
+    public List<string> Solve(char[] letters)
     {
         if ((letters is null) || (letters.Length != cMaxLetters))
             throw new ArgumentOutOfRangeException(nameof(letters));
 
         loadingEvent.Wait();  // until finished loading resources
 
-        List<WordItem> results = new List<WordItem>();
+        List<string> results = new List<string>();
 
         for (int k = letters.Length; k >= cMinLetters; --k)
         {
@@ -58,19 +58,16 @@ internal class WordDictionary
 
 
 
-    private static void AddDictionaryWordsToList(string key, Dictionary<string, byte[]> dictionary, List<WordItem> list)
+    private static void AddDictionaryWordsToList(string key, Dictionary<string, byte[]> dictionary, List<string> list)
     {
         if (dictionary.TryGetValue(key, out byte[]? data) && (data is not null))
         {
             string line = new string(GetChars(data, data.Length));
 
             if (line.Length == key.Length)
-                list.Add(new WordItem(line));
+                list.Add(line);
             else
-            {
-                foreach (string s in line.Split((char)cWord_seperator))
-                    list.Add(new WordItem(s));
-            }
+                list.AddRange(line.Split((char)cWord_seperator));
         }
     }
 
