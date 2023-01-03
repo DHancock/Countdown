@@ -30,7 +30,8 @@ internal sealed partial class MainWindow : SubClassWindow
             };
         }
 
-        RootNavigationView.MenuItems.Add(CreateSettingsNavigationViewItem());
+        // the default settings button doesn't have an access key, and there's no way to set one
+        RootNavigationView.FooterMenuItems.Add(CreateSettingsNavigationViewItem());
 
         rootViewModel = new ViewModel();
 
@@ -44,7 +45,8 @@ internal sealed partial class MainWindow : SubClassWindow
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
             customTitleBar.ParentAppWindow = appWindow;
-            customTitleBar.Title = App.cDisplayName;
+            customTitleBar.UpdateThemeAndTransparency(Settings.Data.CurrentTheme);
+            customTitleBar.Title = App.cDisplayName;           
             Activated += customTitleBar.ParentWindow_Activated;
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
         }
@@ -58,6 +60,7 @@ internal sealed partial class MainWindow : SubClassWindow
         SetWindowIconFromAppIcon();
 
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events
+        // https://github.com/microsoft/microsoft-ui-xaml/issues/5744
         if (RootNavigationView.SelectionFollowsFocus == NavigationViewSelectionFollowsFocus.Disabled)
             RootNavigationView.SelectedItem = RootNavigationView.MenuItems[0];
 

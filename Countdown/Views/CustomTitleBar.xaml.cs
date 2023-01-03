@@ -12,22 +12,18 @@ internal sealed partial class CustomTitleBar : UserControl
         {
             SizeChanged += (s, e) =>
             {
-                Debug.Assert(ParentAppWindow is not null);
-                double scaleFactor = Content.XamlRoot.RasterizationScale;
-
-                LeftPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.LeftInset / scaleFactor);
-                RightPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.RightInset / scaleFactor);
-
-                windowTitle.Width = Math.Max(e.NewSize.Width - (LeftPaddingColumn.Width.Value + IconColumn.Width.Value + RightPaddingColumn.Width.Value), 0);
+                if (IsLoaded)
+                    UpdateTitleBarPadding(e.NewSize.Width);
             };
 
             ActualThemeChanged += (s, a) =>
             {
-                UpdateTitleBarCaptionButtons();
+                UpdateThemeAndTransparency(s.ActualTheme);
             };
 
             Loaded += async (s, a) =>
             {
+                UpdateTitleBarPadding(ActualSize.X);
                 windowIcon.Source = await MainWindow.LoadEmbeddedImageResource("Countdown.Resources.16.png");
             };
         }
@@ -40,20 +36,35 @@ internal sealed partial class CustomTitleBar : UserControl
         {
             Debug.Assert(value is not null);
             parentAppWindow = value;
-            UpdateTitleBarCaptionButtons();
         }
     }
 
     public string Title
     {
-        set => windowTitle.Text = value;
+        get => windowTitle.Text;
+        set => windowTitle.Text = value ?? string.Empty;
     }
 
-    private void UpdateTitleBarCaptionButtons()
+    private void UpdateTitleBarPadding(double width)
+    {
+        Debug.Assert(ParentAppWindow is not null);
+        Debug.Assert(IsLoaded);
+
+        double scaleFactor = this.XamlRoot.RasterizationScale;
+
+        LeftPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.LeftInset / scaleFactor);
+        RightPaddingColumn.Width = new GridLength(ParentAppWindow.TitleBar.RightInset / scaleFactor);
+
+        windowTitle.Width = Math.Max(width - (LeftPaddingColumn.Width.Value + IconColumn.Width.Value + RightPaddingColumn.Width.Value), 0);
+    }
+
+    public void UpdateThemeAndTransparency(ElementTheme theme)
     {
         Debug.Assert(ParentAppWindow is not null);
         Debug.Assert(ParentAppWindow.TitleBar is not null);
-        Debug.Assert(ActualTheme != ElementTheme.Default);
+
+        if (theme == ElementTheme.Default)
+            theme = App.Current.RequestedTheme == ApplicationTheme.Light ? ElementTheme.Light : ElementTheme.Dark;
 
         AppWindowTitleBar titleBar = ParentAppWindow.TitleBar;
 
@@ -63,7 +74,7 @@ internal sealed partial class CustomTitleBar : UserControl
         titleBar.ButtonPressedBackgroundColor = Colors.Transparent;
         titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-        if (ActualTheme == ElementTheme.Light)
+        if (theme == ElementTheme.Light)
         {
             titleBar.ButtonForegroundColor = Colors.Black;
             titleBar.ButtonPressedForegroundColor = Colors.Black;
