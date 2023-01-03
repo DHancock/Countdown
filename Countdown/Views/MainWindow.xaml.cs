@@ -43,11 +43,11 @@ internal sealed partial class MainWindow : SubClassWindow
         else
         {
             customTitleBar.Visibility = Visibility.Collapsed;
-            Title = App.cDisplayName;
         }
 
-        // always set the window icon, it's used in the task switcher
+        // always set the window icon and title, it's used in the task switcher
         SetWindowIconFromAppIcon();
+        appWindow.Title = App.cDisplayName;
 
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events
         // https://github.com/microsoft/microsoft-ui-xaml/issues/5744
