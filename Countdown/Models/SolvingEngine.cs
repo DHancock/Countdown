@@ -42,7 +42,7 @@ internal sealed class SolvingEngine
     private readonly int[] operators;
 
     /// a list of results equaling the target
-    public List<EquationItem> Solutions { get; } = new List<EquationItem>();
+    public List<string> Solutions { get; } = new List<string>();
 
     // If no solutions found this is the closest equation
     public string ClosestEquation { get; private set; } = string.Empty;
@@ -74,7 +74,7 @@ internal sealed class SolvingEngine
         charStack = new StackManager<char>(44, n);
 
         // ensure capacity
-        Solutions = new List<EquationItem>(250);
+        Solutions = new List<string>(250);
 
         // record params
         this.target = target;
@@ -183,7 +183,7 @@ internal sealed class SolvingEngine
                 {
                     if (result == target)   // got one...
                     {
-                        Solutions.Add(new EquationItem(ConvertToString(mapEntry, permutation)));
+                        Solutions.Add(ConvertToString(mapEntry, permutation));
                         break;
                     }
 

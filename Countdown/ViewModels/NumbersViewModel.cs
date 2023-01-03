@@ -8,7 +8,7 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     private const int cEmptyTileValue = -1;
 
     // the solver results that the ui can bind to
-    private List<EquationItem> equationList = new List<EquationItem>();
+    private List<string> equationList = new List<string>();
 
     // the number of input text boxes which need validating (6 tiles plus the target)
     private const int cInputCount = 7;  
@@ -233,25 +233,31 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
 
         if (results.Solutions.Count == 0)
         {
-            results.Solutions.Add(new EquationItem("There are no solutions."));
+            results.Solutions.Add("There are no solutions.");
 
             if (results.HasClosestResult)
             {
-                results.Solutions.Add(new EquationItem($"The closest match is {results.Difference} away."));
-                results.Solutions.Add(new EquationItem(string.Empty));
-                results.Solutions.Add(new EquationItem($"{results.ClosestEquation} = {results.ClosestResult}"));
+                results.Solutions.Add($"The closest match is {results.Difference} away.");
+                results.Solutions.Add(string.Empty);
+                results.Solutions.Add($"{results.ClosestEquation} = {results.ClosestResult}");
             }
         }
         else
         {
-            results.Solutions.Sort();   // guarantee ordering, independent of parallel partition order
+            // guarantee ordering independent of parallel partition order
+            results.Solutions.Sort((a, b) =>
+            {
+                // shorter strings first, then reverse alphabetical (numbers before parenthesis)
+                int lengthCompare = a.Length - b.Length;
+                return lengthCompare == 0 ? string.Compare(b, a, StringComparison.CurrentCulture) : lengthCompare;
+            });   
 
 #if false
-            results.Solutions.Add(new EquationItem(string.Empty));
-            results.Solutions.Add(new EquationItem($"There are {results.Solutions.Count - 1} solutions."));
-            results.Solutions.Add(new EquationItem($"Evaluated in {results.Elapsed.TotalMilliseconds} milliseconds."));
-            results.Solutions.Add(new EquationItem($"Tiles are {tiles[0]}, {tiles[1]}, {tiles[2]}, {tiles[3]}, {tiles[4]}, {tiles[5]}"));
-            results.Solutions.Add(new EquationItem($"Target is {target}"));
+            results.Solutions.Add(string.Empty);
+            results.Solutions.Add($"There are {results.Solutions.Count - 1} solutions.");
+            results.Solutions.Add($"Evaluated in {results.Elapsed.TotalMilliseconds} milliseconds.");
+            results.Solutions.Add($"Tiles are {tiles[0]}, {tiles[1]}, {tiles[2]}, {tiles[3]}, {tiles[4]}, {tiles[5]}");
+            results.Solutions.Add($"Target is {target}");
 #endif
         }
 
@@ -267,7 +273,7 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     /// <summary>
     /// Expose the list so it can be bound to by the ui 
     /// </summary>
-    public List<EquationItem> EquationList
+    public List<string> EquationList
     {
         get => equationList;
         private set => HandlePropertyChanged(ref equationList, value);

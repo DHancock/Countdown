@@ -73,8 +73,8 @@
                 <StandardUICommand x:Name="CopyCommand" Kind="Copy" ExecuteRequested="CopyCommand_ExecuteRequested" CanExecuteRequested="CopyCommand_CanExecuteRequested"/>
             </ListView.Resources>
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="vm:EquationItem">
-                    <TextBlock Text="{x:Bind Content}"/>
+                <DataTemplate x:DataType="x:String">
+                    <TextBlock Text="{x:Bind}"/>
                 </DataTemplate>
             </ListView.ItemTemplate>
             <ListView.ContextFlyout>

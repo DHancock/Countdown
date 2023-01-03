@@ -304,13 +304,3 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         return TileOptionIndex == option;
     }
 }
-
-internal class GroupedWordList : List<WordItem>
-{
-    public GroupedWordList(IEnumerable<WordItem> items, int key) : base(items)
-    {
-        Title = $"{key} letter words";
-    }
-
-    public string Title { get; }
-}

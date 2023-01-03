@@ -87,7 +87,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{x:Bind Solution}" Grid.Column="0" HorizontalAlignment="Left"/>
-                        <TextBlock Text="{x:Bind Content}" Grid.Column="1" HorizontalAlignment="Left"/>
+                        <TextBlock Text="{x:Bind Conundrum}" Grid.Column="1" HorizontalAlignment="Left"/>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

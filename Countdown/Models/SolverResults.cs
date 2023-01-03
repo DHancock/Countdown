@@ -1,6 +1,4 @@
-﻿using Countdown.ViewModels;
-
-namespace Countdown.Models;
+﻿namespace Countdown.Models;
 
 internal sealed class SolverResults
 {
@@ -12,10 +10,10 @@ internal sealed class SolverResults
 
 
     // collects a reference of each solver's solution list
-    private List<List<EquationItem>> SolverLists { get; } = new List<List<EquationItem>>(100);
+    private List<List<string>> SolverLists { get; } = new List<List<string>>(100);
 
     // used to aggregate all the solver list contents into a single list
-    public List<EquationItem> Solutions { get; private set; } = new List<EquationItem>();
+    public List<string> Solutions { get; private set; } = new List<string>();
 
     // If no solutions found this is the closest equation
     public string ClosestEquation { get; private set; } = string.Empty;
@@ -76,12 +74,12 @@ internal sealed class SolverResults
     {
         int size = 0;
 
-        foreach (List<EquationItem> solverResults in SolverLists)
+        foreach (List<string> solverResults in SolverLists)
             size += solverResults.Count;
 
         Solutions = new(size);
 
-        foreach (List<EquationItem> solverResults in SolverLists)
+        foreach (List<string> solverResults in SolverLists)
             Solutions.AddRange(solverResults);
     }
 }
