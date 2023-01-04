@@ -151,15 +151,6 @@
             Debug.Assert(stateFound);
         }
 
-
-        private Func<char, bool> GetPredicate()
-        {
-            if (ContentStyle == ContentType.Number)
-                return c => c is >= '0' and <= '9';
-
-            return c => c is (>= 'A' and <= 'Z') or (>= 'a' and <= 'z');
-        }
-
         private void Tb_GotFocus(object sender, RoutedEventArgs e)
         {
             tb.SelectAll();
@@ -172,7 +163,13 @@
 
         private void Tb_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
         {
-            args.Cancel = !args.NewText.All(GetPredicate());
+            if (!IsReadOnly)
+            {
+                if (ContentStyle == ContentType.Number)
+                    args.Cancel = !args.NewText.All(c => c is >= '0' and <= '9');
+                else
+                    args.Cancel = !args.NewText.All(c => c is (>= 'A' and <= 'Z') or (>= 'a' and <= 'z'));
+            }
         }
 
         /// <summary>

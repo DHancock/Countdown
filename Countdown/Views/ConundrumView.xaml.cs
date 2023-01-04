@@ -21,16 +21,22 @@ internal sealed partial class ConundrumView : Page
         List<object> items = new List<object>(ConundrumList.SelectedItems);
         IList<ConundrumItem> source = (IList<ConundrumItem>)ConundrumList.ItemsSource;
 
-        foreach (ConundrumItem item in items.Cast<ConundrumItem>())
-            source.Remove(item);
+        foreach (object item in items)
+        {
+            Debug.Assert(item is ConundrumItem);
+            source.Remove((ConundrumItem)item);
+        }
     }
 
     private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
     {
         StringBuilder sb = new StringBuilder();
 
-        foreach (ConundrumItem c in ConundrumList.SelectedItems.Cast<ConundrumItem>())
-            sb.AppendLine(c.ToString());
+        foreach (object item in ConundrumList.SelectedItems)
+        {
+            Debug.Assert(item is ConundrumItem);
+            sb.AppendLine($"{((ConundrumItem)item).Conundrum}\t\t{((ConundrumItem)item).Solution}");
+        }
 
         if (sb.Length > 0)
         {
