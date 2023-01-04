@@ -31,7 +31,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     public ICommand ChooseOptionCommand { get; }
     public Model Model { get; }
     public StopwatchController StopwatchController { get; }
-
+    public string? SuggestionText { get; set; }
 
     public LettersViewModel(Model model, StopwatchController sc) : base(propertyNames.Length)
     {

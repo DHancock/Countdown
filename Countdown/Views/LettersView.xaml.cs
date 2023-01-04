@@ -11,7 +11,17 @@ internal sealed partial class LettersView : Page
     {
         this.InitializeComponent();
 
-        Loaded += (s, e) => LoadTreeView();
+        Loaded += (s, e) =>
+        {
+            LoadTreeView();
+            SuggestionBox.Text = viewModel?.SuggestionText;
+        };
+
+        Unloaded += (s, e) =>
+        {
+            Debug.Assert(viewModel is not null);
+            viewModel.SuggestionText = SuggestionBox.Text;
+        };
     }
 
     public LettersViewModel? ViewModel
@@ -93,47 +103,58 @@ internal sealed partial class LettersView : Page
         if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
             List<string> suitableItems = new List<string>();
-            string[] splitText = sender.Text.ToLower().Split(" ");
+            string text = Filter(sender.Text.ToLower());
 
-            foreach (TreeViewNode parent in WordTreeView.RootNodes)
+            if (text.Length > 0)
             {
-                foreach (TreeViewNode child in parent.Children)
+                foreach (TreeViewNode parent in WordTreeView.RootNodes)
                 {
-                    bool found = splitText.All((key) =>
+                    foreach (TreeViewNode child in parent.Children)
                     {
-                        return ((TreeViewWordItem)child.Content).Text.Contains(key);
-                    });
+                        string word = ((TreeViewWordItem)child.Content).Text;
 
-                    if (found)
-                        suitableItems.Add(((TreeViewWordItem)child.Content).Text);
+                        if (word.Contains(text))
+                            suitableItems.Add(word);
+                    }
                 }
             }
-
-            if (suitableItems.Count == 0)
-                suitableItems.Add("No results found");
 
             sender.ItemsSource = suitableItems;
         }
     }
 
+    private static string Filter(string text)
+    {
+        // intercepting key events isn't allowed in an AutoSuggestBox
+        char[] output = new char [text.Length];
+        int index = 0;
+
+        foreach (char c in text)
+        {
+            if (c >= 'a' && c <= 'z')
+                output[index++] = c;
+        }
+
+        return new string(output, 0, index);
+    }
+
     private void AutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
     {
-        string? target = args.SelectedItem.ToString();
-
-        if (!string.IsNullOrWhiteSpace(target))
-            FindItem(target);
+        // the selected item will be a valid existing word
+        FindItem(args.SelectedItem.ToString());
     }
 
     private void AutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-        string? target = args.QueryText;
-
-        if (!string.IsNullOrWhiteSpace(target))
-            FindItem(target);
+        if (!FindItem(Filter(args.QueryText.ToLower())))
+            Utils.User32Sound.PlayExclamation();
     }
 
-    private bool FindItem(string target)
+    private bool FindItem(string? target)
     {
+        if (target is null || target.Length < Models.WordDictionary.cMinLetters)
+            return false;
+
         foreach (TreeViewNode parent in WordTreeView.RootNodes)
         {
             foreach (TreeViewNode child in parent.Children)
@@ -143,7 +164,7 @@ internal sealed partial class LettersView : Page
                 if (word.Length != target.Length)
                     break;
 
-                if (string.Equals(word, target, StringComparison.Ordinal))
+                if (string.Equals(word, target, StringComparison.CurrentCulture))
                 {
                     treeViewList ??= FindChild<TreeViewList>(WordTreeView);
 
@@ -185,7 +206,6 @@ internal sealed partial class LettersView : Page
 internal sealed class TreeViewWordItem
 {
     public bool IsHeading { get; } = false;
-
     public string Text { get; }
 
     public TreeViewWordItem(string text)
