@@ -152,7 +152,7 @@ internal sealed partial class LettersView : Page
 
     private bool FindItem(string? target)
     {
-        if (target is null || target.Length < Models.WordDictionary.cMinLetters)
+        if (target is null || target.Length < Models.WordDictionary.cMinLetters || target.Length > Models.WordDictionary.cMaxLetters)
             return false;
 
         foreach (TreeViewNode parent in WordTreeView.RootNodes)
