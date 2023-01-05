@@ -15,6 +15,20 @@ internal sealed partial class LettersView : Page
         {
             LoadTreeView();
             SuggestionBox.Text = viewModel?.SuggestionText;
+
+            TextBox? textBox = FindChild<TextBox>(SuggestionBox);
+
+            if (textBox is not null)
+            {
+                textBox.CharacterCasing = CharacterCasing.Lower;
+                textBox.MaxLength = Models.WordDictionary.cMaxLetters;
+
+                textBox.BeforeTextChanging += (s, a) =>
+                {
+                    if (a.NewText.Length > 0)
+                        a.Cancel = a.NewText.Any(c => c is < 'a' or > 'z');
+                };
+            }
         };
 
         Unloaded += (s, e) =>
@@ -103,9 +117,8 @@ internal sealed partial class LettersView : Page
         if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
             List<string> suitableItems = new List<string>();
-            string text = Filter(sender.Text.ToLower());
-
-            if (text.Length > 0)
+            
+            if (sender.Text.Length > 0)
             {
                 foreach (TreeViewNode parent in WordTreeView.RootNodes)
                 {
@@ -113,7 +126,7 @@ internal sealed partial class LettersView : Page
                     {
                         string word = ((TreeViewWordItem)child.Content).Text;
 
-                        if (word.StartsWith(text))
+                        if (word.StartsWith(sender.Text))
                             suitableItems.Add(word);
                     }
                 }
@@ -121,21 +134,6 @@ internal sealed partial class LettersView : Page
 
             sender.ItemsSource = suitableItems;
         }
-    }
-
-    private static string Filter(string text)
-    {
-        // intercepting key events isn't allowed in an AutoSuggestBox
-        char[] output = new char [text.Length];
-        int index = 0;
-
-        foreach (char c in text)
-        {
-            if (c >= 'a' && c <= 'z')
-                output[index++] = c;
-        }
-
-        return new string(output, 0, index);
     }
 
     private void AutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
@@ -146,13 +144,13 @@ internal sealed partial class LettersView : Page
 
     private void AutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-        if (!FindItem(Filter(args.QueryText.ToLower())))
+        if (!FindItem(args.QueryText))
             Utils.User32Sound.PlayExclamation();
     }
 
     private bool FindItem(string? target)
     {
-        if (target is null || target.Length < Models.WordDictionary.cMinLetters || target.Length > Models.WordDictionary.cMaxLetters)
+        if (target is null || target.Length < Models.WordDictionary.cMinLetters)
             return false;
 
         foreach (TreeViewNode parent in WordTreeView.RootNodes)
