@@ -113,7 +113,7 @@ internal sealed partial class LettersView : Page
                     {
                         string word = ((TreeViewWordItem)child.Content).Text;
 
-                        if (word.Contains(text))
+                        if (word.StartsWith(text))
                             suitableItems.Add(word);
                     }
                 }
