@@ -8,7 +8,7 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     private const int cEmptyTileValue = -1;
 
     // the solver results that the ui can bind to
-    private List<string> equationList = new List<string>();
+    private IEnumerable<string> equationList = new List<string>();
 
     // the number of input text boxes which need validating (6 tiles plus the target)
     private const int cInputCount = 7;  
@@ -79,6 +79,7 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
             ValidateTiles();
             RaisePropertyChanged(propertyName);
             SolveCommand.RaiseCanExecuteChanged();
+            EquationList = new List<string>();
         }
     }
 
@@ -95,6 +96,7 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
                 ValidateTarget();
                 RaisePropertyChanged(nameof(Target));
                 SolveCommand.RaiseCanExecuteChanged();
+                EquationList = new List<string>();
             }
         }
     }
@@ -207,7 +209,6 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     {
         Model.GenerateNumberData(TileOptionIndex);
 
-        // notify the ui of the updated data 
         RaisePropertyChanged(nameof(Tile_0));
         RaisePropertyChanged(nameof(Tile_1));
         RaisePropertyChanged(nameof(Tile_2));
@@ -216,16 +217,15 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
         RaisePropertyChanged(nameof(Tile_5));
         RaisePropertyChanged(nameof(Target));
 
-        // clear any error states
         ClearAllErrors();
+        EquationList = new List<string>();
 
         SolveCommand.RaiseCanExecuteChanged();
     }
 
     private async Task ExecuteSolveAsync(object? _)
     {
-        // copy the model data now, it could be changed before 
-        // the task is run maybe to an invalid value
+        // the data could change before the task is run
         int target = Model.Target;
         int[] tiles = Model.Tiles.ToArray();
 
@@ -261,7 +261,6 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
 #endif
         }
 
-        // update the ui
         EquationList = results.Solutions;
     }
 
@@ -273,10 +272,14 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     /// <summary>
     /// Expose the list so it can be bound to by the ui 
     /// </summary>
-    public List<string> EquationList
+    public IEnumerable<string> EquationList
     {
         get => equationList;
-        private set => HandlePropertyChanged(ref equationList, value);
+        private set
+        {
+            equationList = value;
+            RaisePropertyChanged();
+        }
     }
 
     private void ExecuteChooseOption(object? p)

@@ -46,7 +46,11 @@ internal sealed class StopwatchController : PropertyChangedBase
     public string CommandText
     {
         get => commandText;
-        private set => HandlePropertyChanged(ref commandText, value);
+        private set
+        {
+            commandText = value;
+            RaisePropertyChanged();
+        }
     }
 
 

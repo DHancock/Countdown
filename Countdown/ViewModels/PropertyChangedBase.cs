@@ -8,16 +8,4 @@ abstract internal class PropertyChangedBase : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-
-    protected bool HandlePropertyChanged<T>(ref T propertyValue, T newValue, [CallerMemberName] string? propertyName = default)
-    {
-        if ((propertyValue is null) || (!propertyValue.Equals(newValue)))
-        {
-            propertyValue = newValue;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            return true;
-        }
-
-        return false;
-    }
 }

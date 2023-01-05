@@ -107,7 +107,6 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         set => SetLetter(value, ref Model.Letters[8]);
     }
 
-
     private void SetLetter(string newValue, ref string existing, [CallerMemberName] string propertyName = "")
     {
         if (newValue != existing)
@@ -116,6 +115,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
             ValidateLetters();
             RaisePropertyChanged(propertyName);
             UpdateCommandsExecuteStatus();
+            WordList = new List<string>();
         }
     }
 
@@ -170,7 +170,11 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     public IEnumerable<string> WordList
     {
         get => wordList;
-        private set => HandlePropertyChanged(ref wordList, value);
+        private set
+        {
+            wordList = value;
+            RaisePropertyChanged();
+        }
     }
 
     private void ExecuteClear(object? _)
@@ -185,6 +189,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
             }
         }
 
+        WordList = new List<string>();
         UpdateCommandsExecuteStatus();
     }
 
@@ -198,7 +203,11 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     public double ClearButtonPathOpacity
     {
         get => clearButtonPathOpacity;
-        set => HandlePropertyChanged(ref clearButtonPathOpacity, value);
+        private set
+        {
+            clearButtonPathOpacity = value;
+            RaisePropertyChanged();
+        }
     }
 
     private void ExecutePickVowel(object? _)
@@ -288,6 +297,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
             ClearValidationError(index);
         }
 
+        WordList = new List<string>();
         UpdateCommandsExecuteStatus();
     }
 
