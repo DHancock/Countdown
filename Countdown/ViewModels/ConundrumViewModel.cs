@@ -4,13 +4,13 @@ namespace Countdown.ViewModels;
 
 internal sealed class ConundrumViewModel : PropertyChangedBase
 {
-    private const char space_char = ' ';
+    private readonly string emptySolution = new string(' ', Model.cLetterCount);
 
     private Model Model { get; }
     public StopwatchController StopwatchController { get; }
     public ObservableCollection<ConundrumItem> SolutionList { get; } = new ObservableCollection<ConundrumItem>();
 
-    private string solution = new string(space_char, Model.cLetterCount);
+    private string solution;
 
     public ICommand ChooseCommand { get; }
     public RelayCommand SolveCommand { get; }
@@ -20,6 +20,7 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
     {
         Model = model;
         StopwatchController = sc;
+        solution = emptySolution;
 
         SolveCommand = new RelayCommand(ExecuteSolve, CanSolve);
         ChooseCommand = new RelayCommand(ExecuteChoose, CanChoose);
@@ -93,6 +94,7 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
             existing = newValue;
             RaisePropertyChanged(propertyName);
             SolveCommand.RaiseCanExecuteChanged();
+            Solution = emptySolution;
         }
     }
 
@@ -108,7 +110,7 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
 
     private void ExecuteChoose(object? _)
     {
-        Solution = new string(space_char, Model.cLetterCount);
+        Solution = emptySolution;
 
         Model.GenerateConundrum();
 
