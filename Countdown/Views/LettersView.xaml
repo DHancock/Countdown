@@ -12,12 +12,13 @@
         <Style x:Key="ctbs" TargetType="local:CountdownTextBox">
             <Setter Property="ContentStyle" Value="Letter"/>
             <Setter Property="AutoTabStyle" Value="AlwaysTab"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
         </Style>
 
         <DataTemplate x:Key="WordHeadingTemplate" x:DataType="TreeViewNode">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition MinWidth="110" />
+                    <ColumnDefinition MinWidth="150" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="{x:Bind ((local:TreeViewWordItem)Content).Text}" Foreground="{ThemeResource WordListGroupHeaderTextBrush}" FontWeight="SemiBold"/>
@@ -26,15 +27,22 @@
         </DataTemplate>
 
         <DataTemplate x:Key="WordItemTemplate" x:DataType="TreeViewNode">
-            <Grid>
-                <TextBlock Text="{x:Bind ((local:TreeViewWordItem)Content).Text}"/>
-            </Grid>
+            <TextBlock Text="{x:Bind ((local:TreeViewWordItem)Content).Text}"/>
         </DataTemplate>
 
         <local:WordItemTemplateSelector x:Key="WordTreeTemplateSelector"
             WordHeadingTemplate="{StaticResource WordHeadingTemplate}"
             WordItemTemplate="{StaticResource WordItemTemplate}" />
 
+        <!-- tree views don't have a built in border -->
+        <Style x:Key="TreeViewBorderStyle" TargetType="Border">
+            <Setter Property="Padding" Value="5,0,0,0"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Background" Value="{ThemeResource ResultsListBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBoderBrush}"/>
+            <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBoderThickness}"/>
+        </Style>
     </Page.Resources>
 
     <Grid>
@@ -45,7 +53,7 @@
 
         <StackPanel Grid.Column="0">
 
-            <local:Clock Style="{ThemeResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <local:Clock Style="{StaticResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
 
             <w3c:GroupBox Heading="Tiles" Style="{StaticResource CommonGroupBoxStyle}">
                 <Grid RowDefinitions="*,*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
@@ -75,7 +83,7 @@
                 </Grid>
             </w3c:GroupBox>
 
-            <Grid>
+            <Grid Margin="7,28,7,7">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -103,13 +111,13 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <AutoSuggestBox x:Name="SuggestionBox"
+            <AutoSuggestBox x:Name="SuggestionBox" MinWidth="175" HorizontalAlignment="Left"
                 TextChanged="AutoSuggestBox_TextChanged"
                 SuggestionChosen="AutoSuggestBox_SuggestionChosen"
                 QueryIcon="Find"
                 QuerySubmitted="AutoSuggestBox_QuerySubmitted"/>
 
-            <Border Grid.Row="1" Style="{StaticResource TreeViewBorderStyle}" Margin="0,5,0,0">
+            <Border Grid.Row="1" Style="{StaticResource TreeViewBorderStyle}">
                 <TreeView x:Name="WordTreeView" ItemTemplateSelector="{StaticResource WordTreeTemplateSelector}">
                     <TreeView.Resources>
                         <StandardUICommand x:Name="CopyCommand" Kind="Copy" ExecuteRequested="CopyCommand_ExecuteRequested" CanExecuteRequested="CopyCommand_CanExecuteRequested"/>

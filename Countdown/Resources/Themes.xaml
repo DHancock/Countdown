@@ -6,17 +6,15 @@
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="HighContrast">
             <!-- stopwatch -->
-            <Style x:Key="ClockStyle" TargetType="views:Clock">
-                <Setter Property="FaceColour" Value="{ThemeResource SystemColorWindowColor}"/>
-                <Setter Property="TickTrailColour" Value="{ThemeResource SystemColorHotlightColor}"/>
-                <Setter Property="InnerFrameColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
-                <Setter Property="OuterFrameColour" Value="Transparent"/>
-                <Setter Property="FrameTickColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
-                <Setter Property="TickMarksColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
-                <Setter Property="HandStrokeColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
-                <Setter Property="HandFillColour" Value="{ThemeResource SystemColorButtonTextColor}"/>
-                <Setter Property="DropShadowIsVisible" Value="False"/>
-            </Style>
+            <StaticResource x:Key="ClockFaceColour" ResourceKey="SystemColorWindowColor"/>
+            <StaticResource x:Key="ClockTickTrailColour" ResourceKey="SystemColorHotlightColor"/>
+            <StaticResource x:Key="ClockInnerFrameColour" ResourceKey="SystemColorButtonTextColor"/>
+            <Color x:Key="ClockOuterFrameColour">Transparent</Color>
+            <StaticResource x:Key="ClockFrameTickColour" ResourceKey="SystemColorButtonTextColor"/>
+            <StaticResource x:Key="ClockTickMarksColour" ResourceKey="SystemColorButtonTextColor"/>
+            <StaticResource x:Key="ClockHandStrokeColour" ResourceKey="SystemColorButtonTextColor"/>
+            <StaticResource x:Key="ClockHandFillColour" ResourceKey="SystemColorButtonTextColor"/>
+            <x:Boolean x:Key="ClockDropShadowIsVisible">false</x:Boolean>
 
             <!-- borders -->
             <SolidColorBrush x:Key="CommonBoderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
@@ -41,17 +39,15 @@
 
         <ResourceDictionary x:Key="Dark">
             <!-- stopwatch -->
-            <Style x:Key="ClockStyle" TargetType="views:Clock">
-                <Setter Property="FaceColour" Value="#FF181818"/>
-                <Setter Property="TickTrailColour" Value="#FF252525"/>
-                <Setter Property="InnerFrameColour" Value="MidnightBlue"/>
-                <Setter Property="OuterFrameColour" Value="DarkSlateGray"/>
-                <Setter Property="FrameTickColour" Value="Gray"/>
-                <Setter Property="TickMarksColour" Value="#FF484848"/>
-                <Setter Property="HandStrokeColour" Value="#FF383838"/>
-                <Setter Property="HandFillColour" Value="MidnightBlue"/>
-                <Setter Property="DropShadowIsVisible" Value="True"/>
-            </Style>
+            <Color x:Key="ClockFaceColour">#FF181818</Color>
+            <Color x:Key="ClockTickTrailColour">#FF252525</Color>
+            <Color x:Key="ClockInnerFrameColour">MidnightBlue</Color>
+            <Color x:Key="ClockOuterFrameColour">DarkSlateGray</Color>
+            <Color x:Key="ClockFrameTickColour">Gray</Color>
+            <Color x:Key="ClockTickMarksColour">#FF484848</Color>
+            <Color x:Key="ClockHandStrokeColour">#FF383838</Color>
+            <Color x:Key="ClockHandFillColour">MidnightBlue</Color>
+            <x:Boolean x:Key="ClockDropShadowIsVisible">true</x:Boolean>
 
             <!-- borders -->
             <SolidColorBrush x:Key="CommonBoderBrush" Color="Gray"/>
@@ -71,17 +67,15 @@
 
         <ResourceDictionary x:Key="Light">
             <!-- stopwatch -->
-            <Style x:Key="ClockStyle" TargetType="views:Clock">
-                <Setter Property="FaceColour" Value="Ivory"/>
-                <Setter Property="TickTrailColour" Value="#FFFFFFD2"/>
-                <Setter Property="InnerFrameColour" Value="#FF0068C7"/>
-                <Setter Property="OuterFrameColour" Value="LightGray"/>
-                <Setter Property="FrameTickColour" Value="Silver"/>
-                <Setter Property="TickMarksColour" Value="Silver"/>
-                <Setter Property="HandStrokeColour" Value="Gray"/>
-                <Setter Property="HandFillColour" Value="#FF0068C7"/>
-                <Setter Property="DropShadowIsVisible" Value="True"/>
-            </Style>
+            <Color x:Key="ClockFaceColour">Ivory</Color>
+            <Color x:Key="ClockTickTrailColour">#FFFFFFD2</Color>
+            <Color x:Key="ClockInnerFrameColour">#FF0068C7</Color>
+            <Color x:Key="ClockOuterFrameColour">LightGray</Color>
+            <Color x:Key="ClockFrameTickColour">Silver</Color>
+            <Color x:Key="ClockTickMarksColour">Silver</Color>
+            <Color x:Key="ClockHandStrokeColour">Gray</Color>
+            <Color x:Key="ClockHandFillColour">#FF0068C7</Color>
+            <x:Boolean x:Key="ClockDropShadowIsVisible">true</x:Boolean>
 
             <!-- borders -->
             <SolidColorBrush x:Key="CommonBoderBrush" Color="LightGray"/>

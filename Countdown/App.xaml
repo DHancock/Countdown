@@ -2,6 +2,7 @@
     x:Class="Countdown.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Countdown.Views"
     xmlns:w3c="using:AssyntSoftware.WinUI3Controls">
     
     <Application.Resources>
@@ -18,7 +19,6 @@
                 <Setter Property="MinWidth" Value="105"/>
             </Style>
 
-            <!-- common list style -->
             <Style TargetType="ListView">
                 <Setter Property="Margin" Value="5"/>
                 <Setter Property="SelectionMode" Value="Extended"/>
@@ -28,31 +28,32 @@
                 <Setter Property="CornerRadius" Value="6"/>
             </Style>
 
-            <!-- a tree view doesn't have a built in border, so wrap it in a border with this style -->
-            <Style x:Key="TreeViewBorderStyle" TargetType="Border">
-                <Setter Property="Padding" Value="5,0,0,0"/>
-                <Setter Property="Background" Value="{ThemeResource ResultsListBackgroundBrush}"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBoderBrush}"/>
-                <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBoderThickness}"/>
-                <Setter Property="CornerRadius" Value="6"/>
-            </Style>
-            
-            <!-- explicit border style (an implicit style has side effects on Viewboxs, ScrollViewers etc.) -->
             <Style x:Key="CommonGroupBoxStyle" TargetType="w3c:GroupBox">
-                <Setter Property="Margin" Value="7"/>
+                <Setter Property="Margin" Value="7,7,7,7"/>
                 <Setter Property="Padding" Value="7"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="HeadingMargin" Value="12"/>
                 <Setter Property="BorderBrush" Value="{ThemeResource CommonBoderBrush}"/>
                 <Setter Property="BorderThickness" Value="{ThemeResource CommonBoderThickness}"/>
             </Style>
 
-            <!-- entry fields heading text -->
-            <Style x:Key="HeadingStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
-                <Setter Property="Margin" Value="7,0,0,5"/>
+            <Style x:Key="ClockStyle" TargetType="local:Clock">
+                <Setter Property="Margin" Value="0,5,0,5"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="FaceColour" Value="{ThemeResource ClockFaceColour}"/>
+                <Setter Property="TickTrailColour" Value="{ThemeResource ClockTickTrailColour}"/>
+                <Setter Property="InnerFrameColour" Value="{ThemeResource ClockInnerFrameColour}"/>
+                <Setter Property="OuterFrameColour" Value="{ThemeResource ClockOuterFrameColour}"/>
+                <Setter Property="FrameTickColour" Value="{ThemeResource ClockFrameTickColour}"/>
+                <Setter Property="TickMarksColour" Value="{ThemeResource ClockTickMarksColour}"/>
+                <Setter Property="HandStrokeColour" Value="{ThemeResource ClockHandStrokeColour}"/>
+                <Setter Property="HandFillColour" Value="{ThemeResource ClockHandFillColour}"/>
+                <Setter Property="DropShadowIsVisible" Value="{ThemeResource ClockDropShadowIsVisible}"/>
             </Style>
             
             <!-- make all the result lists start at the same x coordinate -->
             <GridLength x:Key="InputGridWidth">340</GridLength>
-
         </ResourceDictionary>
     </Application.Resources>
 </Application>

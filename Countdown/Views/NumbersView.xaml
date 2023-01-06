@@ -13,7 +13,7 @@
         <Style x:Key="ctbs" TargetType="local:CountdownTextBox">
             <Setter Property="ContentStyle" Value="Number"/>
             <Setter Property="AutoTabStyle" Value="Off"/>
-            <Setter Property="Margin" Value="3,0,3,5"/>
+            <Setter Property="Margin" Value="3,5,3,5"/>
         </Style>
     </Page.Resources>
 
@@ -25,7 +25,7 @@
 
         <StackPanel Grid.Column="0">
 
-            <local:Clock Style="{ThemeResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <local:Clock Style="{StaticResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
 
             <w3c:GroupBox Heading="Titles" Style="{StaticResource CommonGroupBoxStyle}">
                 <Grid RowDefinitions="*" ColumnDefinitions="*,*,*,*,*,*">
@@ -44,7 +44,7 @@
                 </Grid>
             </w3c:GroupBox>
 
-            <Grid>
+            <Grid Margin="7,7,7,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />

@@ -6,10 +6,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    MinWidth="700"
-    MinHeight="485"
-    InitialWidth="700"
-    InitialHeight="485">
+    MinWidth="660"
+    MinHeight="500"
+    InitialWidth="660"
+    InitialHeight="500">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}">
         <Grid.Resources>
@@ -42,7 +42,7 @@
                 <NavigationViewItem Content="Stopwatch" Tag="StopwatchView" AccessKey="T"/>
             </NavigationView.MenuItems>
 
-            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" IsNavigationStackEnabled="False"/>
+            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" IsNavigationStackEnabled="False" Margin="5,0,5,5"/>
         </NavigationView>
     </Grid>
 </local:SubClassWindow>

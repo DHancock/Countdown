@@ -9,9 +9,9 @@
     mc:Ignorable="d">
 
     <Grid>
-        <Button Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Grid.Column="0" VerticalAlignment="Bottom" Margin="10,0,0,10" Style="{StaticResource StartStopButtonStyle}"/>
+        <Button Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Grid.Column="0" VerticalAlignment="Bottom" Margin="7,0,0,7" Style="{StaticResource StartStopButtonStyle}"/>
         <Viewbox Margin="0" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <local:Clock Style="{ThemeResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
+            <local:Clock Style="{StaticResource ClockStyle}" Margin="5,0,5,5" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
         </Viewbox>
     </Grid>
 </Page>
