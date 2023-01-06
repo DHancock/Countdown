@@ -18,7 +18,7 @@
         <DataTemplate x:Key="WordHeadingTemplate" x:DataType="TreeViewNode">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition MinWidth="175" Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="{x:Bind ((local:TreeViewWordItem)Content).Text}" Foreground="{ThemeResource WordListGroupHeaderTextBrush}" FontWeight="SemiBold"/>
