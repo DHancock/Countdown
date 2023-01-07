@@ -1,7 +1,4 @@
-﻿using Countdown.ViewModels;
-
-
-namespace Countdown.Models;
+﻿namespace Countdown.Models;
 
 internal sealed class SolvingEngine
 {

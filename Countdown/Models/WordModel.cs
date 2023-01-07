@@ -1,9 +1,8 @@
-﻿using Countdown.ViewModels;
+﻿using Countdown.Utils;
 
 namespace Countdown.Models;
 
-
-internal class WordDictionary
+internal class WordModel
 {
     private const string cResourceName = "Countdown.Resources.wordlist.dat";
     private const byte cLine_seperator = 46; // full stop
@@ -11,29 +10,44 @@ internal class WordDictionary
 
     public const int cMinLetters = 4;
     public const int cMaxLetters = 9;
+    public const int cLetterCount = cMaxLetters;
 
     // conundrum words are 9 letters long with only one solution
     private readonly Dictionary<string, byte[]> conundrumWords = new Dictionary<string, byte[]>();
     private readonly Dictionary<string, byte[]> otherWords = new Dictionary<string, byte[]>();
 
+    private readonly ConsonantList consonantList = new ConsonantList();
+    private readonly VowelList vowelList = new VowelList();
+
     private readonly ManualResetEventSlim loadingEvent = new ManualResetEventSlim();
 
-    public WordDictionary()
+    public WordModel()
     {
         Task.Factory.StartNew(() => LoadResourceFile()).ContinueWith((x) => loadingEvent.Set());
     }
 
+    public char GetVowel() => vowelList.GetLetter();
 
-    /// <summary>
-    /// Finds all matches for the letters supplied. Assumes that the 
-    /// letters are all in lower case.
-    /// </summary>
-    /// <param name="letters"></param>
-    /// <returns></returns>
-    public List<string> Solve(char[] letters)
+    public char GetConsonant() => consonantList.GetLetter();
+
+    public IList<char> GenerateLettersData(int vowelCount)
     {
-        if ((letters is null) || (letters.Length != cMaxLetters))
-            throw new ArgumentOutOfRangeException(nameof(letters));
+        char[] list = new char[cLetterCount];
+
+        for (int index = 0; index < cLetterCount; index++)
+        {
+            if (index < vowelCount)
+                list[index] = GetVowel();
+            else
+                list[index] = GetConsonant();
+        }
+
+        return list.Shuffle();
+    }
+
+    public List<string> SolveLetters(char[] letters)
+    {
+        Debug.Assert(letters is not null && (letters.Length == cMaxLetters) && letters.All(c => char.IsLower(c)));
 
         loadingEvent.Wait();  // until finished loading resources
 
@@ -55,9 +69,6 @@ internal class WordDictionary
         return results;
     }
 
-
-
-
     private static void AddDictionaryWordsToList(string key, Dictionary<string, byte[]> dictionary, List<string> list)
     {
         if (dictionary.TryGetValue(key, out byte[]? data) && (data is not null))
@@ -71,24 +82,14 @@ internal class WordDictionary
         }
     }
 
-
-
-    public string SolveConundrum(string[] letters)
+    public string SolveConundrum(char[] letters)
     {
-        if ((letters is null) || (letters.Length != cMaxLetters))
-            throw new ArgumentOutOfRangeException(nameof(letters));
+        Debug.Assert(letters is not null && (letters.Length == cMaxLetters) && letters.All(c => char.IsLower(c)));
 
         loadingEvent.Wait();  // until finished loading resources
 
-        // convert the data to sorted lower case
-        // to build the dictionary key
-        char[] conundrum = new char[letters.Length];
-
-        for (int index = 0; index < letters.Length; ++index)
-            conundrum[index] = (char)(letters[index][0] | 0x20); // to lower
-
-        Array.Sort(conundrum);
-        string key = new string(conundrum);
+        Array.Sort(letters);
+        string key = new string(letters);
 
         if (conundrumWords.TryGetValue(key, out byte[]? data) && (data is not null))
             return new string(GetChars(data, data.Length, true));
@@ -96,9 +97,7 @@ internal class WordDictionary
         return string.Empty;
     }
 
-
-
-    public char[] GetConundrum()
+    public IList<char> GenerateConundrum()
     {
         loadingEvent.Wait();  // until finished loading resources
 
@@ -111,12 +110,11 @@ internal class WordDictionary
 
             while (e.MoveNext() && (index-- > 0)) { }; // empty statement
 
-            return GetChars(e.Current, e.Current.Length, true);
+            return GetChars(e.Current, e.Current.Length, true).Shuffle();
         }
 
         return Array.Empty<char>();
     }
-
 
     public bool HasConundrums
     {
@@ -126,8 +124,6 @@ internal class WordDictionary
             return conundrumWords.Count > 0;
         }
     }
-
-
 
     private void LoadResourceFile()
     {
@@ -166,7 +162,6 @@ internal class WordDictionary
             }
         }
     }
-
 
     // a simple encoder, the source is known quantity
     private static char[] GetChars(ReadOnlySpan<byte> bytes, int count, bool toUpper = false)

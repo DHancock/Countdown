@@ -29,14 +29,6 @@ internal sealed class SolverResults
     /// </summary>
     public int Difference { get; private set; } = int.MaxValue;
 
-
-    /// <summary>
-    /// time taken for the solvers to complete
-    /// </summary>
-    public TimeSpan Elapsed { get; set; }
-
-
-
     /// <summary>
     /// aggregates the data from solving engines 
     /// that were run in parallel partitions
@@ -77,7 +69,7 @@ internal sealed class SolverResults
         foreach (List<string> solverResults in SolverLists)
             size += solverResults.Count;
 
-        Solutions = new(size);
+        Solutions.EnsureCapacity(size);
 
         foreach (List<string> solverResults in SolverLists)
             Solutions.AddRange(solverResults);

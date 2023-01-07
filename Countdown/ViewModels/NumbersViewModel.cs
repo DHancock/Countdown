@@ -10,19 +10,32 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     // the solver results that the ui can bind to
     private IEnumerable<string> equationList = new List<string>();
 
-    // the number of input text boxes which need validating (6 tiles plus the target)
-    private const int cInputCount = 7;  
+    // for raising property change events when generating data
+    private static readonly string[] propertyNames = { nameof(Tile_0),
+                                                        nameof(Tile_1),
+                                                        nameof(Tile_2),
+                                                        nameof(Tile_3),
+                                                        nameof(Tile_4),
+                                                        nameof(Tile_5)};
+
+    private readonly int[] validTileValues = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 50, 75, 100 };
+
+    private readonly NumberModel numberModel;
+
+    private readonly int[] tiles = new int[NumberModel.cNumberTileCount];
+
+    private int target = NumberModel.cMinTarget;
 
     public ICommand ChooseNumbersCommand { get; }
     public RelayTaskCommand SolveCommand { get; }
     public ICommand ChooseOptionCommand { get; }
-    private Model Model { get; }
+    
     public StopwatchController StopwatchController { get; }
    
 
-    public NumbersViewModel(Model model, StopwatchController sc) : base(cInputCount)
+    public NumbersViewModel(NumberModel model, StopwatchController sc) : base(NumberModel.cNumberTileCount + 1)
     {
-        Model = model;
+        numberModel = model;
         StopwatchController = sc;
 
         ChooseNumbersCommand = new RelayCommand(ExecuteChoose);
@@ -35,80 +48,88 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
 
     public string Tile_0
     {
-        get => Convert(Model.Tiles[0]);
-        set => SetTile(ref Model.Tiles[0], value);
+        get => Convert(tiles[0]);
+        set
+        {
+            tiles[0] = Convert(value);
+            UpdateProperties();
+        }
     }
 
     public string Tile_1
     {
-        get => Convert(Model.Tiles[1]);
-        set => SetTile(ref Model.Tiles[1], value);
+        get => Convert(tiles[1]);
+        set
+        {
+            tiles[1] = Convert(value);
+            UpdateProperties();
+        }
     }
 
     public string Tile_2
     {
-        get => Convert(Model.Tiles[2]);
-        set => SetTile(ref Model.Tiles[2], value);
+        get => Convert(tiles[2]);
+        set
+        {
+            tiles[2] = Convert(value);
+            UpdateProperties();
+        }
     }
 
     public string Tile_3
     {
-        get => Convert(Model.Tiles[3]);
-        set => SetTile(ref Model.Tiles[3], value);
+        get => Convert(tiles[3]);
+        set
+        {
+            tiles[3] = Convert(value);
+            UpdateProperties();
+        }
     }
 
     public string Tile_4
     {
-        get => Convert(Model.Tiles[4]);
-        set => SetTile(ref Model.Tiles[4], value);
+        get => Convert(tiles[4]);
+        set
+        {
+            tiles[4] = Convert(value);
+            UpdateProperties();
+        }
     }
 
     public string Tile_5
     {
-        get => Convert(Model.Tiles[5]);
-        set => SetTile(ref Model.Tiles[5], value);
-    }
-
-    private void SetTile(ref int existing, string data, [CallerMemberName] string? propertyName = default)
-    {
-        int temp = Convert(data);
-
-        if (temp != existing)
+        get => Convert(tiles[5]);
+        set
         {
-            existing = temp;
-            ValidateTiles();
-            RaisePropertyChanged(propertyName);
-            SolveCommand.RaiseCanExecuteChanged();
-            EquationList = new List<string>();
+            tiles[5] = Convert(value);
+            UpdateProperties();
         }
     }
 
     public string Target
     {
-        get => Convert(Model.Target);
+        get => Convert(target);
         set
         {
-            int temp = Convert(value);
-
-            if (temp != Model.Target)
-            {
-                Model.Target = temp;
-                ValidateTarget();
-                RaisePropertyChanged(nameof(Target));
-                SolveCommand.RaiseCanExecuteChanged();
-                EquationList = new List<string>();
-            }
+            target = Convert(value);
+            UpdateProperties();
         }
     }
 
-    /// <summary>
-    /// Converts string properties bound to text boxes to int rather than using the 
-    /// built in xaml converters. They throw an error when converting an empty string
-    /// and insert a cryptic message in the data error notifications. A custom binding 
-    /// converter would be just more untestable code behind.
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    private void UpdateProperties([CallerMemberName] string? propertyName = default)
+    {
+        if (propertyName == nameof(Target))
+            ValidateTarget();
+        else
+            ValidateTiles();
+
+        RaisePropertyChanged(propertyName);
+        SolveCommand.RaiseCanExecuteChanged();
+            
+        if (EquationList.Any())
+            EquationList = new List<string>();
+    }
+
     private static int Convert(string input)
     {
         if ((input.Length > 0) && int.TryParse(input, out int output))
@@ -117,12 +138,6 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
         return cEmptyTileValue;
     }
 
-    /// <summary>
-    /// Converts int to a string for properties bound to text boxes rather than using the
-    /// built in xaml converters. Converts negative values to an empty string.
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
     private static string Convert(int input)
     {
         if (input is cEmptyTileValue)
@@ -137,20 +152,18 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     /// <returns></returns>
     private void ValidateTiles()
     {
-        int[] validTileValues = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 50, 75, 100 };
-
         // count of how many tiles of each valid tile value
         int[] tileCount = new int[validTileValues.Length];
         // record each property's value position in the tile values array
         // used to index into the tile count array
-        int[] searchResult = new int[Model.Tiles.Length];
+        int[] searchResult = new int[tiles.Length];
 
         // first check for invalid tile values
-        for (int index = 0; index < Model.Tiles.Length; index++)
+        for (int index = 0; index < tiles.Length; index++)
         {
-            if (Model.Tiles[index] > cEmptyTileValue)
+            if (tiles[index] > cEmptyTileValue)
             {
-                searchResult[index] = Array.BinarySearch(validTileValues, Model.Tiles[index]);
+                searchResult[index] = Array.BinarySearch(validTileValues, tiles[index]);
 
                 if (searchResult[index] < 0) // not found, an invalid value
                     SetValidationError(index, "Tile values must be from 1 to 10, or 25, 50, 75 or 100");
@@ -162,11 +175,11 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
         }
 
         // check the tile counts of valid tiles
-        for (int index = 0; index < Model.Tiles.Length; index++)
+        for (int index = 0; index < tiles.Length; index++)
         {
-            if ((Model.Tiles[index] > cEmptyTileValue) && (searchResult[index] >= 0))
+            if ((tiles[index] > cEmptyTileValue) && (searchResult[index] >= 0))
             {
-                int validTileCount = (Model.Tiles[index] > 10) ? 1 : 2;
+                int validTileCount = (tiles[index] > 10) ? 1 : 2;
 
                 if (tileCount[searchResult[index]] > validTileCount)
                 {
@@ -187,10 +200,10 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
 
     private void ValidateTarget()
     {
-        const int cIndex = cInputCount - 1;
+        const int cIndex = NumberModel.cNumberTileCount;
 
-        if (((Model.Target < Model.cMinTarget) || (Model.Target > Model.cMaxTarget)) && (Model.Target != cEmptyTileValue))
-            SetValidationError(cIndex, $"The target must be between {Model.cMinTarget} and {Model.cMaxTarget}");
+        if (((target < NumberModel.cMinTarget) || (target > NumberModel.cMaxTarget)) && (target != cEmptyTileValue))
+            SetValidationError(cIndex, $"The target must be between {NumberModel.cMinTarget} and {NumberModel.cMaxTarget}");
         else
             ClearValidationError(cIndex);
     }
@@ -207,18 +220,22 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
 
     private void ExecuteChoose(object? _)
     {
-        Model.GenerateNumberData(TileOptionIndex);
+        int[] numbers = numberModel.GenerateNumberData(TileOptionIndex);
 
-        RaisePropertyChanged(nameof(Tile_0));
-        RaisePropertyChanged(nameof(Tile_1));
-        RaisePropertyChanged(nameof(Tile_2));
-        RaisePropertyChanged(nameof(Tile_3));
-        RaisePropertyChanged(nameof(Tile_4));
-        RaisePropertyChanged(nameof(Tile_5));
+        // set the backing store directly, no validation is required
+        for (int index = 0; index < NumberModel.cNumberTileCount; ++index)
+        {
+            tiles[index] = numbers[index];
+            RaisePropertyChanged(propertyNames[index]);
+        }
+
+        target = numberModel.GenerateTarget();
         RaisePropertyChanged(nameof(Target));
 
         ClearAllErrors();
-        EquationList = new List<string>();
+
+        if (EquationList.Any())
+            EquationList = new List<string>();
 
         SolveCommand.RaiseCanExecuteChanged();
     }
@@ -226,10 +243,10 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     private async Task ExecuteSolveAsync(object? _)
     {
         // the data could change before the task is run
-        int target = Model.Target;
-        int[] tiles = Model.Tiles.ToArray();
+        int targetCopy = target;
+        int[] tilesCopy = tiles.ToArray();
 
-        SolverResults results = await Task.Run(() => Model.Solve(tiles, target));
+        SolverResults results = await Task.Run(() => NumberModel.Solve(tilesCopy, targetCopy));
 
         if (results.Solutions.Count == 0)
         {
@@ -247,18 +264,9 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
             // guarantee ordering independent of parallel partition order
             results.Solutions.Sort((a, b) =>
             {
-                // shorter strings first, then reverse alphabetical (numbers before parenthesis)
                 int lengthCompare = a.Length - b.Length;
                 return lengthCompare == 0 ? string.Compare(b, a, StringComparison.CurrentCulture) : lengthCompare;
-            });   
-
-#if false
-            results.Solutions.Add(string.Empty);
-            results.Solutions.Add($"There are {results.Solutions.Count - 1} solutions.");
-            results.Solutions.Add($"Evaluated in {results.Elapsed.TotalMilliseconds} milliseconds.");
-            results.Solutions.Add($"Tiles are {tiles[0]}, {tiles[1]}, {tiles[2]}, {tiles[3]}, {tiles[4]}, {tiles[5]}");
-            results.Solutions.Add($"Target is {target}");
-#endif
+            });
         }
 
         EquationList = results.Solutions;
@@ -266,7 +274,7 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
 
     private bool CanSolve(object? _, bool isExecuting)
     {
-        return !(HasErrors || isExecuting || Model.Tiles.Contains(cEmptyTileValue) || Model.Target is cEmptyTileValue);
+        return !(HasErrors || isExecuting || tiles.Contains(cEmptyTileValue) || target is cEmptyTileValue);
     }
 
     /// <summary>

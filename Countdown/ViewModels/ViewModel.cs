@@ -10,17 +10,16 @@ internal sealed class ViewModel
     public StopwatchViewModel StopwatchViewModel { get; }
     public SettingsViewModel SettingsViewModel { get; }
 
-    private readonly Model model;
 
     public ViewModel()
     {
-        model = new Model();
-
+        NumberModel numberMmodel = new NumberModel();
+        WordModel wordModel = new WordModel();
         StopwatchController sc = new StopwatchController();
 
-        NumbersViewModel = new NumbersViewModel(model, sc);
-        LettersViewModel = new LettersViewModel(model, sc);
-        ConundrumViewModel = new ConundrumViewModel(model, sc);
+        NumbersViewModel = new NumbersViewModel(numberMmodel, sc);
+        LettersViewModel = new LettersViewModel(wordModel, sc);
+        ConundrumViewModel = new ConundrumViewModel(wordModel, sc);
         StopwatchViewModel = new StopwatchViewModel(sc);
         SettingsViewModel = new SettingsViewModel();
     }

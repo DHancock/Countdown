@@ -9,7 +9,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
 
     private double clearButtonPathOpacity = 1.0;
 
-    // property names for change events when generating data and error notifications
+    // for raising property change events when generating data
     private static readonly string[] propertyNames = { nameof(Letter_0),
                                                         nameof(Letter_1),
                                                         nameof(Letter_2),
@@ -20,22 +20,24 @@ internal sealed class LettersViewModel : DataErrorInfoBase
                                                         nameof(Letter_7),
                                                         nameof(Letter_8)};
 
-    // property backing stores
-    private IEnumerable<string> wordList = new List<string>();
+    private readonly string[] letters = new string[WordModel.cLetterCount];
 
+    private readonly WordModel wordModel;
+
+    private IEnumerable<string> wordList = new List<string>();
     public RelayCommand ClearCommand { get; }
     public RelayCommand PickVowelCommand { get; }
     public RelayCommand PickConsonantCommand { get; }
     public RelayTaskCommand SolveCommand { get; }
     public ICommand ChooseLettersCommand { get; }
     public ICommand ChooseOptionCommand { get; }
-    public Model Model { get; }
+
     public StopwatchController StopwatchController { get; }
     public string? SuggestionText { get; set; }
 
-    public LettersViewModel(Model model, StopwatchController sc) : base(propertyNames.Length)
+    public LettersViewModel(WordModel model, StopwatchController sc) : base(WordModel.cLetterCount)
     {
-        Model = model;
+        wordModel = model;
         StopwatchController = sc;
 
         ChooseLettersCommand = new RelayCommand(ExecuteChooseLetters);
@@ -55,93 +57,127 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     /// </summary>
     public string Letter_0
     {
-        get => Model.Letters[0];
-        set => SetLetter(value, ref Model.Letters[0]);
+        get => letters[0];
+        set
+        {
+            letters[0] = value;
+            UpdateProperties();
+        }
     }
 
     public string Letter_1
     {
-        get => Model.Letters[1];
-        set => SetLetter(value, ref Model.Letters[1]);
+        get => letters[1];
+        set
+        {
+            letters[1] = value;
+            UpdateProperties();
+        }
     }
 
     public string Letter_2
     {
-        get => Model.Letters[2];
-        set => SetLetter(value, ref Model.Letters[2]);
+        get => letters[2];
+        set
+        {
+            letters[2] = value;
+            UpdateProperties();
+        }
     }
 
     public string Letter_3
     {
-        get => Model.Letters[3];
-        set => SetLetter(value, ref Model.Letters[3]);
+        get => letters[3];
+        set
+        {
+            letters[3] = value;
+            UpdateProperties();
+        }
     }
 
     public string Letter_4
     {
-        get => Model.Letters[4];
-        set => SetLetter(value, ref Model.Letters[4]);
+        get => letters[4];
+        set
+        {
+            letters[4] = value;
+            UpdateProperties();
+        }
     }
 
     public string Letter_5
     {
-        get => Model.Letters[5];
-        set => SetLetter(value, ref Model.Letters[5]);
+        get => letters[5];
+        set
+        {
+            letters[5] = value;
+            UpdateProperties();
+        }
     }
 
     public string Letter_6
     {
-        get => Model.Letters[6];
-        set => SetLetter(value, ref Model.Letters[6]);
+        get => letters[6];
+        set
+        {
+            letters[6] = value;
+            UpdateProperties();
+        }
     }
 
     public string Letter_7
     {
-        get => Model.Letters[7];
-        set => SetLetter(value, ref Model.Letters[7]);
+        get => letters[7];
+        set
+        {
+            letters[7] = value;
+            UpdateProperties();
+        }
     }
 
     public string Letter_8
     {
-        get => Model.Letters[8];
-        set => SetLetter(value, ref Model.Letters[8]);
+        get => letters[8];
+        set
+        {
+            letters[8] = value;
+            UpdateProperties();
+        }
     }
 
-    private void SetLetter(string newValue, ref string existing, [CallerMemberName] string propertyName = "")
+    private void UpdateProperties([CallerMemberName] string? propertyName = default)
     {
-        if (newValue != existing)
-        {
-            existing = newValue;
-            ValidateLetters();
-            RaisePropertyChanged(propertyName);
-            UpdateCommandsExecuteStatus();
+        ValidateLetters();
+        RaisePropertyChanged(propertyName);
+        UpdateCommandsExecuteStatus();
+
+        if (WordList.Any())
             WordList = new List<string>();
-        }
     }
 
     private void ValidateLetters()
     {
         ClearAllErrors();
 
-        int vowelCount = Model.Letters.Count(c => IsUpperVowel(c));
+        int vowelCount = letters.Count(c => IsUpperVowel(c));
 
         if (vowelCount > max_vowels)
         {
-            for (int index = 0; index < Model.Letters.Length; index++)
+            for (int index = 0; index < letters.Length; index++)
             {
-                if (IsUpperVowel(Model.Letters[index]))
+                if (IsUpperVowel(letters[index]))
                     SetValidationError(index, $"A maximum of {max_vowels} vowels are allowed");
             }
         }
         else
         {
-            int consonantCount = Model.Letters.Count(c => IsUpperConsonant(c));
+            int consonantCount = letters.Count(c => IsUpperConsonant(c));
 
             if (consonantCount > max_consonants)
             {
-                for (int index = 0; index < Model.Letters.Length; index++)
+                for (int index = 0; index < letters.Length; index++)
                 {
-                    if (IsUpperConsonant(Model.Letters[index]))
+                    if (IsUpperConsonant(letters[index]))
                         SetValidationError(index, $"A maximum of {max_consonants} consonants are allowed");
                 }
             }
@@ -164,9 +200,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         return LetterTile.IsUpperLetter(letter[0]) && !LetterTile.IsUpperVowel(letter[0]);
     }
 
-    /// <summary>
-    /// Expose the list so it can be bound to by the ui 
-    /// </summary>
+    // Bound to by the ui 
     public IEnumerable<string> WordList
     {
         get => wordList;
@@ -179,23 +213,23 @@ internal sealed class LettersViewModel : DataErrorInfoBase
 
     private void ExecuteClear(object? _)
     {
-        for (int index = 0; index < Model.cLetterCount; ++index)
+        // set the backing store directly, the letters don't need validating
+        for (int index = 0; index < WordModel.cLetterCount; ++index)
         {
-            if (!string.IsNullOrEmpty(Model.Letters[index]))
-            {
-                Model.Letters[index] = string.Empty;
-                RaisePropertyChanged(propertyNames[index]);
-                ClearValidationError(index);
-            }
+            letters[index] = string.Empty;
+            RaisePropertyChanged(propertyNames[index]);
+            ClearValidationError(index);
         }
 
-        WordList = new List<string>();
+        if (WordList.Any())
+            WordList = new List<string>();
+
         UpdateCommandsExecuteStatus();
     }
 
     private bool CanClear(object? _)
     {
-        bool canClear = Model.Letters.Any(c => !string.IsNullOrEmpty(c));
+        bool canClear = letters.Any(c => !string.IsNullOrEmpty(c));
         ClearButtonPathOpacity = canClear ? 1.0 : 0.3;
         return canClear;
     }
@@ -212,17 +246,17 @@ internal sealed class LettersViewModel : DataErrorInfoBase
 
     private void ExecutePickVowel(object? _)
     {
-        SetFirstEmptyLetter(Model.GetVowel());
+        SetFirstEmptyLetter(wordModel.GetVowel());
         UpdateCommandsExecuteStatus();
     }
 
     private void SetFirstEmptyLetter(char newValue)
     {
-        for (int index = 0; index < Model.cLetterCount; ++index)
+        for (int index = 0; index < WordModel.cLetterCount; ++index)
         {
-            if (string.IsNullOrEmpty(Model.Letters[index]))
+            if (string.IsNullOrEmpty(letters[index]))
             {
-                Model.Letters[index] = newValue.ToString();
+                letters[index] = newValue.ToString();
                 RaisePropertyChanged(propertyNames[index]);
                 break;
             }
@@ -231,7 +265,6 @@ internal sealed class LettersViewModel : DataErrorInfoBase
 
     private void UpdateCommandsExecuteStatus()
     {
-        // updating all in one go avoids any logic errors
         ClearCommand.RaiseCanExecuteChanged();
         PickConsonantCommand.RaiseCanExecuteChanged();
         PickVowelCommand.RaiseCanExecuteChanged();
@@ -240,38 +273,31 @@ internal sealed class LettersViewModel : DataErrorInfoBase
 
     private bool CanPickVowel(object? _)
     {
-        int vowels = Model.Letters.Count(c => IsUpperVowel(c));
-        return vowels < max_vowels && Model.Letters.Any(c => string.IsNullOrEmpty(c));
+        int vowels = letters.Count(c => IsUpperVowel(c));
+        return vowels < max_vowels && letters.Any(c => string.IsNullOrEmpty(c));
     }
 
     private void ExecutePickConsonant(object? _)
     {
-        SetFirstEmptyLetter(Model.GetConsonant());
+        SetFirstEmptyLetter(wordModel.GetConsonant());
         UpdateCommandsExecuteStatus();
     }
 
     private bool CanPickConsonant(object? _)
     {
-        int consonants = Model.Letters.Count(c => IsUpperConsonant(c));
-        return consonants < max_consonants && Model.Letters.Any(c => string.IsNullOrEmpty(c));
+        int consonants = letters.Count(c => IsUpperConsonant(c));
+        return consonants < max_consonants && letters.Any(c => string.IsNullOrEmpty(c));
     }
 
     private async Task ExecuteSolveAsync(object? _)
     {
-        // copy the model data now, converting to lower case 
-        // it could be changed before the task is run
-        char[] letters = new char[Model.cLetterCount];
-
-        for (int index = 0; index < Model.cLetterCount; ++index)
-            letters[index] = (char)(Model.Letters[index][0] | 0x20); // to lower
-
-        List<string> results = await Task.Run(() => Model.Solve(letters));
-        WordList = results;
+        char[] letters = ConvertLettersToLowerCaseCharArray();
+        WordList = await Task.Run(() => wordModel.SolveLetters(letters));
     }
 
     private bool CanSolve(object? _, bool isExecuting)
     {
-        return !(HasErrors || isExecuting || Model.Letters.Any(c => string.IsNullOrEmpty(c)));
+        return !(HasErrors || isExecuting || letters.Any(s => string.IsNullOrEmpty(s)));
     }
 
     // which item in the choose letter menu is selected
@@ -287,17 +313,21 @@ internal sealed class LettersViewModel : DataErrorInfoBase
 
     private void ExecuteChooseLetters(object? _)
     {
-        int vowelCount = TileOptionIndex + 3;   // option zero is "3 vowels and 6 consonants"
+        int vowelCount = TileOptionIndex + 3;   // TileOptionIndex[0] is "3 vowels and 6 consonants"
 
-        Model.GenerateLettersData(vowelCount);
+        IList<char> letters = wordModel.GenerateLettersData(vowelCount);
 
-        for (int index = 0; index < Model.cLetterCount; index++)
+        // set the backing store directly, the letters don't need validating
+        for (int index = 0; index < WordModel.cLetterCount; ++index)
         {
+            this.letters[index] = letters[index].ToString();
             RaisePropertyChanged(propertyNames[index]);
             ClearValidationError(index);
         }
 
-        WordList = new List<string>();
+        if (WordList.Any())
+            WordList = new List<string>();
+
         UpdateCommandsExecuteStatus();
     }
 
@@ -312,5 +342,18 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     public bool IsTileOptionChecked(int option)
     {
         return TileOptionIndex == option;
+    }
+
+    private char[] ConvertLettersToLowerCaseCharArray()
+    {
+        char[] data = new char[WordModel.cLetterCount];
+
+        for (int index = 0; index < WordModel.cLetterCount; ++index)
+        {
+            Debug.Assert(letters[index].Length == 1);
+            data[index] = char.ToLower(letters[index][0]);
+        }
+
+        return data;
     }
 }

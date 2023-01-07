@@ -4,23 +4,23 @@ namespace Countdown.ViewModels;
 
 internal sealed class ConundrumViewModel : PropertyChangedBase
 {
-    private readonly string emptySolution = new string(' ', Model.cLetterCount);
+    private const string emptySolution = "         ";
+    
+    private string solution = emptySolution;
 
-    private Model Model { get; }
+    private readonly string[] conundrum = new string[WordModel.cMaxLetters];
+
+    private readonly WordModel wordModel;
     public StopwatchController StopwatchController { get; }
     public ObservableCollection<ConundrumItem> SolutionList { get; } = new ObservableCollection<ConundrumItem>();
-
-    private string solution;
-
     public ICommand ChooseCommand { get; }
     public RelayCommand SolveCommand { get; }
 
 
-    public ConundrumViewModel(Model model, StopwatchController sc)
+    public ConundrumViewModel(WordModel model, StopwatchController sc)
     {
-        Model = model;
+        wordModel = model;
         StopwatchController = sc;
-        solution = emptySolution;
 
         SolveCommand = new RelayCommand(ExecuteSolve, CanSolve);
         ChooseCommand = new RelayCommand(ExecuteChoose, CanChoose);
@@ -34,68 +34,100 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
     /// </summary>
     public string Conundrum_0
     {
-        get { return Model.Conundrum[0]; }
-        set { SetConundrum(value, ref Model.Conundrum[0]); }
+        get => conundrum[0];
+        set
+        {
+            conundrum[0] = value;
+            UpdateProperties();
+        }
     }
 
     public string Conundrum_1
     {
-        get { return Model.Conundrum[1]; }
-        set { SetConundrum(value, ref Model.Conundrum[1]); }
+        get => conundrum[1];
+        set
+        {
+            conundrum[1] = value;
+            UpdateProperties();
+        }
     }
 
     public string Conundrum_2
     {
-        get { return Model.Conundrum[2]; }
-        set { SetConundrum(value, ref Model.Conundrum[2]); }
+        get => conundrum[2];
+        set
+        {
+            conundrum[2] = value;
+            UpdateProperties();
+        }
     }
 
     public string Conundrum_3
     {
-        get { return Model.Conundrum[3]; }
-        set { SetConundrum(value, ref Model.Conundrum[3]); }
+        get => conundrum[3];
+        set
+        {
+            conundrum[3] = value;
+            UpdateProperties();
+        }
     }
 
     public string Conundrum_4
     {
-        get { return Model.Conundrum[4]; }
-        set { SetConundrum(value, ref Model.Conundrum[4]); }
+        get => conundrum[4];
+        set
+        {
+            conundrum[4] = value;
+            UpdateProperties();
+        }
     }
 
     public string Conundrum_5
     {
-        get { return Model.Conundrum[5]; }
-        set { SetConundrum(value, ref Model.Conundrum[5]); }
+        get => conundrum[5];
+        set
+        {
+            conundrum[5] = value;
+            UpdateProperties();
+        }
     }
 
     public string Conundrum_6
     {
-        get { return Model.Conundrum[6]; }
-        set { SetConundrum(value, ref Model.Conundrum[6]); }
+        get => conundrum[6];
+        set
+        {
+            conundrum[6] = value;
+            UpdateProperties();
+        }
     }
 
     public string Conundrum_7
     {
-        get { return Model.Conundrum[7]; }
-        set { SetConundrum(value, ref Model.Conundrum[7]); }
+        get => conundrum[7];
+        set
+        {
+            conundrum[7] = value;
+            UpdateProperties();
+        }
     }
 
     public string Conundrum_8
     {
-        get { return Model.Conundrum[8]; }
-        set { SetConundrum(value, ref Model.Conundrum[8]); }
+        get => conundrum[8];
+        set 
+        { 
+            conundrum[8] = value;
+            UpdateProperties(); 
+        }
     }
 
 
-    private void SetConundrum(string newValue, ref string existing, [CallerMemberName] string propertyName = "")
+    private void UpdateProperties([CallerMemberName] string? propertyName = default)
     {
-        if (newValue != existing)
-        {
-            existing = newValue;
-            RaisePropertyChanged(propertyName);
-            SolveCommand.RaiseCanExecuteChanged();
-            Solution = emptySolution;
-        }
+        RaisePropertyChanged(propertyName);
+        SolveCommand.RaiseCanExecuteChanged();
+        Solution = emptySolution;
     }
 
     public string Solution
@@ -110,46 +142,59 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
 
     private void ExecuteChoose(object? _)
     {
+        IList<char> conundrum = wordModel.GenerateConundrum();
+
+        // there's not much validation code so just set properties directly 
+        Conundrum_0 = conundrum[0].ToString();
+        Conundrum_1 = conundrum[1].ToString();
+        Conundrum_2 = conundrum[2].ToString();
+        Conundrum_3 = conundrum[3].ToString();
+        Conundrum_4 = conundrum[4].ToString();
+        Conundrum_5 = conundrum[5].ToString();
+        Conundrum_6 = conundrum[6].ToString();
+        Conundrum_7 = conundrum[7].ToString();
+        Conundrum_8 = conundrum[8].ToString();
+
         Solution = emptySolution;
-
-        Model.GenerateConundrum();
-
-        RaisePropertyChanged(nameof(Conundrum_0));
-        RaisePropertyChanged(nameof(Conundrum_1));
-        RaisePropertyChanged(nameof(Conundrum_2));
-        RaisePropertyChanged(nameof(Conundrum_3));
-        RaisePropertyChanged(nameof(Conundrum_4));
-        RaisePropertyChanged(nameof(Conundrum_5));
-        RaisePropertyChanged(nameof(Conundrum_6));
-        RaisePropertyChanged(nameof(Conundrum_7));
-        RaisePropertyChanged(nameof(Conundrum_8));
-
         SolveCommand.RaiseCanExecuteChanged();
     }
 
-    private bool CanChoose(object? _) => Model.HasConundrums;
+    private bool CanChoose(object? _) => wordModel.HasConundrums;
 
     private void ExecuteSolve(object? _)
     {
-        string word = Model.Solve();
+        char[] conundrum = ConvertLettersToLower();
+        string solution = wordModel.SolveConundrum(conundrum);
 
-        if (word.Length > 0)
+        if (solution.Length > 0)
         {
-            char[] conundrum = new char[Model.cLetterCount];
+            for (int index = 0; index < WordModel.cLetterCount; ++index)
+                conundrum[index] = char.ToUpper(conundrum[index]);
 
-            for (int index = 0; index < Model.cLetterCount; ++index)
-                conundrum[index] = Model.Conundrum[index][0];
+            Solution = solution;
 
-            Solution = word;
-
-            SolutionList.Insert(0, new ConundrumItem(new string(conundrum), word));
-
+            SolutionList.Insert(0, new ConundrumItem(new string(conundrum), solution));
             SolveCommand.RaiseCanExecuteChanged();
         }
     }
 
     private bool CanSolve(object? _)
     {
-        return string.IsNullOrWhiteSpace(Solution) && !Model.Conundrum.Any(s => string.IsNullOrEmpty(s)) && !string.IsNullOrEmpty(Model.Solve());
+        return string.IsNullOrWhiteSpace(Solution) && 
+                conundrum.All(s => !string.IsNullOrEmpty(s)) && 
+                !string.IsNullOrEmpty(wordModel.SolveConundrum(ConvertLettersToLower()));
+    }
+
+    private char[] ConvertLettersToLower()
+    {
+        char[] data = new char[WordModel.cLetterCount];
+
+        for (int index = 0; index < WordModel.cLetterCount; ++index)
+        {
+            Debug.Assert(conundrum[index].Length == 1);
+            data[index] = char.ToLower(conundrum[index][0]);
+        }
+
+        return data;
     }
 }

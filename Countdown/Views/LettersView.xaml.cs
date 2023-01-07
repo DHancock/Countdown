@@ -21,7 +21,7 @@ internal sealed partial class LettersView : Page
             if (textBox is not null)
             {
                 textBox.CharacterCasing = CharacterCasing.Lower;
-                textBox.MaxLength = Models.WordDictionary.cMaxLetters;
+                textBox.MaxLength = Models.WordModel.cMaxLetters;
 
                 textBox.BeforeTextChanging += (s, a) =>
                 {
@@ -150,7 +150,7 @@ internal sealed partial class LettersView : Page
 
     private bool FindItem(string? target)
     {
-        if (target is null || target.Length < Models.WordDictionary.cMinLetters)
+        if (target is null || target.Length < Models.WordModel.cMinLetters)
             return false;
 
         foreach (TreeViewNode parent in WordTreeView.RootNodes)
@@ -159,7 +159,7 @@ internal sealed partial class LettersView : Page
             {
                 string word = ((TreeViewWordItem)child.Content).Text;
 
-                if (word.Length != target.Length)
+                if (word.Length != target!.Length)
                     break;
 
                 if (string.Equals(word, target, StringComparison.CurrentCulture))
