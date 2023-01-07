@@ -5,6 +5,7 @@ namespace Countdown.Views;
 internal sealed partial class LettersView : Page
 {
     private TreeViewList? treeViewList;
+    private TextBox? textBox;
     private LettersViewModel? viewModel;
 
     public LettersView()
@@ -13,28 +14,22 @@ internal sealed partial class LettersView : Page
 
         Loaded += (s, e) =>
         {
-            LoadTreeView();
-            SuggestionBox.Text = viewModel?.SuggestionText;
-
-            TextBox? textBox = FindChild<TextBox>(SuggestionBox);
-
-            if (textBox is not null)
+            if (textBox is null)
             {
-                textBox.CharacterCasing = CharacterCasing.Lower;
-                textBox.MaxLength = Models.WordModel.cMaxLetters;
+                textBox = FindChild<TextBox>(SuggestionBox);
 
-                textBox.BeforeTextChanging += (s, a) =>
+                if (textBox is not null)
                 {
-                    if (a.NewText.Length > 0)
-                        a.Cancel = a.NewText.Any(c => c is < 'a' or > 'z');
-                };
-            }
-        };
+                    textBox.CharacterCasing = CharacterCasing.Lower;
+                    textBox.MaxLength = Models.WordModel.cMaxLetters;
 
-        Unloaded += (s, e) =>
-        {
-            Debug.Assert(viewModel is not null);
-            viewModel.SuggestionText = SuggestionBox.Text;
+                    textBox.BeforeTextChanging += (s, a) =>
+                    {
+                        if (a.NewText.Length > 0)
+                            a.Cancel = a.NewText.Any(c => c is < 'a' or > 'z');
+                    };
+                }
+            }
         };
     }
 
@@ -44,8 +39,12 @@ internal sealed partial class LettersView : Page
         set
         {
             Debug.Assert(value is not null);
-            viewModel = value;
-            viewModel.PropertyChanged += ViewModel_PropertyChanged;
+
+            if (!ReferenceEquals(viewModel, value))
+            {
+                viewModel = value;
+                viewModel.PropertyChanged += ViewModel_PropertyChanged;
+            }
         }
     }
 

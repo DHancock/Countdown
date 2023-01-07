@@ -31,9 +31,8 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     public RelayTaskCommand SolveCommand { get; }
     public ICommand ChooseLettersCommand { get; }
     public ICommand ChooseOptionCommand { get; }
-
     public StopwatchController StopwatchController { get; }
-    public string? SuggestionText { get; set; }
+
 
     public LettersViewModel(WordModel model, StopwatchController sc) : base(WordModel.cLetterCount)
     {
