@@ -51,14 +51,14 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <SplitButton Grid.Column="0" x:Name="ChooseNumbersOption" Content="Choose" Command="{x:Bind ViewModel.ChooseNumbersCommand}">
+                <SplitButton Grid.Column="0" Content="Choose" Command="{x:Bind ViewModel.ChooseNumbersCommand}">
                     <SplitButton.Flyout>
-                        <MenuFlyout Placement="Bottom">
-                            <RadioMenuFlyoutItem Text="6 small tiles" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(0), Mode=OneTime}" CommandParameter="0" Command="{x:Bind ViewModel.ChooseOptionCommand}"/>
-                            <RadioMenuFlyoutItem Text="1 large and 5 small tiles" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(1), Mode=OneTime}" CommandParameter="1" Command="{x:Bind ViewModel.ChooseOptionCommand}"/>
-                            <RadioMenuFlyoutItem Text="2 large and 4 small tiles" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(2), Mode=OneTime}" CommandParameter="2" Command="{x:Bind ViewModel.ChooseOptionCommand}"/>
-                            <RadioMenuFlyoutItem Text="3 large and 3 small tiles" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(3), Mode=OneTime}" CommandParameter="3" Command="{x:Bind ViewModel.ChooseOptionCommand}"/>
-                            <RadioMenuFlyoutItem Text="4 large and 2 small tiles" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(4), Mode=OneTime}" CommandParameter="4" Command="{x:Bind ViewModel.ChooseOptionCommand}"/>
+                        <MenuFlyout>
+                            <RadioMenuFlyoutItem Text="6 small tiles" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(0), Mode=OneWay}" CommandParameter="0" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="6"/>
+                            <RadioMenuFlyoutItem Text="1 large and 5 small tiles" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(1), Mode=OneWay}" CommandParameter="1" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="1"/>
+                            <RadioMenuFlyoutItem Text="2 large and 4 small tiles" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(2), Mode=OneWay}" CommandParameter="2" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="2"/>
+                            <RadioMenuFlyoutItem Text="3 large and 3 small tiles" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(3), Mode=OneWay}" CommandParameter="3" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="3"/>
+                            <RadioMenuFlyoutItem Text="4 large and 2 small tiles" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(4), Mode=OneWay}" CommandParameter="4" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="4"/>
                         </MenuFlyout>
                     </SplitButton.Flyout>
                 </SplitButton>
