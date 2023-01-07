@@ -189,7 +189,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         if (string.IsNullOrEmpty(letter))
             return false;
 
-        return LetterTile.IsUpperVowel(letter[0]);
+        return IsUpperVowel(letter[0]);
     }
 
     private static bool IsUpperConsonant(string letter)
@@ -197,9 +197,13 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         if (string.IsNullOrEmpty(letter))
             return false;
 
-        return LetterTile.IsUpperLetter(letter[0]) && !LetterTile.IsUpperVowel(letter[0]);
+        return IsUpperLetter(letter[0]) && !IsUpperVowel(letter[0]);
     }
 
+    private static bool IsUpperVowel(char c) => c is 'E' or 'A' or 'I' or 'O' or 'U';
+        
+    private static bool IsUpperLetter(char c) => c is >= 'A' and <= 'Z';  
+    
     // Bound to by the ui 
     public IEnumerable<string> WordList
     {

@@ -1,15 +1,17 @@
-﻿namespace Countdown.Models;
+﻿using Countdown.Utils;
+
+namespace Countdown.Models;
 
 internal sealed class VowelList : LetterList
 {
-    public VowelList() : base(new List<LetterTile>(5)
+    public VowelList()
     {
-        new LetterTile('A', 2),
-        new LetterTile('E', 3),
-        new LetterTile('I', 6),
-        new LetterTile('O', 2),
-        new LetterTile('U', 3)    
-    })
-    {
+        AddRange('A', 2);
+        AddRange('E', 3);
+        AddRange('I', 6);
+        AddRange('O', 2);
+        AddRange('U', 3);
+
+        chars.Shuffle().ReduceDuplicateSequences();
     }
 }

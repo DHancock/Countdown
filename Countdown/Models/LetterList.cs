@@ -1,27 +1,15 @@
-﻿using Countdown.Utils;
-
-namespace Countdown.Models;
+﻿namespace Countdown.Models;
 
 internal abstract class LetterList
 {
-    private readonly List<char> letters;
+    protected readonly List<char> chars = new List<char>();
     private int index = 0;
-    private const int cMinimumStackSize = 100;
 
-    public LetterList(IList<LetterTile> source)
+    protected void AddRange(char c, int count)
     {
-        int frequencyCount = source.Sum(lt => lt.Frequency);
-        int copies = (cMinimumStackSize / frequencyCount) + 1;
-        letters = new List<char>(copies * frequencyCount);
-
-        foreach (LetterTile letterTile in source)
-        {
-            for (int i = 0; i < (letterTile.Frequency * copies); i++)
-                letters.Add(letterTile.Letter);
-        }
-
-        letters.Shuffle().ReduceDuplicateSequences();
+        for (int i = 0; i < count; i++)
+            chars.Add(c);
     }
 
-    public char GetLetter() => letters[index++ % letters.Count];
+    public char GetLetter() => chars[index++ % chars.Count];
 }
