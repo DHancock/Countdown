@@ -199,7 +199,7 @@ internal sealed partial class LettersView : Page
         return null;
     }
 
-    private void MenuFlyout_Opening(object sender, object e)
+    internal static void MenuFlyout_Opening(object sender, object e)
     {
         MenuFlyout menu = (MenuFlyout)sender;
         int selectedIndex = Settings.Data.ChooseLettersIndex;
