@@ -37,6 +37,6 @@ internal sealed partial class NumbersView : Page
         int selectedIndex = Settings.Data.ChooseNumbersIndex;
 
         for (int index = 0; index < menu.Items.Count; index++)
-            ((RadioMenuFlyoutItem)(menu.Items[index])).IsChecked = index == selectedIndex;
+            ((RadioMenuFlyoutItem)menu.Items[index]).IsChecked = index == selectedIndex;
     }
 }
