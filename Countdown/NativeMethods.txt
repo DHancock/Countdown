@@ -8,3 +8,4 @@ CreateDispatcherQueueController
 GetModuleHandleEx
 GetSystemMetrics
 LoadImage
+GetCurrentPackageFullName

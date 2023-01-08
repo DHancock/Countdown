@@ -7,20 +7,22 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class SettingsView : Page
 {
-    private SettingsViewModel? viewModel;
+    public SettingsViewModel? ViewModel { get; set; }
 
     public SettingsView()
     {
         this.InitializeComponent();
-    }
 
-    public SettingsViewModel? ViewModel 
-    { 
-        get => viewModel;
-        set
+        VersionTextBlock.Text = string.Format(VersionTextBlock.Text, typeof(App).Assembly.GetName().Version);
+
+#if DEBUG
+        if (App.IsPackaged)
+            VersionTextBlock.Text += " (P)";
+#endif
+
+        Loaded += async (s, e) =>
         {
-            Debug.Assert(value is not null);
-            viewModel = value;
-        }
+            AboutImage.Source = await MainWindow.LoadEmbeddedImageResource("Countdown.Resources.256.png");
+        };
     }
 }

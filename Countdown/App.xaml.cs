@@ -9,7 +9,10 @@ public partial class App : Application
 {
     public const string cDisplayName = "Countdown";
     public const string cIconResourceID = "32512";
-    
+    public static bool IsPackaged { get; } = GetIsPackaged();
+
+    private Window? m_window;
+
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
     /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -31,5 +34,10 @@ public partial class App : Application
 
     internal static MainWindow? MainWindow { get => (MainWindow?)((App)Current).m_window; }
 
-    private Window? m_window;
+    private static bool GetIsPackaged()
+    {
+        uint length = 0;
+        WIN32_ERROR error = PInvoke.GetCurrentPackageFullName(ref length, null);
+        return error == WIN32_ERROR.ERROR_INSUFFICIENT_BUFFER;
+    }
 }
