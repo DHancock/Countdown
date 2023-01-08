@@ -40,7 +40,7 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
 
         ChooseNumbersCommand = new RelayCommand(ExecuteChoose);
         SolveCommand = new RelayTaskCommand(ExecuteSolveAsync, CanSolve);
-        ChooseOptionCommand = new RelayCommand(ExecuteChooseOption);
+        ChooseOptionCommand = new RelayCommand(ExecuteChooseNumbersMenuOption);
 
         // initialise numbers
         ChooseNumbersCommand.Execute(null);
@@ -208,19 +208,9 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
             ClearValidationError(cIndex);
     }
 
-    public int TileOptionIndex
-    {
-        get => Settings.Data.ChooseNumbersIndex;
-        set
-        {
-            Settings.Data.ChooseNumbersIndex = value;
-            ChooseNumbersCommand.Execute(null);
-        }
-    }
-
     private void ExecuteChoose(object? _)
     {
-        int[] numbers = numberModel.GenerateNumberData(TileOptionIndex);
+        int[] numbers = numberModel.GenerateNumberData(Settings.Data.ChooseNumbersIndex);
 
         // set the backing store directly, no validation is required
         for (int index = 0; index < NumberModel.cNumberTileCount; ++index)
@@ -290,16 +280,14 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
         }
     }
 
-    private void ExecuteChooseOption(object? p)
+    private void ExecuteChooseNumbersMenuOption(object? p)
     {
-        if (int.TryParse(p as string, out int value))
-            TileOptionIndex = value;
-        else
-            TileOptionIndex = 0;
-    }
+        int newIndex = 0;
 
-    public bool IsTileOptionChecked(int option)
-    {
-        return TileOptionIndex == option;
+        if (int.TryParse(p as string, out int value))
+            newIndex = value;
+       
+        Settings.Data.ChooseNumbersIndex = newIndex;
+        ChooseNumbersCommand.Execute(null);
     }
 }

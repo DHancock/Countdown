@@ -30,4 +30,13 @@ internal sealed partial class NumbersView : Page
     {
         args.CanExecute = EquationList.SelectedItems.Any();
     }
+
+    private void MenuFlyout_Opening(object sender, object e)
+    {
+        MenuFlyout menu = (MenuFlyout)sender;
+        int selectedIndex = Settings.Data.ChooseNumbersIndex;
+
+        for (int index = 0; index < menu.Items.Count; index++)
+            ((RadioMenuFlyoutItem)(menu.Items[index])).IsChecked = index == selectedIndex;
+    }
 }

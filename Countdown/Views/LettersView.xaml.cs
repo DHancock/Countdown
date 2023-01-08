@@ -198,6 +198,15 @@ internal sealed partial class LettersView : Page
 
         return null;
     }
+
+    private void MenuFlyout_Opening(object sender, object e)
+    {
+        MenuFlyout menu = (MenuFlyout)sender;
+        int selectedIndex = Settings.Data.ChooseLettersIndex;
+
+        for (int index = 0; index < menu.Items.Count; index++)
+            ((RadioMenuFlyoutItem)(menu.Items[index])).IsChecked = index == selectedIndex;
+    }
 }
 
 internal sealed class TreeViewWordItem

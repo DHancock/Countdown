@@ -44,7 +44,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         ClearCommand = new RelayCommand(ExecuteClear, CanClear);
         PickVowelCommand = new RelayCommand(ExecutePickVowel, CanPickVowel);
         PickConsonantCommand = new RelayCommand(ExecutePickConsonant, CanPickConsonant);
-        ChooseOptionCommand = new RelayCommand(ExecuteChooseOption);
+        ChooseOptionCommand = new RelayCommand(ExecuteChooseLettersMenuOption);
 
         // initialise letters
         ChooseLettersCommand.Execute(null);
@@ -303,20 +303,10 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         return !(HasErrors || isExecuting || letters.Any(s => string.IsNullOrEmpty(s)));
     }
 
-    // which item in the choose letter menu is selected
-    public int TileOptionIndex
-    {
-        get => Settings.Data.ChooseLettersIndex;
-        set
-        {
-            Settings.Data.ChooseLettersIndex = value;
-            ChooseLettersCommand.Execute(null);
-        }
-    }
 
     private void ExecuteChooseLetters(object? _)
     {
-        int vowelCount = TileOptionIndex + 3;   // TileOptionIndex[0] is "3 vowels and 6 consonants"
+        int vowelCount = Settings.Data.ChooseLettersIndex + 3;   // index 0 is "3 vowels and 6 consonants"
 
         IList<char> letters = wordModel.GenerateLettersData(vowelCount);
 
@@ -334,17 +324,15 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         UpdateCommandsExecuteStatus();
     }
 
-    private void ExecuteChooseOption(object? p)
+    private void ExecuteChooseLettersMenuOption(object? p)
     {
-        if (int.TryParse(p as string, out int value))
-            TileOptionIndex = value;
-        else
-            TileOptionIndex = 0;
-    }
+        int newIndex = 0;
 
-    public bool IsTileOptionChecked(int option)
-    {
-        return TileOptionIndex == option;
+        if (int.TryParse(p as string, out int value))
+            newIndex = value;
+
+        Settings.Data.ChooseLettersIndex = newIndex;
+        ChooseLettersCommand.Execute(null);
     }
 
     private char[] ConvertLettersToLowerCaseCharArray()

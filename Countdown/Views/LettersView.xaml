@@ -93,10 +93,10 @@
 
                 <SplitButton Content="Choose" Command="{x:Bind ViewModel.ChooseLettersCommand}">
                     <SplitButton.Flyout>
-                        <MenuFlyout>
-                            <RadioMenuFlyoutItem Text="3 vowels and 6 consonants" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(0), Mode=OneWay}" CommandParameter="0" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="3"/>
-                            <RadioMenuFlyoutItem Text="4 vowels and 5 consonants" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(1), Mode=OneWay}" CommandParameter="1" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="4"/>
-                            <RadioMenuFlyoutItem Text="5 vowels and 4 consonants" IsChecked="{x:Bind ViewModel.IsTileOptionChecked(2), Mode=OneWay}" CommandParameter="2" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="5"/>
+                        <MenuFlyout Opening="MenuFlyout_Opening">
+                            <RadioMenuFlyoutItem Text="3 vowels and 6 consonants" CommandParameter="0" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="3"/>
+                            <RadioMenuFlyoutItem Text="4 vowels and 5 consonants" CommandParameter="1" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="4"/>
+                            <RadioMenuFlyoutItem Text="5 vowels and 4 consonants" CommandParameter="2" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="5"/>
                         </MenuFlyout>
                     </SplitButton.Flyout>
                 </SplitButton>
