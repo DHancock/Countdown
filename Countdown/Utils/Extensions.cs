@@ -4,6 +4,22 @@ namespace Countdown.Utils;
 internal static class Extensions
 {
 
+    public static int CountOf<T>(this IList<T> list, Func<T, bool> predicate)
+    {
+        int count = 0;
+
+        if (list is not null)
+        {
+            foreach (T item in list)
+            {
+                if (predicate(item))
+                    count++;
+            }
+        }
+
+        return count;
+    }
+
     public static IList<T> Shuffle<T>(this IList<T> list)
     {
         if (list.Count > 1)
