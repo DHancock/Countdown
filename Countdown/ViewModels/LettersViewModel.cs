@@ -4,8 +4,8 @@ namespace Countdown.ViewModels;
 
 internal sealed class LettersViewModel : DataErrorInfoBase
 {
-    public const int max_vowels = 5;
-    public const int max_consonants = 6;
+    private const int cMaxVowels = 5;
+    private const int cMaxConsonants = 6;
 
     private double clearButtonPathOpacity = 1.0;
 
@@ -161,24 +161,24 @@ internal sealed class LettersViewModel : DataErrorInfoBase
 
         int vowelCount = letters.Count(c => IsUpperVowel(c));
 
-        if (vowelCount > max_vowels)
+        if (vowelCount > cMaxVowels)
         {
             for (int index = 0; index < letters.Length; index++)
             {
                 if (IsUpperVowel(letters[index]))
-                    SetValidationError(index, $"A maximum of {max_vowels} vowels are allowed");
+                    SetValidationError(index, $"A maximum of {cMaxVowels} vowels are allowed");
             }
         }
         else
         {
             int consonantCount = letters.Count(c => IsUpperConsonant(c));
 
-            if (consonantCount > max_consonants)
+            if (consonantCount > cMaxConsonants)
             {
                 for (int index = 0; index < letters.Length; index++)
                 {
                     if (IsUpperConsonant(letters[index]))
-                        SetValidationError(index, $"A maximum of {max_consonants} consonants are allowed");
+                        SetValidationError(index, $"A maximum of {cMaxConsonants} consonants are allowed");
                 }
             }
         }
@@ -278,7 +278,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     private bool CanPickVowel(object? _)
     {
         int vowels = letters.Count(c => IsUpperVowel(c));
-        return vowels < max_vowels && letters.Any(c => string.IsNullOrEmpty(c));
+        return vowels < cMaxVowels && letters.Any(c => string.IsNullOrEmpty(c));
     }
 
     private void ExecutePickConsonant(object? _)
@@ -290,7 +290,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     private bool CanPickConsonant(object? _)
     {
         int consonants = letters.Count(c => IsUpperConsonant(c));
-        return consonants < max_consonants && letters.Any(c => string.IsNullOrEmpty(c));
+        return consonants < cMaxConsonants && letters.Any(c => string.IsNullOrEmpty(c));
     }
 
     private async Task ExecuteSolveAsync(object? _)
