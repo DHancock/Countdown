@@ -147,11 +147,12 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     private void UpdateProperties([CallerMemberName] string? propertyName = default)
     {
         ValidateLetters();
-        RaisePropertyChanged(propertyName);
-        UpdateCommandsExecuteStatus();
 
         if (WordList.Any())
             WordList = new List<string>();
+
+        RaisePropertyChanged(propertyName);
+        UpdateCommandsExecuteStatus();
     }
 
     private void ValidateLetters()
@@ -300,7 +301,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
 
     private bool CanSolve(object? _, bool isExecuting)
     {
-        return !(HasErrors || isExecuting || letters.Any(s => string.IsNullOrEmpty(s)));
+        return !(HasErrors || isExecuting || letters.Any(s => string.IsNullOrEmpty(s)) || WordList.Any());
     }
 
 

@@ -123,11 +123,11 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
         else
             ValidateTiles();
 
-        RaisePropertyChanged(propertyName);
-        SolveCommand.RaiseCanExecuteChanged();
-            
         if (EquationList.Any())
             EquationList = new List<string>();
+
+        RaisePropertyChanged(propertyName);
+        SolveCommand.RaiseCanExecuteChanged();
     }
 
     private static int Convert(string input)
@@ -264,7 +264,7 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
 
     private bool CanSolve(object? _, bool isExecuting)
     {
-        return !(HasErrors || isExecuting || tiles.Contains(cEmptyTileValue) || target is cEmptyTileValue);
+        return !(HasErrors || isExecuting || tiles.Contains(cEmptyTileValue) || target is cEmptyTileValue || EquationList.Any());
     }
 
     /// <summary>
