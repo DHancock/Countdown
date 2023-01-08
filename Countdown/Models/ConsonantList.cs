@@ -6,7 +6,6 @@ internal sealed class ConsonantList : LetterList
 {
     public ConsonantList()
     {
-        AddRange('A', 2);
         AddRange('B', 2);
         AddRange('C', 3);
         AddRange('D', 6);
