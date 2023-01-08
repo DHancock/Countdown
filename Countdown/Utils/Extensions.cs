@@ -1,5 +1,4 @@
-﻿
-namespace Countdown.Utils;
+﻿namespace Countdown.Utils;
 
 internal static class Extensions
 {
@@ -8,13 +7,10 @@ internal static class Extensions
     {
         int count = 0;
 
-        if (list is not null)
+        foreach (T item in list)
         {
-            foreach (T item in list)
-            {
-                if (predicate(item))
-                    count++;
-            }
+            if (predicate(item))
+                count++;
         }
 
         return count;
@@ -33,13 +29,12 @@ internal static class Extensions
         return list;
     }
 
-
-    public static IList<T> ReduceDuplicateSequences<T>(this IList<T> list, IEqualityComparer? equalityComparer = null)
+    public static IList<T> ReduceDuplicateSequences<T>(this IList<T> list, IEqualityComparer? comparer = null)
     {
         if (list.Count > 2)
         {
             Random random = new Random();
-            IEqualityComparer comparer = equalityComparer ?? EqualityComparer<T>.Default;
+            comparer ??= EqualityComparer<T>.Default;
 
             int duplicateCount = 0;
             T previous = list[0];
