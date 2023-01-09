@@ -28,8 +28,8 @@
 
             <local:Clock Style="{StaticResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
 
-            <w3c:GroupBox Heading="Titles" Style="{StaticResource CommonGroupBoxStyle}">
-                <Grid RowDefinitions="*" ColumnDefinitions="*,*,*,*,*,*">
+            <w3c:GroupBox Heading="Tiles" Style="{StaticResource CommonGroupBoxStyle}">
+                <Grid ColumnDefinitions="*,*,*,*,*,*">
                     <local:CountdownTextBox Grid.Column="0" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[0], Mode=OneWay}"/>
                     <local:CountdownTextBox Grid.Column="1" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[1], Mode=OneWay}"/>
                     <local:CountdownTextBox Grid.Column="2" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Tile_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[2], Mode=OneWay}"/>
@@ -40,9 +40,7 @@
             </w3c:GroupBox>
 
             <w3c:GroupBox Heading="Target" Style="{StaticResource CommonGroupBoxStyle}">
-                <Grid RowDefinitions="*" ColumnDefinitions="*">
-                    <local:CountdownTextBox HorizontalAlignment="Center" Width="60" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Target, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[6], Mode=OneWay}"/>
-                </Grid>
+                <local:CountdownTextBox HorizontalAlignment="Center" Width="60" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Target, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[6], Mode=OneWay}"/>
             </w3c:GroupBox>
 
             <Grid Margin="7,7,7,0">
