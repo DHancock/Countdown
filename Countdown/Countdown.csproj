@@ -5,27 +5,26 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>Countdown</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Platforms>x86;x64;arm64</Platforms>
+    <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
     <PublishProfile>win10-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
-    <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
-    <WindowsPackageType>None</WindowsPackageType>
+    <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Resources\app.ico</ApplicationIcon>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-	
+    <AssemblyVersion>3.5.0.0</AssemblyVersion>
+    <FileVersion>3.5.0.0</FileVersion>
+	  
+    <!-- WindowsAppSDKSelfContained = true is a work around for a dependency problem with packaged and unpackaged builds -->
+    <!-- It results in a DLL not found error when loading the Microsoft.ui.xaml.dll in the bootstrap code -->
+    <!-- if the SDK Build Tools nuget package is included then packaged works and unpackaged fails -->
+    <!-- if the SDK Build Tools nuget package is omitted then packaged fails and unpackaged works -->
+    <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>	
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Resources\16.png" />
-    <None Remove="Resources\256.png" />
-    <None Remove="Resources\Themes.xaml" />
-    <None Remove="Resources\wordlist.dat" />
-    <None Remove="Views\Clock.xaml" />
-    <None Remove="Views\ConundrumView.xaml" />
-    <None Remove="Views\CountdownTextBox.xaml" />
-  </ItemGroup>
+
+
   <ItemGroup>
     <EmbeddedResource Include="Resources\16.png" />
     <EmbeddedResource Include="Resources\256.png" />
@@ -35,50 +34,30 @@
   <ItemGroup>
     <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="2.0.2" />
     <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.0.4" />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.138-beta">
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.164-beta">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.221116.1" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.221209.1" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.755" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
 
-  <ItemGroup>
-    <None Update="Resources\app_16.ico">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <Page Update="Resources\Themes.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Page Update="Views\ConundrumView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Page Update="Views\Clock.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Page Update="Views\CountdownTextBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-
-  <!-- Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
-       Tools extension to be activated for this project even if the Windows App SDK Nuget
-       package has not yet been restored -->
-  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnablePreviewMsixTooling)'=='true'">
+ <!-- 
+    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
+    Tools extension to be activated for this project even if the Windows App SDK Nuget
+    package has not yet been restored.
+  -->
+  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
   </ItemGroup>
+  <!-- 
+    Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution 
+    Explorer "Package and Publish" context menu entry to be enabled for this project even if 
+    the Windows App SDK Nuget package has not yet been restored.
+  -->
+  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
 </Project>
