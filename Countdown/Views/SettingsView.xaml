@@ -9,22 +9,20 @@
     NavigationCacheMode="Required"
     mc:Ignorable="d">
 
-    <StackPanel Margin="50,40,0,0">
-        
-        <TextBlock Text="App Theme" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,5"/>
-        <RadioButton Content="Light" IsChecked="{x:Bind ViewModel.IsLightTheme, Mode=TwoWay}"/>
-        <RadioButton Content="Dark" IsChecked="{x:Bind ViewModel.IsDarkTheme, Mode=TwoWay}"/>
-        <RadioButton Content="Use system setting" IsChecked="{x:Bind ViewModel.IsSystemTheme, Mode=TwoWay}"/>
+    <Grid RowDefinitions="Auto,*">
 
-        <StackPanel Orientation="Horizontal" Margin="0,60,0,0">
-            
-            <Image x:Name="AboutImage" Width="62" Height="62" Margin="0,7,20,0" VerticalAlignment="Top"/>
-
-            <StackPanel Margin="10,0,0,0">
-                <TextBlock Text="Countdown" FontSize="20"/>
-                <TextBlock Text="Version: {0}" x:Name="VersionTextBlock"/>
-                <TextBlock><Hyperlink NavigateUri="https://github.com/DHancock/Countdown">GitHub Repository</Hyperlink></TextBlock>
-            </StackPanel>
+        <StackPanel Margin="50,30,0,0">
+            <TextBlock Text="App Colour Mode" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <RadioButton Content="Light" IsChecked="{x:Bind ViewModel.IsLightTheme, Mode=TwoWay}"/>
+            <RadioButton Content="Dark" IsChecked="{x:Bind ViewModel.IsDarkTheme, Mode=TwoWay}"/>
+            <RadioButton Content="Use system setting" IsChecked="{x:Bind ViewModel.IsSystemTheme, Mode=TwoWay}"/>
         </StackPanel>
-    </StackPanel>
+
+        <StackPanel Grid.Row="1"  Margin="0,0,0,40" VerticalAlignment="Bottom">
+            <Image x:Name="AboutImage" Width="62" Height="62" HorizontalAlignment="Center"/>
+            <TextBlock Text="Countdown" FontSize="17" HorizontalAlignment="Center"/>
+            <TextBlock Text="Version: {0}" x:Name="VersionTextBlock" HorizontalAlignment="Center"/>
+            <TextBlock HorizontalAlignment="Center"><Hyperlink NavigateUri="https://github.com/DHancock/Countdown">GitHub Repository</Hyperlink></TextBlock>
+        </StackPanel>
+    </Grid>
 </Page>
