@@ -22,7 +22,7 @@ internal sealed partial class SettingsView : Page
 
         Loaded += async (s, e) =>
         {
-            AboutImage.Source = await MainWindow.LoadEmbeddedImageResource("Countdown.Resources.256.png");
+            AboutImage.Source ??= await MainWindow.LoadEmbeddedImageResource("Countdown.Resources.256.png");
         };
     }
 }
