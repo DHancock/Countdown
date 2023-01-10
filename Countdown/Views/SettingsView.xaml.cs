@@ -36,7 +36,7 @@ internal sealed partial class SettingsView : Page
                 AboutImageLight.Source = await MainWindow.LoadEmbeddedImageResource("Countdown.Resources.256-light.png");
                 AboutImageDark.Source = await MainWindow.LoadEmbeddedImageResource("Countdown.Resources.256-dark.png");
 
-                await Task.Delay(250);
+                // set duration for the next transition
                 LightFader.Duration = new TimeSpan(0, 0, 0, 0, 125);
                 DarkFader.Duration = new TimeSpan(0, 0, 0, 0, 125);
             }
