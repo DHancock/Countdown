@@ -7,6 +7,8 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class SettingsView : Page
 {
+    bool firstLoad = true;
+
     public SettingsViewModel? ViewModel { get; set; }
 
     public SettingsView()
@@ -22,27 +24,54 @@ internal sealed partial class SettingsView : Page
 
         Loaded += async (s, e) =>
         {
-            AboutImage.Source ??= await LoadAboutImage();
+            if (firstLoad)
+            {
+                firstLoad = false;
+
+                if (IsDarkTheme)
+                    AboutImageDark.Opacity = 1;
+                else
+                    AboutImageLight.Opacity = 1;
+
+                AboutImageLight.Source = await MainWindow.LoadEmbeddedImageResource("Countdown.Resources.256-light.png");
+                AboutImageDark.Source = await MainWindow.LoadEmbeddedImageResource("Countdown.Resources.256-dark.png");
+
+                await Task.Delay(250);
+                LightFader.Duration = new TimeSpan(0, 0, 0, 0, 125);
+                DarkFader.Duration = new TimeSpan(0, 0, 0, 0, 125);
+            }
+
+            ActualThemeChanged += SettingsView_ActualThemeChanged;
         };
 
-        ActualThemeChanged += async (s, e) =>
+        Unloaded += (s, e) =>
         {
-            AboutImage.Source = await LoadAboutImage();
+            ActualThemeChanged -= SettingsView_ActualThemeChanged;
         };
     }
 
-    private async Task<BitmapImage> LoadAboutImage()
+    private void SettingsView_ActualThemeChanged(FrameworkElement sender, object args)
     {
-        const string cLightPath = "Countdown.Resources.256-light.png";
-        const string cDarkPath = "Countdown.Resources.256-dark.png";
+        if (IsDarkTheme)
+        {
+            AboutImageLight.Opacity = 0;
+            AboutImageDark.Opacity = 1;
+        }
+        else
+        {
+            AboutImageLight.Opacity = 1;
+            AboutImageDark.Opacity = 0;
+        }
+    }
 
-        bool isDark = false;
+    private bool IsDarkTheme
+    {
+        get
+        {
+            if (ActualTheme == ElementTheme.Default)
+                return App.Current.RequestedTheme == ApplicationTheme.Dark;
 
-        if (ActualTheme == ElementTheme.Default)
-            isDark = App.Current.RequestedTheme == ApplicationTheme.Dark;
-        else if (ActualTheme == ElementTheme.Dark)
-            isDark = true;
-
-        return await MainWindow.LoadEmbeddedImageResource(isDark ? cDarkPath : cLightPath);
+            return ActualTheme == ElementTheme.Dark;
+        }
     }
 }
