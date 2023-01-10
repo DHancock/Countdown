@@ -14,7 +14,7 @@
             <StaticResource x:Key="ClockTickMarksColour" ResourceKey="SystemColorButtonTextColor"/>
             <StaticResource x:Key="ClockHandStrokeColour" ResourceKey="SystemColorButtonTextColor"/>
             <StaticResource x:Key="ClockHandFillColour" ResourceKey="SystemColorButtonTextColor"/>
-            <x:Boolean x:Key="ClockDropShadowIsVisible">false</x:Boolean>
+            <x:Boolean x:Key="ClockIsDropShadowVisible">false</x:Boolean>
 
             <!-- borders -->
             <SolidColorBrush x:Key="CommonBoderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
@@ -47,7 +47,7 @@
             <Color x:Key="ClockTickMarksColour">#FF484848</Color>
             <Color x:Key="ClockHandStrokeColour">#FF383838</Color>
             <Color x:Key="ClockHandFillColour">MidnightBlue</Color>
-            <x:Boolean x:Key="ClockDropShadowIsVisible">true</x:Boolean>
+            <x:Boolean x:Key="ClockIsDropShadowVisible">true</x:Boolean>
 
             <!-- borders -->
             <SolidColorBrush x:Key="CommonBoderBrush" Color="Gray"/>
@@ -75,7 +75,7 @@
             <Color x:Key="ClockTickMarksColour">Silver</Color>
             <Color x:Key="ClockHandStrokeColour">Gray</Color>
             <Color x:Key="ClockHandFillColour">#FF0068C7</Color>
-            <x:Boolean x:Key="ClockDropShadowIsVisible">true</x:Boolean>
+            <x:Boolean x:Key="ClockIsDropShadowVisible">true</x:Boolean>
 
             <!-- borders -->
             <SolidColorBrush x:Key="CommonBoderBrush" Color="LightGray"/>

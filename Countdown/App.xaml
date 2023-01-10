@@ -49,7 +49,7 @@
                 <Setter Property="TickMarksColour" Value="{ThemeResource ClockTickMarksColour}"/>
                 <Setter Property="HandStrokeColour" Value="{ThemeResource ClockHandStrokeColour}"/>
                 <Setter Property="HandFillColour" Value="{ThemeResource ClockHandFillColour}"/>
-                <Setter Property="DropShadowIsVisible" Value="{ThemeResource ClockDropShadowIsVisible}"/>
+                <Setter Property="IsDropShadowVisible" Value="{ThemeResource ClockIsDropShadowVisible}"/>
             </Style>
             
             <!-- make all the result lists start at the same x coordinate -->
