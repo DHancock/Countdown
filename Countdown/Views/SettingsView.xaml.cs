@@ -22,7 +22,27 @@ internal sealed partial class SettingsView : Page
 
         Loaded += async (s, e) =>
         {
-            AboutImage.Source ??= await MainWindow.LoadEmbeddedImageResource("Countdown.Resources.256.png");
+            AboutImage.Source ??= await LoadAboutImage();
         };
+
+        ActualThemeChanged += async (s, e) =>
+        {
+            AboutImage.Source = await LoadAboutImage();
+        };
+    }
+
+    private async Task<BitmapImage> LoadAboutImage()
+    {
+        const string cLightPath = "Countdown.Resources.256-light.png";
+        const string cDarkPath = "Countdown.Resources.256-dark.png";
+
+        bool isDark = false;
+
+        if (ActualTheme == ElementTheme.Default)
+            isDark = App.Current.RequestedTheme == ApplicationTheme.Dark;
+        else if (ActualTheme == ElementTheme.Dark)
+            isDark = true;
+
+        return await MainWindow.LoadEmbeddedImageResource(isDark ? cDarkPath : cLightPath);
     }
 }
