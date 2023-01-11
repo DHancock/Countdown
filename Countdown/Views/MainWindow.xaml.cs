@@ -68,12 +68,11 @@ internal sealed partial class MainWindow : SubClassWindow
                 WindowState = Settings.Data.WindowState;
         }
 
-        RootNavigationView.Loaded += async (s, e) =>
+        LayoutRoot.Loaded += (s, e) =>
         {
-            // delay so that an initial opening theme change doesn't animate
-            const int milliseconds = 250;
-            await Task.Delay(milliseconds);
-            ThemeBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, milliseconds);
+            LayoutRoot.RequestedTheme = Settings.Data.CurrentTheme;
+            // set duration for the next theme change
+            ThemeBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
         };
     }
 
