@@ -57,24 +57,21 @@
             <local:Clock Style="{StaticResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
 
             <w3c:GroupBox Heading="Tiles" Style="{StaticResource CommonGroupBoxStyle}">
-                <Grid RowDefinitions="*,*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
-                    <local:CountdownTextBox Grid.Row="1" Grid.Column="0" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[0], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[1], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[2], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="1" Grid.Column="3" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[3], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="1" Grid.Column="4" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[4], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="1" Grid.Column="5" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[5], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="1" Grid.Column="6" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[6], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="1" Grid.Column="7" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[7], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="1" Grid.Column="8" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[8], Mode=OneWay}" AutoTabStyle="Off"/>
+                
+                <Grid RowDefinitions="*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
+                    
+                    <local:CountdownTextBox Grid.Row="0" Grid.Column="0" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[0], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[1], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[2], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="0" Grid.Column="3" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[3], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="0" Grid.Column="4" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[4], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="0" Grid.Column="5" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[5], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="0" Grid.Column="6" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[6], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="0" Grid.Column="7" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[7], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Row="0" Grid.Column="8" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[8], Mode=OneWay}" AutoTabStyle="Off"/>
 
-                    <Grid Margin="0,19,0,10" Grid.Row="2" Grid.ColumnSpan="9">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
+                    <Grid Margin="0,19,0,10" Grid.Row="1" Grid.ColumnSpan="9" ColumnDefinitions="Auto,*,Auto">
+                        
                         <Button Grid.Column="0" Content="Vowel" Command="{x:Bind ViewModel.PickVowelCommand}"/>
                         <Button Grid.Column="1" Content="Consonant" Command="{x:Bind ViewModel.PickConsonantCommand}" HorizontalAlignment="Center"/>
                         <Button Grid.Column="2" x:Name="ClearButton" Command="{x:Bind ViewModel.ClearCommand}" Padding="0" Height="32" Width="32">
@@ -84,12 +81,7 @@
                 </Grid>
             </w3c:GroupBox>
 
-            <Grid Margin="7,28,7,7">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <Grid Margin="7,28,7,7" ColumnDefinitions="Auto,*,Auto">
 
                 <SplitButton Content="Choose" Command="{x:Bind ViewModel.ChooseLettersCommand}">
                     <SplitButton.Flyout>
@@ -106,11 +98,7 @@
             </Grid>
         </StackPanel>
 
-        <Grid Grid.Column="1" Margin="5">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <Grid Grid.Column="1" Margin="5" RowDefinitions="Auto,*">
 
             <AutoSuggestBox x:Name="SuggestionBox" MinWidth="175" HorizontalAlignment="Left"
                 TextChanged="AutoSuggestBox_TextChanged"
