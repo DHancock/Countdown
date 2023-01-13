@@ -60,15 +60,15 @@
                 
                 <Grid RowDefinitions="*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
                     
-                    <local:CountdownTextBox Grid.Row="0" Grid.Column="0" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[0], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[1], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="0" Grid.Column="2" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[2], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="0" Grid.Column="3" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[3], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="0" Grid.Column="4" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[4], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="0" Grid.Column="5" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[5], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="0" Grid.Column="6" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[6], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="0" Grid.Column="7" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[7], Mode=OneWay}"/>
-                    <local:CountdownTextBox Grid.Row="0" Grid.Column="8" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[8], Mode=OneWay}" AutoTabStyle="Off"/>
+                    <local:CountdownTextBox Grid.Column="0" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[0], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="1" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[1], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="2" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[2], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="3" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[3], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="4" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[4], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="5" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[5], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="6" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[6], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="7" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[7], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="8" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[8], Mode=OneWay}" AutoTabStyle="Off"/>
 
                     <Grid Margin="0,19,0,10" Grid.Row="1" Grid.ColumnSpan="9" ColumnDefinitions="Auto,*,Auto">
                         
