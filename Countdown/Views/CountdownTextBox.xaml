@@ -21,8 +21,7 @@
         <Border x:Name="ErrorBorder"
                 BorderThickness="1.5"
                 CornerRadius="5"
-                BorderBrush="Transparent"
-                Opacity="{ThemeResource TextBoxErrorBorderOpacity}">
+                BorderBrush="Transparent">
             <TextBox x:Name="tb"
                      CharacterCasing="Upper"
                      FontWeight="Bold"

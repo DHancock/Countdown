@@ -34,7 +34,6 @@
             
             <!-- text boxes -->
             <SolidColorBrush x:Key="TextBoxErrorBorderBrush" Color="{ThemeResource SystemColorHotlightColor}"/>
-            <x:Double x:Key="TextBoxErrorBorderOpacity">1.0</x:Double>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Dark">
@@ -62,7 +61,6 @@
 
             <!-- text boxes -->
             <SolidColorBrush x:Key="TextBoxErrorBorderBrush" Color="Red"/>
-            <x:Double x:Key="TextBoxErrorBorderOpacity">0.75</x:Double>
         </ResourceDictionary>
 
         <ResourceDictionary x:Key="Light">
@@ -89,9 +87,7 @@
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush">DarkGray</SolidColorBrush>
             
             <!-- text boxes -->
-            <SolidColorBrush x:Key="TextControlBackground">White</SolidColorBrush>
             <SolidColorBrush x:Key="TextBoxErrorBorderBrush" Color="Red"/>
-            <x:Double x:Key="TextBoxErrorBorderOpacity">0.75</x:Double>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
