@@ -99,7 +99,13 @@
         </StackPanel>
 
         <Grid Grid.Column="1" Margin="5" RowDefinitions="Auto,*">
-
+            <Grid.Resources>
+                <Style TargetType="ListView">
+                    <!-- differentiate the AutoSuggestBox suggestion list from the results list -->
+                    <Setter Property="Background" Value="{ThemeResource SystemControlPageBackgroundChromeLowBrush}"/>
+                </Style>
+            </Grid.Resources>
+            
             <AutoSuggestBox x:Name="SuggestionBox" MinWidth="175" HorizontalAlignment="Left"
                 TextChanged="AutoSuggestBox_TextChanged"
                 SuggestionChosen="AutoSuggestBox_SuggestionChosen"
