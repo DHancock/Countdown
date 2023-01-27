@@ -46,7 +46,7 @@ internal sealed partial class Clock : UserControl
         if (sCompositionClock is null)
             return;
 
-        StopwatchState oldState = (StopwatchState)e.OldValue; // unbox objects
+        StopwatchState oldState = (StopwatchState)e.OldValue; 
         StopwatchState newState = (StopwatchState)e.NewValue;
 
         if (oldState == StopwatchState.Undefined) // a new page has been loaded
@@ -255,17 +255,17 @@ internal sealed partial class Clock : UserControl
             const float startAngle = 179.5f;
             const float endAngle = 174.5f;
 
-            Vector topLeft = new Vector(outerRadius, startAngle, center);
-            Vector topRight = new Vector(outerRadius, endAngle, center);
-            Vector bottomLeft = new Vector(innerRadius, startAngle, center);
-            Vector bottomRight = new Vector(innerRadius, endAngle, center);
+            Vector2 topLeft = VectorToCartesian(outerRadius, startAngle, center);
+            Vector2 topRight = VectorToCartesian(outerRadius, endAngle, center);
+            Vector2 bottomLeft = VectorToCartesian(innerRadius, startAngle, center);
+            Vector2 bottomRight = VectorToCartesian(innerRadius, endAngle, center);
 
             using CanvasPathBuilder builder = new CanvasPathBuilder(null);
 
-            builder.BeginFigure(topLeft.Cartesian);
-            builder.AddArc(topRight.Cartesian, outerRadius, outerRadius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
-            builder.AddLine(bottomRight.Cartesian);
-            builder.AddLine(bottomLeft.Cartesian);
+            builder.BeginFigure(topLeft);
+            builder.AddArc(topRight, outerRadius, outerRadius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Small);
+            builder.AddLine(bottomRight);
+            builder.AddLine(bottomLeft);
             builder.EndFigure(CanvasFigureLoop.Closed);
 
             // create a composition geometry from the canvas path data
@@ -339,7 +339,7 @@ internal sealed partial class Clock : UserControl
             float tickRadius = innerFrameStroke / 5.0f;      // TODO constants, and color static
 
             for (float degrees = 0; degrees < 360.0; degrees += 30.0f)
-                shapeContainer.Shapes.Add(CreateCircle(tickRadius, 0f, new Vector(radius, degrees, center).Cartesian, BrushId.FrameTick, BrushId.Transparent));
+                shapeContainer.Shapes.Add(CreateCircle(tickRadius, 0f, VectorToCartesian(radius, degrees, center), BrushId.FrameTick, BrushId.Transparent));
 
             // clock face fill
             radius -= innerFrameStroke * 0.5f;
@@ -402,8 +402,8 @@ internal sealed partial class Clock : UserControl
             {
                 if (degrees % 90 > 0)
                 {
-                    Vector2 inner = new Vector(startLength, degrees, center).Cartesian;
-                    Vector2 outer = new Vector(endLength, degrees, center).Cartesian;
+                    Vector2 inner = VectorToCartesian(startLength, degrees, center);
+                    Vector2 outer = VectorToCartesian(endLength, degrees, center);
                     shapeContainer.Shapes.Add(CreateLine(inner, outer, stroke, BrushId.TickMarks, endCap));
                 }
             }
@@ -434,16 +434,16 @@ internal sealed partial class Clock : UserControl
         {
             using CanvasPathBuilder builder = new CanvasPathBuilder(null);
 
-            Vector tip = new Vector(clockSize * 0.5f * cHandTipRadiusPercentage, 0.0f, center);
-            builder.BeginFigure(tip.Cartesian);
+            Vector2 tip = VectorToCartesian(clockSize * 0.5f * cHandTipRadiusPercentage, 0.0f, center);
+            builder.BeginFigure(tip);
 
             float radius = clockSize * cHandArcRadiusPercentage;
 
-            Vector arcStartPoint = new Vector(radius, -cHandSectorAngle, center);
-            builder.AddLine(arcStartPoint.Cartesian);
+            Vector2 arcStartPoint = VectorToCartesian(radius, -cHandSectorAngle, center);
+            builder.AddLine(arcStartPoint);
 
-            Vector arcEndPoint = new Vector(radius, cHandSectorAngle, center);
-            builder.AddArc(arcEndPoint.Cartesian, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Large);
+            Vector2 arcEndPoint = VectorToCartesian(radius, cHandSectorAngle, center);
+            builder.AddArc(arcEndPoint, radius, radius, 0f, CanvasSweepDirection.Clockwise, CanvasArcSize.Large);
             builder.EndFigure(CanvasFigureLoop.Closed);
 
             float handStroke = clockSize * cHandStrokePercentage;
@@ -622,27 +622,11 @@ internal sealed partial class Clock : UserControl
         }
     }
 
-    private readonly struct Vector
+    private static Vector2 VectorToCartesian(float length, float degrees, Vector2 offset)
     {
-        private readonly float length;
-        private readonly float degrees;
-        private readonly Vector2 offset;
+        (float sin, float cos) = MathF.SinCos(degrees * (MathF.PI / 180.0f));
 
-        public Vector(float length, float degrees, Vector2 offset)
-        {
-            this.length = length;
-            this.degrees = degrees;
-            this.offset = offset;
-        }
-
-        public Vector2 Cartesian
-        {
-            get
-            {
-                (float sin, float cos) = MathF.SinCos(degrees * (MathF.PI / 180.0f));
-                return new Vector2(MathF.FusedMultiplyAdd(length, sin, offset.X),
-                                    MathF.FusedMultiplyAdd(length, cos, offset.Y));
-            }
-        }
+        return new Vector2(MathF.FusedMultiplyAdd(length, sin, offset.X),
+                            MathF.FusedMultiplyAdd(length, cos, offset.Y));
     }
 }
