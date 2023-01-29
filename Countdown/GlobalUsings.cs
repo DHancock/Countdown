@@ -5,7 +5,6 @@ global using Microsoft.UI.Windowing;
 global using Microsoft.UI.Xaml;
 global using Microsoft.UI.Xaml.Controls;
 global using Microsoft.UI.Xaml.Controls.AnimatedVisuals;
-global using Microsoft.UI.Xaml.Data;
 global using Microsoft.UI.Xaml.Hosting;
 global using Microsoft.UI.Xaml.Input;
 global using Microsoft.UI.Xaml.Media;
@@ -30,7 +29,9 @@ global using System.Windows.Input;
 
 global using Windows.ApplicationModel.DataTransfer;
 global using Windows.Foundation;
+global using Windows.Foundation.Collections;
 global using Windows.Graphics;
+global using Windows.Storage;
 global using Windows.System;
 global using Windows.UI;
 global using Windows.Win32;
