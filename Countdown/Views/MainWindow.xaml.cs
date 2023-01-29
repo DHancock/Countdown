@@ -55,18 +55,14 @@ internal sealed partial class MainWindow : SubClassWindow
             RootNavigationView.SelectedItem = RootNavigationView.MenuItems[0];
 
         if (Settings.Data.IsFirstRun)
-        {
             appWindow.MoveAndResize(CenterInPrimaryDisplay());
-        }
         else
-        {
             appWindow.MoveAndResize(ValidateRestoreBounds(Settings.Data.RestoreBounds));
 
-            if (Settings.Data.WindowState == WindowState.Minimized)
-                WindowState = WindowState.Normal;
-            else
-                WindowState = Settings.Data.WindowState;
-        }
+        if (Settings.Data.WindowState == WindowState.Minimized)
+            WindowState = WindowState.Normal;
+        else
+            WindowState = Settings.Data.WindowState;
 
         LayoutRoot.Loaded += (s, e) =>
         {
