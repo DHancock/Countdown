@@ -138,18 +138,22 @@ internal sealed partial class LettersView : Page
     private void AutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
     {
         // the selected item will be a valid existing word
-        FindItem(args.SelectedItem.ToString());
+        FindItem(args.SelectedItem.ToString(), Equals);
     }
 
     private void AutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-        if (!FindItem(args.QueryText))
+        if (!FindItem(args.QueryText, Equals) &&
+            !FindItem(args.QueryText, StartsWith) &&
+            !FindItem(args.QueryText, Contains))
+        {
             Utils.User32Sound.PlayExclamation();
+        }
     }
 
-    private bool FindItem(string? target)
+    private bool FindItem(string? target, Func<string, string, bool> compare)
     {
-        if (target is null || target.Length < Models.WordModel.cMinLetters)
+        if (target is null)
             return false;
 
         foreach (TreeViewNode parent in WordTreeView.RootNodes)
@@ -158,10 +162,7 @@ internal sealed partial class LettersView : Page
             {
                 string word = ((TreeViewWordItem)child.Content).Text;
 
-                if (word.Length != target!.Length)
-                    break;
-
-                if (string.Equals(word, target, StringComparison.CurrentCulture))
+                if (compare(word, target))
                 {
                     treeViewList ??= FindChild<TreeViewList>(WordTreeView);
 
@@ -178,6 +179,13 @@ internal sealed partial class LettersView : Page
 
         return false;
     }
+
+    private static bool Equals(string a, string b) => a.Equals(b, StringComparison.CurrentCulture);
+
+    private static bool StartsWith(string a, string b) => a.StartsWith(b, StringComparison.CurrentCulture);
+
+    private static bool Contains(string a, string b) => a.Contains(b, StringComparison.CurrentCulture);
+
 
     private static T? FindChild<T>(DependencyObject parent) where T : DependencyObject
     {
