@@ -138,11 +138,14 @@ internal sealed partial class LettersView : Page
     private void AutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
     {
         // the selected item will be a valid existing word
-        FindItem(args.SelectedItem.ToString(), Equals);
+        FindItem((string)args.SelectedItem, Equals);
     }
 
     private void AutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
+        if (string.IsNullOrEmpty(args.QueryText))
+            return;
+
         if (!FindItem(args.QueryText, Equals) &&
             !FindItem(args.QueryText, StartsWith) &&
             !FindItem(args.QueryText, Contains))
@@ -151,11 +154,8 @@ internal sealed partial class LettersView : Page
         }
     }
 
-    private bool FindItem(string? target, Func<string, string, bool> compare)
+    private bool FindItem(string target, Func<string, string, bool> compare)
     {
-        if (target is null)
-            return false;
-
         foreach (TreeViewNode parent in WordTreeView.RootNodes)
         {
             foreach (TreeViewNode child in parent.Children)
