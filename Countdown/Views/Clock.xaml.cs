@@ -5,21 +5,20 @@ namespace Countdown.Views;
 internal sealed partial class Clock : UserControl
 {
     private static CompositionClock? sCompositionClock;
-    private static AudioHelper? sAudioHelper;
+    private static readonly AudioHelper sAudioHelper = new AudioHelper();
 
     public Clock()
     {
         this.InitializeComponent();
 
-        Loaded += async (s, e) =>
+        Loaded += (s, e) =>
         {
             Clock xamlClock = (Clock)s;
 
             if (sCompositionClock is null)
             {
                 sCompositionClock = new CompositionClock(xamlClock);
-                sAudioHelper = new AudioHelper();
-                await sAudioHelper.CreateAudioGraph();
+                InitialiseAudio();
             }
             else
                 sCompositionClock.XamlClock = xamlClock;
@@ -32,6 +31,19 @@ internal sealed partial class Clock : UserControl
             // remove the visual, there is no reference counting of visuals
             ElementCompositionPreview.SetElementChildVisual((Clock)s, null);
         };
+    }
+
+    private async void InitialiseAudio()
+    {
+        try
+        {
+            await sAudioHelper.CreateAudioGraph();
+            State = StopwatchState.AtStart;
+        }
+        catch (Exception ex)
+        {
+            Debug.Fail(ex.ToString());
+        }
     }
 
     public StopwatchState State
@@ -84,9 +96,9 @@ internal sealed partial class Clock : UserControl
 
             case StopwatchState.Completed: // let the audio play out, it's not synchronized with the animation
             case StopwatchState.AtStart:
-            case StopwatchState.Undefined: break;
+            case StopwatchState.Initializing: break;
 
-            default: throw new InvalidOperationException();
+            default: throw new Exception($"invalid state: {newState}");
         }
     }
 
@@ -567,14 +579,22 @@ internal sealed partial class Clock : UserControl
 
         private void Batch_Completed(object sender, CompositionBatchCompletedEventArgs args)
         {
-            if (sCompositionClock is null)
-                return;
+            try
+            {
+                if (sCompositionClock is null)
+                    return;
 
-            if (sCompositionClock.XamlClock.State == StopwatchState.Running)
-                sCompositionClock.XamlClock.State = StopwatchState.Completed;
+                if (sCompositionClock.XamlClock.State == StopwatchState.Running)
+                    sCompositionClock.XamlClock.State = StopwatchState.Completed;
 
-            else if (sCompositionClock.XamlClock.State == StopwatchState.Rewinding)
-                sCompositionClock.XamlClock.State = StopwatchState.AtStart;
+                else if (sCompositionClock.XamlClock.State == StopwatchState.Rewinding)
+                    sCompositionClock.XamlClock.State = StopwatchState.AtStart;
+            }
+            catch (Exception ex)
+            {
+                // if the app is shutting down, try to fail gracefully
+                Debug.WriteLine(ex.ToString());
+            }
         }
 
         public void StopAnimations()

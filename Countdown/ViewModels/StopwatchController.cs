@@ -1,10 +1,10 @@
 ﻿namespace Countdown.ViewModels;
 
-public enum StopwatchState { Undefined, AtStart, Running, Stopped, Completed, Rewinding }
+public enum StopwatchState { Undefined, Initializing, AtStart, Running, Stopped, Completed, Rewinding }
 
 internal sealed class StopwatchController : PropertyChangedBase
 {
-    private StopwatchState stopwatchState = StopwatchState.AtStart;
+    private StopwatchState stopwatchState = StopwatchState.Initializing;
     private string commandText = string.Empty;
     
     public RelayCommand TimerCommand { get; }
@@ -35,12 +35,14 @@ internal sealed class StopwatchController : PropertyChangedBase
     {
         switch (State)
         {
+            case StopwatchState.Initializing:
             case StopwatchState.AtStart: return "Start Timer";
             case StopwatchState.Running: return "Stop Timer";
             case StopwatchState.Stopped:
             case StopwatchState.Completed: return "Reset Timer";
             case StopwatchState.Rewinding: return "Rewinding";
-            default: throw new InvalidOperationException();
+
+            default: throw new Exception($"invalid state: {State}"); ;
         }
     }
 
@@ -62,12 +64,13 @@ internal sealed class StopwatchController : PropertyChangedBase
             case StopwatchState.Stopped:
             case StopwatchState.Completed: State = StopwatchState.Rewinding; break;
             case StopwatchState.Running: State = StopwatchState.Stopped; break;
-            default: throw new InvalidOperationException();
+
+            default: throw new Exception($"invalid state: {State}"); ;
         }
     }
 
     private bool CanExecuteTimer(object? _)
     {
-        return State != StopwatchState.Rewinding;
+        return State != StopwatchState.Rewinding && State != StopwatchState.Initializing;
     }
 }
