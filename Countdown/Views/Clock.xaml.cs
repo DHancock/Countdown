@@ -5,17 +5,22 @@ namespace Countdown.Views;
 internal sealed partial class Clock : UserControl
 {
     private static CompositionClock? sCompositionClock;
+    private static AudioHelper? sAudioHelper;
 
     public Clock()
     {
         this.InitializeComponent();
 
-        Loaded += (s, e) =>
+        Loaded += async (s, e) =>
         {
             Clock xamlClock = (Clock)s;
 
             if (sCompositionClock is null)
+            {
                 sCompositionClock = new CompositionClock(xamlClock);
+                sAudioHelper = new AudioHelper();
+                await sAudioHelper.CreateAudioGraph();
+            }
             else
                 sCompositionClock.XamlClock = xamlClock;
 
@@ -43,10 +48,10 @@ internal sealed partial class Clock : UserControl
 
     private static void StatePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (sCompositionClock is null)
+        if (sCompositionClock is null || !ReferenceEquals(d, sCompositionClock.XamlClock))
             return;
-
-        StopwatchState oldState = (StopwatchState)e.OldValue; 
+        
+        StopwatchState oldState = (StopwatchState)e.OldValue;
         StopwatchState newState = (StopwatchState)e.NewValue;
 
         if (oldState == StopwatchState.Undefined) // a new page has been loaded
@@ -57,10 +62,27 @@ internal sealed partial class Clock : UserControl
 
         switch (newState)
         {
-            case StopwatchState.Running: sCompositionClock.Animations.StartForwardAnimations(); break;
-            case StopwatchState.Rewinding: sCompositionClock.Animations.StartRewindAnimations(); break;
-            case StopwatchState.Stopped: sCompositionClock.Animations.StopAnimations(); break;
+            case StopwatchState.Running:
+                {
+                    sCompositionClock.Animations.StartForwardAnimations();
+                    sAudioHelper?.Start();
+                    break;
+                }
+            
+            case StopwatchState.Stopped: // the user halted the countdown 
+                {
+                    sCompositionClock.Animations.StopAnimations();
+                    sAudioHelper?.Stop();
+                    break;
+                }
+                
+            case StopwatchState.Rewinding:
+                {
+                    sCompositionClock.Animations.StartRewindAnimations();
+                    break;
+                }
 
+            case StopwatchState.Completed: // let the audio play out, it's not synchronized with the animation
             case StopwatchState.AtStart:
             case StopwatchState.Undefined: break;
 
@@ -529,7 +551,6 @@ internal sealed partial class Clock : UserControl
             if (batch is not null)
                 batch.Completed -= Batch_Completed;
 
-
             batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
             batch.Completed += Batch_Completed;
 
@@ -549,14 +570,9 @@ internal sealed partial class Clock : UserControl
             if (sCompositionClock is null)
                 return;
 
-            if (!sCompositionClock.XamlClock.IsLoaded)
-                return;
-
             if (sCompositionClock.XamlClock.State == StopwatchState.Running)
-            {
-                Utils.User32Sound.PlayExclamation();
-                sCompositionClock.XamlClock.State = StopwatchState.Stopped;
-            }
+                sCompositionClock.XamlClock.State = StopwatchState.Completed;
+
             else if (sCompositionClock.XamlClock.State == StopwatchState.Rewinding)
                 sCompositionClock.XamlClock.State = StopwatchState.AtStart;
         }
@@ -580,7 +596,7 @@ internal sealed partial class Clock : UserControl
             for (int index = 0; index < list.Length; index++)
             {
                 list[index].animation.Direction = AnimationDirection.Reverse;
-                list[index].animation.Duration = TimeSpan.FromSeconds(1.0);
+                list[index].animation.Duration = TimeSpan.FromSeconds(1.75);
 
                 list[index].visual.StartAnimation(list[index].animation.Target, list[index].animation);
 
@@ -617,14 +633,14 @@ internal sealed partial class Clock : UserControl
 
         public CompositionColorBrush this[BrushId i]
         {
-            get { return list[(int)i]; }
-            private set { list[(int)i] = value; }
+            get => list[(int)i];
+            private set => list[(int)i] = value;
         }
     }
 
-    private static Vector2 VectorToCartesian(float length, float degrees, Vector2 offset)
+    private static Vector2 VectorToCartesian(float length, float angle, Vector2 offset)
     {
-        (float sin, float cos) = MathF.SinCos(degrees * (MathF.PI / 180.0f));
+        (float sin, float cos) = MathF.SinCos(angle * (MathF.PI / 180.0f));
 
         return new Vector2(MathF.FusedMultiplyAdd(length, sin, offset.X),
                             MathF.FusedMultiplyAdd(length, cos, offset.Y));

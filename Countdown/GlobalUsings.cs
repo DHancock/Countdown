@@ -31,6 +31,10 @@ global using Windows.ApplicationModel.DataTransfer;
 global using Windows.Foundation;
 global using Windows.Foundation.Collections;
 global using Windows.Graphics;
+global using Windows.Media;
+global using Windows.Media.Audio;
+global using Windows.Media.MediaProperties;
+global using Windows.Media.Render;
 global using Windows.Storage;
 global using Windows.System;
 global using Windows.UI;
@@ -39,4 +43,5 @@ global using Windows.Win32.Foundation;
 global using Windows.Win32.UI.Shell;
 global using Windows.Win32.UI.WindowsAndMessaging;
 
+global using WinRT;
 global using WinRT.Interop;
