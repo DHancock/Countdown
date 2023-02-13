@@ -19,20 +19,14 @@
         </StackPanel>
 
         <Grid Grid.Row="1" Grid.RowDefinitions="Auto,Auto,Auto,Auto"  Margin="0,0,0,40" VerticalAlignment="Bottom">
-            <Image x:Name="AboutImageLight" Width="62" Height="62" HorizontalAlignment="Center" Opacity="0">
-                <Image.OpacityTransition>
-                    <ScalarTransition x:Name="LightFader" Duration="00:00:00"/>
-                </Image.OpacityTransition>
-            </Image>
-            <Image x:Name="AboutImageDark" Width="62" Height="62" HorizontalAlignment="Center" Opacity="0">
-                <Image.OpacityTransition>
-                    <ScalarTransition x:Name="DarkFader" Duration="00:00:00"/>
-                </Image.OpacityTransition>
-            </Image>
-
+            <Viewbox Width="62" Height="62">
+                <local:Clock Style="{StaticResource ClockStyle}"/>
+            </Viewbox>
             <TextBlock Grid.Row="1" Text="Countdown" FontSize="17" HorizontalAlignment="Center"/>
             <TextBlock Grid.Row="2" Text="Version: {0}" x:Name="VersionTextBlock" HorizontalAlignment="Center"/>
             <TextBlock Grid.Row="3" HorizontalAlignment="Center"><Hyperlink NavigateUri="https://github.com/DHancock/Countdown">GitHub Repository</Hyperlink></TextBlock>
         </Grid>
     </Grid>
 </Page>
+
+    

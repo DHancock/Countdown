@@ -26,8 +26,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\16.png" />
-    <EmbeddedResource Include="Resources\256-dark.png" />
-    <EmbeddedResource Include="Resources\256-light.png" />
     <EmbeddedResource Include="Resources\wordlist.dat" />
     <EmbeddedResource Include="Resources\audio.dat" />
   </ItemGroup>
