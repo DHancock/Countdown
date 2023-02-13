@@ -4,6 +4,10 @@ namespace Countdown.Views;
 
 internal class AudioHelper
 {
+    private const int cSampleRate = 44100;
+    private const int cChannelCount = 2;
+    private const int cHeaderSize = 44; 
+
     private AudioGraph? audioGraph;
     private AudioFrameInputNode? audioFrameInputNode;
     private readonly Stream? audioStream;
@@ -11,7 +15,7 @@ internal class AudioHelper
 
     public AudioHelper() 
     {
-        // 22050Hz 8bit mono PCM data
+        // 44100Hz 8bit stereo raw PCM data
         audioStream = LoadEmbeddedResource();
     }
 
@@ -22,7 +26,7 @@ internal class AudioHelper
 
         if ((audioStream is not null) && (audioGraph is not null))
         {
-            audioStream.Position = 0;
+            audioStream.Position = cHeaderSize;
             audioGraph.Start();
             audioFrameInputNode?.Start();
             running = true;
@@ -64,8 +68,8 @@ internal class AudioHelper
         }
 
         AudioEncodingProperties nodeEncodingProperties = audioGraph.EncodingProperties;
-        nodeEncodingProperties.ChannelCount = 1;
-        nodeEncodingProperties.SampleRate = 22050;
+        nodeEncodingProperties.ChannelCount = cChannelCount;
+        nodeEncodingProperties.SampleRate = cSampleRate;
 
         audioFrameInputNode = audioGraph.CreateFrameInputNode(nodeEncodingProperties);
 
@@ -90,9 +94,10 @@ internal class AudioHelper
         }
     }
 
-    unsafe private AudioFrame LoadAudioData(int samples)
+    unsafe private AudioFrame LoadAudioData(int samplesPerChannel)
     {
-        AudioFrame frame = new AudioFrame((uint)samples * sizeof(float));
+        int sampleCount = samplesPerChannel * cChannelCount;
+        AudioFrame frame = new AudioFrame((uint)sampleCount * sizeof(float));
 
         using (AudioBuffer buffer = frame.LockBuffer(AudioBufferAccessMode.Write))
         {
@@ -103,14 +108,14 @@ internal class AudioHelper
                 // the audio buffer always contains floats
                 float* floatPtr = (float*)bufferPtr;
 
-                for (int i = 0; i < samples; i++)
+                while(sampleCount-- > 0)
                 {
                     int val = audioStream!.ReadByte();
 
                     if (val == -1)
-                        floatPtr[i] = 0.0f;
+                        *floatPtr++ = 0.0f;
                     else
-                        floatPtr[i] = (val - 127) / 127.0f;
+                        *floatPtr++ = (val - 127) / 127.0f;
                 }
             }
         }
@@ -125,7 +130,7 @@ internal class AudioHelper
         return stream;
     }
 
-    // allows access to the audio buffer memory
+    // allows access to the audio frame buffer memory
     [ComImport]
     [Guid("5B0D3235-4DBA-4D44-865E-8F1D0E4FD04D")]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
