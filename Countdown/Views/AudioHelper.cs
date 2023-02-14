@@ -6,7 +6,7 @@ internal class AudioHelper
 {
     private const int cSampleRate = 44100;
     private const int cChannelCount = 2;
-    private const int cHeaderSize = 44; 
+    private const int cHeaderSize = 0; 
 
     private AudioGraph? audioGraph;
     private AudioFrameInputNode? audioFrameInputNode;
@@ -15,7 +15,7 @@ internal class AudioHelper
 
     public AudioHelper() 
     {
-        // 44100Hz 8bit stereo raw PCM data
+        // 44100Hz 8bit stereo raw PCM data in a memory stream
         audioStream = LoadEmbeddedResource();
     }
 
