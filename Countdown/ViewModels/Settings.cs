@@ -20,8 +20,8 @@ internal class Settings
     public int ChooseNumbersIndex { get; set; } = 1;
     public int ChooseLettersIndex { get; set; } = 1;
     public ElementTheme CurrentTheme { get; set; } = ElementTheme.Default;
+    public int VolumePercentage { get; set; } = 100;
     public WindowState WindowState { get; set; } = WindowState.Normal;
-
     public RectInt32 RestoreBounds { get; set; } = default;
 
     [JsonIgnore]
@@ -57,6 +57,7 @@ internal class Settings
                 properties[nameof(ChooseNumbersIndex)] = settings.ChooseNumbersIndex;
                 properties[nameof(ChooseLettersIndex)] = settings.ChooseLettersIndex;
                 properties[nameof(CurrentTheme)] = (int)settings.CurrentTheme;
+                properties[nameof(VolumePercentage)] = settings.VolumePercentage;
                 properties[nameof(WindowState)] = (int)settings.WindowState;
                 properties[nameof(RectInt32.X)] = settings.RestoreBounds.X;
                 properties[nameof(RectInt32.Y)] = settings.RestoreBounds.Y;
@@ -107,8 +108,8 @@ internal class Settings
                 settings.ChooseNumbersIndex = (int)properties[nameof(ChooseNumbersIndex)];
                 settings.ChooseLettersIndex = (int)properties[nameof(ChooseLettersIndex)];
                 settings.CurrentTheme = (ElementTheme)properties[nameof(CurrentTheme)];
+                settings.VolumePercentage = (int)properties[nameof(VolumePercentage)];
                 settings.WindowState = (WindowState)properties[nameof(WindowState)];
-
                 settings.RestoreBounds = new RectInt32((int)properties[nameof(RectInt32.X)],
                                                     (int)properties[nameof(RectInt32.Y)],
                                                     (int)properties[nameof(RectInt32.Width)],

@@ -21,6 +21,6 @@ internal sealed class ViewModel
         LettersViewModel = new LettersViewModel(wordModel, sc);
         ConundrumViewModel = new ConundrumViewModel(wordModel, sc);
         StopwatchViewModel = new StopwatchViewModel(sc);
-        SettingsViewModel = new SettingsViewModel();
+        SettingsViewModel = new SettingsViewModel(sc);
     }
 }

@@ -1,5 +1,7 @@
 ﻿// based on https://github.com/microsoft/Windows-universal-samples/tree/main/Samples/AudioCreation
 
+using Countdown.ViewModels;
+
 namespace Countdown.Views;
 
 internal class AudioHelper
@@ -87,10 +89,12 @@ internal class AudioHelper
 
     private void FrameInputNode_QuantumStarted(AudioFrameInputNode sender, FrameInputNodeQuantumStartedEventArgs args)
     {
-        if (args.RequiredSamples != 0)
+        if ((args.RequiredSamples != 0) && audioFrameInputNode is not null)
         {
+            audioFrameInputNode.OutgoingGain = Math.Clamp(1.0 * (Settings.Data.VolumePercentage / 100.0), 0.0, 1.0);
+
             AudioFrame audioData = LoadAudioData(args.RequiredSamples);
-            audioFrameInputNode?.AddFrame(audioData);
+            audioFrameInputNode.AddFrame(audioData);
         }
     }
 

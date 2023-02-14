@@ -2,8 +2,11 @@
 
 internal sealed class SettingsViewModel : PropertyChangedBase
 {
-    public SettingsViewModel()
+    public StopwatchController StopwatchController { get; }
+
+    public SettingsViewModel(StopwatchController sc)
     {
+        StopwatchController = sc;
     }
 
     public ElementTheme SelectedTheme
@@ -33,5 +36,15 @@ internal sealed class SettingsViewModel : PropertyChangedBase
     {
         get { return SelectedTheme == ElementTheme.Default; }
         set { if (value) SelectedTheme = ElementTheme.Default; }
+    }
+
+    public int Volume
+    {
+        get => Settings.Data.VolumePercentage;
+        set
+        {
+            Settings.Data.VolumePercentage = value;
+            RaisePropertyChanged();
+        }
     }
 }
