@@ -11,7 +11,7 @@
 
     <!-- left, top, right, bottom -->
     
-    <!-- this grid is used to add a margin to the ScrollViewer, adding it directly cause a layout cycle exception -->
+    <!-- this grid is used to add a margin to the ScrollViewer, adding it directly caused a layout cycle exception -->
     <Grid RowDefinitions="10,*">
         
         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollMode="Auto">
@@ -43,9 +43,7 @@
                             <TextBlock Text="Sounds"/>
                         </StackPanel>
                     </Expander.Header>
-                    <StackPanel>
-                        <Slider Header="Stopwatch volume:" Width="200" Maximum="100" StepFrequency="1" LargeChange="10" Value="{x:Bind ViewModel.Volume, Mode=TwoWay}"/>
-                    </StackPanel>
+                    <Slider Header="Stopwatch volume:" Width="200" Maximum="100" StepFrequency="1" LargeChange="10" Value="{x:Bind ViewModel.Volume, Mode=TwoWay}"/>
                 </Expander>
 
                 <Grid Grid.Row="2" Grid.RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,5,0,20" VerticalAlignment="Bottom">

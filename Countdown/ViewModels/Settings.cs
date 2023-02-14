@@ -20,7 +20,7 @@ internal class Settings
     public int ChooseNumbersIndex { get; set; } = 1;
     public int ChooseLettersIndex { get; set; } = 1;
     public ElementTheme CurrentTheme { get; set; } = ElementTheme.Default;
-    public int VolumePercentage { get; set; } = 100;
+    public int VolumePercentage { get; set; } = 50;
     public WindowState WindowState { get; set; } = WindowState.Normal;
     public RectInt32 RestoreBounds { get; set; } = default;
 
