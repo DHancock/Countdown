@@ -13,8 +13,8 @@
     
     <!-- this grid is used to add a margin to the ScrollViewer, adding it directly caused a layout cycle exception -->
     <Grid RowDefinitions="10,*">
-        
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollMode="Auto">
+
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
             
             <Grid RowDefinitions="Auto,Auto,*" Margin="10,0,20,0">
                 <Grid.Resources>
