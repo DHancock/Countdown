@@ -4,6 +4,9 @@ using Countdown.ViewModels;
 
 namespace Countdown.Views;
 
+// While this code mostly works, it is susceptible to GC collection delays.
+// It sounds like frames are being dropped, even in release builds.
+
 internal class AudioHelper
 {
     private const int cSampleRate = 44100;
@@ -24,12 +27,10 @@ internal class AudioHelper
     public void Start()
     {
         Debug.Assert(running is false);
-        Debug.Assert((audioStream is not null) && (audioGraph is not null));
 
         if ((audioStream is not null) && (audioGraph is not null))
         {
             audioStream.Position = cHeaderSize;
-            audioGraph.Start();
             audioFrameInputNode?.Start();
             running = true;
         }
@@ -37,7 +38,7 @@ internal class AudioHelper
 
     public void Stop()
     {
-        audioGraph?.Stop();
+        audioFrameInputNode?.Stop();
         running = false;
     }
 
@@ -73,12 +74,16 @@ internal class AudioHelper
         nodeEncodingProperties.ChannelCount = cChannelCount;
         nodeEncodingProperties.SampleRate = cSampleRate;
 
+        // create the input node
         audioFrameInputNode = audioGraph.CreateFrameInputNode(nodeEncodingProperties);
 
         audioFrameInputNode.AddOutgoingConnection(deviceOutputNodeResult.DeviceOutputNode);
         audioFrameInputNode.Stop();
         audioFrameInputNode.QuantumStarted += FrameInputNode_QuantumStarted;
         audioFrameInputNode.AudioFrameCompleted += FrameInputNode_AudioFrameCompleted;
+
+        // start the graph, playback is controlled via the input frame
+        audioGraph.Start();
     }
 
     private void FrameInputNode_AudioFrameCompleted(AudioFrameInputNode sender, AudioFrameCompletedEventArgs args)
