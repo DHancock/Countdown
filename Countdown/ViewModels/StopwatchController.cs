@@ -60,22 +60,9 @@ internal sealed class StopwatchController : PropertyChangedBase
     {
         switch (State)
         {
-            case StopwatchState.AtStart:
-                {
-                    // attempt to stop GC recovery borking audio playback, a 20ms delay usually
-                    // doesn't affect the ui, but if it causes an audio frame to be dropped...
-                    GCSettings.LatencyMode = GCLatencyMode.LowLatency;
-                    GC.Collect();                    
-                    State = StopwatchState.Running;
-                    break;
-                }
+            case StopwatchState.AtStart: State = StopwatchState.Running; break;
             case StopwatchState.Stopped:
-            case StopwatchState.Completed:
-                {
-                    GCSettings.LatencyMode = GCLatencyMode.Interactive;
-                    State = StopwatchState.Rewinding;
-                    break;
-                }
+            case StopwatchState.Completed: State = StopwatchState.Rewinding; break;
             case StopwatchState.Running: State = StopwatchState.Stopped; break;
 
             default: throw new Exception($"invalid state: {State}"); ;

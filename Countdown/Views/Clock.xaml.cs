@@ -76,6 +76,11 @@ internal sealed partial class Clock : UserControl
         {
             case StopwatchState.Running:
                 {
+                    // attempt to stop GC recovery borking audio playback, a 20ms delay usually
+                    // doesn't affect the ui, but if it causes an audio frame to be dropped...
+                    GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+                    GC.Collect();
+
                     sCompositionClock.Animations.StartForwardAnimations();
                     sAudioHelper?.Start();
                     break;
@@ -85,6 +90,8 @@ internal sealed partial class Clock : UserControl
                 {
                     sCompositionClock.Animations.StopAnimations();
                     sAudioHelper?.Stop();
+
+                    GCSettings.LatencyMode = GCLatencyMode.Interactive;
                     break;
                 }
                 
@@ -95,6 +102,11 @@ internal sealed partial class Clock : UserControl
                 }
 
             case StopwatchState.Completed: // let the audio play out, it's not synchronized with the animation
+                {
+                    GCSettings.LatencyMode = GCLatencyMode.Interactive;
+                    break;
+                }
+
             case StopwatchState.AtStart:
             case StopwatchState.Initializing: break;
 
