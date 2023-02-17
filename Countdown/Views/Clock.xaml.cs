@@ -82,7 +82,13 @@ internal sealed partial class Clock : UserControl
                     GC.Collect();
 
                     sCompositionClock.Animations.StartForwardAnimations();
-                    sAudioHelper?.Start();
+
+                    if (sAudioHelper is not null)
+                    { 
+                        sAudioHelper.AudioCompleted += AudioCompletedHandler;
+                        sAudioHelper.Start();
+                    }
+
                     break;
                 }
             
@@ -90,8 +96,7 @@ internal sealed partial class Clock : UserControl
                 {
                     sCompositionClock.Animations.StopAnimations();
                     sAudioHelper?.Stop();
-
-                    GCSettings.LatencyMode = GCLatencyMode.Interactive;
+                    AudioCompletedHandler(sAudioHelper, EventArgs.Empty);
                     break;
                 }
                 
@@ -102,16 +107,19 @@ internal sealed partial class Clock : UserControl
                 }
 
             case StopwatchState.Completed: // let the audio play out, it's not synchronized with the animation
-                {
-                    GCSettings.LatencyMode = GCLatencyMode.Interactive;
-                    break;
-                }
-
             case StopwatchState.AtStart:
             case StopwatchState.Initializing: break;
 
             default: throw new Exception($"invalid state: {newState}");
         }
+    }
+
+    private static void AudioCompletedHandler(object? sender, EventArgs args)
+    {
+        if (sender is AudioHelper audioHelper)
+            audioHelper.AudioCompleted -= AudioCompletedHandler;
+
+        GCSettings.LatencyMode = GCLatencyMode.Interactive;
     }
 
     protected override Size MeasureOverride(Size availableSize)

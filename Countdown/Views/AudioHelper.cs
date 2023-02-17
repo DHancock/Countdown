@@ -17,6 +17,7 @@ internal class AudioHelper
     private AudioFrameInputNode? audioFrameInputNode;
     private readonly Stream? audioStream;
     private bool running = false;
+    public event EventHandler? AudioCompleted;
 
     public AudioHelper() 
     {
@@ -89,8 +90,13 @@ internal class AudioHelper
     private void FrameInputNode_AudioFrameCompleted(AudioFrameInputNode sender, AudioFrameCompletedEventArgs args)
     {
         if (audioStream is not null && (audioStream.Position == audioStream.Length))
+        {
             Stop();
+            RaiseAudioCompleted();
+        }
     }
+
+    private void RaiseAudioCompleted() => AudioCompleted?.Invoke(this, EventArgs.Empty);
 
     private void FrameInputNode_QuantumStarted(AudioFrameInputNode sender, FrameInputNodeQuantumStartedEventArgs args)
     {
