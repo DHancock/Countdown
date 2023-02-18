@@ -116,8 +116,8 @@ internal sealed partial class Clock : UserControl
 
     private static void AudioCompletedHandler(object? sender, EventArgs args)
     {
-        if (sender is AudioHelper audioHelper)
-            audioHelper.AudioCompleted -= AudioCompletedHandler;
+        Debug.Assert(sender is AudioHelper);
+        ((AudioHelper)sender).AudioCompleted -= AudioCompletedHandler;
 
         GCSettings.LatencyMode = GCLatencyMode.Interactive;
     }

@@ -6,6 +6,8 @@ namespace Countdown.Views;
 
 // While this code mostly works, it is susceptible to GC collection delays.
 // It sounds like frames are being dropped, even in release builds.
+// Setting "GCSettings.LatencyMode = GCLatencyMode.LowLatency" while the audio
+// plays seems to fix the problem, at least on my machine, running this app...
 
 internal class AudioHelper
 {
