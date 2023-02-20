@@ -15,83 +15,101 @@ internal class AudioHelper
     private const int cChannelCount = 2;
     private const int cHeaderSize = 0; 
 
-    private AudioGraph? audioGraph;
-    private AudioFrameInputNode? audioFrameInputNode;
-    private readonly Stream? audioStream;
+    private AudioGraph? graph;
+    private AudioFrameInputNode? inputNode;
+    private readonly Stream? stream;
     private bool running = false;
     public event EventHandler? AudioCompleted;
+    public bool IsAudioAvailable => graph is not null;
 
     public AudioHelper() 
     {
         // 44100Hz 8bit stereo raw PCM data in a memory stream
-        audioStream = LoadEmbeddedResource();
+        stream = LoadEmbeddedResource();
     }
 
     public void Start()
     {
         Debug.Assert(running is false);
 
-        if ((audioStream is not null) && (audioGraph is not null))
+        if ((stream is not null) && IsAudioAvailable)
         {
-            audioStream.Position = cHeaderSize;
-            audioFrameInputNode?.Start();
+            stream.Position = cHeaderSize;
+            inputNode?.Start();
             running = true;
         }
     }
 
     public void Stop()
     {
-        audioFrameInputNode?.Stop();
+        inputNode?.Stop();
         running = false;
     }
 
     public async Task CreateAudioGraph()
     {
-        Debug.Assert(audioGraph is null);
+        Debug.Assert(graph is null);
+        AudioDeviceOutputNode? outputNode = null;
 
-        AudioGraphSettings settings = new AudioGraphSettings(AudioRenderCategory.Media);
-        settings.DesiredRenderDeviceAudioProcessing = AudioProcessing.Raw;
-
-        CreateAudioGraphResult result = await AudioGraph.CreateAsync(settings);
-
-        if (result.Status != AudioGraphCreationStatus.Success)
+        try
         {
-            Debug.Fail($"create AudioGraph failed: {result.Status}");
-            return;
+            AudioGraphSettings settings = new AudioGraphSettings(AudioRenderCategory.Media);
+            settings.DesiredRenderDeviceAudioProcessing = AudioProcessing.Raw;
+
+            CreateAudioGraphResult result = await AudioGraph.CreateAsync(settings);
+
+            if (result.Status != AudioGraphCreationStatus.Success)
+            {
+                Debug.Fail($"create AudioGraph failed: {result.Status}");
+                throw result.ExtendedError;
+            }
+
+            graph = result.Graph;
+
+            // Create a device output node
+            CreateAudioDeviceOutputNodeResult deviceOutputNodeResult = await graph.CreateDeviceOutputNodeAsync();
+
+            if (deviceOutputNodeResult.Status != AudioDeviceNodeCreationStatus.Success)
+            {
+                Debug.Fail($"create DeviceOutputNode failed: {deviceOutputNodeResult.Status}");
+                throw deviceOutputNodeResult.ExtendedError;
+            }
+
+            outputNode = deviceOutputNodeResult.DeviceOutputNode;
+
+            AudioEncodingProperties nodeEncodingProperties = graph.EncodingProperties;
+            nodeEncodingProperties.ChannelCount = cChannelCount;
+            nodeEncodingProperties.SampleRate = cSampleRate;
+
+            // create the input node
+            inputNode = graph.CreateFrameInputNode(nodeEncodingProperties);
+
+            inputNode.AddOutgoingConnection(outputNode);
+            inputNode.Stop();
+            inputNode.QuantumStarted += FrameInputNode_QuantumStarted;
+            inputNode.AudioFrameCompleted += FrameInputNode_AudioFrameCompleted;
+
+            // start the graph, playback is controlled via the input frame
+            graph.Start();
         }
-
-        audioGraph = result.Graph;
-
-        // Create a device output node
-        CreateAudioDeviceOutputNodeResult deviceOutputNodeResult = await audioGraph.CreateDeviceOutputNodeAsync();
-
-        if (deviceOutputNodeResult.Status != AudioDeviceNodeCreationStatus.Success)
+        catch (Exception ex)
         {
-            Debug.Fail($"create DeviceOutputNode failed: {deviceOutputNodeResult.Status}");
-            audioGraph.Dispose();
-            audioGraph = null;
-            return;
+            Debug.Fail($"CreateAudioGraph failed exception: {ex}");
+
+            inputNode?.Dispose();
+            inputNode = null;
+
+            outputNode?.Dispose();
+            outputNode = null;
+
+            graph?.Dispose();
+            graph = null;
         }
-
-        AudioEncodingProperties nodeEncodingProperties = audioGraph.EncodingProperties;
-        nodeEncodingProperties.ChannelCount = cChannelCount;
-        nodeEncodingProperties.SampleRate = cSampleRate;
-
-        // create the input node
-        audioFrameInputNode = audioGraph.CreateFrameInputNode(nodeEncodingProperties);
-
-        audioFrameInputNode.AddOutgoingConnection(deviceOutputNodeResult.DeviceOutputNode);
-        audioFrameInputNode.Stop();
-        audioFrameInputNode.QuantumStarted += FrameInputNode_QuantumStarted;
-        audioFrameInputNode.AudioFrameCompleted += FrameInputNode_AudioFrameCompleted;
-
-        // start the graph, playback is controlled via the input frame
-        audioGraph.Start();
     }
 
     private void FrameInputNode_AudioFrameCompleted(AudioFrameInputNode sender, AudioFrameCompletedEventArgs args)
     {
-        if (audioStream is not null && (audioStream.Position == audioStream.Length))
+        if (stream is not null && (stream.Position == stream.Length))
         {
             Stop();
             RaiseAudioCompleted();
@@ -102,12 +120,12 @@ internal class AudioHelper
 
     private void FrameInputNode_QuantumStarted(AudioFrameInputNode sender, FrameInputNodeQuantumStartedEventArgs args)
     {
-        if ((args.RequiredSamples != 0) && audioFrameInputNode is not null)
+        if ((args.RequiredSamples != 0) && inputNode is not null)
         {
-            audioFrameInputNode.OutgoingGain = Math.Clamp(1.0 * (Settings.Data.VolumePercentage / 100.0), 0.0, 1.0);
+            inputNode.OutgoingGain = Math.Clamp(1.0 * (Settings.Data.VolumePercentage / 100.0), 0.0, 1.0);
 
             AudioFrame audioData = LoadAudioData(args.RequiredSamples);
-            audioFrameInputNode.AddFrame(audioData);
+            inputNode.AddFrame(audioData);
         }
     }
 
@@ -127,7 +145,7 @@ internal class AudioHelper
 
                 while(sampleCount-- > 0)
                 {
-                    int val = audioStream!.ReadByte();
+                    int val = stream!.ReadByte();
 
                     if (val == -1)
                         *floatPtr++ = 0.0f;

@@ -11,19 +11,28 @@ internal sealed partial class Clock : UserControl
     {
         this.InitializeComponent();
 
-        Loaded += (s, e) =>
+        Loaded += async (s, e) =>
         {
             Clock xamlClock = (Clock)s;
 
-            if (sCompositionClock is null)
-            {
+            bool firstLoad = sCompositionClock is null;
+
+            if (firstLoad)
                 sCompositionClock = new CompositionClock(xamlClock);
-                InitialiseAudio();
-            }
             else
-                sCompositionClock.XamlClock = xamlClock;
+                sCompositionClock!.XamlClock = xamlClock;
 
             ElementCompositionPreview.SetElementChildVisual(xamlClock, sCompositionClock.Visual);
+
+            if (firstLoad)
+            {
+                await sAudioHelper.CreateAudioGraph();
+
+                if (sAudioHelper.IsAudioAvailable)
+                    sAudioHelper.AudioCompleted += (s, e) => GCSettings.LatencyMode = GCLatencyMode.Interactive;
+
+                State = StopwatchState.AtStart;
+            }
         };
 
         Unloaded += (s, e) =>
@@ -31,19 +40,6 @@ internal sealed partial class Clock : UserControl
             // remove the visual, there is no reference counting of visuals
             ElementCompositionPreview.SetElementChildVisual((Clock)s, null);
         };
-    }
-
-    private async void InitialiseAudio()
-    {
-        try
-        {
-            await sAudioHelper.CreateAudioGraph();
-            State = StopwatchState.AtStart;
-        }
-        catch (Exception ex)
-        {
-            Debug.Fail(ex.ToString());
-        }
     }
 
     public StopwatchState State
@@ -76,27 +72,24 @@ internal sealed partial class Clock : UserControl
         {
             case StopwatchState.Running:
                 {
-                    // attempt to stop GC recovery borking audio playback, a 20ms delay usually
-                    // doesn't affect the ui, but if it causes an audio frame to be dropped...
-                    GCSettings.LatencyMode = GCLatencyMode.LowLatency;
-                    GC.Collect();
-
-                    sCompositionClock.Animations.StartForwardAnimations();
-
-                    if (sAudioHelper is not null)
-                    { 
-                        sAudioHelper.AudioCompleted += AudioCompletedHandler;
-                        sAudioHelper.Start();
+                    if (sAudioHelper.IsAudioAvailable)
+                    {
+                        // attempt to stop GC recovery borking audio playback, a 20ms delay usually
+                        // doesn't affect the ui, but if it causes an audio frame to be dropped...
+                        GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+                        GC.Collect();
                     }
 
+                    sCompositionClock.Animations.StartForwardAnimations();
+                    sAudioHelper.Start();
                     break;
                 }
             
             case StopwatchState.Stopped: // the user halted the countdown 
                 {
                     sCompositionClock.Animations.StopAnimations();
-                    sAudioHelper?.Stop();
-                    AudioCompletedHandler(sAudioHelper, EventArgs.Empty);
+                    sAudioHelper.Stop();
+                    GCSettings.LatencyMode = GCLatencyMode.Interactive;
                     break;
                 }
                 
@@ -112,14 +105,6 @@ internal sealed partial class Clock : UserControl
 
             default: throw new Exception($"invalid state: {newState}");
         }
-    }
-
-    private static void AudioCompletedHandler(object? sender, EventArgs args)
-    {
-        Debug.Assert(sender is AudioHelper);
-        ((AudioHelper)sender).AudioCompleted -= AudioCompletedHandler;
-
-        GCSettings.LatencyMode = GCLatencyMode.Interactive;
     }
 
     protected override Size MeasureOverride(Size availableSize)
@@ -636,7 +621,7 @@ internal sealed partial class Clock : UserControl
             for (int index = 0; index < list.Length; index++)
             {
                 list[index].animation.Direction = AnimationDirection.Reverse;
-                list[index].animation.Duration = TimeSpan.FromSeconds(1.75);
+                list[index].animation.Duration = TimeSpan.FromSeconds(2);
 
                 list[index].visual.StartAnimation(list[index].animation.Target, list[index].animation);
 
