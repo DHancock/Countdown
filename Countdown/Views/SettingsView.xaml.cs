@@ -18,6 +18,8 @@ internal sealed partial class SettingsView : Page
 #if DEBUG
         if (App.IsPackaged)
             VersionTextBlock.Text += " (P)";
+        else
+            VersionTextBlock.Text += " (D)";
 #endif
     }
 }
