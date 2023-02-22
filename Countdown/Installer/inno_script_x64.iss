@@ -1,6 +1,5 @@
 ; This script assumes that the release configuration has been published
 ; and that the publishing profile defines a self contained app.
-; Admin privileges are required to create the program files entry.
 ; Inno 6.2.2
 
 #define appName "Countdown"
@@ -18,8 +17,8 @@ OutputDir={#SourcePath}\bin
 UninstallDisplayIcon={app}\{#appExeName}
 Compression=lzma2
 SolidCompression=yes
-OutputBaseFilename=countdown_v{#appVer}_x64
-PrivilegesRequired=admin
+OutputBaseFilename={#appName}_v{#appVer}_x64
+PrivilegesRequired=lowest
 WizardStyle=classic
 DisableWelcomePage=no
 DirExistsWarning=yes
