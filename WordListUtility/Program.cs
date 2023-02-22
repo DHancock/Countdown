@@ -27,19 +27,16 @@ namespace WordListUtility
             return error_fail;
         }
 
-
-
         private class App
         {
             private string InputDir { get; }
             private string OutputFile { get; }
             private Dictionary<string, List<string>> WordLists { get; } = new Dictionary<string, List<string>>();
 
-
             public App(string[] args)
             {
                 if (args.Length != 2)
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(nameof(args));
 
                 InputDir = args[0];
                 OutputFile = args[1];
@@ -82,7 +79,7 @@ namespace WordListUtility
                 const int min_word_length = 4;
                 const int max_word_length = 9;
 
-                FileStream fs = File.OpenRead(path);
+                using FileStream fs = File.OpenRead(path);
 
                 if (fs != null)
                 {
@@ -121,7 +118,7 @@ namespace WordListUtility
                 const string word_seperator = " ";
                 const string line_seperator = ".";
 
-                FileStream fs = File.Create(OutputFile);
+                using FileStream fs = File.Create(OutputFile);
 
                 if (fs != null)
                 {

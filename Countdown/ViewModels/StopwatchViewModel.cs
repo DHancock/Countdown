@@ -1,15 +1,12 @@
-﻿using System;
+﻿namespace Countdown.ViewModels;
 
-namespace Countdown.ViewModels
+internal sealed class StopwatchViewModel
 {
-    internal sealed class StopwatchViewModel 
-    {
-        // bindable property
-        public StopwatchController StopwatchController { get; }
+    // bindable property
+    public StopwatchController StopwatchController { get; }
 
-        public StopwatchViewModel(StopwatchController sc)
-        {
-            StopwatchController = sc ?? throw new ArgumentNullException(nameof(sc));
-        }
+    public StopwatchViewModel(StopwatchController sc)
+    {
+        StopwatchController = sc;
     }
 }

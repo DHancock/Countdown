@@ -1,27 +1,26 @@
 ﻿using Countdown.Models;
 
-namespace Countdown.ViewModels
+namespace Countdown.ViewModels;
+
+internal sealed class ViewModel
 {
-    internal sealed class ViewModel 
+    public NumbersViewModel NumbersViewModel { get; }
+    public LettersViewModel LettersViewModel { get; }
+    public ConundrumViewModel ConundrumViewModel { get; }
+    public StopwatchViewModel StopwatchViewModel { get; }
+    public SettingsViewModel SettingsViewModel { get; }
+
+
+    public ViewModel()
     {
-        public NumbersViewModel NumbersViewModel { get; }
-        public LettersViewModel LettersViewModel { get; }
-        public ConundrumViewModel ConundrumViewModel { get; }
-        public StopwatchViewModel StopwatchViewModel { get; }
-        public SettingsViewModel SettingsViewModel { get; }
+        NumberModel numberMmodel = new NumberModel();
+        WordModel wordModel = new WordModel();
+        StopwatchController sc = new StopwatchController();
 
-
-
-        public ViewModel()
-        {
-            Model model = new Model();
-            StopwatchController sc = new StopwatchController();
-
-            NumbersViewModel = new NumbersViewModel(model, sc); 
-            LettersViewModel = new LettersViewModel(model, sc);
-            ConundrumViewModel = new ConundrumViewModel(model, sc);
-            StopwatchViewModel = new StopwatchViewModel(sc);
-            SettingsViewModel = new SettingsViewModel();
-        }
+        NumbersViewModel = new NumbersViewModel(numberMmodel, sc);
+        LettersViewModel = new LettersViewModel(wordModel, sc);
+        ConundrumViewModel = new ConundrumViewModel(wordModel, sc);
+        StopwatchViewModel = new StopwatchViewModel(sc);
+        SettingsViewModel = new SettingsViewModel(sc);
     }
 }

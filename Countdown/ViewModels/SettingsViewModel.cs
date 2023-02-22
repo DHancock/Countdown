@@ -1,76 +1,50 @@
-﻿using System.Windows.Input;
-using Countdown.Models;
+﻿namespace Countdown.ViewModels;
 
-
-namespace Countdown.ViewModels
+internal sealed class SettingsViewModel : PropertyChangedBase
 {
-    internal sealed class SettingsViewModel 
+    public StopwatchController StopwatchController { get; }
+
+    public SettingsViewModel(StopwatchController sc)
     {
-        private readonly LetterList previousVowelList = UserSettings.Vowels.DeepClone();
-        private readonly LetterList previousConsonantList = UserSettings.Consonants.DeepClone();
+        StopwatchController = sc;
+    }
 
-        public ICommand RevertVowelsCommand { get; }
-        public ICommand RevertConsonantsCommand { get; }
-        public ICommand DefaultVowelsCommand { get; }
-        public ICommand DefaultConsonantsCommand { get; }
+    public ElementTheme SelectedTheme
+    {
+        get => Settings.Data.CurrentTheme;
 
-
-        public SettingsViewModel()
+        set
         {
-            RevertVowelsCommand = new RelayCommand(RevertVowelsExecute, RevertVowelsValid);
-            RevertConsonantsCommand = new RelayCommand(RevertConsonantsExecute, RevertConsonantsValid);
-
-            DefaultVowelsCommand = new RelayCommand(DefaultVowelsExecute);
-            DefaultConsonantsCommand = new RelayCommand(DefaultConsonantsExecute);
+            Settings.Data.CurrentTheme = value;
+            RaisePropertyChanged();
         }
+    }
 
+    public bool IsLightTheme
+    {
+        get { return SelectedTheme == ElementTheme.Light; }
+        set { if (value) SelectedTheme = ElementTheme.Light; }
+    }
 
+    public bool IsDarkTheme
+    {
+        get { return SelectedTheme == ElementTheme.Dark; }
+        set { if (value) SelectedTheme = ElementTheme.Dark; }
+    }
 
-        public static LetterList VowelList
+    public bool IsSystemTheme
+    {
+        get { return SelectedTheme == ElementTheme.Default; }
+        set { if (value) SelectedTheme = ElementTheme.Default; }
+    }
+
+    public int Volume
+    {
+        get => Settings.Data.VolumePercentage;
+        set
         {
-            get { return UserSettings.Vowels; } 
-        }
-
-
-        public static LetterList ConsonantList
-        {
-            get { return UserSettings.Consonants; }
-        }
-        
-
-        private void RevertVowelsExecute(object p)
-        {
-            UserSettings.Vowels.ResetTo(previousVowelList);
-        }
-
-        private bool RevertVowelsValid(object p)
-        {
-            return UserSettings.Vowels != previousVowelList; 
-        }
-      
-
-        private void DefaultVowelsExecute(object p)
-        {
-            UserSettings.Vowels.ResetTo(UserSettings.DefaultVowels);
-        }
-
-        
-
-        private void RevertConsonantsExecute(object p)
-        {
-            UserSettings.Consonants.ResetTo(previousConsonantList);
-        }
-
-        private bool RevertConsonantsValid(object p)
-        {
-            return UserSettings.Consonants != previousConsonantList;
-        }
-
-
-        private void DefaultConsonantsExecute(object p)
-        {
-            UserSettings.Consonants.ResetTo(UserSettings.DefaultConsonants);
+            Settings.Data.VolumePercentage = value;
+            RaisePropertyChanged();
         }
     }
 }
-

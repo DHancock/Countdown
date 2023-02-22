@@ -1,0 +1,11 @@
+﻿MessageBeep
+GetDpiForWindow
+MINMAXINFO
+SetWindowSubclass
+DefSubclassProc
+WM_GETMINMAXINFO
+CreateDispatcherQueueController
+GetModuleHandleEx
+GetSystemMetrics
+LoadImage
+GetCurrentPackageFullName

@@ -1,15 +1,16 @@
-﻿using System.Windows.Controls;
+﻿using Countdown.ViewModels;
 
-namespace Countdown.Views
+namespace Countdown.Views;
+
+/// <summary>
+/// An empty page that can be used on its own or navigated to within a Frame.
+/// </summary>
+internal sealed partial class StopwatchView : Page
 {
-    /// <summary>
-    /// Interaction logic for StopwatchView.xaml
-    /// </summary>
-    public partial class StopwatchView : UserControl
+    public StopwatchView()
     {
-        public StopwatchView()
-        {
-            InitializeComponent();
-        }
+        this.InitializeComponent();
     }
+
+    public StopwatchViewModel? ViewModel { get; set; }
 }

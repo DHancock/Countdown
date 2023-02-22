@@ -1,371 +1,293 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
+﻿using Countdown.Models;
 
-using Countdown.Models;
+namespace Countdown.ViewModels;
 
-
-namespace Countdown.ViewModels
+internal sealed class NumbersViewModel : DataErrorInfoBase
 {
-    internal sealed class NumbersViewModel : DataErrorInfoBase
+    // this tile value indicates an empty string
+    private const int cEmptyTileValue = -1;
+
+    // the solver results that the ui can bind to
+    private IEnumerable<string> equationList = new List<string>();
+
+    // for raising property change events when generating data
+    private static readonly string[] propertyNames = { nameof(Tile_0),
+                                                        nameof(Tile_1),
+                                                        nameof(Tile_2),
+                                                        nameof(Tile_3),
+                                                        nameof(Tile_4),
+                                                        nameof(Tile_5)};
+
+    private readonly int[] validTileValues = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 50, 75, 100 };
+
+    private readonly NumberModel numberModel;
+
+    private readonly int[] tiles = new int[NumberModel.cNumberTileCount];
+
+    private int target = NumberModel.cMinTarget;
+
+    public ICommand ChooseNumbersCommand { get; }
+    public RelayTaskCommand SolveCommand { get; }
+    public ICommand ChooseOptionCommand { get; }
+    
+    public StopwatchController StopwatchController { get; }
+   
+
+    public NumbersViewModel(NumberModel model, StopwatchController sc) : base(NumberModel.cNumberTileCount + 1)
     {
-        // this tile value indicates an empty string
-        private const int cEmptyTileValue = -1;
+        numberModel = model;
+        StopwatchController = sc;
 
-        // the solver results that the ui can bind to
-        private List<EquationItem> equationList;
+        ChooseNumbersCommand = new RelayCommand(ExecuteChoose);
+        SolveCommand = new RelayTaskCommand(ExecuteSolveAsync, CanSolve);
+        ChooseOptionCommand = new RelayCommand(ExecuteChooseNumbersMenuOption);
 
-        // which item in the tile option list is selected
-        private int tileOptionIndex;
+        // initialise numbers
+        ChooseNumbersCommand.Execute(null);
+    }
 
-        // property names for change events when generating data and error notifications
-        private static readonly string[] propertyNames = { nameof(Tile_A),
-                                                            nameof(Tile_B),
-                                                            nameof(Tile_C),
-                                                            nameof(Tile_D),
-                                                            nameof(Tile_E),
-                                                            nameof(Tile_F) };
-
-        // list of tile choose options displayed in the ui
-        public static List<string> TileOptionsList { get; } = new List<string>
-            {
-                "_6 small tiles",
-                "1 large and _5 small tiles",
-                "2 large and _4 small tiles",
-                "3 large and _3 small tiles",
-                "4 large and _2 small tiles"
-            };
-
-        public ICommand ChooseNumbersCommand { get; }
-        public ICommand SolveCommand { get; }
-        public ICommand ListCopyCommand { get; }
-
-        private Model Model { get; }
-        public StopwatchController StopwatchController { get; }
-
-
-
-        public NumbersViewModel(Model model, StopwatchController sc)
+    public string Tile_0
+    {
+        get => Convert(tiles[0]);
+        set
         {
-            Model = model ?? throw new ArgumentNullException(nameof(model));
-            StopwatchController = sc ?? throw new ArgumentNullException(nameof(sc));
-
-            ChooseNumbersCommand = new RelayCommand(ExecuteChoose);
-            SolveCommand = new RelayTaskCommand(ExecuteSolveAsync, CanSolve);
-            ListCopyCommand = new RelayCommand(ExecuteCopy, CanCopy);
-
-            // initialise tile and target values
-            TileOptionIndex = Settings.Default.PickNumberOption;
-        }
-       
-
-        
-
-        public string Tile_A
-        {
-            get { return Convert(Model.Tiles[0]); }
-            set { SetTile(ref Model.Tiles[0], value, nameof(Tile_A)); }
-        }
-
-        public string Tile_B
-        {
-            get { return Convert(Model.Tiles[1]); }
-            set { SetTile(ref Model.Tiles[1], value, nameof(Tile_B)); }
-        }
-
-        public string Tile_C
-        {
-            get { return Convert(Model.Tiles[2]); }
-            set { SetTile(ref Model.Tiles[2], value, nameof(Tile_C)); }
-        }
-
-        public string Tile_D
-        {
-            get { return Convert(Model.Tiles[3]); }
-            set { SetTile(ref Model.Tiles[3], value, nameof(Tile_D)); }
-        }
-
-        public string Tile_E
-        {
-            get { return Convert(Model.Tiles[4]); }
-            set { SetTile(ref Model.Tiles[4], value, nameof(Tile_E)); }
-        }
-
-        public string Tile_F
-        {
-            get { return Convert(Model.Tiles[5]); }
-            set { SetTile(ref Model.Tiles[5], value, nameof(Tile_F)); }
-        }
-
-
-        private void SetTile(ref int existing, string data, string propertyName)
-        {
-            int temp = Convert(data);
-
-            if (temp != existing)
-            {
-                existing = temp;
-                ValidateTiles();
-                RaisePropertyChanged(propertyName);
-            }
-        }
-
-
-
-        public string Target
-        {
-            get { return Convert(Model.Target); }
-            set
-            {
-                int temp = Convert(value);
-
-                if (temp != Model.Target)
-                {
-                    Model.Target = temp;
-                    ValidateTarget();
-                    RaisePropertyChanged(nameof(Target));
-                }
-            }
-        }
-
-
-
-
-        /// <summary>
-        /// Converts string properties bound to text boxes to int rather than using the 
-        /// built in xaml converters. They throw an error when converting an empty string
-        /// and insert a cryptic message in the data error notifications. A custom binding 
-        /// converter would be just more untestable code behind.
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        private static int Convert(string input)
-        {
-            if (input.Length > 0)
-            {
-                if (uint.TryParse(input, out uint output))
-                {
-                    if (output > int.MaxValue) // check the cast
-                        return int.MaxValue;
-
-                    return (int)output;
-                }
-            }
-
-            return cEmptyTileValue;
-        }
-
-
-        /// <summary>
-        /// Converts int to a string for properties bound to text boxes rather than using the
-        /// built in xaml converters. Converts negative values to an empty string.
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        private static string Convert(int input)
-        {
-            if (input is cEmptyTileValue)
-                return string.Empty;
-
-            return input.ToString();
-        }
-
-
-
-
-
-
-        /// <summary>
-        /// Checks that the tiles and target contain valid values.
-        /// </summary>
-        /// <returns></returns>
-        private void ValidateTiles()
-        {
-            int[] validTileValues = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 50, 75, 100 };
-
-            // count of how many tiles of each valid tile value
-            int[] tileCount = new int[validTileValues.Length];
-            // record each property's value position in the tile values array
-            // used to index into the tile count array
-            int[] searchResult = new int[Model.Tiles.Length];
-
-            // first check for invalid tile values
-            for (int index = 0; index < Model.Tiles.Length; index++)
-            {
-                if (Model.Tiles[index] > cEmptyTileValue)
-                {
-                    searchResult[index] = Array.BinarySearch(validTileValues, Model.Tiles[index]);
-
-                    if (searchResult[index] < 0) // not found, an invalid value
-                        SetValidationError(propertyNames[index], "Tile values must be from 1 to 10, or 25, 50, 75 or 100");
-                    else
-                        tileCount[searchResult[index]] += 1; // count how many of each value
-                }
-                else
-                    ClearValidationError(propertyNames[index]); 
-            }
-
-            // check the tile counts of valid tiles
-            for (int index = 0; index < Model.Tiles.Length; index++)
-            {
-                if ((Model.Tiles[index] > cEmptyTileValue) && (searchResult[index] >= 0)) 
-                {
-                    int validTileCount = (Model.Tiles[index] > 10) ? 1 : 2;
-
-                    if (tileCount[searchResult[index]] > validTileCount)
-                    {
-                        if (validTileCount == 1)
-                            SetValidationError(propertyNames[index], "Only one 25, 50, 75 or 100 tile is allowed.");
-                        else
-                            SetValidationError(propertyNames[index], "Only two tiles with the same value of 10 or less are allowed.");
-                    }
-                    else
-                        ClearValidationError(propertyNames[index]);
-                }
-            }
-
-            // No checking if the number of large and small tiles match the selected menu option
-            // It will only be incorrect if the user enters tiles manually and as long as they are valid
-            // tiles so be it...
-        }
-
-
-
-
-
-        private void ValidateTarget()
-        {
-            if (((Model.Target < Model.cMinTarget) || (Model.Target > Model.cMaxTarget)) && (Model.Target != cEmptyTileValue))
-                SetValidationError(nameof(Target), $"The target must be between {Model.cMinTarget} and {Model.cMaxTarget}");
-            else
-                ClearValidationError(nameof(Target));
-        }
-
-
-        
-        public int TileOptionIndex
-        {
-            get { return tileOptionIndex; }
-            set
-            {
-                if ((value < 0) || (value > TileOptionsList.Count - 1))
-                    value = 0;
-
-                tileOptionIndex = value;
-                RaisePropertyChanged(nameof(TileOptionIndex));
-                ChooseNumbersCommand.Execute(null);
-                Settings.Default.PickNumberOption = tileOptionIndex;
-            }
-        }
-
-        
-
-        private void ExecuteChoose(object p)
-        {
-            Model.GenerateNumberData(TileOptionIndex);
-
-            // notify the ui of the updated data and clear any error states
-            foreach (string propertyName in propertyNames)
-            {
-                RaisePropertyChanged(propertyName);
-                ClearValidationError(propertyName);
-            }
-
-            RaisePropertyChanged(nameof(Target));
-            ClearValidationError(nameof(Target));
-        }
-
-        
-        
-
-        private async Task ExecuteSolveAsync(object p)
-        {
-            // copy the model data now, it could be changed before 
-            // the task is run maybe to an invalid value
-            int target = Model.Target;
-            int[] tiles = Model.Tiles.ToArray();
-
-            SolverResults results = await Task.Run(() => Model.Solve(tiles, target));
-
-            if (results.Solutions.Count == 0)
-            {
-                results.Solutions.Add(new EquationItem("There are no solutions."));
-
-                if (results.HasClosestResult)
-                {
-                    results.Solutions.Add(new EquationItem($"The closest match is {results.Difference} away."));
-                    results.Solutions.Add(new EquationItem());
-                    results.Solutions.Add(new EquationItem($"{results.ClosestEquation} = {results.ClosestResult}"));
-                }
-            }
-            else
-            {
-                results.Solutions.Sort();   // guarantee ordering, independent of parallel partition order
-
-                results.Solutions.Add(new EquationItem());
-                results.Solutions.Add(new EquationItem($"There are {results.Solutions.Count - 1} solutions."));
-                results.Solutions.Add(new EquationItem($"Evaluated in {results.Elapsed.TotalMilliseconds} milliseconds."));
-                results.Solutions.Add(new EquationItem($"Tiles are {tiles[0]}, {tiles[1]}, {tiles[2]}, {tiles[3]}, {tiles[4]}, {tiles[5]}"));
-                results.Solutions.Add(new EquationItem($"Target is {target}"));
-            }
-
-            // update the ui
-            EquationList = results.Solutions;
-        }
-
-
-
-        private bool CanSolve(object p, bool isExecuting)
-        {
-            return !(HasErrors || isExecuting || Model.Tiles.Any(x => x is cEmptyTileValue) || Model.Target is cEmptyTileValue);
-        }
-
-        /// <summary>
-        /// Expose the list so it can be bound to by the ui 
-        /// </summary>
-        public List<EquationItem> EquationList
-        {
-            get { return equationList; }
-            set
-            {
-                equationList = value;
-                RaisePropertyChanged(nameof(EquationList));
-            }
-        }
-        
-
-
-        private void ExecuteCopy(object p)
-        {
-            if (EquationList != null)
-            {
-                StringBuilder sb = new StringBuilder();
-
-                foreach (EquationItem e in EquationList)
-                {
-                    if (e.IsSelected)
-                    {
-                        if (sb.Length > 0)
-                            sb.Append(Environment.NewLine);
-
-                        sb.Append(e.ToString());
-                    }
-                }
-
-                if (sb.Length > 0)
-                    Clipboard.SetText(sb.ToString());
-            }
-        }
-
-
-        private bool CanCopy(object p)
-        {
-            return (EquationList != null) && EquationList.Any(e => e.IsSelected);
+            tiles[0] = Convert(value);
+            UpdateProperties();
         }
     }
-}
 
+    public string Tile_1
+    {
+        get => Convert(tiles[1]);
+        set
+        {
+            tiles[1] = Convert(value);
+            UpdateProperties();
+        }
+    }
+
+    public string Tile_2
+    {
+        get => Convert(tiles[2]);
+        set
+        {
+            tiles[2] = Convert(value);
+            UpdateProperties();
+        }
+    }
+
+    public string Tile_3
+    {
+        get => Convert(tiles[3]);
+        set
+        {
+            tiles[3] = Convert(value);
+            UpdateProperties();
+        }
+    }
+
+    public string Tile_4
+    {
+        get => Convert(tiles[4]);
+        set
+        {
+            tiles[4] = Convert(value);
+            UpdateProperties();
+        }
+    }
+
+    public string Tile_5
+    {
+        get => Convert(tiles[5]);
+        set
+        {
+            tiles[5] = Convert(value);
+            UpdateProperties();
+        }
+    }
+
+    public string Target
+    {
+        get => Convert(target);
+        set
+        {
+            target = Convert(value);
+            UpdateProperties();
+        }
+    }
+
+    private void UpdateProperties([CallerMemberName] string? propertyName = default)
+    {
+        if (propertyName == nameof(Target))
+            ValidateTarget();
+        else
+            ValidateTiles();
+
+        if (EquationList.Any())
+            EquationList = new List<string>();
+
+        RaisePropertyChanged(propertyName);
+        SolveCommand.RaiseCanExecuteChanged();
+    }
+
+    private static int Convert(string input)
+    {
+        if ((input.Length > 0) && int.TryParse(input, out int output))
+            return output;
+
+        return cEmptyTileValue;
+    }
+
+    private static string Convert(int input)
+    {
+        if (input is cEmptyTileValue)
+            return string.Empty;
+
+        return input.ToString();
+    }
+
+    /// <summary>
+    /// Checks that the tiles and target contain valid values.
+    /// </summary>
+    /// <returns></returns>
+    private void ValidateTiles()
+    {
+        // count of how many tiles of each valid tile value
+        int[] tileCount = new int[validTileValues.Length];
+        // record each property's value position in the tile values array
+        // used to index into the tile count array
+        int[] searchResult = new int[tiles.Length];
+
+        // first check for invalid tile values
+        for (int index = 0; index < tiles.Length; index++)
+        {
+            if (tiles[index] > cEmptyTileValue)
+            {
+                searchResult[index] = Array.BinarySearch(validTileValues, tiles[index]);
+
+                if (searchResult[index] < 0) // not found, an invalid value
+                    SetValidationError(index, "Tile values must be from 1 to 10, or 25, 50, 75 or 100");
+                else
+                    tileCount[searchResult[index]] += 1; // count how many of each value
+            }
+            else
+                ClearValidationError(index);
+        }
+
+        // check the tile counts of valid tiles
+        for (int index = 0; index < tiles.Length; index++)
+        {
+            if ((tiles[index] > cEmptyTileValue) && (searchResult[index] >= 0))
+            {
+                int validTileCount = (tiles[index] > 10) ? 1 : 2;
+
+                if (tileCount[searchResult[index]] > validTileCount)
+                {
+                    if (validTileCount == 1)
+                        SetValidationError(index, "Only one 25, 50, 75 or 100 tile is allowed.");
+                    else
+                        SetValidationError(index, "Only two tiles with the same value of 10 or less are allowed.");
+                }
+                else
+                    ClearValidationError(index);
+            }
+        }
+
+        // No checking if the number of large and small tiles match the choose menu option
+        // It will only be incorrect if the user enters tiles manually and as long as they are valid
+        // tiles so be it...
+    }
+
+    private void ValidateTarget()
+    {
+        const int cIndex = NumberModel.cNumberTileCount;
+
+        if (((target < NumberModel.cMinTarget) || (target > NumberModel.cMaxTarget)) && (target != cEmptyTileValue))
+            SetValidationError(cIndex, $"The target must be between {NumberModel.cMinTarget} and {NumberModel.cMaxTarget}");
+        else
+            ClearValidationError(cIndex);
+    }
+
+    private void ExecuteChoose(object? _)
+    {
+        int[] numbers = numberModel.GenerateNumberData(Settings.Data.ChooseNumbersIndex);
+
+        // set the backing store directly, no validation is required
+        for (int index = 0; index < NumberModel.cNumberTileCount; ++index)
+        {
+            tiles[index] = numbers[index];
+            RaisePropertyChanged(propertyNames[index]);
+        }
+
+        target = numberModel.GenerateTarget();
+        RaisePropertyChanged(nameof(Target));
+
+        ClearAllErrors();
+
+        if (EquationList.Any())
+            EquationList = new List<string>();
+
+        SolveCommand.RaiseCanExecuteChanged();
+    }
+
+    private async Task ExecuteSolveAsync(object? _)
+    {
+        // the data could change before the task is run
+        int targetCopy = target;
+        int[] tilesCopy = tiles.ToArray();
+
+        SolverResults results = await Task.Run(() => NumberModel.Solve(tilesCopy, targetCopy));
+
+        if (results.Solutions.Count == 0)
+        {
+            results.Solutions.Add("There are no solutions.");
+
+            if (results.HasClosestResult)
+            {
+                results.Solutions.Add($"The closest match is {results.Difference} away.");
+                results.Solutions.Add(string.Empty);
+                results.Solutions.Add($"{results.ClosestEquation} = {results.ClosestResult}");
+            }
+        }
+        else
+        {
+            // guarantee ordering independent of parallel partition order
+            results.Solutions.Sort((a, b) =>
+            {
+                int lengthCompare = a.Length - b.Length;
+                return lengthCompare == 0 ? string.Compare(b, a, StringComparison.CurrentCulture) : lengthCompare;
+            });
+        }
+
+        EquationList = results.Solutions;
+    }
+
+    private bool CanSolve(object? _, bool isExecuting)
+    {
+        return !(HasErrors || isExecuting || tiles.Contains(cEmptyTileValue) || target is cEmptyTileValue || EquationList.Any());
+    }
+
+    /// <summary>
+    /// Expose the list so it can be bound to by the ui 
+    /// </summary>
+    public IEnumerable<string> EquationList
+    {
+        get => equationList;
+        private set
+        {
+            equationList = value;
+            RaisePropertyChanged();
+        }
+    }
+
+    private void ExecuteChooseNumbersMenuOption(object? p)
+    {
+        int newIndex = 0;
+
+        if (int.TryParse(p as string, out int value))
+            newIndex = value;
+       
+        Settings.Data.ChooseNumbersIndex = newIndex;
+        ChooseNumbersCommand.Execute(null);
+    }
+}

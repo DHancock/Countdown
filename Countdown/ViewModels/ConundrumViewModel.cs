@@ -1,287 +1,200 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Input;
+﻿using Countdown.Models;
 
-using Countdown.Models;
+namespace Countdown.ViewModels;
 
-namespace Countdown.ViewModels
+internal sealed class ConundrumViewModel : PropertyChangedBase
 {
-    internal sealed class ConundrumViewModel : PropertyChangedBase
-    {
-        private const char space_char = ' ';
-
-        private Model Model { get; }
-        public StopwatchController StopwatchController { get; }
-        public ObservableCollection<ConundrumItem> SolutionList { get; } = new ObservableCollection<ConundrumItem>();
-        private object scrollToItem;
-
-        // flag to see if this vm's view has been loaded  
-        private bool notLoadedYet = true;
-
-        // property names for change events when generating data 
-        private static readonly string[] propertyNames = { nameof(Conundrum_0),
-                                                            nameof(Conundrum_1),
-                                                            nameof(Conundrum_2),
-                                                            nameof(Conundrum_3),
-                                                            nameof(Conundrum_4),
-                                                            nameof(Conundrum_5),
-                                                            nameof(Conundrum_6),
-                                                            nameof(Conundrum_7),
-                                                            nameof(Conundrum_8)};
-        // property backing store
-        private string solution;
-
-        public ICommand ChooseCommand { get; }
-        public ICommand SolveCommand { get; }
-        public ICommand ListCopyCommand { get; }
-        public ICommand GoToDefinitionCommand { get; }
-        public ICommand ClearCommand { get; }
-
-
-        public ConundrumViewModel(Model model, StopwatchController sc)
-        {
-            Model = model ?? throw new ArgumentNullException(nameof(model));
-            StopwatchController = sc ?? throw new ArgumentNullException(nameof(sc));
-
-            SolveCommand = new RelayCommand(ExecuteSolve, CanSolve);
-            ChooseCommand = new RelayCommand(ExecuteChoose, CanChoose);
-
-            ListCopyCommand = new RelayCommand(ExecuteCopy, CanCopy);
-            GoToDefinitionCommand = new RelayCommand(ExecuteGoToDefinition, CanGoToDefinition);
-            ClearCommand = new RelayCommand(ExecuteClear, CanCopy);
-        }
-
-
-        /// <summary>
-        /// Conundrum properties. 
-        /// The char type cannot an have empty value so use strings.
-        /// </summary>
-        public string Conundrum_0
-        {
-            get { return Model.Conundrum[0]; }
-            set { SetConundrum(value, ref Model.Conundrum[0], nameof(Conundrum_0)); }
-        }
-
-        public string Conundrum_1
-        {
-            get { return Model.Conundrum[1]; }
-            set { SetConundrum(value, ref Model.Conundrum[1], nameof(Conundrum_1)); }
-        }
-
-        public string Conundrum_2
-        {
-            get { return Model.Conundrum[2]; }
-            set { SetConundrum(value, ref Model.Conundrum[2], nameof(Conundrum_2)); }
-        }
-
-        public string Conundrum_3
-        {
-            get { return Model.Conundrum[3]; }
-            set { SetConundrum(value, ref Model.Conundrum[3], nameof(Conundrum_3)); }
-        }
-
-        public string Conundrum_4
-        {
-            get { return Model.Conundrum[4]; }
-            set { SetConundrum(value, ref Model.Conundrum[4], nameof(Conundrum_4)); }
-        }
-
-        public string Conundrum_5
-        {
-            get { return Model.Conundrum[5]; }
-            set { SetConundrum(value, ref Model.Conundrum[5], nameof(Conundrum_5)); }
-        }
-
-        public string Conundrum_6
-        {
-            get { return Model.Conundrum[6]; }
-            set { SetConundrum(value, ref Model.Conundrum[6], nameof(Conundrum_6)); }
-        }
-
-        public string Conundrum_7
-        {
-            get { return Model.Conundrum[7]; }
-            set { SetConundrum(value, ref Model.Conundrum[7], nameof(Conundrum_7)); }
-        }
-
-        public string Conundrum_8
-        {
-            get { return Model.Conundrum[8]; }
-            set { SetConundrum(value, ref Model.Conundrum[8], nameof(Conundrum_8)); }
-        }
-
-
-        private void SetConundrum(string newValue, ref string existing, string propertyName)
-        {
-            if (newValue != existing)
-            {
-                existing = newValue;
-                RaisePropertyChanged(propertyName);
-                ClearSolution();
-            }
-        }
-
-
-        public string Solution
-        {
-            get { return solution; }
-            set
-            {
-                solution = value;
-                RaisePropertyChanged(nameof(Solution));
-            }
-        }
-
-        public object ScrollToItem
-        {
-            get { return scrollToItem; }
-            set
-            {
-                scrollToItem = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public bool IsSelected
-        {
-            set
-            {
-                // Bound to the parent tabs IsSelected property. Delay picking
-                // a conundrum, the dictionary is loaded in a background task 
-                // and this method could block until its completed.
-                if (value && notLoadedYet)
-                {
-                    notLoadedYet = false;
-
-                    if (CanChoose(null))
-                        ExecuteChoose(null);
-                }
-            }
-        }
-
-
-
-        private void ClearSolution()
-        {
-            if ((Solution is null) || Solution.Any(c => c != space_char))
-                Solution = new string(space_char, Model.cLetterCount);
-        }
-        
-
-
-        private void ExecuteChoose(object p)
-        {
-            ClearSolution();
-
-            Model.GenerateConundrum();
-
-            foreach (string property in propertyNames)
-                RaisePropertyChanged(property);
-        }
-
-
-   
-        private bool CanChoose(object p)
-        {
-            if (notLoadedYet)
-                return false;
-
-            return Model.HasConundrums ;
-        }
-
-
-
-        private void ExecuteSolve(object p)
-        {
-            string word = Model.Solve();
-
-            if (word != null)
-            {
-                char[] conundrum = new char[Model.cLetterCount];
-
-                for (int index = 0; index < Model.cLetterCount; ++index)
-                    conundrum[index] = Model.Conundrum[index][0]; 
-
-                Solution = word;
-                SolutionList.Add(new ConundrumItem(new string(conundrum), word));
-                ScrollToItem = SolutionList[^1];
-            }
-        }
-
-
-        private bool CanSolve(object p)
-        {
-            if (notLoadedYet)
-                return false;
-
-            return (Solution[0] == space_char) && Model.Conundrum.Any(s => !string.IsNullOrEmpty(s)) && (Model.Solve() != null);
-        }
-
-   
-
-        private void ExecuteCopy(object p)
-        {
-            if (SolutionList != null)
-            {
-                StringBuilder sb = new StringBuilder();
-
-                foreach (ConundrumItem e in SolutionList)
-                {
-                    if (e.IsSelected)
-                    {
-                        if (sb.Length > 0)
-                            sb.Append(Environment.NewLine);
-                        
-                        sb.Append(e.ToString());
-                    }
-                }
-
-                if (sb.Length > 0)
-                    Clipboard.SetText(sb.ToString());
-            }
-        }
-
-
-        private bool CanCopy(object p) => SolutionList.Any(e => e.IsSelected);
+    private const string emptySolution = "         ";
     
-        private void ExecuteGoToDefinition(object p)
-        {
-            try
-            {
-                foreach (ConundrumItem e in SolutionList)
-                {
-                    if (e.IsSelected)
-                    {
-                        ProcessStartInfo psi = new()
-                        {
-                            UseShellExecute = true,
-                            FileName = string.Format(CultureInfo.InvariantCulture, p.ToString(), e.Solution),
-                        };
+    private string solution = emptySolution;
 
-                        _ = Process.Start(psi);
-                    }
-                }
-            }
-            catch
-            {
-                // fail silently...
-            }
+    private readonly string[] conundrum = new string[WordModel.cMaxLetters];
+
+    private readonly WordModel wordModel;
+    public StopwatchController StopwatchController { get; }
+    public ObservableCollection<ConundrumItem> SolutionList { get; } = new ObservableCollection<ConundrumItem>();
+    public ICommand ChooseCommand { get; }
+    public RelayCommand SolveCommand { get; }
+
+
+    public ConundrumViewModel(WordModel model, StopwatchController sc)
+    {
+        wordModel = model;
+        StopwatchController = sc;
+
+        SolveCommand = new RelayCommand(ExecuteSolve, CanSolve);
+        ChooseCommand = new RelayCommand(ExecuteChoose, CanChoose);
+
+        ExecuteChoose(null);
+    }
+
+    /// <summary>
+    /// Conundrum properties. 
+    /// The char type cannot an have empty value so use strings.
+    /// </summary>
+    public string Conundrum_0
+    {
+        get => conundrum[0];
+        set
+        {
+            conundrum[0] = value;
+            UpdateProperties();
+        }
+    }
+
+    public string Conundrum_1
+    {
+        get => conundrum[1];
+        set
+        {
+            conundrum[1] = value;
+            UpdateProperties();
+        }
+    }
+
+    public string Conundrum_2
+    {
+        get => conundrum[2];
+        set
+        {
+            conundrum[2] = value;
+            UpdateProperties();
+        }
+    }
+
+    public string Conundrum_3
+    {
+        get => conundrum[3];
+        set
+        {
+            conundrum[3] = value;
+            UpdateProperties();
+        }
+    }
+
+    public string Conundrum_4
+    {
+        get => conundrum[4];
+        set
+        {
+            conundrum[4] = value;
+            UpdateProperties();
+        }
+    }
+
+    public string Conundrum_5
+    {
+        get => conundrum[5];
+        set
+        {
+            conundrum[5] = value;
+            UpdateProperties();
+        }
+    }
+
+    public string Conundrum_6
+    {
+        get => conundrum[6];
+        set
+        {
+            conundrum[6] = value;
+            UpdateProperties();
+        }
+    }
+
+    public string Conundrum_7
+    {
+        get => conundrum[7];
+        set
+        {
+            conundrum[7] = value;
+            UpdateProperties();
+        }
+    }
+
+    public string Conundrum_8
+    {
+        get => conundrum[8];
+        set 
+        { 
+            conundrum[8] = value;
+            UpdateProperties(); 
+        }
+    }
+
+
+    private void UpdateProperties([CallerMemberName] string? propertyName = default)
+    {
+        RaisePropertyChanged(propertyName);
+        SolveCommand.RaiseCanExecuteChanged();
+        Solution = emptySolution;
+    }
+
+    public string Solution
+    {
+        get { return solution; }
+        set
+        {
+            solution = value;
+            RaisePropertyChanged(nameof(Solution));
+        }
+    }
+
+    private void ExecuteChoose(object? _)
+    {
+        IList<char> conundrum = wordModel.GenerateConundrum();
+
+        // there's not much validation code so just set properties directly 
+        Conundrum_0 = conundrum[0].ToString();
+        Conundrum_1 = conundrum[1].ToString();
+        Conundrum_2 = conundrum[2].ToString();
+        Conundrum_3 = conundrum[3].ToString();
+        Conundrum_4 = conundrum[4].ToString();
+        Conundrum_5 = conundrum[5].ToString();
+        Conundrum_6 = conundrum[6].ToString();
+        Conundrum_7 = conundrum[7].ToString();
+        Conundrum_8 = conundrum[8].ToString();
+
+        Solution = emptySolution;
+        SolveCommand.RaiseCanExecuteChanged();
+    }
+
+    private bool CanChoose(object? _) => wordModel.HasConundrums;
+
+    private void ExecuteSolve(object? _)
+    {
+        char[] conundrum = ConvertLettersToLower();
+        string solution = wordModel.SolveConundrum(conundrum);
+
+        if (solution.Length > 0)
+        {
+            for (int index = 0; index < WordModel.cLetterCount; ++index)
+                conundrum[index] = char.ToUpper(conundrum[index]);
+
+            Solution = solution;
+
+            SolutionList.Insert(0, new ConundrumItem(new string(conundrum), solution));
+            SolveCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    private bool CanSolve(object? _)
+    {
+        return string.IsNullOrWhiteSpace(Solution) && 
+                conundrum.All(s => !string.IsNullOrEmpty(s)) && 
+                !string.IsNullOrEmpty(wordModel.SolveConundrum(ConvertLettersToLower()));
+    }
+
+    private char[] ConvertLettersToLower()
+    {
+        char[] data = new char[WordModel.cLetterCount];
+
+        for (int index = 0; index < WordModel.cLetterCount; ++index)
+        {
+            Debug.Assert(conundrum[index].Length == 1);
+            data[index] = char.ToLower(conundrum[index][0]);
         }
 
-        private bool CanGoToDefinition(object p) => SolutionList.Count(e => e.IsSelected) is > 0 and < 11;
-
-        private void ExecuteClear(object p)
-        {
-            for (int index = SolutionList.Count - 1; index >= 0; --index)
-            {
-                if (SolutionList[index].IsSelected)
-                    SolutionList.RemoveAt(index);
-            }
-        }
+        return data;
     }
 }

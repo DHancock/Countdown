@@ -1,38 +1,24 @@
-﻿using System;
-using System.Windows.Input;
+﻿namespace Countdown.ViewModels;
 
-namespace Countdown.ViewModels
+internal sealed class RelayCommand : ICommand
 {
-    internal sealed class RelayCommand : ICommand
+    private readonly Action<object?> execute;
+    private readonly Func<object?, bool> canExecute;
+    public event EventHandler? CanExecuteChanged;
+
+    public RelayCommand(Action<object?> execute) : this(execute, o => true)
     {
-        private readonly Action<object> execute;
-        private readonly Func<object, bool> canExecute;
-
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
-        {
-            this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            this.canExecute = canExecute;
-        }
-
-        // when hooked up by wpf add our can execute method to the command 
-        // managers event handler instead of this so that the state is 
-        // updated when the command manger sees fit
-        public event EventHandler CanExecuteChanged
-        {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
-        }
-
-
-        public bool CanExecute(object parameter)
-        {
-            return (canExecute is null) || canExecute(parameter);
-        }
-
-
-        public void Execute(object parameter)
-        {
-            execute(parameter);
-        }
     }
+
+    public RelayCommand(Action<object?> execute, Func<object?, bool> canExecute)
+    {
+        this.execute = execute;
+        this.canExecute = canExecute;
+    }
+
+    public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+
+    public bool CanExecute(object? param) => canExecute(param);
+
+    public void Execute(object? param) => execute(param);
 }

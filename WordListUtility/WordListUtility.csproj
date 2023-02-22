@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
     <Version>1.1</Version>
@@ -10,6 +10,7 @@
     <Copyright>David Hancock 2014-2019</Copyright>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <RepositoryUrl />
+    <Platforms>x64;x86;arm64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,149 +1,76 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿namespace Countdown.ViewModels;
 
-namespace Countdown.ViewModels
+public enum StopwatchState { Undefined, Initializing, AtStart, Running, Stopped, Completed, Rewinding }
+
+internal sealed class StopwatchController : PropertyChangedBase
 {
-    internal sealed class StopwatchController : PropertyChangedBase, IDisposable
+    private StopwatchState stopwatchState = StopwatchState.Initializing;
+    private string commandText = string.Empty;
+    
+    public RelayCommand TimerCommand { get; }
+
+    public StopwatchController()
     {
-        private const long cForwardDurationTicks = 30 * TimeSpan.TicksPerSecond;
-        private const long cRewindDurationTicks = 1 * TimeSpan.TicksPerSecond;
-        private const int cUpdateRateMilliseconds = 5;
+        TimerCommand = new RelayCommand(ExecuteTimer, CanExecuteTimer);
+        CommandText = ConvertStateToCommandText();
+    }
 
-        public enum StopwatchStateEnum { AtStart, Running, Stopped, Rewinding }
+    public StopwatchState State
+    {
+        get => stopwatchState;
 
-        private StopwatchStateEnum _stopwatchState;
-
-        private long _ticks;
-
-        private CancellationTokenSource _cts;
-
-        /// <summary>
-        /// expose a command that buttons can bind to
-        /// </summary>
-        public ICommand StartStopTimerCommand { get; }
-
-
-        public StopwatchController()
+        set
         {
-            StartStopTimerCommand = new RelayCommand(ExecuteTimer);
-            _cts = new CancellationTokenSource();
-        }
-
-        // the elapsed time in system ticks 
-        public long Ticks
-        {
-            get { return _ticks; }
-            private set { HandlePropertyChanged(ref _ticks, value); }
-        }
-
-
-        public StopwatchStateEnum StopwatchState
-        {
-            get { return _stopwatchState; }
-            private set { HandlePropertyChanged(ref _stopwatchState, value); }
-        }
-
-        private async Task ClockForwardAnimation()
-        {
-            long startTime = DateTime.UtcNow.Ticks;
-
-            try
+            if (stopwatchState != value)
             {
-                while (true)
-                {
-                    Ticks = DateTime.UtcNow.Ticks - startTime;
-
-                    if (Ticks < cForwardDurationTicks)
-                        await Task.Delay(cUpdateRateMilliseconds, _cts.Token); // it's not a high precession timer
-                    else
-                        break;
-                }
-            }
-            catch (TaskCanceledException)
-            {
-                return;
-            }
-
-            Ticks = cForwardDurationTicks;   // guarantee a final value
-        }
-
-        private async Task ClockRewindAnimation()
-        {
-            long startTicks = Ticks;
-
-            if (startTicks > 0)
-            {
-                long startTime = DateTime.UtcNow.Ticks;
-
-                while (true)
-                {
-                    // accelerate elapsed time by the rewind speed
-                    long elapsed = (DateTime.UtcNow.Ticks - startTime) * (cForwardDurationTicks / cRewindDurationTicks);
-
-                    Ticks = startTicks - elapsed;
-
-                    if (Ticks > 0)
-                        await Task.Delay(cUpdateRateMilliseconds);   // it's not a high precession timer
-                    else
-                        break;
-                }
-
-                Ticks = 0;  // guarantee a final value
+                stopwatchState = value;
+                RaisePropertyChanged();
+                CommandText = ConvertStateToCommandText();
+                TimerCommand.RaiseCanExecuteChanged();
             }
         }
+    }
 
-        // this method is re-entrant due to the await operator but will only
-        // ever be run on the UI thread
-        private async void ExecuteTimer(object p)
+    private string ConvertStateToCommandText()
+    {
+        switch (State)
         {
-            switch (StopwatchState)
-            {
-                case StopwatchStateEnum.AtStart:
-                    {
-                        StopwatchState = StopwatchStateEnum.Running;
+            case StopwatchState.Initializing:
+            case StopwatchState.AtStart: return "Start Timer";
+            case StopwatchState.Running: return "Stop Timer";
+            case StopwatchState.Stopped:
+            case StopwatchState.Completed: return "Reset Timer";
+            case StopwatchState.Rewinding: return "Rewinding";
 
-                        await ClockForwardAnimation();
-
-                        if (_cts.IsCancellationRequested)
-                        {
-                            _cts.Dispose();
-                            _cts = new CancellationTokenSource();
-                        }
-                        else
-                            System.Media.SystemSounds.Exclamation.Play();
-
-                        StopwatchState = StopwatchStateEnum.Stopped;
-                        break;
-                    }
-
-                case StopwatchStateEnum.Stopped:
-                    {
-                        StopwatchState = StopwatchStateEnum.Rewinding;
-
-                        await ClockRewindAnimation();
-
-                        StopwatchState = StopwatchStateEnum.AtStart;
-                        break;
-                    }
-
-                case StopwatchStateEnum.Running:
-                    {
-                        StopwatchState = StopwatchStateEnum.Stopped;
-                        _cts.Cancel();
-                        break;
-                    }
-
-                case StopwatchStateEnum.Rewinding: break;
-
-                default: throw new InvalidOperationException();
-            }
+            default: throw new Exception($"invalid state: {State}"); ;
         }
+    }
 
-        public void Dispose()
+    public string CommandText
+    {
+        get => commandText;
+        private set
         {
-            _cts.Dispose();
+            commandText = value;
+            RaisePropertyChanged();
         }
+    }
+
+    private void ExecuteTimer(object? _)
+    {
+        switch (State)
+        {
+            case StopwatchState.AtStart: State = StopwatchState.Running; break;
+            case StopwatchState.Stopped:
+            case StopwatchState.Completed: State = StopwatchState.Rewinding; break;
+            case StopwatchState.Running: State = StopwatchState.Stopped; break;
+
+            default: throw new Exception($"invalid state: {State}"); ;
+        }
+    }
+
+    private bool CanExecuteTimer(object? _)
+    {
+        return State != StopwatchState.Rewinding && State != StopwatchState.Initializing;
     }
 }

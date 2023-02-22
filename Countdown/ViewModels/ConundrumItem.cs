@@ -1,21 +1,8 @@
-﻿namespace Countdown.ViewModels
-{
-    /// <summary>
-    /// A list item used in the conundrum result ui list
-    /// Unlike the other lists it has two columns so separate property
-    /// getters are required for the solution and conundrum words
-    /// </summary>
-    internal sealed class ConundrumItem : ItemBase
-    {
-        public string Solution { get; }
+﻿namespace Countdown.ViewModels;
 
-        public ConundrumItem(string conundrum, string solution) : base(conundrum)
-        {
-            Solution = solution ?? string.Empty;
-        }
-
-        public string Conundrum => Content;
-
-        public override string ToString() => $"{Conundrum}\t{Solution}";
-    }
-}
+/// <summary>
+/// A list item used in the conundrum result ui list
+/// Unlike the other lists it has two columns so separate property
+/// getters are required for the solution and conundrum words
+/// </summary>
+internal sealed record ConundrumItem(string Conundrum, string Solution);

@@ -1,320 +1,129 @@
-﻿<UserControl x:Class="Countdown.Views.LettersView"
-            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-            xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-            xmlns:local="clr-namespace:Countdown.Views"
-            mc:Ignorable="d" 
-            d:DesignHeight="350" d:DesignWidth="500"
-            DataContext="{Binding LettersViewModel}">
-    <UserControl.Resources>
+﻿<Page
+    x:Class="Countdown.Views.LettersView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Countdown.Views"
+    xmlns:w3c="using:AssyntSoftware.WinUI3Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    NavigationCacheMode="Required"
+    mc:Ignorable="d">
 
-        <SolidColorBrush x:Key="Button.Background" Color="#FF9AFF9A"/>
-        <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FF2AFF2A"/>
-        <SolidColorBrush x:Key="Button.Pressed.Background" Color="#FF0AEE0A"/>
-
-        <SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
-        <SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
-        <SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4"/>
-        <SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFADB2B5"/>
-        <SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF838383"/>
-
-        <!-- a button with a green background when enabled -->
-        <Style x:Key="SearchButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource Button.Background}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ButtonBase}">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true">
-                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="Button.IsDefaulted" Value="true">
-                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background}"/>
-                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="true">
-                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Pressed.Background}"/>
-                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Pressed.Border}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Disabled.Background}"/>
-                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Disabled.Border}"/>
-                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource Button.Disabled.Foreground}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-
-        <!-- text box style, the text is used to search the results list-->
-        <Style x:Key="SearchTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="MaxLength" Value="9" />
-            <Setter Property="MinWidth" Value="80" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="CharacterCasing" Value="Lower"/>
-            <Setter Property="IsEnabled" Value="false"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding ElementName=WordListView, Path=HasItems}" Value="true">
-                    <Setter Property="IsEnabled" Value="true"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- text box style limiting input to uppercase Latin letters-->
-        <Style TargetType="local:CountdownTextBox">
-            <Setter Property="Margin" Value="2,3" />
-            <Setter Property="MaxLength" Value="1" />
-            <Setter Property="MinWidth" Value="23" />
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="TextAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="CharacterCasing" Value="Upper"/>
+    <Page.Resources>
+        <Style x:Key="ctbs" TargetType="local:CountdownTextBox">
+            <Setter Property="ContentStyle" Value="Letter"/>
             <Setter Property="AutoTabStyle" Value="AlwaysTab"/>
-            <Style.Triggers>
-                <Trigger Property="Validation.HasError" Value="true">
-                    <Setter Property="ToolTip" Value="{Binding (Validation.Errors)[0].ErrorContent, RelativeSource={x:Static RelativeSource.Self}}"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Margin" Value="0,5,0,0"/>
         </Style>
 
-        <!-- collection view grouping on word length -->
-        <CollectionViewSource x:Key="WordListGrouping" Source="{Binding WordList}">
-            <CollectionViewSource.GroupDescriptions>
-                <PropertyGroupDescription PropertyName="Content.Length" />
-            </CollectionViewSource.GroupDescriptions>
-        </CollectionViewSource>
+        <DataTemplate x:Key="WordHeadingTemplate" x:DataType="TreeViewNode">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition MinWidth="175" Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{x:Bind ((local:TreeViewWordItem)Content).Text}" Foreground="{ThemeResource WordListGroupHeaderTextBrush}" FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="1" Text="{x:Bind Children.Count}" Foreground="{ThemeResource WordListGroupHeaderCountBrush}"/>
+            </Grid>
+        </DataTemplate>
 
-        <SolidColorBrush x:Key="Expander.MouseOver" Color="#FF27C7F7"/>
-        <SolidColorBrush x:Key="Expander.Pressed" Color="#FF000000"/>
-        <SolidColorBrush x:Key="Expander.Static" Color="#FF808080"/>
+        <DataTemplate x:Key="WordItemTemplate" x:DataType="TreeViewNode">
+            <TextBlock Text="{x:Bind ((local:TreeViewWordItem)Content).Text}"/>
+        </DataTemplate>
 
-        <!-- a custom expander that looks like a tree view expander -->
-        <Style x:Key="ExpanderHeaderStyle" TargetType="ToggleButton">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ToggleButton">
-                        <Border Padding="{TemplateBinding Padding}">
-                            <Grid Background="Transparent" SnapsToDevicePixels="False">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="21"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid>
-                                    <Path x:Name="arrow" Data="M2,1 V9 L6,5 Z" HorizontalAlignment="Center" SnapsToDevicePixels="false" Stroke="{StaticResource Expander.Static}" StrokeThickness="1" VerticalAlignment="Center"/>
-                                </Grid>
-                                <ContentPresenter HorizontalAlignment="Left" Margin="0" Grid.Column="1" RecognizesAccessKey="True" SnapsToDevicePixels="True" VerticalAlignment="Center"/>
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="true">
-                                <Setter Property="Data" TargetName="arrow" Value="F1 M1,6 H7 L7,0 Z"/>
-                                <Setter Property="Stroke" TargetName="arrow" Value="{StaticResource Expander.Pressed}"/>
-                                <Setter Property="Fill" TargetName="arrow" Value="{StaticResource Expander.Static}"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter Property="Stroke" TargetName="arrow" Value="{StaticResource Expander.MouseOver}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+        <local:WordItemTemplateSelector x:Key="WordTreeTemplateSelector"
+            WordHeadingTemplate="{StaticResource WordHeadingTemplate}"
+            WordItemTemplate="{StaticResource WordItemTemplate}" />
+
+        <!-- tree views don't have a built in border -->
+        <Style x:Key="TreeViewBorderStyle" TargetType="Border">
+            <Setter Property="Padding" Value="5,0,0,0"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Background" Value="{ThemeResource ResultsListBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBoderBrush}"/>
+            <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBoderThickness}"/>
         </Style>
-        
-        <!-- an additional control template for the custom expander style -->
-        <Style x:Key="ExpanderHeaderFocusVisual">
-            <Setter Property="Control.Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Border>
-                            <Rectangle Margin="0" SnapsToDevicePixels="true" Stroke="Black" StrokeThickness="1" StrokeDashArray="1 2"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+    </Page.Resources>
 
-        <!-- an expander style using the custom toggle button style for the expander -->
-        <Style x:Key="ExpanderStyle" TargetType="Expander">
-            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Expander">
-                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="3" SnapsToDevicePixels="true">
-                            <DockPanel>
-                                <ToggleButton x:Name="HeaderSite" Style="{StaticResource ExpanderHeaderStyle}" Content="{TemplateBinding Header}" DockPanel.Dock="Top" Foreground="{TemplateBinding Foreground}" FontWeight="{TemplateBinding FontWeight}" FocusVisualStyle="{StaticResource ExpanderHeaderFocusVisual}" FontStyle="{TemplateBinding FontStyle}" FontStretch="{TemplateBinding FontStretch}" FontSize="{TemplateBinding FontSize}" FontFamily="{TemplateBinding FontFamily}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Margin="1" MinWidth="0" MinHeight="0" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                <ContentPresenter x:Name="ExpandSite" DockPanel.Dock="Bottom" Focusable="false" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                            </DockPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsExpanded" Value="true">
-                                <Setter Property="Visibility" TargetName="ExpandSite" Value="Visible"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{StaticResource InputGridWidth}"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-    </UserControl.Resources>
+        <StackPanel Grid.Column="0">
 
-    <DockPanel Margin="5" LastChildFill="True">
+            <local:Clock Style="{StaticResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+            <w3c:GroupBox Heading="Tiles" Style="{StaticResource CommonGroupBoxStyle}">
+                
+                <Grid RowDefinitions="*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
+                    
+                    <local:CountdownTextBox Grid.Column="0" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[0], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="1" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[1], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="2" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[2], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="3" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[3], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="4" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[4], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="5" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[5], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="6" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[6], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="7" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[7], Mode=OneWay}"/>
+                    <local:CountdownTextBox Grid.Column="8" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[8], Mode=OneWay}" AutoTabStyle="Off"/>
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{StaticResource CommonTabPageLeftColumnWidth}"/>
-            </Grid.ColumnDefinitions>
-
-            <local:Clock Grid.Row="0" Width="100" Ticks="{Binding StopwatchController.Ticks, Mode=OneWay}" HorizontalAlignment="Left" Margin="80,10,0,5" />
-            
-            <GroupBox Grid.Row="1" Header="Letters" Margin="5">
-
-                <StackPanel>
-                    <AdornerDecorator>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="2,10,0,7">
-                            <local:CountdownTextBox Text="{Binding Letter_0, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
-                            <local:CountdownTextBox Text="{Binding Letter_1, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
-                            <local:CountdownTextBox Text="{Binding Letter_2, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
-                            <local:CountdownTextBox Text="{Binding Letter_3, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
-                            <local:CountdownTextBox Text="{Binding Letter_4, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
-                            <local:CountdownTextBox Text="{Binding Letter_5, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
-                            <local:CountdownTextBox Text="{Binding Letter_6, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
-                            <local:CountdownTextBox Text="{Binding Letter_7, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"/>
-                            <local:CountdownTextBox Text="{Binding Letter_8, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" AutoTabStyle="Off"/>
-                        </StackPanel>
-                    </AdornerDecorator>
-                    <Grid Margin="5,10" >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <Button Grid.Column="0" Content="_Vowel" Command="{Binding PickVowelCommand}"/>
-                        <Button Grid.Column="1" Content="C_onsonant" Command="{Binding PickConsonantCommand}" HorizontalAlignment="Center"/>
-                        <Button Name="ClearButton" Grid.Column="2" Command="{Binding ClearCommand}" Padding="0" Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}">
-                            <Path Data="M0,0 L1,1 M0,1 L1,0" Stretch="Fill" Stroke="Black" StrokeThickness="1.5" Width="10" Height="10" Style="{StaticResource EnabledPathStyle}" />
+                    <Grid Margin="0,19,0,10" Grid.Row="1" Grid.ColumnSpan="9" ColumnDefinitions="Auto,*,Auto">
+                        
+                        <Button Grid.Column="0" Content="Vowel" Command="{x:Bind ViewModel.PickVowelCommand}"/>
+                        <Button Grid.Column="1" Content="Consonant" Command="{x:Bind ViewModel.PickConsonantCommand}" HorizontalAlignment="Center"/>
+                        <Button Grid.Column="2" x:Name="ClearButton" Command="{x:Bind ViewModel.ClearCommand}" Padding="0" Height="32" Width="32">
+                            <Path Data="M0,0 L10,10 M0,10 L10,0" Stretch="None" VerticalAlignment="Center" HorizontalAlignment="Center" Stroke="{ThemeResource ButtonForeground}" StrokeThickness="1.5" Width="10" Height="10" Opacity="{x:Bind ViewModel.ClearButtonPathOpacity, Mode=OneWay}"/>
                         </Button>
                     </Grid>
+                </Grid>
+            </w3c:GroupBox>
 
-                </StackPanel>
+            <Grid Margin="7,28,7,7" ColumnDefinitions="Auto,*,Auto">
 
-            </GroupBox>
+                <SplitButton Content="Choose" Command="{x:Bind ViewModel.ChooseLettersCommand}">
+                    <SplitButton.Flyout>
+                        <MenuFlyout Opening="{x:Bind local:LettersView.MenuFlyout_Opening}">
+                            <RadioMenuFlyoutItem Text="3 vowels and 6 consonants" CommandParameter="0" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="3"/>
+                            <RadioMenuFlyoutItem Text="4 vowels and 5 consonants" CommandParameter="1" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="4"/>
+                            <RadioMenuFlyoutItem Text="5 vowels and 4 consonants" CommandParameter="2" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="5"/>
+                        </MenuFlyout>
+                    </SplitButton.Flyout>
+                </SplitButton>
 
-            <Grid Grid.Row="2" Margin="5,49,5,5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <local:ButtonPopup Grid.Column ="0" ItemsSource="{Binding LetterOptionsList}" ChooseCommand="{Binding ChooseLettersCommand}" SelectedIndex="{Binding ChooseLettersOption, Mode=TwoWay}"/>
-                <Button Grid.Column ="1" Style="{StaticResource StartStopButtonStyle}" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
-                <Button Grid.Column ="2" Content="_Solve" Command="{Binding SolveCommand}" IsDefault="True" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+                <Button Grid.Column="1" HorizontalAlignment="Center" Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Style="{StaticResource StartStopButtonStyle}"/>
+                <Button Grid.Column="2" Content="Solve" Command="{x:Bind ViewModel.SolveCommand}"/>
             </Grid>
+        </StackPanel>
+
+        <Grid Grid.Column="1" Margin="5" RowDefinitions="Auto,*">
+            <Grid.Resources>
+                <Style TargetType="ListView">
+                    <!-- differentiate the AutoSuggestBox suggestion list from the results list -->
+                    <Setter Property="Background" Value="{ThemeResource SystemControlPageBackgroundChromeLowBrush}"/>
+                </Style>
+            </Grid.Resources>
+            
+            <AutoSuggestBox x:Name="SuggestionBox" MinWidth="175" HorizontalAlignment="Left"
+                TextChanged="AutoSuggestBox_TextChanged"
+                SuggestionChosen="AutoSuggestBox_SuggestionChosen"
+                QueryIcon="Find"
+                QuerySubmitted="AutoSuggestBox_QuerySubmitted"/>
+
+            <Border Grid.Row="1" Style="{StaticResource TreeViewBorderStyle}">
+                <TreeView x:Name="WordTreeView" ItemTemplateSelector="{StaticResource WordTreeTemplateSelector}" CanReorderItems="False">
+                    <TreeView.Resources>
+                        <StandardUICommand x:Name="CopyCommand" Kind="Copy" ExecuteRequested="CopyCommand_ExecuteRequested" CanExecuteRequested="CopyCommand_CanExecuteRequested"/>
+                    </TreeView.Resources>
+                    <TreeView.ContextFlyout>
+                        <MenuFlyout >
+                            <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
+                        </MenuFlyout>
+                    </TreeView.ContextFlyout>
+                </TreeView>
+            </Border>
         </Grid>
-
-
-        <Grid Margin="5,5,5,5" UseLayoutRounding="True">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5" >
-                <local:CountdownTextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource}" Style="{StaticResource SearchTextBoxStyle}"/>
-                <Button Command="{Binding ScrollToCommand}" Style="{StaticResource SearchButtonStyle}" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="True">
-                    <Path Data="M3,7 H12 L9,4 M12,7 L9,10" HorizontalAlignment="Center" Stroke="Black" StrokeThickness="1.5" VerticalAlignment="Center" Width="15" Height="15" Style="{StaticResource EnabledPathStyle}"/>
-                    <Button.RenderTransform>
-                        <TranslateTransform X="-1" />
-                    </Button.RenderTransform>
-                </Button>
-            </StackPanel>
-
-            <ListView x:Name="WordListView" Grid.Row="1" local:ScrollTo.Item ="{Binding ScrollToItem}" SelectionMode="Extended" ItemsSource="{Binding Source={StaticResource WordListGrouping}}" ItemContainerStyle="{StaticResource CommonItemContainerStyle}">
-                <ListView.View>
-                    <GridView AllowsColumnReorder="false">
-                        <GridView.ColumnHeaderContainerStyle>
-                            <Style TargetType="GridViewColumnHeader">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </Style>
-                        </GridView.ColumnHeaderContainerStyle>
-                        <GridViewColumn Width="150" >
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding}" Margin="25,0,0,0"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-
-                <ListView.GroupStyle>
-                    <GroupStyle>
-                        <GroupStyle.ContainerStyle>
-                            <Style TargetType="GroupItem">
-                                <Setter Property="Margin" Value="0"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="GroupItem">
-                                            <Expander IsExpanded="{Binding Items[0].IsExpanded, Mode=TwoWay}" Style="{StaticResource ExpanderStyle}">
-                                                <Expander.Header>
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition MinWidth="100" />
-                                                            <ColumnDefinition MinWidth="30" />
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Name, StringFormat={}{0} letter words}" HorizontalAlignment="Left" Foreground="MediumBlue" FontWeight="DemiBold"/>
-                                                        <TextBlock Grid.Column="1" Text="{Binding ItemCount}" HorizontalAlignment="Right" Foreground="DarkGray"/>
-                                                    </Grid>
-                                                </Expander.Header>
-                                                <Expander.Content>
-                                                    <ItemsPresenter Margin="0,1,0,0"/>
-                                                </Expander.Content>
-                                            </Expander>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </GroupStyle.ContainerStyle>
-                    </GroupStyle>
-                </ListView.GroupStyle>
-                <ListView.ContextMenu>
-                    <ContextMenu>
-                        <ContextMenu.InputBindings>
-                            <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
-                        </ContextMenu.InputBindings>
-                        <StaticResource ResourceKey="CopyMenuItem"/>
-                        <Separator />
-                        <StaticResource ResourceKey="LinkMenuItem"/>
-                    </ContextMenu>
-                </ListView.ContextMenu>
-                <ListView.InputBindings>
-                    <KeyBinding Command="{Binding ListCopyCommand}" Modifiers="Control" Key="C" />
-                </ListView.InputBindings>
-            </ListView>
-        </Grid>
-    </DockPanel>
-</UserControl>
+    </Grid>
+</Page>
