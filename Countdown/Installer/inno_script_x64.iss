@@ -18,6 +18,7 @@ UninstallDisplayIcon={app}\{#appExeName}
 Compression=lzma2
 SolidCompression=yes
 OutputBaseFilename={#appName}_v{#appVer}_x64
+InfoBeforeFile="{#SourcePath}\unlicense.txt"
 PrivilegesRequired=lowest
 WizardStyle=classic
 DisableWelcomePage=no
