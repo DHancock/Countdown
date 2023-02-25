@@ -55,3 +55,6 @@ Name: desktopicon; Description: "{cm:CreateDesktopIcon}"
 
 [Run]
 Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appName}}"; Flags: nowait postinstall skipifsilent
+
+[UninstallRun]
+Filename: taskkill; Parameters:"/im {#appExeName} /f /t"
