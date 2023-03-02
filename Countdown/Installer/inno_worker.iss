@@ -57,4 +57,4 @@ Name: desktopicon; Description: "{cm:CreateDesktopIcon}"
 Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appName}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-Filename: taskkill; Parameters:"/im {#appExeName} /f /t"
+Filename: powershell.exe ; Parameters: "Get-Process {#appName} | where Path -eq '{app}\{#appExeName}' | kill -Force"; Flags: runhidden
