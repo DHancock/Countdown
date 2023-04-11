@@ -46,7 +46,7 @@ internal sealed partial class MainWindow : SubClassWindow
         }
 
         // always set the window icon and title, it's used in the task switcher
-        SetWindowIconFromAppIcon();
+        appWindow.SetIcon("Resources\\app.ico");
         appWindow.Title = App.cDisplayName;
 
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events

@@ -21,10 +21,9 @@ internal sealed partial class CustomTitleBar : UserControl
                 UpdateThemeAndTransparency(s.ActualTheme);
             };
 
-            Loaded += async (s, a) =>
+            Loaded += (s, a) =>
             {
                 UpdateTitleBarPadding(ActualSize.X);
-                windowIcon.Source = await MainWindow.LoadEmbeddedImageResource("Countdown.Resources.16.png");
             };
         }
     }
