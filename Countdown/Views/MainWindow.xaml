@@ -1,15 +1,11 @@
-﻿<local:SubClassWindow
+﻿<Window
     x:Class="Countdown.Views.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Countdown.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    MinWidth="660"
-    MinHeight="500"
-    InitialWidth="660"
-    InitialHeight="500">
+    mc:Ignorable="d">
 
     <Grid x:Name="LayoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}">
         <Grid.Resources>
@@ -48,4 +44,4 @@
             <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" IsNavigationStackEnabled="False" Margin="5,0,5,5"/>
         </NavigationView>
     </Grid>
-</local:SubClassWindow>
+</Window>
