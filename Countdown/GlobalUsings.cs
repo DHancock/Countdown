@@ -9,9 +9,7 @@ global using Microsoft.UI.Xaml.Hosting;
 global using Microsoft.UI.Xaml.Input;
 global using Microsoft.UI.Xaml.Media;
 global using Microsoft.UI.Xaml.Media.Animation;
-global using Microsoft.UI.Xaml.Media.Imaging;
 global using Microsoft.UI.Xaml.Navigation;
-global using Microsoft.Win32.SafeHandles;
 
 global using System.Collections;
 global using System.Collections.ObjectModel;
