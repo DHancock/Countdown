@@ -8,10 +8,10 @@ namespace Countdown;
 public partial class App : Application
 {
     public const string cDisplayName = "Countdown";
-    public const string cIconResourceID = "32512";
+
     public static bool IsPackaged { get; } = GetIsPackaged();
 
-    private Window? m_window;
+    private MainWindow? m_window;
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -32,7 +32,7 @@ public partial class App : Application
         m_window = new MainWindow();
     }
 
-    internal static MainWindow? MainWindow { get => (MainWindow?)((App)Current).m_window; }
+    internal static MainWindow? MainWindow { get => ((App)Current).m_window; }
 
     private static bool GetIsPackaged()
     {
