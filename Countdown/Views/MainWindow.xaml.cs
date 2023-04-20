@@ -1,12 +1,24 @@
 ﻿using Countdown.ViewModels;
 
 namespace Countdown.Views;
+public enum WindowState { Normal, Minimized, Maximized }
 
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.
 /// </summary>
-internal sealed partial class MainWindow : SubClassWindow
+internal sealed partial class MainWindow : Window
 {
+    private const double MinWidth = 660;
+    private const double MinHeight = 500;
+    private const double InitialWidth = 660;
+    private const double InitialHeight = 500;
+
+    private readonly HWND hWnd;
+    private readonly AppWindow appWindow;
+    private readonly SUBCLASSPROC subClassDelegate;
+    private PointInt32 restorePosition;
+    private SizeInt32 restoreSize;
+
     private readonly ViewModel rootViewModel;
 
     private readonly FrameNavigationOptions frameNavigationOptions = new FrameNavigationOptions()
@@ -19,6 +31,16 @@ internal sealed partial class MainWindow : SubClassWindow
     public MainWindow()
     {
         this.InitializeComponent();
+
+        hWnd = (HWND)WindowNative.GetWindowHandle(this);
+
+        appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(hWnd));
+        appWindow.Changed += AppWindow_Changed;
+
+        subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
+
+        if (!PInvoke.SetWindowSubclass(hWnd, subClassDelegate, 0, 0))
+            throw new Win32Exception(Marshal.GetLastPInvokeError());
 
         // the default settings button doesn't have an access key, and there's no way to set one
         RootNavigationView.FooterMenuItems.Add(CreateSettingsNavigationViewItem());
@@ -46,7 +68,7 @@ internal sealed partial class MainWindow : SubClassWindow
         }
 
         // always set the window icon and title, it's used in the task switcher
-        SetWindowIconFromAppIcon();
+        appWindow.SetIcon("Resources\\app.ico");
         appWindow.Title = App.cDisplayName;
 
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events
@@ -142,20 +164,96 @@ internal sealed partial class MainWindow : SubClassWindow
         }
     }
 
-    public static async Task<BitmapImage> LoadEmbeddedImageResource(string resourcePath)
+    private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
     {
-        BitmapImage bitmapImage = new BitmapImage();
-
-        using (Stream? resourceStream = typeof(App).Assembly.GetManifestResourceStream(resourcePath))
+        if (WindowState == WindowState.Normal)
         {
-            Debug.Assert(resourceStream is not null);
+            if (args.DidPositionChange)
+                restorePosition = appWindow.Position;
 
-            using (Windows.Storage.Streams.IRandomAccessStream stream = resourceStream.AsRandomAccessStream())
-            {
-                await bitmapImage.SetSourceAsync(stream);
-            }
+            if (args.DidSizeChange)
+                restoreSize = appWindow.Size;
+        }
+    }
+
+    private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
+    {
+        if (uMsg == PInvoke.WM_GETMINMAXINFO)
+        {
+            MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
+            double scaleFactor = GetScaleFactor();
+            minMaxInfo.ptMinTrackSize.X = Math.Max(ConvertToDeviceSize(MinWidth, scaleFactor), minMaxInfo.ptMinTrackSize.X);
+            minMaxInfo.ptMinTrackSize.Y = Math.Max(ConvertToDeviceSize(MinHeight, scaleFactor), minMaxInfo.ptMinTrackSize.Y);
+            Marshal.StructureToPtr(minMaxInfo, lParam, true);
         }
 
-        return bitmapImage;
+        return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
+    }
+
+    public WindowState WindowState
+    {
+        get
+        {
+            if (appWindow.Presenter is OverlappedPresenter op)
+            {
+                switch (op.State)
+                {
+                    case OverlappedPresenterState.Minimized: return WindowState.Minimized;
+                    case OverlappedPresenterState.Maximized: return WindowState.Maximized;
+                    case OverlappedPresenterState.Restored: return WindowState.Normal;
+                }
+            }
+
+            return WindowState.Normal;
+        }
+
+        set
+        {
+            if (appWindow.Presenter is OverlappedPresenter op)
+            {
+                switch (value)
+                {
+                    case WindowState.Minimized: op.Minimize(); break;
+                    case WindowState.Maximized: op.Maximize(); break;
+                    case WindowState.Normal: op.Restore(); break;
+                }
+            }
+        }
+    }
+
+    public RectInt32 RestoreBounds
+    {
+        get => new RectInt32(restorePosition.X, restorePosition.Y, restoreSize.Width, restoreSize.Height);
+    }
+
+    private static int ConvertToDeviceSize(double value, double scalefactor) => Convert.ToInt32(Math.Clamp(value * scalefactor, 0, short.MaxValue));
+
+    private double GetScaleFactor()
+    {
+        // The xaml may not have loaded yet, so Content.XamlRoot.RasterizationScale isn't an option here
+        double dpi = PInvoke.GetDpiForWindow(hWnd);
+        return dpi / 96.0;
+    }
+
+    private RectInt32 CenterInPrimaryDisplay()
+    {
+        RectInt32 workArea = DisplayArea.Primary.WorkArea;
+        RectInt32 windowArea;
+
+        double scaleFactor = GetScaleFactor();
+        windowArea.Width = ConvertToDeviceSize(InitialWidth, scaleFactor);
+        windowArea.Height = ConvertToDeviceSize(InitialHeight, scaleFactor);
+
+        windowArea.Width = Math.Min(windowArea.Width, workArea.Width);
+        windowArea.Height = Math.Min(windowArea.Height, workArea.Height);
+
+        windowArea.Y = (workArea.Height - windowArea.Height) / 2;
+        windowArea.X = (workArea.Width - windowArea.Width) / 2;
+
+        // guarantee title bar is visible, the minimum window size may trump working area
+        windowArea.Y = Math.Max(windowArea.Y, workArea.Y);
+        windowArea.X = Math.Max(windowArea.X, workArea.X);
+
+        return windowArea;
     }
 }
