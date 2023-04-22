@@ -20,6 +20,8 @@ SolidCompression=yes
 OutputBaseFilename={#appName}_v{#appVer}
 InfoBeforeFile="{#SourcePath}\unlicense.txt"
 PrivilegesRequired=lowest
+AllowUNCPath=no
+AllowNetworkDrive=no
 WizardStyle=modern
 DisableWelcomePage=yes
 DirExistsWarning=yes
@@ -33,6 +35,7 @@ ArchitecturesAllowed=x86 x64 arm64
 
 
 [Files]
+Source: "..\installer\tools\NetCoreCheck.exe"; Flags: dontcopy;
 Source: "..\installer\tools\CheckWinAppSdk.exe"; Flags: dontcopy;
 Source: "..\bin\x64\Release\publish\*"; DestDir: "{app}"; Check: IsX64; Flags: recursesubdirs; 
 Source: "..\bin\x86\Release\publish\*"; DestDir: "{app}"; Check: IsX86; Flags: recursesubdirs solidbreak; 
@@ -52,38 +55,61 @@ Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appName}}"; F
 Filename: powershell.exe; Parameters: "Get-Process {#appName} | where Path -eq '{app}\{#appExeName}' | kill -Force"; Flags: runhidden
 
 [Code]
-function ProbeWinAppSdkDownloadFile(StartMinorVersion: Byte) :String; forward;
 function IsWinAppSdkInstalled() : Boolean; forward;
-function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean; forward;
+function IsNetDesktopInstalled() : Boolean; forward;
+function GetPlatformStr() : String; forward;
+function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64) : Boolean; forward;
 
 var
   DownloadsList : TStringList;
 
 function InitializeSetup(): Boolean;
 var 
-  WinAppSdkUrl, Message : String;
+  UpdateNet, UpdateWinAppSdk : Boolean;
+  IniFile, DownloadUrl, Message : String;
 begin
   Result := true;
   DownloadsList := TStringList.Create;
 
-  if not IsWinAppSdkInstalled() then
-  begin
-    // find latest win app sdk starting from 1.3
-    WinAppSdkUrl := ProbeWinAppSdkDownloadFile(3); 
+  try
+    UpdateNet := not IsNetDesktopInstalled;
+    UpdateWinAppSdk := not IsWinAppSdkInstalled;
 
-    if Length(WinAppSdkUrl) > 0 then
+    if UpdateNet or UpdateWinAppSdk then  
     begin
-      DownloadsList.Add(WinAppSdkUrl);
-    end
-    else
-    begin
-        Message := 'Setup has detected that the Windows App Sdk needs to be installed but cannot find a valid download Url.';
+      // This also checks for a valid network connection. MS use a similar redirrection scheme.
+      if DownloadTemporaryFile('https://raw.githubusercontent.com/DHancock/Common/main/versions.ini', 'versions.ini', '', @OnDownloadProgress) > 0 then
+      begin
+        
+        IniFile := ExpandConstant('{tmp}\versions.ini');
+
+        if UpdateNet then
+        begin
+          DownloadUrl := GetIniString('NetDesktopRuntime', GetPlatformStr, '', IniFile);
+          Result := Length(DownloadUrl) > 0;
+          DownloadsList.Add(DownloadUrl)
+        end;
+
+        if UpdateWinAppSdk and Result then
+        begin
+          DownloadUrl := GetIniString('WinAppSdk', GetPlatformStr, '', IniFile);
+          Result := Length(DownloadUrl) > 0;
+          DownloadsList.Add(DownloadUrl)
+        end;
+      end;
+  
+      if not Result then
+      begin
+        Message := 'Setup has detected that a prerequisite sdk needs to be installed but cannot determine the download Url.';
         SuppressibleMsgBox(Message, mbCriticalError, MB_OK, IDOK);
-        Result := false;
+      end;
     end;
+
+  except
+    Message := 'An fatal error occured when checking instal prerequesites: '#13#10 + GetExceptionMessage;
+    SuppressibleMsgBox(Message, mbCriticalError, MB_OK, IDOK);
+    Result := false;
   end;
- 
-  // need to check for .Net6+ 
 end;
 
 
@@ -140,9 +166,10 @@ begin
 
       if Result = '' then
       begin
+        DownloadPage.AbortButton.Hide;
         DownloadPage.SetText('Installing ' + ExtractFileName(DownloadUrl), '');
         DownloadPage.ProgressBar.Style := npbstMarquee;
-
+        
         ExeFilePath := ExpandConstant('{tmp}\') + ExtractFileName(DownloadUrl);
 
         if not Exec(ExeFilePath, '', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
@@ -153,6 +180,7 @@ begin
 
         DeleteFile(ExeFilePath);
         DownloadPage.ProgressBar.Style := npbstNormal;
+        DownloadPage.AbortButton.Show;
       end;
 
       Index := Index + 1;
@@ -194,59 +222,30 @@ begin
 end;
 
 
-function ProbeWinAppSdkDownloadFile(StartMinorVersion: Byte) : String;
-var
-  Url, BaseUrl, OutputUrl  : String;
-  Attempt, Size : Int64;
-begin
-  OutputUrl := '';
-    
-  if StartMinorVersion <= 65 then
-  Begin
-    Attempt := StartMinorVersion;
-    BaseUrl := 'https://aka.ms/windowsappsdk/1.*/latest/windowsappruntimeinstall-' + GetPlatformStr + '.exe';
-
-    repeat
-    begin
-      try
-        Url := BaseUrl
-        StringChangeEx(Url, '*', IntToStr(Attempt), True);
-
-        Size := DownloadTemporaryFileSize(Url);
-
-        Log('Download: ' + Url + ' size: ' + Int64ToStr(Size));
-
-        if (Size > 0) then    
-          OutputUrl := Url;
-
-      except        
-        Log('Download:' + Url + ' exception: ' + GetExceptionMessage);
-        break; // bail, chances are the net is down
-      end;
-
-      Attempt := Attempt + 1;
-    end;
-    until (Attempt > 65) or ((Size < 1) and (Length(OutputUrl) > 0));
-  end;
-    
-  Result := OutputUrl;      
-end;
-
-
 function IsWinAppSdkInstalled() : Boolean;
 var
-  Success : Boolean;
   ResultCode : Integer;
 begin
   ExtractTemporaryFile('CheckWinAppSdk.exe');
 
-  Success := Exec(ExpandConstant('{tmp}\CheckWinAppSdk.exe'), '3000 ' + GetPlatformParam(), '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-
-  Log('Exec CheckWinAppSdk.exe returned: ' + IntToStr(ResultCode));
-  
-  if not Success then
+  if not Exec(ExpandConstant('{tmp}\CheckWinAppSdk.exe'), '3000 ' + GetPlatformParam(), '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
   begin
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
+  end;
+
+  Result := ResultCode = 0 ;
+end;
+
+
+function IsNetDesktopInstalled() : Boolean;
+var
+  ResultCode : Integer;
+begin
+  ExtractTemporaryFile('NetCoreCheck.exe');
+
+  if not Exec(ExpandConstant('{tmp}\NetCoreCheck.exe'), '-n Microsoft.WindowsDesktop.App -v 6.0.16 -r LatestMajor', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  begin
+    Log('Exec NetCoreCheck.exe failed: ' + SysErrorMessage(ResultCode));    
   end;
 
   Result := ResultCode = 0 ;
