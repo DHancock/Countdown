@@ -22,7 +22,8 @@ InfoBeforeFile="{#SourcePath}\unlicense.txt"
 PrivilegesRequired=lowest
 AllowUNCPath=no
 AllowNetworkDrive=no
-WizardStyle=modern
+WizardStyle=classic
+WizardSizePercent=110,110
 DisableWelcomePage=yes
 DirExistsWarning=yes
 DisableProgramGroupPage=yes
@@ -55,22 +56,35 @@ Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appName}}"; F
 Filename: powershell.exe; Parameters: "Get-Process {#appName} | where Path -eq '{app}\{#appExeName}' | kill -Force"; Flags: runhidden
 
 [Code]
+
+type
+  TCheckFunc = function() : Boolean;
+  
+  TDependencyItem = record
+    Url: String;
+    Title: String;
+    CheckFunction: TCheckFunc;
+  end;
+  
+   
+var
+  DownloadsList : array of TDependencyItem;
+
+   
 function IsWinAppSdkInstalled() : Boolean; forward;
 function IsNetDesktopInstalled() : Boolean; forward;
 function GetPlatformStr() : String; forward;
 function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64) : Boolean; forward;
+procedure AddDownload(const Url, Title: String; const CheckFunction: TCheckFunc); forward;
 
-var
-  DownloadsList : TStringList;
-
+  
 function InitializeSetup(): Boolean;
 var 
   UpdateNet, UpdateWinAppSdk : Boolean;
   IniFile, DownloadUrl, Message : String;
 begin
   Result := true;
-  DownloadsList := TStringList.Create;
-
+  
   try
     UpdateNet := not IsNetDesktopInstalled;
     UpdateWinAppSdk := not IsWinAppSdkInstalled;
@@ -87,24 +101,24 @@ begin
         begin
           DownloadUrl := GetIniString('NetDesktopRuntime', GetPlatformStr, '', IniFile);
           Result := Length(DownloadUrl) > 0;
-          DownloadsList.Add(DownloadUrl)
+          AddDownload(DownloadUrl, 'Net Desktop Runtime', @IsNetDesktopInstalled);
         end;
 
         if UpdateWinAppSdk and Result then
         begin
           DownloadUrl := GetIniString('WinAppSdk', GetPlatformStr, '', IniFile);
           Result := Length(DownloadUrl) > 0;
-          DownloadsList.Add(DownloadUrl)
+          AddDownload(DownloadUrl, 'Windows App SDK', @IsWinAppSdkInstalled);
         end;
       end;
   
       if not Result then
       begin
-        Message := 'Setup has detected that a prerequisite sdk needs to be installed but cannot determine the download Url.';
+        Message := 'Setup has detected that a prerequisite SDK needs to be installed but cannot determine the download Url.';
         SuppressibleMsgBox(Message, mbCriticalError, MB_OK, IDOK);
       end;
     end;
-
+    
   except
     Message := 'An fatal error occured when checking instal prerequesites: '#13#10 + GetExceptionMessage;
     SuppressibleMsgBox(Message, mbCriticalError, MB_OK, IDOK);
@@ -116,14 +130,17 @@ end;
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   Retry: Boolean;
-  DownloadUrl, ExeFilePath : String;
-  ResultCode, Index: Integer;
+  ExeFilePath : String;
+  Dependency : TDependencyItem;
+  ResultCode, Count, Index: Integer;
   DownloadPage: TDownloadWizardPage;
 begin
   NeedsRestart := false;
   Result := ''; 
 
-  if DownloadsList.Count > 0 then
+  Count := GetArrayLength(DownloadsList);
+  
+  if Count > 0 then
   begin
     DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnDownloadProgress);
     DownloadPage.Show;
@@ -131,10 +148,10 @@ begin
     Index := 0;
 
     repeat
-      DownloadUrl := DownloadsList[Index];
+      Dependency := DownloadsList[Index];
 
       DownloadPage.Clear;
-      DownloadPage.Add(DownloadUrl, ExtractFileName(DownloadUrl), '');
+      DownloadPage.Add(Dependency.Url, ExtractFileName(Dependency.Url), '');
       
       repeat 
         Retry := false;
@@ -144,16 +161,16 @@ begin
         
           if DownloadPage.AbortedByUser then
           begin
-            Result := DownloadUrl;
-            Index := DownloadsList.Count;
+            Result := 'Download of ' + Dependency.Title + ' was cancelled.';
+            Index := Count;
             break;
           end
           else
           begin
             case SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbError, MB_ABORTRETRYIGNORE, IDIGNORE) of
               IDABORT: begin
-                Result := DownloadUrl;
-                Index := DownloadsList.Count;
+                Result := 'Download of ' + Dependency.Title + ' was cancelled.';
+                Index := Count;
                 break;
               end;
               IDRETRY: begin
@@ -167,30 +184,54 @@ begin
       if Result = '' then
       begin
         DownloadPage.AbortButton.Hide;
-        DownloadPage.SetText('Installing ' + ExtractFileName(DownloadUrl), '');
+        DownloadPage.SetText('Installing the ' + Dependency.Title, '');
         DownloadPage.ProgressBar.Style := npbstMarquee;
         
-        ExeFilePath := ExpandConstant('{tmp}\') + ExtractFileName(DownloadUrl);
+        ExeFilePath := ExpandConstant('{tmp}\') + ExtractFileName(Dependency.Url);
 
         if not Exec(ExeFilePath, '', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
         begin
-          Result := 'An error occured installing ' + ExeFilePath + '.'#13#10 + SysErrorMessage(ResultCode);
+          Result := 'An error occured installing ' + Dependency.Title + '.'#13#10 + SysErrorMessage(ResultCode);
           break;
         end;
 
         DeleteFile(ExeFilePath);
+        
+        if not Dependency.CheckFunction() then
+        begin
+          Result := 'Installation of ' + Dependency.Title + ' failed.';
+          break;
+        end;
+        
         DownloadPage.ProgressBar.Style := npbstNormal;
         DownloadPage.AbortButton.Show;
       end;
 
       Index := Index + 1;
 
-    until Index >= DownloadsList.Count;
+    until Index >= Count;
 
     DownloadPage.Hide;
     DownloadPage.Free;
   end;
 end;                                                            
+
+
+procedure AddDownload(const Url, Title: String; const CheckFunction: TCheckFunc); 
+var
+  Dependency: TDependencyItem;
+  Count: Integer;
+begin
+
+  Dependency.Url := Url;
+  Dependency.Title := Title;
+  Dependency.CheckFunction := CheckFunction;
+
+  // a linked list isn't possible  because forward type declarations arn't supported 
+  Count := GetArrayLength(DownloadsList);
+  SetArrayLength(DownloadsList, Count + 1);
+  DownloadsList[Count] := Dependency;
+end;
 
 
 function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;
@@ -224,14 +265,16 @@ end;
 
 function IsWinAppSdkInstalled() : Boolean;
 var
+  ExeFilePath : String;
   ResultCode : Integer;
 begin
-  ExtractTemporaryFile('CheckWinAppSdk.exe');
+  ExeFilePath := ExpandConstant('{tmp}\CheckWinAppSdk.exe') ;
 
-  if not Exec(ExpandConstant('{tmp}\CheckWinAppSdk.exe'), '3000 ' + GetPlatformParam(), '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-  begin
+  if not FileExists(ExeFilePath) then
+    ExtractTemporaryFile('CheckWinAppSdk.exe');
+
+  if not Exec(ExeFilePath, '3000 ' + GetPlatformParam(), '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
-  end;
 
   Result := ResultCode = 0 ;
 end;
@@ -239,14 +282,16 @@ end;
 
 function IsNetDesktopInstalled() : Boolean;
 var
+  ExeFilePath : String;
   ResultCode : Integer;
 begin
-  ExtractTemporaryFile('NetCoreCheck.exe');
+  ExeFilePath := ExpandConstant('{tmp}\NetCoreCheck.exe') ;
 
-  if not Exec(ExpandConstant('{tmp}\NetCoreCheck.exe'), '-n Microsoft.WindowsDesktop.App -v 6.0.16 -r LatestMajor', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-  begin
+  if not FileExists(ExeFilePath) then
+    ExtractTemporaryFile('NetCoreCheck.exe');
+
+  if not Exec(ExeFilePath, '-n Microsoft.WindowsDesktop.App -v 6.0.16 -r LatestMajor', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec NetCoreCheck.exe failed: ' + SysErrorMessage(ResultCode));    
-  end;
 
   Result := ResultCode = 0 ;
 end;
