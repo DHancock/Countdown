@@ -163,17 +163,13 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
 
     private void ExecuteSolve(object? _)
     {
-        char[] conundrum = ConvertLettersToLower();
-        string solution = wordModel.SolveConundrum(conundrum);
+        string solution = wordModel.SolveConundrum(ConvertLetters(toLowerCase: true));
 
         if (solution.Length > 0)
         {
-            for (int index = 0; index < WordModel.cLetterCount; ++index)
-                conundrum[index] = char.ToUpper(conundrum[index]);
-
             Solution = solution;
+            SolutionList.Insert(0, new ConundrumItem(new string(ConvertLetters()), solution));
 
-            SolutionList.Insert(0, new ConundrumItem(new string(conundrum), solution));
             SolveCommand.RaiseCanExecuteChanged();
         }
     }
@@ -182,17 +178,18 @@ internal sealed class ConundrumViewModel : PropertyChangedBase
     {
         return string.IsNullOrWhiteSpace(Solution) && 
                 conundrum.All(s => !string.IsNullOrEmpty(s)) && 
-                !string.IsNullOrEmpty(wordModel.SolveConundrum(ConvertLettersToLower()));
+                !string.IsNullOrEmpty(wordModel.SolveConundrum(ConvertLetters(toLowerCase: true)));
     }
 
-    private char[] ConvertLettersToLower()
+    private char[] ConvertLetters(bool toLowerCase = false)
     {
         char[] data = new char[WordModel.cLetterCount];
 
         for (int index = 0; index < WordModel.cLetterCount; ++index)
         {
             Debug.Assert(conundrum[index].Length == 1);
-            data[index] = char.ToLower(conundrum[index][0]);
+            char c = conundrum[index][0];
+            data[index] = toLowerCase ? char.ToLower(c) : c;
         }
 
         return data;

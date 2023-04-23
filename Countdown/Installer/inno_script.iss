@@ -24,8 +24,8 @@ AllowUNCPath=no
 AllowNetworkDrive=no
 WizardStyle=classic
 WizardSizePercent=110,110
-DisableWelcomePage=yes
 DirExistsWarning=yes
+DisableWelcomePage=yes
 DisableProgramGroupPage=yes
 DisableReadyPage=yes
 MinVersion=10.0.17763
@@ -33,7 +33,6 @@ AppPublisher=David
 AppUpdatesURL=https://github.com/DHancock/Countdown/releases
 ArchitecturesInstallIn64BitMode=x64 arm64
 ArchitecturesAllowed=x86 x64 arm64
-
 
 [Files]
 Source: "..\installer\tools\NetCoreCheck.exe"; Flags: dontcopy;
@@ -56,7 +55,6 @@ Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appName}}"; F
 Filename: powershell.exe; Parameters: "Get-Process {#appName} | where Path -eq '{app}\{#appExeName}' | kill -Force"; Flags: runhidden
 
 [Code]
-
 type
   TCheckFunc = function() : Boolean;
   
@@ -66,7 +64,6 @@ type
     CheckFunction: TCheckFunc;
   end;
   
-   
 var
   DownloadsList : array of TDependencyItem;
 
@@ -91,10 +88,10 @@ begin
 
     if UpdateNet or UpdateWinAppSdk then  
     begin
-      // This also checks for a valid network connection. MS use a similar redirrection scheme.
+      Result := false;
+     
       if DownloadTemporaryFile('https://raw.githubusercontent.com/DHancock/Common/main/versions.ini', 'versions.ini', '', @OnDownloadProgress) > 0 then
       begin
-        
         IniFile := ExpandConstant('{tmp}\versions.ini');
 
         if UpdateNet then
@@ -104,7 +101,7 @@ begin
           AddDownload(DownloadUrl, 'Net Desktop Runtime', @IsNetDesktopInstalled);
         end;
 
-        if UpdateWinAppSdk and Result then
+        if UpdateWinAppSdk then
         begin
           DownloadUrl := GetIniString('WinAppSdk', GetPlatformStr, '', IniFile);
           Result := Length(DownloadUrl) > 0;
@@ -120,7 +117,7 @@ begin
     end;
     
   except
-    Message := 'An fatal error occured when checking instal prerequesites: '#13#10 + GetExceptionMessage;
+    Message := 'An fatal error occured when checking install prerequesites: '#13#10 + GetExceptionMessage;
     SuppressibleMsgBox(Message, mbCriticalError, MB_OK, IDOK);
     Result := false;
   end;
@@ -222,12 +219,11 @@ var
   Dependency: TDependencyItem;
   Count: Integer;
 begin
-
   Dependency.Url := Url;
   Dependency.Title := Title;
   Dependency.CheckFunction := CheckFunction;
 
-  // a linked list isn't possible  because forward type declarations arn't supported 
+  // a linked list isn't possible because forward type declarations arn't supported 
   Count := GetArrayLength(DownloadsList);
   SetArrayLength(DownloadsList, Count + 1);
   DownloadsList[Count] := Dependency;
@@ -237,7 +233,7 @@ end;
 function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;
 begin
   if Progress = ProgressMax then
-    Log('Successfully downloaded file: ' + ExpandConstant('{tmp}') + '\' + FileName);
+    Log('Successfully downloaded file: ' + FileName + ' size: ' + IntToStr(ProgressMax));
 
   Result := True;
 end;
@@ -252,8 +248,9 @@ begin
   end;
 end;
 
+
 // returns a Windows.System.ProcessorArchitecture enum value
-function GetPlatformParam() : String;
+function GetPlatformParamStr() : String;
 begin
   case ProcessorArchitecture of
     paX86: Result := '0';
@@ -273,7 +270,7 @@ begin
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('CheckWinAppSdk.exe');
 
-  if not Exec(ExeFilePath, '3000 ' + GetPlatformParam(), '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  if not Exec(ExeFilePath, '3000 ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
 
   Result := ResultCode = 0 ;
