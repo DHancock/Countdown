@@ -6,8 +6,10 @@
 #define appName "Countdown"
 #define appVer "3.6.0"
 #define appExeName appName + ".exe"
+#define appId appName
 
 [Setup]
+AppId={#appId}
 AppName={#appName}
 AppVersion={#appVer}
 AppVerName={cm:NameAndVersion,{#appName},{#appVer}}
@@ -73,7 +75,9 @@ function IsNetDesktopInstalled() : Boolean; forward;
 function GetPlatformStr() : String; forward;
 function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64) : Boolean; forward;
 procedure AddDownload(const Url, Title: String; const CheckFunction: TCheckFunc); forward;
-
+function VersionComparer(const A, B: String): Integer; forward;
+function IsSelfcontained(const Version: String): Boolean; forward;
+  
   
 function InitializeSetup(): Boolean;
 var 
@@ -291,4 +295,74 @@ begin
     Log('Exec NetCoreCheck.exe failed: ' + SysErrorMessage(ResultCode));    
 
   Result := ResultCode = 0 ;
+end;
+
+
+// The remnants of a self contained install dlls will cause a framework dependent 
+// app to trap on start. Have to uninstall first. Down grading from framework
+// dependent to an old self contained version also causes the app to fail. 
+// The old installer releases will be removed from GitHub.
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  ResultCode, Attempts: Integer;
+  RegKey, InstalledVersion, UninstallerPath: String; 
+begin
+  if (CurStep = ssInstall) then
+  begin
+    RegKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
+
+    if RegQueryStringValue(HKCU, RegKey, 'DisplayVersion', InstalledVersion) and IsSelfcontained(InstalledVersion) then
+    begin
+      if RegQueryStringValue(HKCU, RegKey, 'UninstallString', UninstallerPath) then
+      begin
+        UninstallerPath := RemoveQuotes(UninstallerPath);
+        
+        Exec(UninstallerPath, '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+        Log('Uninstall version: ' + InstalledVersion + ' returned: ' + IntToStr(ResultCode));
+        
+        if ResultCode = 0 then // wait until the uninstall has completed
+        begin
+          Attempts := 8 * 30 ;
+           
+          while FileExists(UninstallerPath) and (Attempts > 0) do
+          Begin
+            Sleep(125);
+            Attempts := Attempts - 1;
+          end;
+            
+          Log('Uninstall completed, Attempts: ' + IntToStr(Attempts));
+        end;
+      
+        if (ResultCode <> 0) or FileExists(UninstallerPath) then
+        begin
+          SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK) ;
+          Abort;
+        end;
+      end;
+    end;
+  end;
+end;
+
+
+function IsSelfcontained(const Version: String): Boolean;
+begin
+  Result := VersionComparer(Version, '3.6') < 0 ;
+end;
+  
+
+// A < B returns -ve
+// A = B returns 0
+// A > B returns +ve
+function VersionComparer(const A, B: String): Integer;
+var
+  X, Y: Int64;
+begin
+
+  if not StrToVersion(A, X) then
+    Log('StrToVersion() failed for A: ' + A) ;
+    
+  if not StrToVersion(B, Y) then
+    Log('StrToVersion() failed for B: ' + B) ;
+  
+  Result := ComparePackedVersion(X, Y) ;
 end;
