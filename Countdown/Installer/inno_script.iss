@@ -374,7 +374,6 @@ function VersionComparer(const A, B: String): Integer;
 var
   X, Y: Int64;
 begin
-
   if not StrToVersion(A, X) then
     Log('StrToVersion() failed for A: ' + A) ;
     
@@ -389,6 +388,8 @@ procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = wpSelectTasks then
     WizardForm.NextButton.Caption := SetupMessage(msgButtonInstall)
+ else if CurPageID = wpFinished then
+    WizardForm.NextButton.Caption := SetupMessage(msgButtonFinish)
   else
     WizardForm.NextButton.Caption := SetupMessage(msgButtonNext);
 end;
