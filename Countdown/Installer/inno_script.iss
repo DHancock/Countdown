@@ -383,3 +383,12 @@ begin
   
   Result := ComparePackedVersion(X, Y) ;
 end;
+
+
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  if CurPageID = wpSelectTasks then
+    WizardForm.NextButton.Caption := SetupMessage(msgButtonInstall)
+  else
+    WizardForm.NextButton.Caption := SetupMessage(msgButtonNext);
+end;
