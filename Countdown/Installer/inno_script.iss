@@ -70,20 +70,20 @@ var
   DownloadsList: array of TDependencyItem;
 
    
-function IsWinAppSdkInstalled(): Boolean; forward;
-function IsNetDesktopInstalled(): Boolean; forward;
-function GetPlatformStr(): String; forward;
+function IsWinAppSdkInstalled: Boolean; forward;
+function IsNetDesktopInstalled: Boolean; forward;
+function GetPlatformStr: String; forward;
 function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean; forward;
 procedure AddDownload(const Url, Title: String; const CheckFunction: TCheckFunc); forward;
 function VersionComparer(const A, B: String): Integer; forward;
 function IsSelfcontained(const Version: String): Boolean; forward;
-function UninstallSelfContainedVersion(): String; forward;
-function DownloadAndInstallPrerequesites(): String; forward;
-function NewLine(): String; forward;
+function UninstallSelfContainedVersion: String; forward;
+function DownloadAndInstallPrerequesites: String; forward;
+function NewLine: String; forward;
 function IsDowngradeInstall: Boolean; forward;
 
   
-function InitializeSetup(): Boolean;
+function InitializeSetup: Boolean;
 var 
   UpdateNet, UpdateWinAppSdk: Boolean;
   IniFile, DownloadUrl, Message: String;
@@ -91,7 +91,7 @@ begin
   Result := true;
   
   try
-    if IsDowngradeInstall() then
+    if IsDowngradeInstall then
       RaiseException('Downgrading isn''t supported.' + NewLine + 'Please uninstall the current version first.');
     
     UpdateNet := not IsNetDesktopInstalled;
@@ -159,14 +159,14 @@ begin
   Result := '';
   
   if IsUninstallRequired then
-    Result := UninstallSelfContainedVersion();
+    Result := UninstallSelfContainedVersion;
   
   if (Result = '') and IsDownloadRequired then
-    Result := DownloadAndInstallPrerequesites();
+    Result := DownloadAndInstallPrerequesites;
 end;
 
 
-function DownloadAndInstallPrerequesites(): String;
+function DownloadAndInstallPrerequesites: String;
 var
   Retry: Boolean;
   ExeFilePath: String;
@@ -281,7 +281,7 @@ begin
 end;
  
 
-function GetPlatformStr(): String;
+function GetPlatformStr: String;
 begin
   case ProcessorArchitecture of
     paX86: Result := 'x86';
@@ -294,7 +294,7 @@ end;
 
 
 // returns a Windows.System.ProcessorArchitecture enum value
-function GetPlatformParamStr(): String;
+function GetPlatformParamStr: String;
 begin
   case ProcessorArchitecture of
     paX86: Result := '0';
@@ -306,7 +306,7 @@ begin
 end;
 
 
-function IsWinAppSdkInstalled(): Boolean;
+function IsWinAppSdkInstalled: Boolean;
 var
   ExeFilePath: String;
   ResultCode: Integer;
@@ -323,7 +323,7 @@ begin
 end;
 
 
-function IsNetDesktopInstalled(): Boolean;
+function IsNetDesktopInstalled: Boolean;
 var
   ExeFilePath: String;
   ResultCode: Integer;
@@ -344,7 +344,7 @@ end;
 // app to trap on start. Have to uninstall first. Down grading from framework
 // dependent to an old self contained version also causes the app to fail. 
 // The old installer releases will be removed from GitHub.
-function UninstallSelfContainedVersion(): String;
+function UninstallSelfContainedVersion: String;
 var
   ResultCode, Attempts: Integer;
   RegKey, InstalledVersion, UninstallerPath: String;
@@ -417,10 +417,10 @@ var
   X, Y: Int64;
 begin
   if not StrToVersion(A, X) then
-    Log('StrToVersion() failed for A: ' + A);
+    Log('StrToVersion failed for A: ' + A);
     
   if not StrToVersion(B, Y) then
-    Log('StrToVersion() failed for B: ' + B);
+    Log('StrToVersion failed for B: ' + B);
   
   Result := ComparePackedVersion(X, Y);
 end;
@@ -437,7 +437,7 @@ begin
 end;
 
 
-function NewLine(): String;
+function NewLine: String;
 begin
   Result := #13#10;
 end;
