@@ -198,20 +198,14 @@ begin
             except
             
               if DownloadPage.AbortedByUser then
-              begin
-                RaiseException('Download of ' + Dependency.Title + ' was cancelled.');
-                break;
-              end
+                RaiseException('Download of ' + Dependency.Title + ' was cancelled.')
               else
               begin
                 case SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbError, MB_ABORTRETRYIGNORE, IDIGNORE) of
-                  IDABORT: begin
+                  IDABORT: 
                     RaiseException('Download of ' + Dependency.Title + ' was aborted.');
-                    break;
-                  end;
-                  IDRETRY: begin
+                  IDRETRY:
                     Retry := True;
-                  end;
                 end;
               end; 
             end;
@@ -226,19 +220,13 @@ begin
             ExeFilePath := ExpandConstant('{tmp}\') + ExtractFileName(Dependency.Url);
 
             if not Exec(ExeFilePath, '', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-            begin
               RaiseException('An error occured installing ' + Dependency.Title + '.' + NewLine + SysErrorMessage(ResultCode));
-              break;
-            end;
 
             DeleteFile(ExeFilePath);
             
             if not Dependency.CheckFunction() then
-            begin
               RaiseException('Installation of ' + Dependency.Title + ' failed.');
-              break;
-            end;
-            
+
             DownloadPage.ProgressBar.Style := npbstNormal;
             DownloadPage.AbortButton.Show;
           end;
@@ -416,11 +404,8 @@ function VersionComparer(const A, B: String): Integer;
 var
   X, Y: Int64;
 begin
-  if not StrToVersion(A, X) then
-    Log('StrToVersion failed for A: ' + A);
-    
-  if not StrToVersion(B, Y) then
-    Log('StrToVersion failed for B: ' + B);
+  if not (StrToVersion(A, X) and StrToVersion(B, Y)) then
+    RaiseException('StrToVersion(''' + A + ''', ''' + B + ''')');
   
   Result := ComparePackedVersion(X, Y);
 end;
