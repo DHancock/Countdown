@@ -58,7 +58,7 @@ Filename: powershell.exe; Parameters: "Get-Process {#appName} | where Path -eq '
 
 [Code]
 type
-  TCheckFunc = function() : Boolean;
+  TCheckFunc = function: Boolean;
   
   TDependencyItem = record
     Url: String;
@@ -67,26 +67,33 @@ type
   end;
   
 var
-  DownloadsList : array of TDependencyItem;
+  DownloadsList: array of TDependencyItem;
 
    
-function IsWinAppSdkInstalled() : Boolean; forward;
-function IsNetDesktopInstalled() : Boolean; forward;
-function GetPlatformStr() : String; forward;
-function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64) : Boolean; forward;
+function IsWinAppSdkInstalled(): Boolean; forward;
+function IsNetDesktopInstalled(): Boolean; forward;
+function GetPlatformStr(): String; forward;
+function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean; forward;
 procedure AddDownload(const Url, Title: String; const CheckFunction: TCheckFunc); forward;
 function VersionComparer(const A, B: String): Integer; forward;
 function IsSelfcontained(const Version: String): Boolean; forward;
-  
+function UninstallSelfContainedVersion(): String; forward;
+function DownloadAndInstallPrerequesites(): String; forward;
+function NewLine(): String; forward;
+function IsDowngradeInstall: Boolean; forward;
+
   
 function InitializeSetup(): Boolean;
 var 
-  UpdateNet, UpdateWinAppSdk : Boolean;
-  IniFile, DownloadUrl, Message : String;
+  UpdateNet, UpdateWinAppSdk: Boolean;
+  IniFile, DownloadUrl, Message: String;
 begin
   Result := true;
   
   try
+    if IsDowngradeInstall() then
+      RaiseException('Downgrading isn''t supported.' + NewLine + 'Please uninstall the current version first.');
+    
     UpdateNet := not IsNetDesktopInstalled;
     UpdateWinAppSdk := not IsWinAppSdkInstalled;
 
@@ -114,29 +121,59 @@ begin
       end;
   
       if not Result then
-      begin
-        Message := 'Setup has detected that a prerequisite SDK needs to be installed but cannot determine the download Url.';
-        SuppressibleMsgBox(Message, mbCriticalError, MB_OK, IDOK);
-      end;
+        RaiseException('Unable to determine the download Url.');
     end;
     
   except
-    Message := 'An fatal error occured when checking install prerequesites: '#13#10 + GetExceptionMessage;
+    Message := 'An error occured when checking install prerequesites:' + NewLine + GetExceptionMessage;
     SuppressibleMsgBox(Message, mbCriticalError, MB_OK, IDOK);
     Result := false;
   end;
 end;
 
 
+function GetUninstallRegKey: String;
+begin
+  Result := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
+end;
+
+
+function IsUninstallRequired:Boolean;
+var
+  InstalledVersion: String;
+begin
+  Result := RegQueryStringValue(HKCU, GetUninstallRegKey, 'DisplayVersion', InstalledVersion) and 
+            IsSelfcontained(InstalledVersion);
+end;
+
+
+function IsDownloadRequired: Boolean;
+begin
+  Result := GetArrayLength(DownloadsList) > 0;
+end;
+
+
 function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  NeedsRestart := false;
+  Result := '';
+  
+  if IsUninstallRequired then
+    Result := UninstallSelfContainedVersion();
+  
+  if (Result = '') and IsDownloadRequired then
+    Result := DownloadAndInstallPrerequesites();
+end;
+
+
+function DownloadAndInstallPrerequesites(): String;
 var
   Retry: Boolean;
-  ExeFilePath : String;
-  Dependency : TDependencyItem;
+  ExeFilePath: String;
+  Dependency: TDependencyItem;
   ResultCode, Count, Index: Integer;
   DownloadPage: TDownloadWizardPage;
 begin
-  NeedsRestart := false;
   Result := ''; 
   Count := GetArrayLength(DownloadsList);
   
@@ -162,16 +199,14 @@ begin
             
               if DownloadPage.AbortedByUser then
               begin
-                Result := 'Download of ' + Dependency.Title + ' was cancelled.';
-                Index := Count;
+                RaiseException('Download of ' + Dependency.Title + ' was cancelled.');
                 break;
               end
               else
               begin
                 case SuppressibleMsgBox(AddPeriod(GetExceptionMessage), mbError, MB_ABORTRETRYIGNORE, IDIGNORE) of
                   IDABORT: begin
-                    Result := 'Download of ' + Dependency.Title + ' was cancelled.';
-                    Index := Count;
+                    RaiseException('Download of ' + Dependency.Title + ' was aborted.');
                     break;
                   end;
                   IDRETRY: begin
@@ -192,7 +227,7 @@ begin
 
             if not Exec(ExeFilePath, '', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
             begin
-              Result := 'An error occured installing ' + Dependency.Title + '.'#13#10 + SysErrorMessage(ResultCode);
+              RaiseException('An error occured installing ' + Dependency.Title + '.' + NewLine + SysErrorMessage(ResultCode));
               break;
             end;
 
@@ -200,7 +235,7 @@ begin
             
             if not Dependency.CheckFunction() then
             begin
-              Result := 'Installation of ' + Dependency.Title + ' failed.';
+              RaiseException('Installation of ' + Dependency.Title + ' failed.');
               break;
             end;
             
@@ -212,13 +247,13 @@ begin
           
         until Index >= Count;
       except
-        Result := 'Installing prerequesites failed.'#13#10 + GetExceptionMessage;
+        Result := 'Installing prerequesites failed:' + NewLine + GetExceptionMessage;
       end;
     finally
-      DownloadPage.Hide;
+      DownloadPage.Hide
     end;
   end;
-end;                                                            
+end;
 
 
 procedure AddDownload(const Url, Title: String; const CheckFunction: TCheckFunc); 
@@ -246,33 +281,37 @@ begin
 end;
  
 
-function GetPlatformStr() : String;
+function GetPlatformStr(): String;
 begin
   case ProcessorArchitecture of
     paX86: Result := 'x86';
     paX64: Result := 'x64';
     paARM64: Result := 'arm64';
+  else
+    RaiseException('unknown ProcessorArchitecture'); 
   end;
 end;
 
 
 // returns a Windows.System.ProcessorArchitecture enum value
-function GetPlatformParamStr() : String;
+function GetPlatformParamStr(): String;
 begin
   case ProcessorArchitecture of
     paX86: Result := '0';
     paX64: Result := '9';
     paARM64: Result := '12';
+  else
+    RaiseException('unknown ProcessorArchitecture'); 
   end;
 end;
 
 
-function IsWinAppSdkInstalled() : Boolean;
+function IsWinAppSdkInstalled(): Boolean;
 var
-  ExeFilePath : String;
-  ResultCode : Integer;
+  ExeFilePath: String;
+  ResultCode: Integer;
 begin
-  ExeFilePath := ExpandConstant('{tmp}\CheckWinAppSdk.exe') ;
+  ExeFilePath := ExpandConstant('{tmp}\CheckWinAppSdk.exe');
 
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('CheckWinAppSdk.exe');
@@ -280,16 +319,16 @@ begin
   if not Exec(ExeFilePath, '3000 ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
 
-  Result := ResultCode = 0 ;
+  Result := ResultCode = 0;
 end;
 
 
-function IsNetDesktopInstalled() : Boolean;
+function IsNetDesktopInstalled(): Boolean;
 var
-  ExeFilePath : String;
-  ResultCode : Integer;
+  ExeFilePath: String;
+  ResultCode: Integer;
 begin
-  ExeFilePath := ExpandConstant('{tmp}\NetCoreCheck.exe') ;
+  ExeFilePath := ExpandConstant('{tmp}\NetCoreCheck.exe');
 
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('NetCoreCheck.exe');
@@ -297,7 +336,7 @@ begin
   if not Exec(ExeFilePath, '-n Microsoft.WindowsDesktop.App -v 6.0.16 -r LatestMajor', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec NetCoreCheck.exe failed: ' + SysErrorMessage(ResultCode));    
 
-  Result := ResultCode = 0 ;
+  Result := ResultCode = 0;
 end;
 
 
@@ -305,65 +344,68 @@ end;
 // app to trap on start. Have to uninstall first. Down grading from framework
 // dependent to an old self contained version also causes the app to fail. 
 // The old installer releases will be removed from GitHub.
-procedure CurStepChanged(CurStep: TSetupStep);
+function UninstallSelfContainedVersion(): String;
 var
   ResultCode, Attempts: Integer;
   RegKey, InstalledVersion, UninstallerPath: String;
   ProgressPage: TOutputMarqueeProgressWizardPage;
 begin
-  if (CurStep = ssInstall) then
+  Result := '';
+  ResultCode := 1;
+  RegKey := GetUninstallRegKey;
+  
+  if RegQueryStringValue(HKCU, RegKey, 'DisplayVersion', InstalledVersion) and
+      RegQueryStringValue(HKCU, RegKey, 'UninstallString', UninstallerPath) then
   begin
-    RegKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#appId}_is1';
+    ProgressPage := CreateOutputMarqueeProgressPage('Uninstall', 'Uninstalling version ' + InstalledVersion);
+    ProgressPage.Animate;
+    ProgressPage.Show;
 
-    if RegQueryStringValue(HKCU, RegKey, 'DisplayVersion', InstalledVersion) and IsSelfcontained(InstalledVersion) then
-    begin
-      if RegQueryStringValue(HKCU, RegKey, 'UninstallString', UninstallerPath) then
-      begin
+    try
+      try 
+        Attempts := 4*30;
+        UninstallerPath := RemoveQuotes(UninstallerPath);
+        
+        Exec(UninstallerPath, '/VERYSILENT /SUPPRESSMSGBOXES', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+        Log('Uninstall version: ' + InstalledVersion + ' returned: ' + IntToStr(ResultCode));
+        
+        if ResultCode = 0 then // wait until the uninstall has completed
+        begin          
+          repeat 
+            Sleep(250);
+            Attempts := Attempts - 1;
+          until (not FileExists(UninstallerPath)) or (Attempts = 0);
+            
+          Log('Uninstall completed, attempts remaining: ' + IntToStr(Attempts));
+        end;
+      except
         ResultCode := 1;
-
-        ProgressPage := CreateOutputMarqueeProgressPage('Uninstall', 'Uninstalling version ' + InstalledVersion);
-        ProgressPage.Animate;
-        ProgressPage.Show;
-
-        try
-          try 
-            UninstallerPath := RemoveQuotes(UninstallerPath);
-            
-            Exec(UninstallerPath, '/VERYSILENT /SUPPRESSMSGBOXES', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-            Log('Uninstall version: ' + InstalledVersion + ' returned: ' + IntToStr(ResultCode));
-            
-            if ResultCode = 0 then // wait until the uninstall has completed
-            begin
-              Attempts := 8 * 30 ;
-               
-              while FileExists(UninstallerPath) and (Attempts > 0) do
-              begin
-                Sleep(125);
-                Attempts := Attempts - 1;
-              end;
-                
-              Log('Uninstall completed, attempts remaining: ' + IntToStr(Attempts));
-            end;
-          except
-          end;
-        finally
-          ProgressPage.Hide;
-        end;
-
-        if (ResultCode <> 0) or FileExists(UninstallerPath) then
-        begin
-          SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK);
-          Abort;
-        end;
+        Log('Uninstall exception: ' + GetExceptionMessage);
       end;
+    finally
+      ProgressPage.Hide;
     end;
   end;
+  
+  if (ResultCode <> 0) or FileExists(UninstallerPath) then
+    Result := 'Failed to uninstall version ' + InstalledVersion;
+end;
+
+
+function IsDowngradeInstall: Boolean;
+var
+  InstalledVersion: String;
+begin
+  Result := false;
+  
+  if RegQueryStringValue(HKCU, GetUninstallRegKey, 'DisplayVersion', InstalledVersion) then
+    Result := VersionComparer(InstalledVersion, '{#appVer}') > 0;
 end;
 
 
 function IsSelfcontained(const Version: String): Boolean;
 begin
-  Result := VersionComparer(Version, '3.6') < 0 ;
+  Result := VersionComparer(Version, '3.6') < 0;
 end;
   
 
@@ -374,14 +416,13 @@ function VersionComparer(const A, B: String): Integer;
 var
   X, Y: Int64;
 begin
-
   if not StrToVersion(A, X) then
-    Log('StrToVersion() failed for A: ' + A) ;
+    Log('StrToVersion() failed for A: ' + A);
     
   if not StrToVersion(B, Y) then
-    Log('StrToVersion() failed for B: ' + B) ;
+    Log('StrToVersion() failed for B: ' + B);
   
-  Result := ComparePackedVersion(X, Y) ;
+  Result := ComparePackedVersion(X, Y);
 end;
 
 
@@ -389,6 +430,14 @@ procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = wpSelectTasks then
     WizardForm.NextButton.Caption := SetupMessage(msgButtonInstall)
+  else if CurPageID = wpFinished then
+    WizardForm.NextButton.Caption := SetupMessage(msgButtonFinish)
   else
     WizardForm.NextButton.Caption := SetupMessage(msgButtonNext);
+end;
+
+
+function NewLine(): String;
+begin
+  Result := #13#10;
 end;
