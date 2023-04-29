@@ -80,7 +80,8 @@ function IsSelfcontained(const Version: String): Boolean; forward;
 function UninstallSelfContainedVersion(): String; forward;
 function DownloadAndInstallPrerequesites(): String; forward;
 function NewLine(): String; forward;
-  
+function IsDowngradeInstall: Boolean; forward;
+
   
 function InitializeSetup(): Boolean;
 var 
@@ -90,6 +91,9 @@ begin
   Result := true;
   
   try
+    if IsDowngradeInstall() then
+      RaiseException('Downgrading isn''t supported.' + NewLine + 'Please uninstall the current version first.');
+    
     UpdateNet := not IsNetDesktopInstalled;
     UpdateWinAppSdk := not IsWinAppSdkInstalled;
 
@@ -121,7 +125,7 @@ begin
     end;
     
   except
-    Message := 'An fatal error occured when checking install prerequesites: ' + NewLine + GetExceptionMessage;
+    Message := 'An error occured when checking install prerequesites:' + NewLine + GetExceptionMessage;
     SuppressibleMsgBox(Message, mbCriticalError, MB_OK, IDOK);
     Result := false;
   end;
@@ -375,6 +379,7 @@ begin
           Log('Uninstall completed, attempts remaining: ' + IntToStr(Attempts));
         end;
       except
+        ResultCode := 1;
         Log('Uninstall exception: ' + GetExceptionMessage);
       end;
     finally
@@ -384,6 +389,17 @@ begin
   
   if (ResultCode <> 0) or FileExists(UninstallerPath) then
     Result := 'Failed to uninstall version ' + InstalledVersion;
+end;
+
+
+function IsDowngradeInstall: Boolean;
+var
+  InstalledVersion: String;
+begin
+  Result := false;
+  
+  if RegQueryStringValue(HKCU, GetUninstallRegKey, 'DisplayVersion', InstalledVersion) then
+    Result := VersionComparer(InstalledVersion, '{#appVer}') > 0;
 end;
 
 
