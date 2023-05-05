@@ -11,28 +11,19 @@ internal sealed partial class Clock : UserControl
     {
         this.InitializeComponent();
 
-        Loaded += async (s, e) =>
+        Loaded += (s, e) =>
         {
             Clock xamlClock = (Clock)s;
 
-            bool firstLoad = sCompositionClock is null;
-
-            if (firstLoad)
+            if (sCompositionClock is null)
+            {
                 sCompositionClock = new CompositionClock(xamlClock);
+                State = StopwatchState.AtStart;
+            }
             else
                 sCompositionClock!.XamlClock = xamlClock;
 
             ElementCompositionPreview.SetElementChildVisual(xamlClock, sCompositionClock.Visual);
-
-            if (firstLoad)
-            {
-                await sAudioHelper.CreateAudioGraph();
-
-                if (sAudioHelper.IsAudioAvailable)
-                    sAudioHelper.AudioCompleted += (s, e) => GCSettings.LatencyMode = GCLatencyMode.Interactive;
-
-                State = StopwatchState.AtStart;
-            }
         };
 
         Unloaded += (s, e) =>
@@ -72,14 +63,6 @@ internal sealed partial class Clock : UserControl
         {
             case StopwatchState.Running:
                 {
-                    if (sAudioHelper.IsAudioAvailable)
-                    {
-                        // attempt to stop GC recovery borking audio playback, a 20ms delay usually
-                        // doesn't affect the ui, but if it causes an audio frame to be dropped...
-                        GCSettings.LatencyMode = GCLatencyMode.LowLatency;
-                        GC.Collect();
-                    }
-
                     sCompositionClock.Animations.StartForwardAnimations();
                     sAudioHelper.Start();
                     break;
@@ -89,7 +72,6 @@ internal sealed partial class Clock : UserControl
                 {
                     sCompositionClock.Animations.StopAnimations();
                     sAudioHelper.Stop();
-                    GCSettings.LatencyMode = GCLatencyMode.Interactive;
                     break;
                 }
                 
