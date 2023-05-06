@@ -12,6 +12,7 @@ namespace Countdown.ViewModels;
 internal class Settings
 {
     public static Settings Data = Inner.Load();
+    private int volumePercentage = 50;
 
     private Settings()
     {
@@ -20,12 +21,29 @@ internal class Settings
     public int ChooseNumbersIndex { get; set; } = 1;
     public int ChooseLettersIndex { get; set; } = 1;
     public ElementTheme CurrentTheme { get; set; } = ElementTheme.Default;
-    public int VolumePercentage { get; set; } = 50;
+
+    public int VolumePercentage
+    {
+        get => volumePercentage;
+        set
+        {
+            if (volumePercentage != value)
+            {
+                volumePercentage = value;
+                VolumeChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
+
+    public event EventHandler? VolumeChanged;
+
     public WindowState WindowState { get; set; } = WindowState.Normal;
     public RectInt32 RestoreBounds { get; set; } = default;
 
     [JsonIgnore]
     public bool IsFirstRun { get; private set; } = true;
+
+
 
     public async Task Save()
     {
