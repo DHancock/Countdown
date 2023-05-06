@@ -9,19 +9,20 @@ internal class AudioHelper
     private const uint cSampleRate = 44100;
     private const uint cChannelCount = 2;
     private const uint cBitRate = 224000;
-    private const int cSampleSize = 1260;
-    private readonly TimeSpan sampleDuration = TimeSpan.FromMilliseconds(70);
-    private readonly TimeSpan songDuration = TimeSpan.FromTicks(308244642);
+    private const uint cSamplesPerFrame = 1152; 
+    private const uint cPadding = 0;
+    private const uint cFrameSize = ((cSamplesPerFrame * cBitRate) / (cSampleRate * 8)) + cPadding;
 
     private readonly Stream? audioStream;
+    private readonly MediaStreamSource? mediaStreamSource;
     private readonly MediaPlayer mediaPlayer = new MediaPlayer();
 
-    private long byteOffset = 0;
-    private TimeSpan timeOffset = TimeSpan.Zero;
-    private MediaStreamSource? mediaStreamSource = null;
+    private readonly TimeSpan frameDuration = TimeSpan.FromSeconds(cSamplesPerFrame / (double)cSampleRate);
+    private TimeSpan timestamp;
+    private DateTime startTime;
 
     public AudioHelper()
-    {
+    { 
         audioStream = LoadEmbeddedResource();
 
         if (audioStream is not null)
@@ -30,67 +31,46 @@ internal class AudioHelper
 
             mediaStreamSource = new MediaStreamSource(new AudioStreamDescriptor(audioProps));
             mediaStreamSource.CanSeek = true;
-            mediaStreamSource.Duration = songDuration;
-
             mediaStreamSource.Starting += MediaStreamSource_Starting;
             mediaStreamSource.SampleRequested += MediaStreamSource_SampleRequested;
-            mediaStreamSource.Closed += MediaStreamSource_Closed;
 
             mediaPlayer.Source = MediaSource.CreateFromIMediaSource(mediaStreamSource);
+            mediaPlayer.Volume = Settings.Data.VolumePercentage / 100.0;
+
+            Settings.Data.VolumeChanged += (s, a) => mediaPlayer.Volume = Settings.Data.VolumePercentage / 100.0;
         }
     }
 
-    public void Start() => mediaPlayer.Play();
-
-    public void Stop()
+    public void Start()
     {
-        mediaPlayer.Pause();
-        mediaPlayer.Position = TimeSpan.Zero;
-    }
-
-    private void MediaStreamSource_Closed(Windows.Media.Core.MediaStreamSource sender, MediaStreamSourceClosedEventArgs args)
-    {
-        Debug.Fail($"mediaStreamSource has closed, reason: {args.Request.Reason}");
-
-        if (sender == mediaStreamSource)
+        if (audioStream is not null)
         {
-            sender.SampleRequested -= MediaStreamSource_SampleRequested;
-            sender.Starting -= MediaStreamSource_Starting;
-            sender.Closed -= MediaStreamSource_Closed;
+            startTime = DateTime.UtcNow;
+            timestamp = TimeSpan.Zero;
+            mediaPlayer.Position = TimeSpan.Zero;
 
-            mediaStreamSource = null;
-
-            mediaPlayer.Pause();
-            mediaPlayer.Source = null;
+            mediaPlayer.Play();
         }
     }
+
+    public void Stop() => mediaPlayer.Pause();
 
     private void MediaStreamSource_SampleRequested(Windows.Media.Core.MediaStreamSource sender, MediaStreamSourceSampleRequestedEventArgs args)
     {
         Debug.Assert(audioStream is not null);
 
-        if (byteOffset < audioStream.Length)
+        if (audioStream.Position < audioStream.Length)
         {
             MediaStreamSourceSampleRequest request = args.Request;
             MediaStreamSourceSampleRequestDeferral deferal = request.GetDeferral();
 
-            byte[] buffer = new byte[cSampleSize];
-            int bytesRead = audioStream.Read(buffer, 0, cSampleSize);
+            byte[] buffer = new byte[cFrameSize];
+            audioStream.Read(buffer, 0, (int)cFrameSize);
 
-            if (bytesRead < cSampleSize)
-                Array.Clear(buffer, bytesRead, cSampleSize - bytesRead);
+            request.Sample = MediaStreamSample.CreateFromBuffer(buffer.AsBuffer(), timestamp);
+            request.Sample.Duration = frameDuration;
 
-            MediaStreamSample sample = MediaStreamSample.CreateFromBuffer(buffer.AsBuffer(), timeOffset);
-            sample.Duration = sampleDuration;
-            sample.KeyFrame = true;
-
-            request.Sample = sample;
-
-            // increment the time and byte offset
-            byteOffset += cSampleSize;
-            timeOffset += sampleDuration;
-
-            mediaPlayer.Volume = Settings.Data.VolumePercentage / 100.0;
+            timestamp += frameDuration;
 
             deferal.Complete();
         }
@@ -98,17 +78,20 @@ internal class AudioHelper
 
     private void MediaStreamSource_Starting(Windows.Media.Core.MediaStreamSource sender, MediaStreamSourceStartingEventArgs args)
     {
-        MediaStreamSourceStartingRequest request = args.Request;
-
-        Debug.Assert(request.StartPosition is not null);
-        Debug.Assert(request.StartPosition == TimeSpan.Zero);
+        // This can also be called by the system if global audio properties change
+        // such as stereo vs. mono or if the output device is changed.
+        // This proportional scheme will only work for constant bit rate data and
+        // files that have had the ID3 tags removed from the start of the file.
         Debug.Assert(audioStream is not null);
 
-        byteOffset = 0;
-        timeOffset = TimeSpan.Zero;
-        audioStream.Position = 0;
+        // restart from the start of the current frame
+        TimeSpan elapsedTime = DateTime.UtcNow - startTime;
+        int frameCount = (int)Math.Floor(elapsedTime.TotalMilliseconds / frameDuration.TotalMilliseconds);
 
-        request.SetActualStartPosition(TimeSpan.Zero);
+        TimeSpan startPosition = TimeSpan.FromMilliseconds(frameCount * frameDuration.TotalMilliseconds);
+        audioStream.Position = frameCount * cFrameSize;
+
+        args.Request.SetActualStartPosition(startPosition);
     }
 
     private static Stream? LoadEmbeddedResource()
