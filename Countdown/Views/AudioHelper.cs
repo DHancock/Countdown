@@ -1,6 +1,4 @@
-﻿// based on https://github.com/microsoftarchive/msdn-code-gallery-microsoft/blob/master/Official%20Windows%20Platform%20Sample/MediaStreamSource%20streaming%20sample/%5BC%23%5D%5BC%2B%2B%5D-MediaStreamSource%20streaming%20sample/C%23%20and%20C%2B%2B/Shared/Scenario1_LoadMP3FileForAudioStream.xaml.cs
-
-using Countdown.ViewModels;
+﻿using Countdown.ViewModels;
 
 namespace Countdown.Views;
 
@@ -55,7 +53,7 @@ internal class AudioHelper
 
     public void Stop() => mediaPlayer.Pause();
 
-    private void MediaStreamSource_SampleRequested(Windows.Media.Core.MediaStreamSource sender, MediaStreamSourceSampleRequestedEventArgs args)
+    private void MediaStreamSource_SampleRequested(MediaStreamSource sender, MediaStreamSourceSampleRequestedEventArgs args)
     {
         Debug.Assert(audioStream is not null);
 
@@ -76,22 +74,22 @@ internal class AudioHelper
         }
     }
 
-    private void MediaStreamSource_Starting(Windows.Media.Core.MediaStreamSource sender, MediaStreamSourceStartingEventArgs args)
+    private void MediaStreamSource_Starting(MediaStreamSource sender, MediaStreamSourceStartingEventArgs args)
     {
         // This can also be called by the system if global audio properties change
         // such as stereo vs. mono or if the output device is changed.
         // This proportional scheme will only work for constant bit rate data and
-        // files that have had the ID3 tags removed from the start of the file.
+        // after any ID3 tags have been removed from the start of the data.
         Debug.Assert(audioStream is not null);
 
         // restart from the start of the current frame
         TimeSpan elapsedTime = DateTime.UtcNow - startTime;
-        int frameCount = (int)Math.Floor(elapsedTime.TotalMilliseconds / frameDuration.TotalMilliseconds);
+        int frameCount = (int)Math.Floor(elapsedTime / frameDuration);
 
-        TimeSpan startPosition = TimeSpan.FromMilliseconds(frameCount * frameDuration.TotalMilliseconds);
-        audioStream.Position = frameCount * cFrameSize;
+        timestamp = frameDuration * frameCount;
+        audioStream.Position = cFrameSize * frameCount;
 
-        args.Request.SetActualStartPosition(startPosition);
+        args.Request.SetActualStartPosition(timestamp);
     }
 
     private static Stream? LoadEmbeddedResource()
