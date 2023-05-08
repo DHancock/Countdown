@@ -5,33 +5,27 @@ namespace Countdown.Views;
 
 internal class AudioHelper
 {
-    private const uint cSampleRate = 44100;
-    private const uint cChannelCount = 2;
-    private const uint cBitRate = 224000;
-    private const uint cSamplesPerFrame = 1152; 
-    private const uint cPadding = 0;
-    private const uint cMinFrameSize = ((cSamplesPerFrame * cBitRate) / (cSampleRate * 8)) + cPadding;
+    private const int cSampleRate = 44100;
+    private const int cChannelCount = 2;
+    private const int cBitRate = 224000;
+    private const int cSamplesPerFrame = 1152; 
+    private const int cPadding = 0;
+    private const int cMinFrameSize = ((cSamplesPerFrame * cBitRate) / (cSampleRate * 8)) + cPadding;
 
     private readonly Stream? audioStream;
     private readonly MediaStreamSource? mediaStreamSource;
     private readonly MediaPlayer mediaPlayer = new MediaPlayer();
-
-    private DateTime startTime;
     private readonly TimeSpan frameDuration = TimeSpan.FromSeconds(cSamplesPerFrame / (double)cSampleRate);
-    
+
     private int frameIndex;
-    private record FrameData(uint Position, uint Size);
-    private readonly List<FrameData> frames = new List<FrameData>();
-
-
+    private DateTime startTime;
+    
     public AudioHelper()
     { 
         audioStream = LoadEmbeddedResource();
 
         if (audioStream is not null)
         {
-            ParseAudioFrames();
-
             AudioEncodingProperties audioProps = AudioEncodingProperties.CreateMp3(cSampleRate, cChannelCount, cBitRate);
 
             mediaStreamSource = new MediaStreamSource(new AudioStreamDescriptor(audioProps));
@@ -51,9 +45,7 @@ internal class AudioHelper
         if (audioStream is not null)
         {
             startTime = DateTime.UtcNow;
-            frameIndex = 0;
             mediaPlayer.Position = TimeSpan.Zero;
-
             mediaPlayer.Play();
         }
     }
@@ -64,22 +56,14 @@ internal class AudioHelper
     {
         Debug.Assert(audioStream is not null);
 
-        if (frameIndex < frames.Count)
+        int frameSize = ReadFrameSize();
+
+        if (frameSize > 0)
         {
-            MediaStreamSourceSampleRequest request = args.Request;
-            MediaStreamSourceSampleRequestDeferral deferal = request.GetDeferral();
-
-            int frameSize = (int)frames[frameIndex].Size;
             byte[] buffer = new byte[frameSize];
+            audioStream.ReadAll(buffer, 0, frameSize);
 
-            audioStream.ReadAll(buffer, frameSize);
-
-            request.Sample = MediaStreamSample.CreateFromBuffer(buffer.AsBuffer(), frameIndex * frameDuration);
-            request.Sample.Duration = frameDuration;
-
-            ++frameIndex;
-
-            deferal.Complete();
+            args.Request.Sample = MediaStreamSample.CreateFromBuffer(buffer.AsBuffer(), frameDuration * frameIndex++);
         }
     }
 
@@ -87,16 +71,16 @@ internal class AudioHelper
     {
         // This can also be called by the system if global audio properties change
         // such as stereo vs. mono or if the output device is changed.
-        // This proportional scheme will only work for constant bit rate data and
-        // after any ID3 tags have been removed from the start of the data.
+        // This proportional scheme only works for constant bit rate data.
         Debug.Assert(audioStream is not null);
 
         // restart from the closest frame boundary
-        TimeSpan elapsedTime = DateTime.UtcNow - startTime;
-        frameIndex = (int)Math.Round(elapsedTime / frameDuration);
+        frameIndex = (int)Math.Round((DateTime.UtcNow - startTime) / frameDuration);
 
-        if (frameIndex < frames.Count)
-            audioStream.Position = frames[frameIndex].Position;
+        audioStream.Position = 0;  // assumes all ID3 tags have been removed
+
+        for (int frameCount = 0; frameCount < frameIndex; frameCount++)
+            audioStream.Position += ReadFrameSize();
 
         args.Request.SetActualStartPosition(frameDuration * frameIndex);
     }
@@ -108,39 +92,29 @@ internal class AudioHelper
         return stream;
     }
 
-    private void ParseAudioFrames()
+    private int ReadFrameSize()
     {
         Debug.Assert(audioStream is not null);
-        byte[] buffer = new byte[4];
+        const int cHeaderSize = 4;
 
-        int ReadFramePaddingBit()
+        byte[] buffer = new byte[cHeaderSize];
+
+        if (audioStream.ReadAll(buffer, 0, cHeaderSize) == cHeaderSize)
         {
-            if (audioStream.ReadAll(buffer, 4) == 4)
+            // a trivial operation for a memory stream
+            audioStream.Position -= cHeaderSize;
+
+            // frame sync + mpeg version 1 + layer 3 + no CRC
+            if ((buffer[0] == 0xFF) && ((buffer[1] & 0xFB) == 0xFB))
             {
-                // frame sync + mpeg version 1 + layer 3
-                if ((buffer[0] == 0xFF) && ((buffer[1] & 0xFA) == 0xFA))
-                    return buffer[2] & 0x02;
+                if ((buffer[2] & 0x02) == 0x02)
+                    return cMinFrameSize + 1;
+
+                return cMinFrameSize;
             }
-
-            return -1;
         }
 
-        int padding;
-        uint position = 0;
-        uint size;
-
-        while ((padding = ReadFramePaddingBit()) >= 0)
-        {
-            if (padding > 0)
-                size = cMinFrameSize + 1;
-            else
-                size = cMinFrameSize;
-
-            frames.Add(new FrameData(position, size));
-
-            position += size;
-            audioStream.Position = position;
-        }
+        return 0;
     }
 }
 

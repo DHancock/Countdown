@@ -98,29 +98,25 @@ internal static class Extensions
         list[i2] = temp;
     }
 
-
-    public static int ReadAll(this Stream stream, byte[] buffer, int count)
+    public static int ReadAll(this Stream stream, byte[] buffer, int offset, int count)
     {
-        if ((count < 0) || (buffer.Length < count))
-            throw new ArgumentOutOfRangeException(nameof(count));
-
         if (count == 0)
             return 0;
 
-        int bytesRead;
+        int size;
         int bytesToRead = count;
-        int bytesReadSoFar = 0;
+        int bytesRead = 0;
 
         do 
         {
-            bytesRead = stream.Read(buffer, bytesReadSoFar, bytesToRead);
+            size = stream.Read(buffer, bytesRead + offset, bytesToRead);
 
-            bytesToRead -= bytesRead;
-            bytesReadSoFar += bytesRead;
+            bytesToRead -= size;
+            bytesRead += size;
         }
-        while ((bytesToRead > 0) && (bytesRead > 0));
+        while ((bytesToRead > 0) && (size > 0));
 
-        return bytesReadSoFar;
+        return bytesRead ;
     }
 }
 
