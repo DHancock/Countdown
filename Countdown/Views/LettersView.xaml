@@ -16,24 +16,24 @@
             <Setter Property="Margin" Value="0,5,0,0"/>
         </Style>
 
-        <DataTemplate x:Key="WordHeadingTemplate" x:DataType="TreeViewNode">
+        <DataTemplate x:Key="HeadingTemplate" x:DataType="TreeViewNode">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition MinWidth="175" Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="{x:Bind ((local:TreeViewWordItem)Content).Text}" Foreground="{ThemeResource WordListGroupHeaderTextBrush}" FontWeight="SemiBold"/>
+                <TextBlock Text="{x:Bind Content.ToString()}" Foreground="{ThemeResource WordListGroupHeaderTextBrush}" FontWeight="SemiBold"/>
                 <TextBlock Grid.Column="1" Text="{x:Bind Children.Count}" Foreground="{ThemeResource WordListGroupHeaderCountBrush}"/>
             </Grid>
         </DataTemplate>
 
-        <DataTemplate x:Key="WordItemTemplate" x:DataType="TreeViewNode">
-            <TextBlock Text="{x:Bind ((local:TreeViewWordItem)Content).Text}"/>
+        <DataTemplate x:Key="WordTemplate" x:DataType="TreeViewNode">
+            <TextBlock Text="{x:Bind Content}"/>
         </DataTemplate>
 
-        <local:WordItemTemplateSelector x:Key="WordTreeTemplateSelector"
-            WordHeadingTemplate="{StaticResource WordHeadingTemplate}"
-            WordItemTemplate="{StaticResource WordItemTemplate}" />
+        <local:WordTreeTemplateSelector x:Key="WordTreeTemplateSelector"
+            HeadingTemplate="{StaticResource HeadingTemplate}"
+            WordTemplate="{StaticResource WordTemplate}" />
 
         <!-- tree views don't have a built in border -->
         <Style x:Key="TreeViewBorderStyle" TargetType="Border">
