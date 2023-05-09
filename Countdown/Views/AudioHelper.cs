@@ -105,13 +105,12 @@ internal class AudioHelper
             audioStream.Position -= cHeaderSize;
 
             // frame sync + mpeg version 1 + layer 3 + no CRC
-            if ((buffer[0] == 0xFF) && ((buffer[1] & 0xFB) == 0xFB))
-            {
-                if ((buffer[2] & 0x02) == 0x02)
-                    return cMinFrameSize + 1;
+            Debug.Assert((buffer[0] == 0xFF) && ((buffer[1] & 0xFB) == 0xFB));
+            
+            if ((buffer[2] & 0x02) == 0x02)
+                return cMinFrameSize + 1;
 
-                return cMinFrameSize;
-            }
+            return cMinFrameSize;
         }
 
         return 0;
