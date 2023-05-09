@@ -69,12 +69,12 @@ internal sealed partial class LettersView : Page
         foreach (IGrouping<int, string> group in query)
         {
             TreeViewNode parent = new TreeViewNode();
-            parent.Content = new TreeViewWordItem(group.Key);
+            parent.Content = new WordHeading(group.Key);
 
             foreach (string word in group.OrderBy(w => w))
             {
                 TreeViewNode child = new TreeViewNode();
-                child.Content = new TreeViewWordItem(word);
+                child.Content = word;
                 parent.Children.Add(child);
             }
 
@@ -123,7 +123,7 @@ internal sealed partial class LettersView : Page
                 {
                     foreach (TreeViewNode child in parent.Children)
                     {
-                        string word = ((TreeViewWordItem)child.Content).Text;
+                        string word = (string)child.Content;
 
                         if (word.StartsWith(sender.Text))
                             suitableItems.Add(word);
@@ -160,7 +160,7 @@ internal sealed partial class LettersView : Page
         {
             foreach (TreeViewNode child in parent.Children)
             {
-                string word = ((TreeViewWordItem)child.Content).Text;
+                string word = (string)child.Content;
 
                 if (compare(word, target))
                 {
@@ -217,40 +217,20 @@ internal sealed partial class LettersView : Page
     }
 }
 
-internal sealed class TreeViewWordItem
+internal record struct WordHeading(int Count)
 {
-    public bool IsHeading { get; } = false;
-    public string Text { get; }
-
-    public TreeViewWordItem(string text)
-    {
-        Text = text;
-    }
-
-    public TreeViewWordItem(int count)
-    {
-        Text = $"{count} letter words";
-        IsHeading = true;
-    }
-
-    public override string? ToString()
-    {
-        return Text;
-    }
+    public override string? ToString() => $"{Count} letter words";
 }
 
-internal class WordItemTemplateSelector : DataTemplateSelector
+internal sealed class WordTreeTemplateSelector : DataTemplateSelector
 {
-    public DataTemplate? WordHeadingTemplate { get; set; }
-    public DataTemplate? WordItemTemplate { get; set; }
+    public DataTemplate? HeadingTemplate { get; set; }
+    public DataTemplate? WordTemplate { get; set; }
 
     protected override DataTemplate? SelectTemplateCore(object obj)
     {
-        Debug.Assert(obj is TreeViewNode);
-        Debug.Assert(((TreeViewNode)obj).Content is TreeViewWordItem);
+        bool IsHeading = ((TreeViewNode)obj).Content is WordHeading;
 
-        TreeViewWordItem item = (TreeViewWordItem)((TreeViewNode)obj).Content;
-
-        return item.IsHeading ? WordHeadingTemplate : WordItemTemplate;
+        return IsHeading ? HeadingTemplate : WordTemplate;
     }
 }
