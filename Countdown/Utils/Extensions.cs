@@ -104,19 +104,19 @@ internal static class Extensions
             return 0;
 
         int size;
-        int bytesToRead = count;
+        int bytesLeft = count;
         int bytesRead = 0;
 
         do 
         {
-            size = stream.Read(buffer, bytesRead + offset, bytesToRead);
+            size = stream.Read(buffer, bytesRead + offset, bytesLeft);
 
-            bytesToRead -= size;
+            bytesLeft -= size;
             bytesRead += size;
         }
-        while ((bytesToRead > 0) && (size > 0));
+        while ((bytesLeft > 0) && (size > 0));
 
-        return bytesRead ;
+        return bytesRead;
     }
 }
 
