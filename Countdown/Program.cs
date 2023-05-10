@@ -1,6 +1,7 @@
 ﻿using Microsoft.UI.Dispatching;
 using Microsoft.Windows.ApplicationModel.DynamicDependency;
-
+using SdkRelease = Microsoft.WindowsAppSDK.Release;
+using RuntimeVersion = Microsoft.WindowsAppSDK.Runtime.Version;
 using DispatcherQueue = Microsoft.UI.Dispatching.DispatcherQueue;
 
 namespace Countdown;
@@ -10,7 +11,7 @@ public static class Program
     [STAThread]
     static void Main()
     {
-        if (Bootstrap.TryInitialize(0x00010003, null, new PackageVersion(3000, 820, 152), Bootstrap.InitializeOptions.OnNoMatch_ShowUI, out int hresult))
+        if (InitializeWinAppSdk())
         {
             Application.Start((p) =>
             {
@@ -21,5 +22,19 @@ public static class Program
 
             Bootstrap.Shutdown();
         }
+    }
+
+    private static bool InitializeWinAppSdk()
+    {
+        uint sdkVersion = SdkRelease.MajorMinor;
+        PackageVersion minRuntimeVersion = new PackageVersion(RuntimeVersion.Major, RuntimeVersion.Minor, RuntimeVersion.Build);
+        Bootstrap.InitializeOptions options = Bootstrap.InitializeOptions.OnNoMatch_ShowUI;
+
+        bool success = Bootstrap.TryInitialize(sdkVersion, null, minRuntimeVersion, options, out int hResult);
+
+        if (!success)
+            Trace.WriteLine($"Bootstrap initialize failed, error: 0x{hResult:X}");
+
+        return success;
     }
 }
