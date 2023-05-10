@@ -30,11 +30,12 @@ public static class Program
         PackageVersion minRuntimeVersion = new PackageVersion(RuntimeVersion.Major, RuntimeVersion.Minor, RuntimeVersion.Build);
         Bootstrap.InitializeOptions options = Bootstrap.InitializeOptions.OnNoMatch_ShowUI;
 
-        bool success = Bootstrap.TryInitialize(sdkVersion, null, minRuntimeVersion, options, out int hResult);
-
-        if (!success)
+        if (!Bootstrap.TryInitialize(sdkVersion, null, minRuntimeVersion, options, out int hResult))
+        {
             Trace.WriteLine($"Bootstrap initialize failed, error: 0x{hResult:X}");
+            return false;
+        }
 
-        return success;
+        return true;
     }
 }
