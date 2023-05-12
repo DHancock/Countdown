@@ -1,6 +1,5 @@
 ; This script assumes that all release configurations have been published
-; and is framework dependent targeting a minimum WinAppSdk version of 1.3
-; but will roll forward to any later 1.n version.
+; and is framework dependent targeting a WinAppSdk release of 1.3.n where n >= 0
 ; Inno 6.2.2
 
 #define appName "Countdown"
@@ -332,7 +331,8 @@ begin
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('CheckWinAppSdk.exe');
 
-  if not Exec(ExeFilePath, '3000 ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  // All 1.3 sdks have a MISX package major version of 3000
+  if not Exec(ExeFilePath, '3000' + ' ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
 
   Result := ResultCode = 0;
