@@ -4,5 +4,4 @@ MINMAXINFO
 SetWindowSubclass
 DefSubclassProc
 WM_GETMINMAXINFO
-CreateDispatcherQueueController
 GetCurrentPackageFullName
