@@ -219,7 +219,7 @@ internal sealed partial class LettersView : Page
 
 internal record struct WordHeading(int Count)
 {
-    public override string? ToString() => $"{Count} letter words";
+    public override readonly string? ToString() => $"{Count} letter words";
 }
 
 internal sealed class WordTreeTemplateSelector : DataTemplateSelector

@@ -132,7 +132,7 @@ internal sealed class Permutations<T> : IEnumerable<T[]>
         /// <summary>
         /// IEnumerator<T>.Current interface implementation. 
         /// </summary>
-        public T[] Current
+        public readonly T[] Current
         {
             get
             {
@@ -150,7 +150,7 @@ internal sealed class Permutations<T> : IEnumerable<T[]>
         /// <summary>
         /// explicit IEnumerator.Current interface implementation.
         /// </summary>
-        object IEnumerator.Current
+        readonly object IEnumerator.Current
         {
             get { return this.Current; }
         }
@@ -159,7 +159,7 @@ internal sealed class Permutations<T> : IEnumerable<T[]>
         /// <summary>
         /// Nothing to dispose, no unmanaged resources used
         /// </summary>
-        void IDisposable.Dispose()
+        readonly void IDisposable.Dispose()
         {
         }
 
@@ -167,7 +167,7 @@ internal sealed class Permutations<T> : IEnumerable<T[]>
         /// <summary>
         /// Set up state for the first enumerator call
         /// </summary>
-        private void Initialise()
+        private readonly void Initialise()
         {
             // sort the input - its the first permutation
             Array.Sort(current, comparer);
@@ -180,7 +180,7 @@ internal sealed class Permutations<T> : IEnumerable<T[]>
         /// The Art of Computer Programming, Volume 4, Fascicle 2: Generating All Tuples and Permutations.
         /// </summary>
         /// <returns></returns>
-        private bool GetNext()
+        private readonly bool GetNext()
         {
             int end = current.Length - 1;
             int i = end;
@@ -219,7 +219,7 @@ internal sealed class Permutations<T> : IEnumerable<T[]>
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
-        private void Swap(int a, int b)
+        private readonly void Swap(int a, int b)
         {
             T temp = current[a];
             current[a] = current[b];
