@@ -210,7 +210,7 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
         /// <summary>
         /// IEnumerator<T>.Current interface implementation. 
         /// </summary>
-        public T[] Current
+        public readonly T[] Current
         {
             get
             {
@@ -228,7 +228,7 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
         /// <summary>
         /// explicit IEnumerator.Current interface implementation.
         /// </summary>
-        object IEnumerator.Current
+        readonly object IEnumerator.Current
         {
             get { return this.Current; }
         }
@@ -237,7 +237,7 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
         /// <summary>
         /// Nothing to dispose, no unmanaged resources used
         /// </summary>
-        void IDisposable.Dispose()
+        readonly void IDisposable.Dispose()
         {
         }
 
@@ -245,7 +245,7 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
         /// <summary>
         /// Set up state for the first enumerator call
         /// </summary>
-        private bool Initialise()
+        private readonly bool Initialise()
         {
             // first check if there is anything to do
             if (k < 1)
@@ -324,7 +324,7 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
         /// combinations of objects of type T 
         /// Algorithm by Donald Knuth
         /// </summary>
-        private bool GetNextMapEntry()
+        private readonly bool GetNextMapEntry()
         {
             // start at last item
             int i = k - 1;

@@ -21,15 +21,10 @@ internal sealed partial class Clock : UserControl
                 State = StopwatchState.AtStart;
             }
             else
-                sCompositionClock!.XamlClock = xamlClock;
+                sCompositionClock.XamlClock = xamlClock;
 
-            ElementCompositionPreview.SetElementChildVisual(xamlClock, sCompositionClock.Visual);
-        };
-
-        Unloaded += (s, e) =>
-        {
-            // remove the visual, there is no reference counting of visuals
-            ElementCompositionPreview.SetElementChildVisual((Clock)s, null);
+            if (ElementCompositionPreview.GetElementChildVisual(xamlClock) is null)
+                ElementCompositionPreview.SetElementChildVisual(xamlClock, sCompositionClock.Visual);
         };
     }
 
