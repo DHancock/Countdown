@@ -86,6 +86,13 @@
                 <SplitButton Content="Choose" Command="{x:Bind ViewModel.ChooseLettersCommand}">
                     <SplitButton.Flyout>
                         <MenuFlyout Opening="{x:Bind local:LettersView.MenuFlyout_Opening}">
+                            <MenuFlyout.MenuFlyoutPresenterStyle>
+                                <Style TargetType="MenuFlyoutPresenter" BasedOn="{StaticResource DefaultMenuFlyoutPresenterStyle}">
+                                    <Setter Property="Background" Value="{ThemeResource FlyoutPresenterBackground}"/>
+                                    <Setter Property="BorderBrush" Value="{ThemeResource FlyoutBorderThemeBrush}"/>
+                                </Style>
+                            </MenuFlyout.MenuFlyoutPresenterStyle>
+                            
                             <RadioMenuFlyoutItem Text="3 vowels and 6 consonants" CommandParameter="0" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="3"/>
                             <RadioMenuFlyoutItem Text="4 vowels and 5 consonants" CommandParameter="1" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="4"/>
                             <RadioMenuFlyoutItem Text="5 vowels and 4 consonants" CommandParameter="2" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="5"/>
