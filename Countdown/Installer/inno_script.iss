@@ -3,7 +3,7 @@
 ; Inno 6.2.2
 
 #define appName "Countdown"
-#define appVer "3.6.0"
+#define appVer "3.7.0"
 #define appExeName appName + ".exe"
 #define appId appName
 
@@ -144,9 +144,9 @@ end;
 function GetWinAppSdkUrl: String;
 begin
   case ProcessorArchitecture of
-    paX86: Result := 'https://aka.ms/windowsappsdk/1.3/latest/windowsappruntimeinstall-x86.exe';
-    paX64: Result := 'https://aka.ms/windowsappsdk/1.3/latest/windowsappruntimeinstall-x64.exe';
-    paARM64: Result := 'https://aka.ms/windowsappsdk/1.3/latest/windowsappruntimeinstall-arm64.exe';
+    paX86: Result := 'https://aka.ms/windowsappsdk/1.4/latest/windowsappruntimeinstall-x86.exe';
+    paX64: Result := 'https://aka.ms/windowsappsdk/1.4/latest/windowsappruntimeinstall-x64.exe';
+    paARM64: Result := 'https://aka.ms/windowsappsdk/1.4/latest/windowsappruntimeinstall-arm64.exe';
   else
     RaiseException('unknown ProcessorArchitecture'); 
   end;
@@ -331,8 +331,10 @@ begin
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('CheckWinAppSdk.exe');
 
-  // All 1.3 sdks have a MISX package major version of 3000
-  if not Exec(ExeFilePath, '3000' + ' ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  // WinAppSdk 1.4.0 is 4000.964.11.0
+  // Check for any 1.4.n version where n >= 0
+  
+  if not Exec(ExeFilePath, '4000.964.11.0' + ' ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
 
   Result := ResultCode = 0;
