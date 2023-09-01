@@ -92,6 +92,23 @@ internal sealed partial class MainWindow : Window
             // set duration for the next theme change
             ThemeBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
         };
+
+        Activated += (s, e) =>
+        {
+            if (rootViewModel.SettingsViewModel.SelectedTheme == ElementTheme.Default)
+            {
+                if (e.WindowActivationState == WindowActivationState.Deactivated)
+                {
+                    // allows any system theme changes to be shown while in the background (flyouts will have been closed)
+                    LayoutRoot.RequestedTheme = ElementTheme.Default;
+                }
+                else
+                {
+                    // force the requested theme to always be either light or dark so that flyouts can pick up the correct colors
+                    LayoutRoot.RequestedTheme = Application.Current.RequestedTheme == ApplicationTheme.Light ? ElementTheme.Light : ElementTheme.Dark;
+                }
+            }
+        };
     }
 
     private RectInt32 ValidateRestoreBounds(RectInt32 windowArea)
