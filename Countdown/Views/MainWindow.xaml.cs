@@ -93,6 +93,10 @@ internal sealed partial class MainWindow : Window
             ThemeBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
         };
 
+        // The following Activated and PropertyChanged event handlers are a work around for: 
+        // https://github.com/microsoft/microsoft-ui-xaml/issues/8756
+        // Changes PR# 105, 107 and 108 complete the work around.
+        // These changes shouldn't cause any issue once the underlying problem is fixed.
         Activated += (s, e) =>
         {
             if (rootViewModel.SettingsViewModel.SelectedTheme == ElementTheme.Default)
