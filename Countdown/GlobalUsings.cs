@@ -11,6 +11,7 @@ global using Microsoft.UI.Xaml.Media;
 global using Microsoft.UI.Xaml.Media.Animation;
 global using Microsoft.UI.Xaml.Navigation;
 
+global using System.Buffers;
 global using System.Collections;
 global using System.Collections.ObjectModel;
 global using System.ComponentModel;
