@@ -76,11 +76,13 @@ internal class AudioHelper
             }
             else
             {
+                Debug.Fail("unexpected end of stream");
                 ArrayPool<byte>.Shared.Return(buffer);
             }
         }
         else
         {
+            // an expected end of stream
             ArrayPool<byte>.Shared.Return(buffer);
         }
     }
@@ -110,6 +112,7 @@ internal class AudioHelper
 
     private static Stream? LoadEmbeddedResource()
     {
+        // not surprisingly, the unmanaged -> managed -> unmanaged memory copies don't seem to be avoidable
         Stream? stream = typeof(App).Assembly.GetManifestResourceStream("Countdown.Resources.audio.dat");
         Debug.Assert(stream is not null);
         return stream;

@@ -3,7 +3,7 @@
 ; Inno 6.2.2
 
 #define appName "Countdown"
-#define appVer "3.7.0"
+#define appVer "3.8.0"
 #define appExeName appName + ".exe"
 #define appId appName
 
