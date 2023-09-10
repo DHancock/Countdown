@@ -31,8 +31,6 @@ global using Windows.ApplicationModel.DataTransfer;
 global using Windows.Foundation;
 global using Windows.Foundation.Collections;
 global using Windows.Graphics;
-global using Windows.Media.Core;
-global using Windows.Media.MediaProperties;
 global using Windows.Media.Playback;
 global using Windows.Storage;
 global using Windows.System;
