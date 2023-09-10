@@ -116,28 +116,49 @@ internal sealed partial class LettersView : Page
         if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
             List<string> suitableItems = new List<string>();
-            
-            if (sender.Text.Length > 0)
+
+            if ((sender.Text.Length > 0) && (ViewModel is not null))
             {
-                foreach (TreeViewNode parent in WordTreeView.RootNodes)
+                List<string> stuff = new(ViewModel.WordList.Where(x =>
                 {
-                    foreach (TreeViewNode child in parent.Children)
+                    if (x.StartsWith(sender.Text, StringComparison.Ordinal))
+                        return true;
+
+                    return (x.Length > 0)
+                             && (x[0] == sender.Text[0]) // even I can get the first letter right
+                             && (Math.Abs(x.Length - sender.Text.Length) <= 1)
+                             && (DamerauLevenshteinDistance(x, sender.Text) <= 1);
+                }));
+
+                stuff.Sort((a, b) =>
+                {
+                    int result = a.Length - b.Length;
+
+                    if (result == 0)
                     {
-                        string word = (string)child.Content;
+                        bool aStartsWith = a.StartsWith(sender.Text, StringComparison.Ordinal);
+                        bool bStartsWith = b.StartsWith(sender.Text, StringComparison.Ordinal);
 
-                        if (word.StartsWith(sender.Text))
-                            suitableItems.Add(word);
+                        if (aStartsWith == bStartsWith)
+                            return string.Compare(a, b);
+
+                        else if (aStartsWith)
+                            return -1;
+
+                        return +1;
                     }
-                }
-            }
 
-            sender.ItemsSource = suitableItems;
+                    return result;
+                });
+
+                sender.ItemsSource = stuff;
+            }
         }
     }
 
     private void AutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
     {
-        // the selected item will be a valid existing word
+        // the selected item is an existing word
         FindItem((string)args.SelectedItem, Equals);
     }
 
@@ -148,7 +169,7 @@ internal sealed partial class LettersView : Page
 
         if (!FindItem(args.QueryText, Equals) &&
             !FindItem(args.QueryText, StartsWith) &&
-            !FindItem(args.QueryText, Contains))
+            !FindItem(args.QueryText, Distance))
         {
             Utils.User32Sound.PlayExclamation();
         }
@@ -180,12 +201,70 @@ internal sealed partial class LettersView : Page
         return false;
     }
 
-    private static bool Equals(string a, string b) => a.Equals(b, StringComparison.CurrentCulture);
+    private static bool Equals(string a, string b) => a.Equals(b, StringComparison.Ordinal);
 
-    private static bool StartsWith(string a, string b) => a.StartsWith(b, StringComparison.CurrentCulture);
+    private static bool StartsWith(string a, string b) => a.StartsWith(b, StringComparison.Ordinal);
 
-    private static bool Contains(string a, string b) => a.Contains(b, StringComparison.CurrentCulture);
+    private static bool Distance(string a, string b)
+    {
+        return (a.Length > 0) 
+                && (b.Length > 0)
+                && (a[0] == b[0]) 
+                && (Math.Abs(a.Length - b.Length) <= 1)
+                && (DamerauLevenshteinDistance(a, b) <= 2);
+    } 
 
+    private static int DamerauLevenshteinDistance(string s1, string s2)
+    {
+        const int cThreshold = 100;
+        int size = (s1.Length + 1) * (s2.Length + 1);
+
+        if (size <= cThreshold)
+            return DamerauLevenshteinDistance(s1, s2, stackalloc int[size]);
+
+        int[] buffer = ArrayPool<int>.Shared.Rent(size);
+        int distance = DamerauLevenshteinDistance(s1, s2, buffer);
+        ArrayPool<int>.Shared.Return(buffer);
+        return distance;
+    }
+
+    private static int DamerauLevenshteinDistance(string s1, string s2, Span<int> buffer)
+    {
+        int width = s1.Length + 1;
+        int height = s2.Length + 1;
+
+        if ((width * height) > buffer.Length)
+            throw new ArgumentException("buffer too small");
+
+        int idx(int x, int y) => x + (y * width);
+
+        for (int i = 0; i < width; i++)
+            buffer[idx(i, 0)] = i;
+
+        for (int j = 0; j < height; j++)
+            buffer[idx(0, j)] = j;
+
+        for (int i = 1; i < width; i++)
+        {
+            for (int j = 1; j < height; j++)
+            {
+                int cost = s1[i - 1] == s2[j - 1] ? 0 : 1;
+
+                int deletionCost = buffer[idx(i - 1, j)] + 1;
+                int insertionCost = buffer[idx(i, j - 1)] + 1;
+                int substitutionCost = buffer[idx(i - 1, j - 1)] + cost;
+
+                int distance = Math.Min(deletionCost, Math.Min(insertionCost, substitutionCost));
+
+                if ((i > 1) && (j > 1) && (s1[i - 1] == s2[j - 2]) && (s1[i - 2] == s2[j - 1])) // adjacent transpositions
+                    buffer[idx(i, j)] = Math.Min(distance, buffer[idx(i - 2, j - 2)] + cost);
+                else
+                    buffer[idx(i, j)] = distance;
+            }
+        }
+
+        return buffer[idx(s1.Length, s2.Length)];
+    }
 
     private static T? FindChild<T>(DependencyObject parent) where T : DependencyObject
     {
