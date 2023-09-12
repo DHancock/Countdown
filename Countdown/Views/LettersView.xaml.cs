@@ -54,6 +54,9 @@ internal sealed partial class LettersView : Page
             LoadTreeView();
     }
 
+    // Guarantee that there is a one to one mapping between tree view nodes and grouped word list items
+    // to enable the scroll in to view feature. If the grouped word list is supplied directly, the 
+    // tree view will allocate and recycle tree view nodes as it sees fit.
     private void LoadTreeView()
     {
         WordTreeView.RootNodes.Clear();
@@ -119,7 +122,7 @@ internal sealed partial class LettersView : Page
 
             if ((sender.Text.Length > 0) && (ViewModel is not null))
             {
-                List<string> stuff = new(ViewModel.WordList.Where(x =>
+                List<string> suggestions = new(ViewModel.WordList.Where(x =>
                 {
                     if (x.StartsWith(sender.Text, StringComparison.Ordinal))
                         return true;
@@ -127,10 +130,10 @@ internal sealed partial class LettersView : Page
                     return (x.Length > 0)
                              && (x[0] == sender.Text[0]) // even I can get the first letter right
                              && (Math.Abs(x.Length - sender.Text.Length) <= 1)
-                             && (DamerauLevenshteinDistance(x, sender.Text) <= 1);
+                             && (DamerauLevenshteinDistance(x, sender.Text) <= (sender.Text.Length <= 6 ? 1 : 2));
                 }));
 
-                stuff.Sort((a, b) =>
+                suggestions.Sort((a, b) =>
                 {
                     int result = a.Length - b.Length;
 
@@ -151,7 +154,7 @@ internal sealed partial class LettersView : Page
                     return result;
                 });
 
-                sender.ItemsSource = stuff;
+                sender.ItemsSource = suggestions;
             }
         }
     }
@@ -159,7 +162,7 @@ internal sealed partial class LettersView : Page
     private void AutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
     {
         // the selected item is an existing word
-        FindItem((string)args.SelectedItem, Equals);
+        FindTreeViewItem((string)args.SelectedItem);
     }
 
     private void AutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
@@ -167,23 +170,22 @@ internal sealed partial class LettersView : Page
         if (string.IsNullOrEmpty(args.QueryText))
             return;
 
-        if (!FindItem(args.QueryText, Equals) &&
-            !FindItem(args.QueryText, StartsWith) &&
-            !FindItem(args.QueryText, Distance))
-        {
+        if (!FindTreeViewItem(args.QueryText) && !FindTreeViewItem(FindClosestItem(args.QueryText)))
             Utils.User32Sound.PlayExclamation();
-        }
     }
 
-    private bool FindItem(string target, Func<string, string, bool> compare)
+    private bool FindTreeViewItem(string target)
     {
         foreach (TreeViewNode parent in WordTreeView.RootNodes)
         {
+            if (target.Length != ((WordHeading)parent.Content).Count)
+                continue;
+
             foreach (TreeViewNode child in parent.Children)
             {
                 string word = (string)child.Content;
 
-                if (compare(word, target))
+                if (string.Equals(word, target, StringComparison.Ordinal))
                 {
                     treeViewList ??= FindChild<TreeViewList>(WordTreeView);
 
@@ -201,17 +203,33 @@ internal sealed partial class LettersView : Page
         return false;
     }
 
-    private static bool Equals(string a, string b) => a.Equals(b, StringComparison.Ordinal);
-
-    private static bool StartsWith(string a, string b) => a.StartsWith(b, StringComparison.Ordinal);
-
-    private static bool Distance(string a, string b)
+    private string FindClosestItem(string target)
     {
-        return (a.Length > 0) 
-                && (b.Length > 0)
-                && (a[0] == b[0]) 
-                && (Math.Abs(a.Length - b.Length) <= 1)
-                && (DamerauLevenshteinDistance(a, b) <= 2);
+        if ((target.Length == 0) || (ViewModel is null))
+            return string.Empty;
+
+        List<string> subset = new(ViewModel.WordList.Where(x =>
+        {
+            return (x.Length > 0)
+                     && (x[0] == target[0])
+                     && (Math.Abs(x.Length - target.Length) <= 1);
+        }));
+
+        int closestDistance = int.MaxValue;
+        string closestWord = string.Empty;
+
+        foreach (string word in subset.OrderBy(x => x.Length))
+        {
+            int distance = DamerauLevenshteinDistance(word, target);
+
+            if (closestDistance >= distance)
+            {
+                closestDistance = distance;
+                closestWord = word;
+            }
+        }
+
+        return closestWord;
     } 
 
     private static int DamerauLevenshteinDistance(string s1, string s2)
