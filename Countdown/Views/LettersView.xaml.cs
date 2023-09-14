@@ -127,10 +127,7 @@ internal sealed partial class LettersView : Page
                     if (x.StartsWith(sender.Text, StringComparison.Ordinal))
                         return true;
 
-                    return (x.Length > 0)
-                             && (x[0] == sender.Text[0]) // even I can get the first letter right
-                             && (Math.Abs(x.Length - sender.Text.Length) <= 1)
-                             && (DamerauLevenshteinDistance(x, sender.Text) <= (sender.Text.Length <= 6 ? 1 : 2));
+                    return DistanceFilter(x, sender.Text); 
                 }));
 
                 suggestions.Sort((a, b) =>
@@ -203,33 +200,34 @@ internal sealed partial class LettersView : Page
         return false;
     }
 
+    private static bool DistanceFilter(string word, string target)
+    {
+        return word.Length > 0 
+                && target.Length > 0
+                && (word[0] == target[0])
+                && (Math.Abs(word.Length - target.Length) <= 1)
+                && (DamerauLevenshteinDistance(word, target) <= (target.Length <= 6 ? 1 : 2));
+    }
+
     private string FindClosestItem(string target)
     {
         if ((target.Length == 0) || (ViewModel is null))
             return string.Empty;
 
-        List<string> subset = new(ViewModel.WordList.Where(x =>
+        List<string> subset = ViewModel.WordList.Where(s => DistanceFilter(s, target)).ToList();
+
+        string foundWord = string.Empty;
+
+        foreach (string word in subset)
         {
-            return (x.Length > 0)
-                     && (x[0] == target[0])
-                     && (Math.Abs(x.Length - target.Length) <= 1);
-        }));
+            if (word == target)
+                return word;
 
-        int closestDistance = int.MaxValue;
-        string closestWord = string.Empty;
-
-        foreach (string word in subset.OrderBy(x => x.Length))
-        {
-            int distance = DamerauLevenshteinDistance(word, target);
-
-            if (closestDistance >= distance)
-            {
-                closestDistance = distance;
-                closestWord = word;
-            }
+            if ((foundWord.Length < word.Length) || ((foundWord.Length == word.Length) && (string.Compare(foundWord, word) >= 0)))
+                foundWord = word;
         }
 
-        return closestWord;
+        return foundWord;
     } 
 
     private static int DamerauLevenshteinDistance(string s1, string s2)
