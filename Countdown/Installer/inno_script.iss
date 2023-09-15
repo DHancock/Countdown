@@ -1,10 +1,10 @@
 ; This script assumes that all release configurations have been published
-; and is framework dependent targeting a WinAppSdk release of 1.3.n where n >= 0
+; and is framework dependent targeting a WinAppSdk release of 1.4.n where n >= 0
 ; Inno 6.2.2
 
 #define appName "Countdown"
-#define appVer "3.7.1"
 #define appExeName appName + ".exe"
+#define appVer RemoveFileExt(GetFileVersion("..\bin\x64\Release\publish\" + appExeName))
 #define appId appName
 
 [Setup]
