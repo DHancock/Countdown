@@ -648,7 +648,7 @@ internal sealed partial class Clock : UserControl
                             MathF.FusedMultiplyAdd(length, cos, offset.Y));
     }
 
-    private sealed class AudioHelper
+    private sealed class AudioHelper // no IDisposable, it's never garbage collected
     {
         private readonly MediaPlayer mediaPlayer = new MediaPlayer();
         private readonly Stream? stream;
