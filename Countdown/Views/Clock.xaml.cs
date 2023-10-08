@@ -548,12 +548,12 @@ internal sealed partial class Clock : UserControl
             batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
             batch.Completed += Batch_Completed;
 
-            for (int index = 0; index < list.Length; index++)
+            foreach ((Visual visual, KeyFrameAnimation animation) in list)
             {
-                list[index].animation.Direction = AnimationDirection.Normal;
-                list[index].animation.Duration = TimeSpan.FromSeconds(30.0);
+                animation.Direction = AnimationDirection.Normal;
+                animation.Duration = TimeSpan.FromSeconds(30.0);
 
-                list[index].visual.StartAnimation(list[index].animation.Target, list[index].animation);
+                visual.StartAnimation(animation.Target, animation);
             }
 
             batch.End();
@@ -581,8 +581,10 @@ internal sealed partial class Clock : UserControl
 
         public void StopAnimations()
         {
-            for (int index = 0; index < list.Length; index++)
-                list[index].visual.StopAnimation(list[index].animation.Target);
+            foreach ((Visual visual, KeyFrameAnimation animation) in list)
+            {
+                visual.StopAnimation(animation.Target);
+            }
         }
 
         public void StartRewindAnimations()
@@ -595,14 +597,14 @@ internal sealed partial class Clock : UserControl
 
             float startPoint = 1.0f - (cOneDegreeTime * (list[0].visual.RotationAngleInDegrees - 180.0f));
 
-            for (int index = 0; index < list.Length; index++)
+            foreach ((Visual visual, KeyFrameAnimation animation) in list)
             {
-                list[index].animation.Direction = AnimationDirection.Reverse;
-                list[index].animation.Duration = TimeSpan.FromSeconds(2);
+                animation.Direction = AnimationDirection.Reverse;
+                animation.Duration = TimeSpan.FromSeconds(2);
 
-                list[index].visual.StartAnimation(list[index].animation.Target, list[index].animation);
+                visual.StartAnimation(animation.Target, animation);
 
-                AnimationController? ac = list[index].visual.TryGetAnimationController(list[index].animation.Target);
+                AnimationController? ac = visual.TryGetAnimationController(animation.Target);
 
                 if (ac is not null)
                     ac.Progress = startPoint;

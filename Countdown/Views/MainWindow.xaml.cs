@@ -93,47 +93,6 @@ internal sealed partial class MainWindow : Window
             ThemeBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
         };
 
-        // The following Activated and PropertyChanged event handlers are a work around for: 
-        // https://github.com/microsoft/microsoft-ui-xaml/issues/8756
-        // Changes PR# 105, 107 and 108 complete the work around.
-        // These changes shouldn't cause any issue once the underlying problem is fixed.
-        Activated += (s, e) =>
-        {
-            if (rootViewModel.SettingsViewModel.SelectedTheme == ElementTheme.Default)
-            {
-                if (e.WindowActivationState == WindowActivationState.Deactivated)
-                {
-                    // allows any system theme changes to be shown while in the background (flyouts will have been closed)
-                    LayoutRoot.RequestedTheme = ElementTheme.Default;
-                }
-                else
-                {
-                    // force the requested theme to always be either light or dark so that flyouts can pick up the correct colors
-                    LayoutRoot.RequestedTheme = ConvertToElementTheme(Application.Current.RequestedTheme);
-                }
-            }
-        };
-
-        rootViewModel.SettingsViewModel.PropertyChanged += (s, e) =>
-        {
-            if (e.PropertyName == nameof(rootViewModel.SettingsViewModel.SelectedTheme))
-            {
-                if (rootViewModel.SettingsViewModel.SelectedTheme == ElementTheme.Default)
-                {
-                    // force the requested theme to always be either light or dark so that flyouts can pick up the correct colors
-                    LayoutRoot.RequestedTheme = ConvertToElementTheme(Application.Current.RequestedTheme);
-                }
-                else
-                {
-                    LayoutRoot.RequestedTheme = rootViewModel.SettingsViewModel.SelectedTheme;
-                }
-            }
-        };
-    }
-
-    private static ElementTheme ConvertToElementTheme(ApplicationTheme appTheme)
-    {
-        return appTheme == ApplicationTheme.Light ? ElementTheme.Light : ElementTheme.Dark;
     }
 
     private RectInt32 ValidateRestoreBounds(RectInt32 windowArea)

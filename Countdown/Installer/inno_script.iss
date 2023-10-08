@@ -1,11 +1,14 @@
 ; This script assumes that all release configurations have been published
-; and is framework dependent targeting a WinAppSdk release of 1.4.n where n >= 0
+; and they are WinAppSdk and .Net framework dependent.
 ; Inno 6.2.2
 
 #define appName "Countdown"
 #define appExeName appName + ".exe"
 #define appVer RemoveFileExt(GetFileVersion("..\bin\x64\Release\publish\" + appExeName))
 #define appId appName
+
+#define winAppSdk_MajorMinorVersion "1.4"
+#define winAppSdk_MinPackageVersion "4000.986.611.0"  ; version 1.4.1
 
 [Setup]
 AppId={#appId}
@@ -144,9 +147,9 @@ end;
 function GetWinAppSdkUrl: String;
 begin
   case ProcessorArchitecture of
-    paX86: Result := 'https://aka.ms/windowsappsdk/1.4/latest/windowsappruntimeinstall-x86.exe';
-    paX64: Result := 'https://aka.ms/windowsappsdk/1.4/latest/windowsappruntimeinstall-x64.exe';
-    paARM64: Result := 'https://aka.ms/windowsappsdk/1.4/latest/windowsappruntimeinstall-arm64.exe';
+    paX86: Result := 'https://aka.ms/windowsappsdk/{#winAppSdk_MajorMinorVersion}/latest/windowsappruntimeinstall-x86.exe';
+    paX64: Result := 'https://aka.ms/windowsappsdk/{#winAppSdk_MajorMinorVersion}/latest/windowsappruntimeinstall-x64.exe';
+    paARM64: Result := 'https://aka.ms/windowsappsdk/{#winAppSdk_MajorMinorVersion}/latest/windowsappruntimeinstall-arm64.exe';
   else
     RaiseException('unknown ProcessorArchitecture'); 
   end;
@@ -331,10 +334,10 @@ begin
   if not FileExists(ExeFilePath) then
     ExtractTemporaryFile('CheckWinAppSdk.exe');
 
-  // WinAppSdk 1.4.0 is 4000.964.11.0
-  // Check for any 1.4.n version where n >= 0
-  
-  if not Exec(ExeFilePath, '4000.964.11.0' + ' ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  // WinAppSdk 1.4.1 is 4000.986.611.0
+  // Check for any 1.4.n version where n >= 1
+
+  if not Exec(ExeFilePath, '{#winAppSdk_MinPackageVersion}' + ' ' + GetPlatformParamStr, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     Log('Exec CheckWinAppSdk.exe failed: ' + SysErrorMessage(ResultCode));    
 
   Result := ResultCode = 0;
