@@ -1,4 +1,6 @@
-﻿namespace Countdown.Views;
+﻿// Ignore Spelling: App
+
+namespace Countdown.Views;
 
 internal sealed partial class CustomTitleBar : UserControl
 {

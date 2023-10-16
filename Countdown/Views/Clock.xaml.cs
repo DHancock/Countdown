@@ -89,111 +89,111 @@ internal sealed partial class Clock : UserControl
         return CompositionClock.ContainerSize.ToSize();
     }
 
-    public Color FaceColour
+    public Color FaceColor
     {
-        get { return (Color)GetValue(FaceColourProperty); }
-        set { SetValue(FaceColourProperty, value); }
+        get { return (Color)GetValue(FaceColorProperty); }
+        set { SetValue(FaceColorProperty, value); }
     }
 
-    public static readonly DependencyProperty FaceColourProperty =
-        DependencyProperty.Register(nameof(FaceColour),
+    public static readonly DependencyProperty FaceColorProperty =
+        DependencyProperty.Register(nameof(FaceColor),
             typeof(Color),
             typeof(Clock),
             new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.Face, (Color)e.NewValue)));
 
-    public Color TickTrailColour
+    public Color TickTrailColor
     {
-        get { return (Color)GetValue(TickTrailColourProperty); }
-        set { SetValue(TickTrailColourProperty, value); }
+        get { return (Color)GetValue(TickTrailColorProperty); }
+        set { SetValue(TickTrailColorProperty, value); }
     }
 
-    public static readonly DependencyProperty TickTrailColourProperty =
-        DependencyProperty.Register(nameof(TickTrailColour),
+    public static readonly DependencyProperty TickTrailColorProperty =
+        DependencyProperty.Register(nameof(TickTrailColor),
             typeof(Color),
             typeof(Clock),
             new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.TickTrail, (Color)e.NewValue)));
 
-    public Color InnerFrameColour
+    public Color InnerFrameColor
     {
-        get { return (Color)GetValue(InnerFrameColourProperty); }
-        set { SetValue(InnerFrameColourProperty, value); }
+        get { return (Color)GetValue(InnerFrameColorProperty); }
+        set { SetValue(InnerFrameColorProperty, value); }
     }
 
-    public static readonly DependencyProperty InnerFrameColourProperty =
-        DependencyProperty.Register(nameof(InnerFrameColour),
+    public static readonly DependencyProperty InnerFrameColorProperty =
+        DependencyProperty.Register(nameof(InnerFrameColor),
             typeof(Color),
             typeof(Clock),
             new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.InnerFrame, (Color)e.NewValue)));
 
-    public Color OuterFrameColour
+    public Color OuterFrameColor
     {
-        get { return (Color)GetValue(OuterFrameColourProperty); }
-        set { SetValue(OuterFrameColourProperty, value); }
+        get { return (Color)GetValue(OuterFrameColorProperty); }
+        set { SetValue(OuterFrameColorProperty, value); }
     }
 
-    public static readonly DependencyProperty OuterFrameColourProperty =
-        DependencyProperty.Register(nameof(OuterFrameColour),
+    public static readonly DependencyProperty OuterFrameColorProperty =
+        DependencyProperty.Register(nameof(OuterFrameColor),
             typeof(Color),
             typeof(Clock),
             new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.OuterFrame, (Color)e.NewValue)));
 
-    public Color FrameTickColour
+    public Color FrameTickColor
     {
-        get { return (Color)GetValue(FrameTickColourProperty); }
-        set { SetValue(FrameTickColourProperty, value); }
+        get { return (Color)GetValue(FrameTickColorProperty); }
+        set { SetValue(FrameTickColorProperty, value); }
     }
 
-    public static readonly DependencyProperty FrameTickColourProperty =
-        DependencyProperty.Register(nameof(FrameTickColour),
+    public static readonly DependencyProperty FrameTickColorProperty =
+        DependencyProperty.Register(nameof(FrameTickColor),
             typeof(Color),
             typeof(Clock),
             new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.FrameTick, (Color)e.NewValue)));
 
-    public Color TickMarksColour
+    public Color TickMarksColor
     {
-        get { return (Color)GetValue(TickMarksColourProperty); }
-        set { SetValue(TickMarksColourProperty, value); }
+        get { return (Color)GetValue(TickMarksColorProperty); }
+        set { SetValue(TickMarksColorProperty, value); }
     }
 
-    public static readonly DependencyProperty TickMarksColourProperty =
-        DependencyProperty.Register(nameof(TickMarksColour),
+    public static readonly DependencyProperty TickMarksColorProperty =
+        DependencyProperty.Register(nameof(TickMarksColor),
             typeof(Color),
             typeof(Clock),
             new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.TickMarks, (Color)e.NewValue)));
 
-    public Color HandStrokeColour
+    public Color HandStrokeColor
     {
-        get { return (Color)GetValue(HandStrokeColourProperty); }
-        set { SetValue(HandStrokeColourProperty, value); }
+        get { return (Color)GetValue(HandStrokeColorProperty); }
+        set { SetValue(HandStrokeColorProperty, value); }
     }
 
-    public static readonly DependencyProperty HandStrokeColourProperty =
-        DependencyProperty.Register(nameof(HandStrokeColour),
+    public static readonly DependencyProperty HandStrokeColorProperty =
+        DependencyProperty.Register(nameof(HandStrokeColor),
             typeof(Color),
             typeof(Clock),
             new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.HandStroke, (Color)e.NewValue)));
 
-    public Color HandFillColour
+    public Color HandFillColor
     {
-        get { return (Color)GetValue(HandFillColourProperty); }
-        set { SetValue(HandFillColourProperty, value); }
+        get { return (Color)GetValue(HandFillColorProperty); }
+        set { SetValue(HandFillColorProperty, value); }
     }
 
-    public static readonly DependencyProperty HandFillColourProperty =
-        DependencyProperty.Register(nameof(HandFillColour),
+    public static readonly DependencyProperty HandFillColorProperty =
+        DependencyProperty.Register(nameof(HandFillColor),
             typeof(Color),
             typeof(Clock),
             new PropertyMetadata(Colors.Transparent, (d, e) => UpdateBrush(BrushId.HandFill, (Color)e.NewValue)));
 
-    private static void UpdateBrush(BrushId brushIndex, Color newColour)
+    private static void UpdateBrush(BrushId brushIndex, Color newColor)
     {
         if (sCompositionClock is null)
             return;
 
         CompositionColorBrush brush = sCompositionClock.Brushes[brushIndex];
 
-        if (brush is not null && (brush.Color != newColour))
-            brush.Color = newColour;
+        if (brush is not null && (brush.Color != newColor))
+            brush.Color = newColor;
     }
 
     public bool IsDropShadowVisible
@@ -623,16 +623,16 @@ internal sealed partial class Clock : UserControl
         public BrushList(Compositor compositor, Clock xamlClock)
         {
             this[BrushId.Transparent] = compositor.CreateColorBrush(Colors.Transparent);
-            this[BrushId.Face] = compositor.CreateColorBrush(xamlClock.FaceColour);
-            this[BrushId.TickTrail] = compositor.CreateColorBrush(xamlClock.TickTrailColour);
+            this[BrushId.Face] = compositor.CreateColorBrush(xamlClock.FaceColor);
+            this[BrushId.TickTrail] = compositor.CreateColorBrush(xamlClock.TickTrailColor);
 
-            this[BrushId.InnerFrame] = compositor.CreateColorBrush(xamlClock.InnerFrameColour);
-            this[BrushId.OuterFrame] = compositor.CreateColorBrush(xamlClock.OuterFrameColour);
-            this[BrushId.FrameTick] = compositor.CreateColorBrush(xamlClock.FrameTickColour);
+            this[BrushId.InnerFrame] = compositor.CreateColorBrush(xamlClock.InnerFrameColor);
+            this[BrushId.OuterFrame] = compositor.CreateColorBrush(xamlClock.OuterFrameColor);
+            this[BrushId.FrameTick] = compositor.CreateColorBrush(xamlClock.FrameTickColor);
 
-            this[BrushId.TickMarks] = compositor.CreateColorBrush(xamlClock.TickMarksColour);
-            this[BrushId.HandStroke] = compositor.CreateColorBrush(xamlClock.HandStrokeColour);
-            this[BrushId.HandFill] = compositor.CreateColorBrush(xamlClock.HandFillColour);
+            this[BrushId.TickMarks] = compositor.CreateColorBrush(xamlClock.TickMarksColor);
+            this[BrushId.HandStroke] = compositor.CreateColorBrush(xamlClock.HandStrokeColor);
+            this[BrushId.HandFill] = compositor.CreateColorBrush(xamlClock.HandFillColor);
         }
 
         public CompositionColorBrush this[BrushId i]
