@@ -5,3 +5,9 @@ SetWindowSubclass
 DefSubclassProc
 WM_GETMINMAXINFO
 GetCurrentPackageFullName
+WM_SYSCOMMAND
+WM_NCRBUTTONUP
+WM_NCLBUTTONDOWN
+PostMessage
+GetCursorPos
+ScreenToClient
