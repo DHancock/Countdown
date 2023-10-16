@@ -8,7 +8,7 @@ namespace Countdown;
 public partial class App : Application
 {
     public const string cDisplayName = "Countdown";
-
+    public static App Instance => (App)Current;
     public static bool IsPackaged { get; } = GetIsPackaged();
 
     private MainWindow? m_window;
