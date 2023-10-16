@@ -41,14 +41,14 @@
                 <Setter Property="Margin" Value="0,5,0,5"/>
                 <Setter Property="HorizontalAlignment" Value="Center"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
-                <Setter Property="FaceColour" Value="{ThemeResource ClockFaceColour}"/>
-                <Setter Property="TickTrailColour" Value="{ThemeResource ClockTickTrailColour}"/>
-                <Setter Property="InnerFrameColour" Value="{ThemeResource ClockInnerFrameColour}"/>
-                <Setter Property="OuterFrameColour" Value="{ThemeResource ClockOuterFrameColour}"/>
-                <Setter Property="FrameTickColour" Value="{ThemeResource ClockFrameTickColour}"/>
-                <Setter Property="TickMarksColour" Value="{ThemeResource ClockTickMarksColour}"/>
-                <Setter Property="HandStrokeColour" Value="{ThemeResource ClockHandStrokeColour}"/>
-                <Setter Property="HandFillColour" Value="{ThemeResource ClockHandFillColour}"/>
+                <Setter Property="FaceColor" Value="{ThemeResource ClockFaceColor}"/>
+                <Setter Property="TickTrailColor" Value="{ThemeResource ClockTickTrailColor}"/>
+                <Setter Property="InnerFrameColor" Value="{ThemeResource ClockInnerFrameColor}"/>
+                <Setter Property="OuterFrameColor" Value="{ThemeResource ClockOuterFrameColor}"/>
+                <Setter Property="FrameTickColor" Value="{ThemeResource ClockFrameTickColor}"/>
+                <Setter Property="TickMarksColor" Value="{ThemeResource ClockTickMarksColor}"/>
+                <Setter Property="HandStrokeColor" Value="{ThemeResource ClockHandStrokeColor}"/>
+                <Setter Property="HandFillColor" Value="{ThemeResource ClockHandFillColor}"/>
                 <Setter Property="IsDropShadowVisible" Value="{ThemeResource ClockIsDropShadowVisible}"/>
             </Style>
             

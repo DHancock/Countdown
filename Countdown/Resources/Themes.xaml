@@ -6,14 +6,14 @@
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="HighContrast">
             <!-- stopwatch -->
-            <StaticResource x:Key="ClockFaceColour" ResourceKey="SystemColorWindowColor"/>
-            <StaticResource x:Key="ClockTickTrailColour" ResourceKey="SystemColorHotlightColor"/>
-            <StaticResource x:Key="ClockInnerFrameColour" ResourceKey="SystemColorButtonTextColor"/>
-            <Color x:Key="ClockOuterFrameColour">Transparent</Color>
-            <StaticResource x:Key="ClockFrameTickColour" ResourceKey="SystemColorButtonTextColor"/>
-            <StaticResource x:Key="ClockTickMarksColour" ResourceKey="SystemColorButtonTextColor"/>
-            <StaticResource x:Key="ClockHandStrokeColour" ResourceKey="SystemColorButtonTextColor"/>
-            <StaticResource x:Key="ClockHandFillColour" ResourceKey="SystemColorButtonTextColor"/>
+            <StaticResource x:Key="ClockFaceColor" ResourceKey="SystemColorWindowColor"/>
+            <StaticResource x:Key="ClockTickTrailColor" ResourceKey="SystemColorHotlightColor"/>
+            <StaticResource x:Key="ClockInnerFrameColor" ResourceKey="SystemColorButtonTextColor"/>
+            <Color x:Key="ClockOuterFrameColor">Transparent</Color>
+            <StaticResource x:Key="ClockFrameTickColor" ResourceKey="SystemColorButtonTextColor"/>
+            <StaticResource x:Key="ClockTickMarksColor" ResourceKey="SystemColorButtonTextColor"/>
+            <StaticResource x:Key="ClockHandStrokeColor" ResourceKey="SystemColorButtonTextColor"/>
+            <StaticResource x:Key="ClockHandFillColor" ResourceKey="SystemColorButtonTextColor"/>
             <x:Boolean x:Key="ClockIsDropShadowVisible">false</x:Boolean>
 
             <!-- borders -->
@@ -38,14 +38,14 @@
 
         <ResourceDictionary x:Key="Dark">
             <!-- stopwatch -->
-            <Color x:Key="ClockFaceColour">#FF181818</Color>
-            <Color x:Key="ClockTickTrailColour">#FF252525</Color>
-            <Color x:Key="ClockInnerFrameColour">MidnightBlue</Color>
-            <Color x:Key="ClockOuterFrameColour">DarkSlateGray</Color>
-            <Color x:Key="ClockFrameTickColour">Gray</Color>
-            <Color x:Key="ClockTickMarksColour">#FF484848</Color>
-            <Color x:Key="ClockHandStrokeColour">#FF383838</Color>
-            <Color x:Key="ClockHandFillColour">MidnightBlue</Color>
+            <Color x:Key="ClockFaceColor">#FF181818</Color>
+            <Color x:Key="ClockTickTrailColor">#FF252525</Color>
+            <Color x:Key="ClockInnerFrameColor">MidnightBlue</Color>
+            <Color x:Key="ClockOuterFrameColor">DarkSlateGray</Color>
+            <Color x:Key="ClockFrameTickColor">Gray</Color>
+            <Color x:Key="ClockTickMarksColor">#FF484848</Color>
+            <Color x:Key="ClockHandStrokeColor">#FF383838</Color>
+            <Color x:Key="ClockHandFillColor">MidnightBlue</Color>
             <x:Boolean x:Key="ClockIsDropShadowVisible">true</x:Boolean>
 
             <!-- borders -->
@@ -65,14 +65,14 @@
 
         <ResourceDictionary x:Key="Light">
             <!-- stopwatch -->
-            <Color x:Key="ClockFaceColour">Ivory</Color>
-            <Color x:Key="ClockTickTrailColour">#FFFFFFD2</Color>
-            <Color x:Key="ClockInnerFrameColour">#FF0068C7</Color>
-            <Color x:Key="ClockOuterFrameColour">LightGray</Color>
-            <Color x:Key="ClockFrameTickColour">Silver</Color>
-            <Color x:Key="ClockTickMarksColour">Silver</Color>
-            <Color x:Key="ClockHandStrokeColour">Gray</Color>
-            <Color x:Key="ClockHandFillColour">#FF0068C7</Color>
+            <Color x:Key="ClockFaceColor">Ivory</Color>
+            <Color x:Key="ClockTickTrailColor">#FFFFFFD2</Color>
+            <Color x:Key="ClockInnerFrameColor">#FF0068C7</Color>
+            <Color x:Key="ClockOuterFrameColor">LightGray</Color>
+            <Color x:Key="ClockFrameTickColor">Silver</Color>
+            <Color x:Key="ClockTickMarksColor">Silver</Color>
+            <Color x:Key="ClockHandStrokeColor">Gray</Color>
+            <Color x:Key="ClockHandFillColor">#FF0068C7</Color>
             <x:Boolean x:Key="ClockIsDropShadowVisible">true</x:Boolean>
 
             <!-- borders -->
