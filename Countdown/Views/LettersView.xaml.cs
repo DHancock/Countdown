@@ -30,6 +30,12 @@ internal sealed partial class LettersView : Page
                     };
                 }
             }
+
+            // defer until after the GroupBox text is rendered when the transform will be correct
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                App.MainWindow?.SetWindowDragRegions();
+            });
         };
     }
 
@@ -118,8 +124,6 @@ internal sealed partial class LettersView : Page
     {
         if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
         {
-            List<string> suitableItems = new List<string>();
-
             if ((sender.Text.Length > 0) && (ViewModel is not null))
             {
                 List<string> suggestions = new(ViewModel.WordList.Where(x =>
@@ -152,12 +156,19 @@ internal sealed partial class LettersView : Page
                 });
 
                 sender.ItemsSource = suggestions;
+
+                // if the flyout is shown, clear the drag regions to allow for its dismissal
+                if (suggestions.Count > 0)
+                    App.MainWindow?.ClearWindowDragRegions();
             }
         }
     }
 
     private void AutoSuggestBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
     {
+        // the flyout will now have been closed
+        App.MainWindow?.SetWindowDragRegions();
+
         // the selected item is an existing word
         FindTreeViewItem((string)args.SelectedItem);
     }
@@ -309,6 +320,13 @@ internal sealed partial class LettersView : Page
 
         for (int index = 0; index < menu.Items.Count; index++)
             ((RadioMenuFlyoutItem)menu.Items[index]).IsChecked = index == selectedIndex;
+
+        App.MainWindow?.ClearWindowDragRegions();
+    }
+
+    internal static void MenuFlyout_Closed(object sender, object e)
+    {
+        App.MainWindow?.SetWindowDragRegions();
     }
 }
 

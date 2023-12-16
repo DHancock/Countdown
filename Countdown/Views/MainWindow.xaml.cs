@@ -19,6 +19,9 @@ internal sealed partial class MainWindow : WindowBase
     {
         this.InitializeComponent();
 
+        LayoutRoot.RequestedTheme = Settings.Data.CurrentTheme;
+        SystemBackdrop = new MicaBackdrop();
+
         // the default settings button doesn't have an access key, and there's no way to set one
         RootNavigationView.FooterMenuItems.Add(CreateSettingsNavigationViewItem());
 
@@ -65,7 +68,6 @@ internal sealed partial class MainWindow : WindowBase
 
         LayoutRoot.Loaded += (s, e) =>
         {
-            LayoutRoot.RequestedTheme = Settings.Data.CurrentTheme;
             // set duration for the next theme change
             ThemeBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
         };
@@ -139,6 +141,11 @@ internal sealed partial class MainWindow : WindowBase
             default:
                 throw new InvalidOperationException();
         }
+    }
+
+    private void ContentFrame_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        SetWindowDragRegions();
     }
 
     private RectInt32 CenterInPrimaryDisplay()

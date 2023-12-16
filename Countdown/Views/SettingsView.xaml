@@ -14,7 +14,7 @@
     <!-- this grid is used to add a margin to the ScrollViewer, adding it directly caused a layout cycle exception -->
     <Grid RowDefinitions="10,*">
 
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="MainScrollViewer" Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" ViewChanged="ScrollViewer_ViewChanged">
             
             <Grid RowDefinitions="Auto,Auto,*" Margin="10,0,20,0">
                 <Grid.Resources>
@@ -22,7 +22,7 @@
                         <Setter Property="Margin" Value="10,0,0,0"/>
                     </Style>
                 </Grid.Resources>
-                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" SizeChanged="Expander_SizeChanged">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
@@ -36,7 +36,7 @@
                     </StackPanel>
                 </Expander>
 
-                <Expander Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,5,0,0">
+                <Expander Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,5,0,0" SizeChanged="Expander_SizeChanged">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <SymbolIcon Symbol="Volume"/>

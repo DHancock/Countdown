@@ -27,6 +27,8 @@ global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using System.Windows.Input;
 
+global using Microsoft.UI.Input;
+
 global using Windows.ApplicationModel.DataTransfer;
 global using Windows.Foundation;
 global using Windows.Foundation.Collections;
