@@ -39,7 +39,7 @@
         <Grid.BackgroundTransition>
             <BrushTransition x:Name="ThemeBrushTransition" Duration="0"/>
         </Grid.BackgroundTransition>
-        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -62,7 +62,7 @@
                 <NavigationViewItem Content="Stopwatch" Tag="StopwatchView" AccessKey="T"/>
             </NavigationView.MenuItems>
 
-            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" IsNavigationStackEnabled="False" Margin="5,0,5,5"/>
+            <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" IsNavigationStackEnabled="False" Margin="5,0,5,5" SizeChanged="ContentFrame_SizeChanged"/>
         </NavigationView>
     </Grid>
 </local:WindowBase>
