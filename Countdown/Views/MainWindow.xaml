@@ -11,7 +11,7 @@
     InitialWidth="660"
     InitialHeight="500">
 
-    <Grid x:Name="LayoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}">
+    <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}">
         <Grid.Resources>
             <!--required to make the NavigationView transparent, at least in top mode-->
             <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent" />
@@ -29,7 +29,7 @@
                 <MenuFlyoutSeparator/>
                 <MenuFlyoutItem Command="{x:Bind CloseCommand}" Text="Close" AccessKey="C">
                     <MenuFlyoutItem.KeyboardAccelerators>
-                        <!-- needs to be disabled to avoid two close messages -->
+                        <!-- disabled to avoid two close messages -->
                         <KeyboardAccelerator Modifiers="Menu" Key="F4" IsEnabled="False"/>
                     </MenuFlyoutItem.KeyboardAccelerators>
                 </MenuFlyoutItem>

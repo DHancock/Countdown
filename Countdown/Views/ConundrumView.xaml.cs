@@ -7,6 +7,15 @@ internal sealed partial class ConundrumView : Page
     public ConundrumView()
     {
         this.InitializeComponent();
+
+        Loaded += (s, e) =>
+        {
+            // defer until after the GroupBox text is rendered when the transform will be correct
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                App.MainWindow?.SetWindowDragRegions();
+            });
+        };
     }
 
     public ConundrumViewModel? ViewModel { get; set; }

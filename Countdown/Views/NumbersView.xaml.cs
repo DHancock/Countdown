@@ -7,6 +7,15 @@ internal sealed partial class NumbersView : Page
     public NumbersView()
     {
         this.InitializeComponent();
+
+        Loaded += (s, e) =>
+        {
+            // defer until after the GroupBox text is rendered when the transform will be correct
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                App.MainWindow?.SetWindowDragRegions();
+            });
+        };
     }
 
     public NumbersViewModel? ViewModel { get; set; }
@@ -38,5 +47,12 @@ internal sealed partial class NumbersView : Page
 
         for (int index = 0; index < menu.Items.Count; index++)
             ((RadioMenuFlyoutItem)menu.Items[index]).IsChecked = index == selectedIndex;
+
+        App.MainWindow?.ClearWindowDragRegions();
+    }
+
+    internal static void MenuFlyout_Closed(object sender, object e)
+    {
+        App.MainWindow?.SetWindowDragRegions();
     }
 }

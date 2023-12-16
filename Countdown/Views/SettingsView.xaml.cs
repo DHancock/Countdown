@@ -21,5 +21,20 @@ internal sealed partial class SettingsView : Page
         else
             VersionTextBlock.Text += " (D)";
 #endif
+
+        Loaded += (s, e) =>
+        {
+            App.MainWindow?.SetWindowDragRegions();
+        };
+    }
+
+    private void Expander_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        App.MainWindow?.SetWindowDragRegions();
+    }
+
+    private void ScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+    {
+        App.MainWindow?.SetWindowDragRegions();
     }
 }
