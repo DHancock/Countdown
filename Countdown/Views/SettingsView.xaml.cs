@@ -13,14 +13,7 @@ internal sealed partial class SettingsView : Page
     {
         this.InitializeComponent();
 
-        VersionTextBlock.Text = string.Format(VersionTextBlock.Text, typeof(App).Assembly.GetName().Version);
-
-#if DEBUG
-        if (App.IsPackaged)
-            VersionTextBlock.Text += " (P)";
-        else
-            VersionTextBlock.Text += " (D)";
-#endif
+        VersionTextBlock.Text = $"Version: {Path.GetFileNameWithoutExtension(typeof(App).Assembly.GetName().Version?.ToString())}";
 
         Loaded += (s, e) =>
         {

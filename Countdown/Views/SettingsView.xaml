@@ -51,7 +51,7 @@
                         <local:Clock Style="{StaticResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
                     </Viewbox>
                     <TextBlock Grid.Row="1" Text="Countdown" FontSize="17" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Row="2" Text="Version: {0}" x:Name="VersionTextBlock" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" x:Name="VersionTextBlock" HorizontalAlignment="Center"/>
                     <TextBlock Grid.Row="3" HorizontalAlignment="Center"><Hyperlink NavigateUri="https://github.com/DHancock/Countdown">GitHub Repository</Hyperlink></TextBlock>
                 </Grid>
             </Grid>
