@@ -8,7 +8,7 @@
 #define appId appName
 
 #define winAppSdk_MajorMinorVersion "1.4"
-#define winAppSdk_MinPackageVersion "4000.986.611.0"  ; version 1.4.1
+#define winAppSdk_MinPackageVersion "4000.1049.117.0"  ; version 1.4.3
 
 [Setup]
 AppId={#appId}
