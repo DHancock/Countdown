@@ -320,7 +320,7 @@ internal abstract class WindowBase : Window
                 case Expander:
                 case ScrollBar:
                 case AutoSuggestBox:
-                case TextBlock when (((TextBlock)element).Inlines.FirstOrDefault(x => x is Hyperlink) is not null):
+                case TextBlock tb when (tb.Inlines.FirstOrDefault(x => x is Hyperlink) is not null):
                 {
                     Point offset = GetOffsetFromXamlRoot(element);
                     Vector2 actualSize = element.ActualSize;
