@@ -277,7 +277,7 @@ internal abstract class WindowBase : Window
                 RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
 
-                List<RectInt32> rects = new List<RectInt32>();
+                List<RectInt32> rects = new List<RectInt32>(32);
                 LocatePassThroughContent(rects, layoutRoot);
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects.ToArray());
             }
