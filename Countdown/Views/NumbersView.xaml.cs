@@ -37,7 +37,7 @@ internal sealed partial class NumbersView : Page
 
     private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = EquationList.SelectedItems.Any();
+        args.CanExecute = EquationList.SelectedItems.Count > 0;
     }
 
     internal static void MenuFlyout_Opening(object sender, object e)

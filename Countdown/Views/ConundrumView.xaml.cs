@@ -22,7 +22,7 @@ internal sealed partial class ConundrumView : Page
 
     private void DeleteCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = ConundrumList.SelectedItems.Any();
+        args.CanExecute = ConundrumList.SelectedItems.Count > 0;
     }
 
     private void DeleteCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
@@ -57,7 +57,7 @@ internal sealed partial class ConundrumView : Page
 
     private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = ConundrumList.SelectedItems.Any();
+        args.CanExecute = ConundrumList.SelectedItems.Count > 0;
     }
 
     internal static void ContextFlyout_Opening(object sender, object e)
