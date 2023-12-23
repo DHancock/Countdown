@@ -131,7 +131,7 @@ internal sealed partial class LettersView : Page
                     if (x.StartsWith(sender.Text, StringComparison.Ordinal))
                         return true;
 
-                    return DistanceFilter(x, sender.Text); 
+                    return DistanceFilter(x, sender.Text);
                 }));
 
                 suggestions.Sort((a, b) =>
@@ -213,7 +213,7 @@ internal sealed partial class LettersView : Page
 
     private static bool DistanceFilter(string word, string target)
     {
-        return word.Length > 0 
+        return word.Length > 0
                 && target.Length > 0
                 && (word[0] == target[0])
                 && (Math.Abs(word.Length - target.Length) <= 1)
@@ -239,7 +239,7 @@ internal sealed partial class LettersView : Page
         }
 
         return foundWord;
-    } 
+    }
 
     private static int DamerauLevenshteinDistance(string s1, string s2)
     {
@@ -324,9 +324,14 @@ internal sealed partial class LettersView : Page
         App.MainWindow?.ClearWindowDragRegions();
     }
 
-    internal static void MenuFlyout_Closed(object sender, object e)
+    internal static void Flyout_Closed(object sender, object e)
     {
         App.MainWindow?.SetWindowDragRegions();
+    }
+
+    internal static void ContextFlyout_Opening(object sender, object e)
+    {
+        App.MainWindow?.ClearWindowDragRegions();
     }
 }
 

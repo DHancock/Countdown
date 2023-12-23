@@ -59,4 +59,14 @@ internal sealed partial class ConundrumView : Page
     {
         args.CanExecute = ConundrumList.SelectedItems.Any();
     }
+
+    internal static void ContextFlyout_Opening(object sender, object e)
+    {
+        App.MainWindow?.ClearWindowDragRegions();
+    }
+
+    internal static void ContextFlyout_Closed(object sender, object e)
+    {
+        App.MainWindow?.SetWindowDragRegions();
+    }
 }

@@ -51,8 +51,13 @@ internal sealed partial class NumbersView : Page
         App.MainWindow?.ClearWindowDragRegions();
     }
 
-    internal static void MenuFlyout_Closed(object sender, object e)
+    internal static void Flyout_Closed(object sender, object e)
     {
         App.MainWindow?.SetWindowDragRegions();
+    }
+
+    internal static void ContextFlyout_Opening(object sender, object e)
+    {
+        App.MainWindow?.ClearWindowDragRegions();
     }
 }
