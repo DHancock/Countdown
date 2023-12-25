@@ -4,12 +4,20 @@ namespace Countdown.Views;
 
 internal sealed partial class NumbersView : Page
 {
+    private bool firstLoad = true;
+
     public NumbersView()
     {
         this.InitializeComponent();
 
         Loaded += (s, e) =>
         {
+            if (firstLoad)
+            {
+                firstLoad = false;
+                App.MainWindow?.AddDragRegionEventHandlers(this);
+            }
+
             // defer until after the GroupBox text is rendered when the transform will be correct
             DispatcherQueue.TryEnqueue(() =>
             {
@@ -37,7 +45,7 @@ internal sealed partial class NumbersView : Page
 
     private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = EquationList.SelectedItems.Any();
+        args.CanExecute = EquationList.SelectedItems.Count > 0;
     }
 
     internal static void MenuFlyout_Opening(object sender, object e)
@@ -47,17 +55,5 @@ internal sealed partial class NumbersView : Page
 
         for (int index = 0; index < menu.Items.Count; index++)
             ((RadioMenuFlyoutItem)menu.Items[index]).IsChecked = index == selectedIndex;
-
-        App.MainWindow?.ClearWindowDragRegions();
-    }
-
-    internal static void Flyout_Closed(object sender, object e)
-    {
-        App.MainWindow?.SetWindowDragRegions();
-    }
-
-    internal static void ContextFlyout_Opening(object sender, object e)
-    {
-        App.MainWindow?.ClearWindowDragRegions();
     }
 }

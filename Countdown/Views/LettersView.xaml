@@ -85,7 +85,7 @@
 
                 <SplitButton Content="Choose" Command="{x:Bind ViewModel.ChooseLettersCommand}">
                     <SplitButton.Flyout>
-                        <MenuFlyout Opening="{x:Bind local:LettersView.MenuFlyout_Opening}" Closed="{x:Bind local:LettersView.Flyout_Closed}">
+                        <MenuFlyout Opening="{x:Bind local:LettersView.MenuFlyout_Opening}">
                             <RadioMenuFlyoutItem Text="3 vowels and 6 consonants" CommandParameter="0" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="3"/>
                             <RadioMenuFlyoutItem Text="4 vowels and 5 consonants" CommandParameter="1" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="4"/>
                             <RadioMenuFlyoutItem Text="5 vowels and 4 consonants" CommandParameter="2" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="5"/>
@@ -118,7 +118,7 @@
                         <StandardUICommand x:Name="CopyCommand" Kind="Copy" ExecuteRequested="CopyCommand_ExecuteRequested" CanExecuteRequested="CopyCommand_CanExecuteRequested"/>
                     </TreeView.Resources>
                     <TreeView.ContextFlyout>
-                        <MenuFlyout Opening="{x:Bind local:LettersView.ContextFlyout_Opening}" Closed="{x:Bind local:LettersView.Flyout_Closed}">
+                        <MenuFlyout>
                             <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
                         </MenuFlyout>
                     </TreeView.ContextFlyout>

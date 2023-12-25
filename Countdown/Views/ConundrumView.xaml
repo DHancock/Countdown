@@ -91,7 +91,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
             <ListView.ContextFlyout>
-                <MenuFlyout Opening="{x:Bind local:ConundrumView.ContextFlyout_Opening}" Closed="{x:Bind local:ConundrumView.ContextFlyout_Closed}">
+                <MenuFlyout>
                     <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
                     <MenuFlyoutSeparator/>
                     <MenuFlyoutItem Command="{StaticResource DeleteCommand}"/>
