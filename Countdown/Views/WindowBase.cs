@@ -2,7 +2,10 @@
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Documents;
 
+using Countdown.Utils;
+
 using RelayCommand = Countdown.ViewModels.RelayCommand;
+using AssyntSoftware.WinUI3Controls;
 
 namespace Countdown.Views;
 
@@ -277,7 +280,7 @@ internal abstract class WindowBase : Window
                 RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
 
-                List<RectInt32> rects = new List<RectInt32>(32);
+                List<RectInt32> rects = new List<RectInt32>(27);
                 LocatePassThroughContent(rects, layoutRoot);
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects.ToArray());
             }
@@ -349,8 +352,8 @@ internal abstract class WindowBase : Window
 
             for (int index = 0; index < count; index++)
             {
-                DependencyObject current = VisualTreeHelper.GetChild(reference, index);
-                LocatePassThroughContent(rects, current, bounds);
+                DependencyObject child = VisualTreeHelper.GetChild(reference, index);
+                LocatePassThroughContent(rects, child, bounds);
             }
         }
     }
@@ -362,4 +365,59 @@ internal abstract class WindowBase : Window
                              Convert.ToInt32(size.X * scale),
                              Convert.ToInt32(size.Y * scale));
     }
+
+    public void AddDragRegionEventHandlers(Page page) => AddRemoveEventHandlers(page);
+
+    private void AddRemoveEventHandlers(DependencyObject reference)
+    {
+        switch (reference)
+        {
+            case SplitButton:
+            case TreeView:
+            case ListView:
+            {
+                FlyoutBase flyoutBase;
+
+                if (reference is TreeView tv)
+                    flyoutBase = tv.ContextFlyout;
+                else if (reference is ListView lv)
+                    flyoutBase = lv.ContextFlyout;
+                else
+                    flyoutBase = ((SplitButton)reference).Flyout;
+
+                flyoutBase.Opened += Flyout_Opened;
+                flyoutBase.Closed += Flyout_Closed;
+                return;
+            }
+
+            case Expander expander: expander.SizeChanged += UIElement_SizeChanged; return;
+
+            case ScrollViewer scrollViewer: scrollViewer.ViewChanged += ScrollViewer_ViewChanged; break;
+
+            case Popup popup:  // for the AutoSuggestBox
+            { 
+                popup.Opened += Flyout_Opened;
+                popup.Closed += Flyout_Closed;
+                return;
+            }
+
+            case Button:
+            case GroupBox: return;
+
+            default: break;
+        }
+
+        int count = VisualTreeHelper.GetChildrenCount(reference);
+
+        for (int index = 0; index < count; index++)
+        {
+            DependencyObject child = VisualTreeHelper.GetChild(reference, index);
+            AddRemoveEventHandlers(child);
+        }
+    }
+
+    private void Flyout_Opened(object? sender, object e) => ClearWindowDragRegions();
+    private void Flyout_Closed(object? sender, object e) => SetWindowDragRegions();
+    private void UIElement_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegions();
+    private void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
 }

@@ -7,6 +7,7 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class SettingsView : Page
 {
+    private bool firstLoad = true;
     public SettingsViewModel? ViewModel { get; set; }
 
     public SettingsView()
@@ -17,17 +18,13 @@ internal sealed partial class SettingsView : Page
 
         Loaded += (s, e) =>
         {
+            if (firstLoad)
+            {
+                firstLoad = false;
+                App.MainWindow?.AddDragRegionEventHandlers(this);
+            }
+
             App.MainWindow?.SetWindowDragRegions();
         };
-    }
-
-    private void Expander_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        App.MainWindow?.SetWindowDragRegions();
-    }
-
-    private void ScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
-    {
-        App.MainWindow?.SetWindowDragRegions();
     }
 }
