@@ -1,6 +1,9 @@
-﻿global using Microsoft.Graphics.Canvas.Geometry;
+﻿global using AssyntSoftware.WinUI3Controls;
+
+global using Microsoft.Graphics.Canvas.Geometry;
 global using Microsoft.UI;
 global using Microsoft.UI.Composition;
+global using Microsoft.UI.Input;
 global using Microsoft.UI.Windowing;
 global using Microsoft.UI.Xaml;
 global using Microsoft.UI.Xaml.Controls;
@@ -26,8 +29,6 @@ global using System.Text;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using System.Windows.Input;
-
-global using Microsoft.UI.Input;
 
 global using Windows.ApplicationModel.DataTransfer;
 global using Windows.Foundation;

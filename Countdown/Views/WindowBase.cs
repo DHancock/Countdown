@@ -2,10 +2,7 @@
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Documents;
 
-using Countdown.Utils;
-
-using RelayCommand = Countdown.ViewModels.RelayCommand;
-using AssyntSoftware.WinUI3Controls;
+using Countdown.ViewModels;
 
 namespace Countdown.Views;
 
@@ -366,9 +363,9 @@ internal abstract class WindowBase : Window
                              Convert.ToInt32(size.Y * scale));
     }
 
-    public void AddDragRegionEventHandlers(Page page) => AddRemoveEventHandlers(page);
+    public void AddDragRegionEventHandlers(Page page) => AddDragRegionEventHandlers((DependencyObject)page);
 
-    private void AddRemoveEventHandlers(DependencyObject reference)
+    private void AddDragRegionEventHandlers(DependencyObject reference)
     {
         switch (reference)
         {
@@ -376,26 +373,37 @@ internal abstract class WindowBase : Window
             case TreeView:
             case ListView:
             {
-                FlyoutBase flyoutBase;
+                FlyoutBase? flyoutBase = null;
 
                 if (reference is TreeView tv)
                     flyoutBase = tv.ContextFlyout;
                 else if (reference is ListView lv)
                     flyoutBase = lv.ContextFlyout;
-                else
-                    flyoutBase = ((SplitButton)reference).Flyout;
+                else if (reference is SplitButton sb)
+                    flyoutBase = sb.Flyout;
 
-                flyoutBase.Opened += Flyout_Opened;
-                flyoutBase.Closed += Flyout_Closed;
+                if (flyoutBase is not null)
+                {
+                    flyoutBase.Opened += Flyout_Opened;
+                    flyoutBase.Closed += Flyout_Closed;
+                }
                 return;
             }
 
-            case Expander expander: expander.SizeChanged += UIElement_SizeChanged; return;
+            case Expander expander:
+            {
+                expander.SizeChanged += Expander_SizeChanged;
+                return;
+            }
 
-            case ScrollViewer scrollViewer: scrollViewer.ViewChanged += ScrollViewer_ViewChanged; break;
+            case ScrollViewer scrollViewer:
+            {
+                scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+                break;
+            }
 
             case Popup popup:  // for the AutoSuggestBox
-            { 
+            {
                 popup.Opened += Flyout_Opened;
                 popup.Closed += Flyout_Closed;
                 return;
@@ -412,12 +420,12 @@ internal abstract class WindowBase : Window
         for (int index = 0; index < count; index++)
         {
             DependencyObject child = VisualTreeHelper.GetChild(reference, index);
-            AddRemoveEventHandlers(child);
+            AddDragRegionEventHandlers(child);
         }
-    }
 
-    private void Flyout_Opened(object? sender, object e) => ClearWindowDragRegions();
-    private void Flyout_Closed(object? sender, object e) => SetWindowDragRegions();
-    private void UIElement_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegions();
-    private void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
+        void Flyout_Opened(object? sender, object e) => ClearWindowDragRegions();
+        void Flyout_Closed(object? sender, object e) => SetWindowDragRegions();
+        void Expander_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegions();
+        void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
+    }
 }
