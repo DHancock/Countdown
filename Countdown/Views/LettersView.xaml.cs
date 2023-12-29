@@ -16,21 +16,18 @@ internal sealed partial class LettersView : Page
 
         Loaded += (s, e) =>
         {
-            if (textBox is null)
+            textBox ??= FindChild<TextBox>(SuggestionBox);
+
+            if (textBox is not null)
             {
-                textBox = FindChild<TextBox>(SuggestionBox);
+                textBox.CharacterCasing = CharacterCasing.Lower;
+                textBox.MaxLength = Models.WordModel.cMaxLetters;
 
-                if (textBox is not null)
+                textBox.BeforeTextChanging += (s, a) =>
                 {
-                    textBox.CharacterCasing = CharacterCasing.Lower;
-                    textBox.MaxLength = Models.WordModel.cMaxLetters;
-
-                    textBox.BeforeTextChanging += (s, a) =>
-                    {
-                        if (a.NewText.Length > 0)
-                            a.Cancel = a.NewText.Any(c => c is < 'a' or > 'z');
-                    };
-                }
+                    if (a.NewText.Length > 0)
+                        a.Cancel = a.NewText.Any(c => c is < 'a' or > 'z');
+                };
             }
 
             if (firstLoad)
@@ -334,7 +331,7 @@ internal sealed class WordTreeTemplateSelector : DataTemplateSelector
     public DataTemplate? HeadingTemplate { get; set; }
     public DataTemplate? WordTemplate { get; set; }
 
-    protected override DataTemplate? SelectTemplateCore(object obj)
+    protected override DataTemplate? SelectTemplateCore(object obj, DependencyObject container)
     {
         bool IsHeading = ((TreeViewNode)obj).Content is WordHeading;
 
