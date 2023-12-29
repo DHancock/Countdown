@@ -2,8 +2,6 @@
 
 namespace Countdown.ViewModels;
 
-// Windows.Storage.ApplicationData isn't supported in unpackaged apps.
-
 // For the unpackaged variant, settings are serialized to a json text file.
 // Adding or deleting properties is safe. The missing, or extra data is ignored.
 // Changing the type of an existing property may cause problems though. Best not
@@ -58,37 +56,7 @@ internal class Settings
         {
         }
 
-        public static async Task Save(Settings settings)
-        {
-            if (App.IsPackaged)
-                SavePackaged(settings);
-            else
-                await SaveUnpackaged(settings);
-        }
-
-        private static void SavePackaged(Settings settings)
-        {
-            try
-            {
-                IPropertySet properties = ApplicationData.Current.LocalSettings.Values;
-
-                properties[nameof(ChooseNumbersIndex)] = settings.ChooseNumbersIndex;
-                properties[nameof(ChooseLettersIndex)] = settings.ChooseLettersIndex;
-                properties[nameof(CurrentTheme)] = (int)settings.CurrentTheme;
-                properties[nameof(VolumePercentage)] = settings.VolumePercentage;
-                properties[nameof(WindowState)] = (int)settings.WindowState;
-                properties[nameof(RectInt32.X)] = settings.RestoreBounds.X;
-                properties[nameof(RectInt32.Y)] = settings.RestoreBounds.Y;
-                properties[nameof(RectInt32.Width)] = settings.RestoreBounds.Width;
-                properties[nameof(RectInt32.Height)] = settings.RestoreBounds.Height;
-            }
-            catch (Exception ex)
-            {
-                Debug.Fail(ex.ToString());
-            }
-        }
-
-        private static async Task SaveUnpackaged(Settings settings)
+        internal static async Task Save(Settings settings)
         {
             try
             {
@@ -107,42 +75,7 @@ internal class Settings
             }
         }
 
-        public static Settings Load()
-        {
-            if (App.IsPackaged)
-                return LoadPackaged();
-
-            return LoadUnpackaged();
-        }
-
-        private static Settings LoadPackaged()
-        {
-            Settings settings = new Settings();
-
-            try
-            {
-                IPropertySet properties = ApplicationData.Current.LocalSettings.Values;
-
-                settings.ChooseNumbersIndex = (int)properties[nameof(ChooseNumbersIndex)];
-                settings.ChooseLettersIndex = (int)properties[nameof(ChooseLettersIndex)];
-                settings.CurrentTheme = (ElementTheme)properties[nameof(CurrentTheme)];
-                settings.VolumePercentage = (int)properties[nameof(VolumePercentage)];
-                settings.WindowState = (WindowState)properties[nameof(WindowState)];
-                settings.RestoreBounds = new RectInt32((int)properties[nameof(RectInt32.X)],
-                                                    (int)properties[nameof(RectInt32.Y)],
-                                                    (int)properties[nameof(RectInt32.Width)],
-                                                    (int)properties[nameof(RectInt32.Height)]);
-            }
-            catch (Exception ex)
-            {
-                settings.IsFirstRun = true;
-                Debug.WriteLine(ex.ToString());
-            }
-
-            return settings;
-        }
-
-        private static Settings LoadUnpackaged()
+        internal static Settings Load()
         {
             string path = GetSettingsFilePath();
 

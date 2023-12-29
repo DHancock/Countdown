@@ -11,7 +11,6 @@ public partial class App : Application
 {
     public const string cDisplayName = "Countdown";
     public static App Instance => (App)Current;
-    public static bool IsPackaged { get; } = GetIsPackaged();
 
     private MainWindow? m_window;
 
@@ -34,16 +33,5 @@ public partial class App : Application
         m_window = new MainWindow();
     }
 
-    internal static MainWindow? MainWindow { get => ((App)Current).m_window; }
-
-    private static bool GetIsPackaged()
-    {
-#if DEBUG
-        uint length = 0;
-        WIN32_ERROR error = PInvoke.GetCurrentPackageFullName(ref length, null);
-        return error == WIN32_ERROR.ERROR_INSUFFICIENT_BUFFER;
-#else
-        return false;
-#endif
-    }
+    internal static MainWindow? MainWindow { get => Instance.m_window; }
 }
