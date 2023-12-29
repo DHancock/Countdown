@@ -7,7 +7,6 @@ internal sealed partial class LettersView : Page
     private bool firstLoad = true;
 
     private TreeViewList? treeViewList;
-    private TextBox? textBox;
     private LettersViewModel? viewModel;
 
     public LettersView()
@@ -16,23 +15,24 @@ internal sealed partial class LettersView : Page
 
         Loaded += (s, e) =>
         {
-            textBox ??= FindChild<TextBox>(SuggestionBox);
-
-            if (textBox is not null)
-            {
-                textBox.CharacterCasing = CharacterCasing.Lower;
-                textBox.MaxLength = Models.WordModel.cMaxLetters;
-
-                textBox.BeforeTextChanging += (s, a) =>
-                {
-                    if (a.NewText.Length > 0)
-                        a.Cancel = a.NewText.Any(c => c is < 'a' or > 'z');
-                };
-            }
-
             if (firstLoad)
             {
                 firstLoad = false;
+
+                TextBox? textBox = FindChild<TextBox>(SuggestionBox);
+
+                if (textBox is not null)
+                {
+                    textBox.CharacterCasing = CharacterCasing.Lower;
+                    textBox.MaxLength = Models.WordModel.cMaxLetters;
+
+                    textBox.BeforeTextChanging += (s, a) =>
+                    {
+                        if (a.NewText.Length > 0)
+                            a.Cancel = a.NewText.Any(c => c is < 'a' or > 'z');
+                    };
+                }
+
                 App.MainWindow?.AddDragRegionEventHandlers(this);
             }
 

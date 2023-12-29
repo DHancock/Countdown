@@ -32,10 +32,8 @@ global using System.Windows.Input;
 
 global using Windows.ApplicationModel.DataTransfer;
 global using Windows.Foundation;
-global using Windows.Foundation.Collections;
 global using Windows.Graphics;
 global using Windows.Media.Playback;
-global using Windows.Storage;
 global using Windows.System;
 global using Windows.UI;
 global using Windows.Win32;
