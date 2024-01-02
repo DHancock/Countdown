@@ -7,7 +7,6 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class SettingsView : Page
 {
-    private bool firstLoad = true;
     public SettingsViewModel? ViewModel { get; set; }
 
     public SettingsView()
@@ -15,16 +14,5 @@ internal sealed partial class SettingsView : Page
         this.InitializeComponent();
 
         VersionTextBlock.Text = $"Version: {Path.GetFileNameWithoutExtension(typeof(App).Assembly.GetName().Version?.ToString())}";
-
-        Loaded += (s, e) =>
-        {
-            if (firstLoad)
-            {
-                firstLoad = false;
-                App.MainWindow?.AddDragRegionEventHandlers(this);
-            }
-
-            App.MainWindow?.SetWindowDragRegions();
-        };
     }
 }

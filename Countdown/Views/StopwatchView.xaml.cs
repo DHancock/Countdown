@@ -10,11 +10,6 @@ internal sealed partial class StopwatchView : Page
     public StopwatchView()
     {
         this.InitializeComponent();
-
-        Loaded += (s, e) =>
-        {
-            App.MainWindow?.SetWindowDragRegions();
-        };
     }
 
     public StopwatchViewModel? ViewModel { get; set; }

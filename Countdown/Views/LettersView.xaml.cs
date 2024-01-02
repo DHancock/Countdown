@@ -32,15 +32,7 @@ internal sealed partial class LettersView : Page
                             a.Cancel = a.NewText.Any(c => c is < 'a' or > 'z');
                     };
                 }
-
-                App.MainWindow?.AddDragRegionEventHandlers(this);
             }
-
-            // defer until after the GroupBox text is rendered when the transform will be correct
-            DispatcherQueue.TryEnqueue(() =>
-            {
-                App.MainWindow?.SetWindowDragRegions();
-            });
         };
     }
 
