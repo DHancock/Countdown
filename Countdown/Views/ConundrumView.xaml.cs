@@ -4,26 +4,9 @@ namespace Countdown.Views;
 
 internal sealed partial class ConundrumView : Page
 {
-    private bool firstLoad = true;
-
     public ConundrumView()
     {
         this.InitializeComponent();
-
-        Loaded += (s, e) =>
-        {
-            if (firstLoad)
-            {
-                firstLoad = false;
-                App.MainWindow?.AddDragRegionEventHandlers(this);
-            }
-
-            // defer until after the GroupBox text is rendered when the transform will be correct
-            DispatcherQueue.TryEnqueue(() =>
-            {
-                App.MainWindow?.SetWindowDragRegions();
-            });
-        };
     }
 
     public ConundrumViewModel? ViewModel { get; set; }

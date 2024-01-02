@@ -131,6 +131,8 @@ internal sealed partial class MainWindow : WindowBase
 
     private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
     {
+        InitialiseDragRegionEvents((Page)e.Content);
+
         switch (e.SourcePageType.Name)
         {
             case nameof(NumbersView): ((NumbersView)e.Content).ViewModel = rootViewModel.NumbersViewModel; break;
@@ -140,6 +142,32 @@ internal sealed partial class MainWindow : WindowBase
             case nameof(SettingsView): ((SettingsView)e.Content).ViewModel = rootViewModel.SettingsViewModel; break;
             default:
                 throw new InvalidOperationException();
+        }
+    }
+
+    private class Phase
+    {
+        public int Current { get; set; } = 0;
+    }
+
+    private void InitialiseDragRegionEvents(Page page)
+    {
+        if (page.Tag is null)
+        {
+            page.Tag = new Phase();
+
+            page.Loaded += (s, e) =>
+            {
+                Page page = (Page)s;
+
+                if ((page.Tag is Phase phase) && (phase.Current == 0))
+                {
+                    phase.Current = 1;
+                    AddDragRegionEventHandlers(page);
+                }
+
+                SetWindowDragRegions();
+            };
         }
     }
 
