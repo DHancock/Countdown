@@ -133,19 +133,19 @@ internal sealed partial class MainWindow : WindowBase
     {
         InitialiseDragRegionEvents((Page)e.Content);
 
-        switch (e.SourcePageType.Name)
+        switch (e.Content)
         {
-            case nameof(NumbersView): ((NumbersView)e.Content).ViewModel = rootViewModel.NumbersViewModel; break;
-            case nameof(LettersView): ((LettersView)e.Content).ViewModel = rootViewModel.LettersViewModel; break;
-            case nameof(ConundrumView): ((ConundrumView)e.Content).ViewModel = rootViewModel.ConundrumViewModel; break;
-            case nameof(StopwatchView): ((StopwatchView)e.Content).ViewModel = rootViewModel.StopwatchViewModel; break;
-            case nameof(SettingsView): ((SettingsView)e.Content).ViewModel = rootViewModel.SettingsViewModel; break;
+            case NumbersView nv: nv.ViewModel = rootViewModel.NumbersViewModel; break;
+            case LettersView lv: lv.ViewModel = rootViewModel.LettersViewModel; break;
+            case ConundrumView cv: cv.ViewModel = rootViewModel.ConundrumViewModel; break;
+            case StopwatchView sv: sv.ViewModel = rootViewModel.StopwatchViewModel; break;
+            case SettingsView stv: stv.ViewModel = rootViewModel.SettingsViewModel; break;
             default:
                 throw new InvalidOperationException();
         }
     }
 
-    private class Phase
+    private sealed class Phase
     {
         public int Current { get; set; } = 0;
     }
@@ -159,8 +159,9 @@ internal sealed partial class MainWindow : WindowBase
             page.Loaded += (s, e) =>
             {
                 Page page = (Page)s;
+                Phase phase = (Phase)page.Tag;
 
-                if ((page.Tag is Phase phase) && (phase.Current == 0))
+                if (phase.Current == 0)
                 {
                     phase.Current = 1;
                     AddDragRegionEventHandlers(page);
