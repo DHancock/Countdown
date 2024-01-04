@@ -260,7 +260,7 @@ internal abstract class WindowBase : Window
         return dpi / 96.0;
     }
 
-    public void ClearWindowDragRegions()
+    protected void ClearWindowDragRegions()
     {
         // allow mouse interaction with menu fly outs,  
         // including clicks anywhere in the client area used to dismiss the menu
@@ -268,7 +268,7 @@ internal abstract class WindowBase : Window
             inputNonClientPointerSource.ClearRegionRects(NonClientRegionKind.Caption);
     }
 
-    public void SetWindowDragRegions()
+    protected void SetWindowDragRegions()
     {
         try
         {
@@ -363,9 +363,7 @@ internal abstract class WindowBase : Window
                              Convert.ToInt32(size.Y * scale));
     }
 
-    public void AddDragRegionEventHandlers(Page page) => AddDragRegionEventHandlers((DependencyObject)page);
-
-    private void AddDragRegionEventHandlers(DependencyObject reference)
+    protected void AddDragRegionEventHandlers(DependencyObject reference)
     {
         switch (reference)
         {
