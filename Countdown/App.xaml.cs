@@ -1,6 +1,4 @@
-﻿// Ignore Spelling: App
-
-using Countdown.Views;
+﻿using Countdown.Views;
 
 namespace Countdown;
 
