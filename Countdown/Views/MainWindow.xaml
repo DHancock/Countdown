@@ -5,6 +5,7 @@
     xmlns:local="using:Countdown.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:av="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
     mc:Ignorable="d"
     MinWidth="660"
     MinHeight="500"
@@ -62,6 +63,22 @@
                 <NavigationViewItem Content="Stopwatch" Tag="StopwatchView" AccessKey="T"/>
             </NavigationView.MenuItems>
 
+            <NavigationView.FooterMenuItems>
+                <!--the default settings button doesn't have an access key-->
+                <NavigationViewItem Tag="SettingsView" AccessKey="S">
+                    <NavigationViewItem.Icon>
+                        <AnimatedIcon>
+                            <AnimatedIcon.Source>
+                                <av:AnimatedSettingsVisualSource/>
+                            </AnimatedIcon.Source>
+                            <AnimatedIcon.FallbackIconSource>
+                                <SymbolIconSource Symbol="Setting"/>
+                            </AnimatedIcon.FallbackIconSource>
+                        </AnimatedIcon>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
+            
             <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" IsNavigationStackEnabled="False" Margin="5,0,5,5" SizeChanged="ContentFrame_SizeChanged"/>
         </NavigationView>
     </Grid>
