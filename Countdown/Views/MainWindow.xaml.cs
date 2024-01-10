@@ -7,7 +7,7 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class MainWindow : WindowBase
 {
-    private readonly ViewModel rootViewModel;
+    private readonly ViewModel rootViewModel = new ViewModel();
 
     private readonly FrameNavigationOptions frameNavigationOptions = new FrameNavigationOptions()
     {
@@ -18,8 +18,6 @@ internal sealed partial class MainWindow : WindowBase
     public MainWindow()
     {
         this.InitializeComponent();
-
-        rootViewModel = new ViewModel();
 
         AppWindow.Closing += async (s, a) =>
         {
@@ -106,17 +104,22 @@ internal sealed partial class MainWindow : WindowBase
 
     private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
     {
-        InitialiseDragRegionEvents((Page)e.Content);
-
-        switch (e.Content)
+        if ((e.Content is Page page) && (page.Tag is null))
         {
-            case NumbersView nv: nv.ViewModel = rootViewModel.NumbersViewModel; break;
-            case LettersView lv: lv.ViewModel = rootViewModel.LettersViewModel; break;
-            case ConundrumView cv: cv.ViewModel = rootViewModel.ConundrumViewModel; break;
-            case StopwatchView sv: sv.ViewModel = rootViewModel.StopwatchViewModel; break;
-            case SettingsView stv: stv.ViewModel = rootViewModel.SettingsViewModel; break;
-            default:
-                throw new InvalidOperationException();
+            page.Tag = new Phase();
+
+            InitialiseDragRegionEvents(page);
+
+            switch (page)
+            {
+                case NumbersView nv: nv.ViewModel = rootViewModel.NumbersViewModel; break;
+                case LettersView lv: lv.ViewModel = rootViewModel.LettersViewModel; break;
+                case ConundrumView cv: cv.ViewModel = rootViewModel.ConundrumViewModel; break;
+                case StopwatchView sv: sv.ViewModel = rootViewModel.StopwatchViewModel; break;
+                case SettingsView stv: stv.ViewModel = rootViewModel.SettingsViewModel; break;
+                default:
+                    throw new InvalidOperationException();
+            }
         }
     }
 
@@ -127,24 +130,21 @@ internal sealed partial class MainWindow : WindowBase
 
     private void InitialiseDragRegionEvents(Page page)
     {
-        if (page.Tag is null)
+        Debug.Assert(page.Tag is Phase);
+
+        page.Loaded += (s, e) =>
         {
-            page.Tag = new Phase();
+            Page page = (Page)s;
+            Phase phase = (Phase)page.Tag;
 
-            page.Loaded += (s, e) =>
+            if (phase.Current == 0)
             {
-                Page page = (Page)s;
-                Phase phase = (Phase)page.Tag;
+                phase.Current = 1;
+                AddDragRegionEventHandlers(page);
+            }
 
-                if (phase.Current == 0)
-                {
-                    phase.Current = 1;
-                    AddDragRegionEventHandlers(page);
-                }
-
-                SetWindowDragRegions();
-            };
-        }
+            SetWindowDragRegions();
+        };
     }
 
     private void ContentFrame_SizeChanged(object sender, SizeChangedEventArgs e)
