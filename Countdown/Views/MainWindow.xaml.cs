@@ -19,8 +19,6 @@ internal sealed partial class MainWindow : WindowBase
     {
         this.InitializeComponent();
 
-        LayoutRoot.RequestedTheme = Settings.Data.CurrentTheme;
-        SystemBackdrop = new MicaBackdrop();
         rootViewModel = new ViewModel();
 
         AppWindow.Closing += async (s, a) =>

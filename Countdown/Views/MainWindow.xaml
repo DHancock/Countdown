@@ -11,6 +11,10 @@
     MinHeight="500"
     InitialWidth="660"
     InitialHeight="500">
+    
+    <Window.SystemBackdrop>
+        <MicaBackdrop/>
+    </Window.SystemBackdrop>
 
     <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}">
         <Grid.Resources>
