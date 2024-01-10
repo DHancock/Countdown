@@ -21,10 +21,6 @@ internal sealed partial class MainWindow : WindowBase
 
         LayoutRoot.RequestedTheme = Settings.Data.CurrentTheme;
         SystemBackdrop = new MicaBackdrop();
-
-        // the default settings button doesn't have an access key, and there's no way to set one
-        RootNavigationView.FooterMenuItems.Add(CreateSettingsNavigationViewItem());
-
         rootViewModel = new ViewModel();
 
         AppWindow.Closing += async (s, a) =>
@@ -97,25 +93,6 @@ internal sealed partial class MainWindow : WindowBase
                                         Math.Min(windowArea.Height, workArea.Height));
 
         return new RectInt32(position.X, position.Y, size.Width, size.Height);
-    }
-
-    private object CreateSettingsNavigationViewItem()
-    {
-        // When defined in xaml, click handlers are required to start the animation.
-        // So might as well just define it in code where it works as is.
-        return new NavigationViewItem()
-        {
-            Tag = nameof(SettingsView),
-            AccessKey = "S",
-            Icon = new AnimatedIcon()
-            {
-                Source = new AnimatedSettingsVisualSource(),
-                FallbackIconSource = new SymbolIconSource()
-                {
-                    Symbol = Symbol.Setting,
-                },
-            },
-        };
     }
 
     private void RootNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
