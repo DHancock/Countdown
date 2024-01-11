@@ -7,7 +7,7 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class MainWindow : WindowBase
 {
-    private readonly ViewModel rootViewModel;
+    private readonly ViewModel rootViewModel = new ViewModel();
 
     private readonly FrameNavigationOptions frameNavigationOptions = new FrameNavigationOptions()
     {
@@ -18,10 +18,6 @@ internal sealed partial class MainWindow : WindowBase
     public MainWindow()
     {
         this.InitializeComponent();
-
-        LayoutRoot.RequestedTheme = Settings.Data.CurrentTheme;
-        SystemBackdrop = new MicaBackdrop();
-        rootViewModel = new ViewModel();
 
         AppWindow.Closing += async (s, a) =>
         {
@@ -108,28 +104,9 @@ internal sealed partial class MainWindow : WindowBase
 
     private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
     {
-        InitialiseDragRegionEvents((Page)e.Content);
+        Debug.Assert(e.Content is Page);
 
-        switch (e.Content)
-        {
-            case NumbersView nv: nv.ViewModel = rootViewModel.NumbersViewModel; break;
-            case LettersView lv: lv.ViewModel = rootViewModel.LettersViewModel; break;
-            case ConundrumView cv: cv.ViewModel = rootViewModel.ConundrumViewModel; break;
-            case StopwatchView sv: sv.ViewModel = rootViewModel.StopwatchViewModel; break;
-            case SettingsView stv: stv.ViewModel = rootViewModel.SettingsViewModel; break;
-            default:
-                throw new InvalidOperationException();
-        }
-    }
-
-    private sealed class Phase
-    {
-        public int Current { get; set; } = 0;
-    }
-
-    private void InitialiseDragRegionEvents(Page page)
-    {
-        if (page.Tag is null)
+        if ((e.Content is Page page) && (page.Tag is null))
         {
             page.Tag = new Phase();
 
@@ -146,7 +123,23 @@ internal sealed partial class MainWindow : WindowBase
 
                 SetWindowDragRegions();
             };
+
+            switch (page)
+            {
+                case NumbersView nv: nv.ViewModel = rootViewModel.NumbersViewModel; break;
+                case LettersView lv: lv.ViewModel = rootViewModel.LettersViewModel; break;
+                case ConundrumView cv: cv.ViewModel = rootViewModel.ConundrumViewModel; break;
+                case StopwatchView sv: sv.ViewModel = rootViewModel.StopwatchViewModel; break;
+                case SettingsView stv: stv.ViewModel = rootViewModel.SettingsViewModel; break;
+                default:
+                    throw new InvalidOperationException();
+            }
         }
+    }
+
+    private sealed class Phase
+    {
+        public int Current { get; set; } = 0;
     }
 
     private void ContentFrame_SizeChanged(object sender, SizeChangedEventArgs e)
