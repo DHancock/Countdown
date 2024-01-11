@@ -104,11 +104,25 @@ internal sealed partial class MainWindow : WindowBase
 
     private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
     {
+        Debug.Assert(e.Content is Page);
+
         if ((e.Content is Page page) && (page.Tag is null))
         {
             page.Tag = new Phase();
 
-            InitialiseDragRegionEvents(page);
+            page.Loaded += (s, e) =>
+            {
+                Page page = (Page)s;
+                Phase phase = (Phase)page.Tag;
+
+                if (phase.Current == 0)
+                {
+                    phase.Current = 1;
+                    AddDragRegionEventHandlers(page);
+                }
+
+                SetWindowDragRegions();
+            };
 
             switch (page)
             {
@@ -126,25 +140,6 @@ internal sealed partial class MainWindow : WindowBase
     private sealed class Phase
     {
         public int Current { get; set; } = 0;
-    }
-
-    private void InitialiseDragRegionEvents(Page page)
-    {
-        Debug.Assert(page.Tag is Phase);
-
-        page.Loaded += (s, e) =>
-        {
-            Page page = (Page)s;
-            Phase phase = (Phase)page.Tag;
-
-            if (phase.Current == 0)
-            {
-                phase.Current = 1;
-                AddDragRegionEventHandlers(page);
-            }
-
-            SetWindowDragRegions();
-        };
     }
 
     private void ContentFrame_SizeChanged(object sender, SizeChangedEventArgs e)
