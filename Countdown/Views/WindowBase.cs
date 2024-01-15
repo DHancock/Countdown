@@ -314,6 +314,7 @@ internal abstract class WindowBase : Window
             {
                 case CountdownTextBox:
                 case Button:
+                case TreeView:
                 case ListView:
                 case SplitButton:
                 case NavigationViewItem:
@@ -367,24 +368,24 @@ internal abstract class WindowBase : Window
     {
         switch (reference)
         {
-            case SplitButton:
-            case TreeView:
-            case ListView:
+            case SplitButton sb:
             {
-                FlyoutBase? flyoutBase = null;
+                sb.Flyout.Opened += Flyout_Opened;
+                sb.Flyout.Closed += Flyout_Closed;
+                return;
+            }
 
-                if (reference is TreeView tv)
-                    flyoutBase = tv.ContextFlyout;
-                else if (reference is ListView lv)
-                    flyoutBase = lv.ContextFlyout;
-                else if (reference is SplitButton sb)
-                    flyoutBase = sb.Flyout;
+            case TreeView tv:
+            {
+                tv.ContextFlyout.Opened += Flyout_Opened;
+                tv.ContextFlyout.Closed += Flyout_Closed;
+                return;
+            }
 
-                if (flyoutBase is not null)
-                {
-                    flyoutBase.Opened += Flyout_Opened;
-                    flyoutBase.Closed += Flyout_Closed;
-                }
+            case ListView lv:
+            {
+                lv.ContextFlyout.Opened += Flyout_Opened;
+                lv.ContextFlyout.Closed += Flyout_Closed;
                 return;
             }
 
