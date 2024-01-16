@@ -275,7 +275,7 @@ internal abstract class WindowBase : Window
             if ((Content is FrameworkElement layoutRoot) && layoutRoot.IsLoaded && AppWindowTitleBar.IsCustomizationSupported())
             {
                 RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
-                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, new[] { windowRect });
+                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
 
                 List<RectInt32> rects = new List<RectInt32>(27);
                 LocatePassThroughContent(rects, layoutRoot);

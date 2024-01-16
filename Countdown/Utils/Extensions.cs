@@ -73,8 +73,7 @@ internal static class Extensions
 
     private static int ClampIndex(int index, int size)
     {
-        if (size <= 0)
-            throw new ArgumentOutOfRangeException(nameof(size));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(size);
 
         int remainder = index % size; 
 

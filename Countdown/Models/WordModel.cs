@@ -255,7 +255,7 @@ internal class WordModel
                 return span.Slice(0, sizeLeft + length);
             }
 
-            return Span<byte>.Empty;
+            return [];
         }
 
         private int SeekNextLine() => buffer.AsSpan(position, dataSize - position).IndexOf(cLine_seperator);

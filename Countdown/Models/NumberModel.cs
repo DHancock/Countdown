@@ -9,8 +9,8 @@ internal class NumberModel
     public const int cNumberTileCount = 6;
 
     private readonly Random random = new Random();
-    private readonly int[] largeTiles = { 25, 50, 75, 100 };
-    private readonly int[] smallTiles = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    private readonly int[] largeTiles = [25, 50, 75, 100];
+    private readonly int[] smallTiles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 
     public int[] GenerateNumberData(int largeTileCount)
