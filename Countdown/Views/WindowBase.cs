@@ -312,6 +312,8 @@ internal abstract class WindowBase : Window
         {
             switch (element)
             {
+                case Panel: break;
+
                 case CountdownTextBox:
                 case Button:
                 case TreeView:
@@ -368,6 +370,8 @@ internal abstract class WindowBase : Window
     {
         switch (reference)
         {
+            case Panel: break;
+
             case SplitButton sb:
             {
                 sb.Flyout.Opened += Flyout_Opened;
