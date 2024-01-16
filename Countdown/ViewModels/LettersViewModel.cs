@@ -10,7 +10,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     private double clearButtonPathOpacity = 1.0;
 
     // for raising property change events when generating data
-    private static readonly string[] propertyNames = { nameof(Letter_0),
+    private static readonly string[] propertyNames = [ nameof(Letter_0),
                                                         nameof(Letter_1),
                                                         nameof(Letter_2),
                                                         nameof(Letter_3),
@@ -18,7 +18,7 @@ internal sealed class LettersViewModel : DataErrorInfoBase
                                                         nameof(Letter_5),
                                                         nameof(Letter_6),
                                                         nameof(Letter_7),
-                                                        nameof(Letter_8)};
+                                                        nameof(Letter_8)];
 
     private readonly string[] letters = new string[WordModel.cLetterCount];
 

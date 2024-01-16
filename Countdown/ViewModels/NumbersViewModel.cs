@@ -11,14 +11,14 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     private IEnumerable<string> equationList = new List<string>();
 
     // for raising property change events when generating data
-    private static readonly string[] propertyNames = { nameof(Tile_0),
+    private static readonly string[] propertyNames = [ nameof(Tile_0),
                                                         nameof(Tile_1),
                                                         nameof(Tile_2),
                                                         nameof(Tile_3),
                                                         nameof(Tile_4),
-                                                        nameof(Tile_5)};
+                                                        nameof(Tile_5)];
 
-    private readonly int[] validTileValues = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 50, 75, 100 };
+    private readonly int[] validTileValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 25, 50, 75, 100];
 
     private readonly NumberModel numberModel;
 
