@@ -274,6 +274,8 @@ internal abstract class WindowBase : Window
         {
             if ((Content is FrameworkElement layoutRoot) && layoutRoot.IsLoaded && AppWindowTitleBar.IsCustomizationSupported())
             {
+                // as there is no clear distinction any more between the title bar region and the client area,
+                // just treat the whole window as a title bar, click anywhere on the backdrop to drag the window.
                 RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
 
@@ -299,7 +301,7 @@ internal abstract class WindowBase : Window
     {
         static Point GetOffsetFromXamlRoot(UIElement e)
         {
-            GeneralTransform gt = e.TransformToVisual(e.XamlRoot.Content);
+            GeneralTransform gt = e.TransformToVisual(null);
             return gt.TransformPoint(new Point(0, 0));
         }
 
