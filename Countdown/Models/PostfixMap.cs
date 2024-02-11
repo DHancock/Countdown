@@ -189,7 +189,7 @@ internal sealed class PostfixMap
             {
                 List<int> entry = tileEntries[entryIndex];
 
-                sb.Append($"map[{tileIndex}].Add(new[] {{ ");
+                sb.Append($"map[{tileIndex}].Add([");
 
                 for (int valueIndex = 0; valueIndex < entry.Count; valueIndex++)
                 {
@@ -199,7 +199,7 @@ internal sealed class PostfixMap
                         sb.Append(", ");
                 }
 
-                sb.AppendLine($" }});");
+                sb.AppendLine($"]);");
             }
 
             sb.AppendLine();
