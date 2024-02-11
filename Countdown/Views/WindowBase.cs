@@ -386,17 +386,11 @@ internal abstract class WindowBase : Window
                     continue;
                 }
 
-                case TreeView tv:
+                case TreeView:
+                case ListView:
                 {
-                    tv.ContextFlyout.Opened += Flyout_Opened;
-                    tv.ContextFlyout.Closed += Flyout_Closed;
-                    continue;
-                }
-
-                case ListView lv:
-                {
-                    lv.ContextFlyout.Opened += Flyout_Opened;
-                    lv.ContextFlyout.Closed += Flyout_Closed;
+                    child.ContextFlyout.Opened += Flyout_Opened;
+                    child.ContextFlyout.Closed += Flyout_Closed;
                     continue;
                 }
 
