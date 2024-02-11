@@ -2,20 +2,6 @@
 
 internal static class Extensions
 {
-
-    public static int CountOf<T>(this IList<T> list, Func<T, bool> predicate)
-    {
-        int count = 0;
-
-        foreach (T item in list)
-        {
-            if (predicate(item))
-                count++;
-        }
-
-        return count;
-    }
-
     public static IList<T> Shuffle<T>(this IList<T> list)
     {
         if (list.Count > 1)
@@ -116,6 +102,26 @@ internal static class Extensions
         while ((bytesLeft > 0) && (size > 0));
 
         return bytesRead;
+    }
+
+    public static T? FindChild<T>(this DependencyObject parent) where T : DependencyObject
+    {
+        int count = VisualTreeHelper.GetChildrenCount(parent);
+
+        for (int index = 0; index < count; index++)
+        {
+            DependencyObject child = VisualTreeHelper.GetChild(parent, index);
+
+            if (child is T target)
+                return target;
+
+            T? result = child.FindChild<T>();
+
+            if (result is not null)
+                return result;
+        }
+
+        return null;
     }
 }
 

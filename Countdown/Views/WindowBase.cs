@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Documents;
 
 using Countdown.ViewModels;
+using Countdown.Utils;
 
 namespace Countdown.Views;
 
@@ -297,7 +298,7 @@ internal abstract class WindowBase : Window
         public double Top => Offset.Y;
     }
 
-    private static void LocatePassThroughContent(List<RectInt32> rects, DependencyObject reference, ScrollViewerBounds? bounds = null)
+    private static void LocatePassThroughContent(List<RectInt32> rects, UIElement item, ScrollViewerBounds? bounds = null)
     {
         static Point GetOffsetFromXamlRoot(UIElement e)
         {
@@ -305,14 +306,9 @@ internal abstract class WindowBase : Window
             return gt.TransformPoint(new Point(0, 0));
         }
 
-        static bool IsValidUIElement(UIElement e)
+        foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
         {
-            return (e.Visibility == Visibility.Visible) && (e.ActualSize.X > 0) && (e.ActualSize.Y > 0) && (e.Opacity > 0);
-        }
-
-        if ((reference is UIElement element) && IsValidUIElement(element))
-        {
-            switch (element)
+            switch (child)
             {
                 case Panel: break;
 
@@ -323,12 +319,11 @@ internal abstract class WindowBase : Window
                 case SplitButton:
                 case NavigationViewItem:
                 case Expander:
-                case ScrollBar:
                 case AutoSuggestBox:
                 case TextBlock tb when (tb.Inlines.FirstOrDefault(x => x is Hyperlink) is not null):
                 {
-                    Point offset = GetOffsetFromXamlRoot(element);
-                    Vector2 actualSize = element.ActualSize;
+                    Point offset = GetOffsetFromXamlRoot(child);
+                    Vector2 actualSize = child.ActualSize;
 
                     if ((bounds is not null) && (offset.Y < bounds.Top)) // top clip (for vertical scroll bars)
                     {
@@ -336,27 +331,35 @@ internal abstract class WindowBase : Window
                         offset.Y = bounds.Top;
                     }
 
-                    rects.Add(ScaledRect(offset, actualSize, element.XamlRoot.RasterizationScale));
-                    return;
+                    rects.Add(ScaledRect(offset, actualSize, child.XamlRoot.RasterizationScale));
+                    continue;
                 }
 
                 case ScrollViewer:
                 {
-                    // chained scroll viewers is not supported
-                    bounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(element), element.ActualSize);
+                    // nested scroll viewers is not supported
+                    bounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(child), child.ActualSize);
+
+                    if (((ScrollViewer)child).ComputedVerticalScrollBarVisibility == Visibility.Visible)
+                    {
+                        ScrollBar? vScrollBar = child.FindChild<ScrollBar>();
+
+                        if (vScrollBar is not null)
+                        {
+                            Debug.Assert(vScrollBar.Name.Equals("VerticalScrollBar"));
+                            rects.Add(ScaledRect(GetOffsetFromXamlRoot(vScrollBar), vScrollBar.ActualSize, child.XamlRoot.RasterizationScale));
+                        }
+                    }
+
                     break;
                 }
+
+                case CustomTitleBar: continue;
 
                 default: break;
             }
 
-            int count = VisualTreeHelper.GetChildrenCount(reference);
-
-            for (int index = 0; index < count; index++)
-            {
-                DependencyObject child = VisualTreeHelper.GetChild(reference, index);
-                LocatePassThroughContent(rects, child, bounds);
-            }
+            LocatePassThroughContent(rects, child, bounds);
         }
     }
 
@@ -368,63 +371,69 @@ internal abstract class WindowBase : Window
                              Convert.ToInt32(size.Y * scale));
     }
 
-    protected void AddDragRegionEventHandlers(DependencyObject reference)
+    protected void AddDragRegionEventHandlers(UIElement item)
     {
-        switch (reference)
+        foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
         {
-            case Panel: break;
-
-            case SplitButton sb:
+            switch (child)
             {
-                sb.Flyout.Opened += Flyout_Opened;
-                sb.Flyout.Closed += Flyout_Closed;
-                return;
+                case Panel: break;
+
+                case SplitButton sb:
+                {
+                    sb.Flyout.Opened += Flyout_Opened;
+                    sb.Flyout.Closed += Flyout_Closed;
+                    continue;
+                }
+
+                case TreeView tv:
+                {
+                    tv.ContextFlyout.Opened += Flyout_Opened;
+                    tv.ContextFlyout.Closed += Flyout_Closed;
+                    continue;
+                }
+
+                case ListView lv:
+                {
+                    lv.ContextFlyout.Opened += Flyout_Opened;
+                    lv.ContextFlyout.Closed += Flyout_Closed;
+                    continue;
+                }
+
+                case Expander expander:
+                {
+                    expander.SizeChanged += Expander_SizeChanged;
+                    continue;
+                }
+
+                case ScrollViewer scrollViewer:
+                {
+                    scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+                    break;
+                }
+
+                case AutoSuggestBox autoSuggestBox:
+                {
+                    Popup? popup = autoSuggestBox.FindChild<Popup>();
+
+                    if (popup is not null)
+                    {
+                        popup.Opened += Flyout_Opened;
+                        popup.Closed += Flyout_Closed;
+                    }
+
+                    continue;
+                }
+
+                case Button:
+                case GroupBox:
+                case TextBlock:
+                case CustomTitleBar:
+                case NavigationViewItem: continue;
+
+                default: break;
             }
 
-            case TreeView tv:
-            {
-                tv.ContextFlyout.Opened += Flyout_Opened;
-                tv.ContextFlyout.Closed += Flyout_Closed;
-                return;
-            }
-
-            case ListView lv:
-            {
-                lv.ContextFlyout.Opened += Flyout_Opened;
-                lv.ContextFlyout.Closed += Flyout_Closed;
-                return;
-            }
-
-            case Expander expander:
-            {
-                expander.SizeChanged += Expander_SizeChanged;
-                return;
-            }
-
-            case ScrollViewer scrollViewer:
-            {
-                scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
-                break;
-            }
-
-            case Popup popup:  // for the AutoSuggestBox
-            {
-                popup.Opened += Flyout_Opened;
-                popup.Closed += Flyout_Closed;
-                return;
-            }
-
-            case Button:
-            case GroupBox: return;
-
-            default: break;
-        }
-
-        int count = VisualTreeHelper.GetChildrenCount(reference);
-
-        for (int index = 0; index < count; index++)
-        {
-            DependencyObject child = VisualTreeHelper.GetChild(reference, index);
             AddDragRegionEventHandlers(child);
         }
 
