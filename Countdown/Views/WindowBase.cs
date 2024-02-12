@@ -304,7 +304,7 @@ internal abstract class WindowBase : Window
 
     private static void LocatePassThroughContent(List<RectInt32> rects, UIElement item, ScrollViewerBounds? bounds = null)
     {
-        ScrollViewerBounds? parentBounds = null;
+        ScrollViewerBounds? parentBounds = bounds;
 
         static Point GetOffsetFromXamlRoot(UIElement e)
         {
@@ -334,6 +334,10 @@ internal abstract class WindowBase : Window
                     if ((bounds is not null) && (offset.Y < bounds.Top)) // top clip (for vertical scroll bars)
                     {
                         actualSize.Y -= (float)(bounds.Top - offset.Y);
+
+                        if (actualSize.Y < 0.0)
+                            continue;
+
                         offset.Y = bounds.Top;
                     }
 
