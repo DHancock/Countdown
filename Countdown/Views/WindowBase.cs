@@ -271,6 +271,8 @@ internal abstract class WindowBase : Window
 
     protected void SetWindowDragRegions()
     {
+        const int cInitialCapacity = 27;
+
         try
         {
             if ((Content is FrameworkElement layoutRoot) && layoutRoot.IsLoaded && AppWindowTitleBar.IsCustomizationSupported())
@@ -280,8 +282,10 @@ internal abstract class WindowBase : Window
                 RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
 
-                List<RectInt32> rects = new List<RectInt32>(27);
+                List<RectInt32> rects = new List<RectInt32>(cInitialCapacity);
                 LocatePassThroughContent(rects, layoutRoot);
+                Debug.Assert(rects.Count <= cInitialCapacity);
+
                 inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects.ToArray());
             }
         }
@@ -300,6 +304,8 @@ internal abstract class WindowBase : Window
 
     private static void LocatePassThroughContent(List<RectInt32> rects, UIElement item, ScrollViewerBounds? bounds = null)
     {
+        ScrollViewerBounds? parentBounds = null;
+
         static Point GetOffsetFromXamlRoot(UIElement e)
         {
             GeneralTransform gt = e.TransformToVisual(null);
@@ -320,7 +326,7 @@ internal abstract class WindowBase : Window
                 case NavigationViewItem:
                 case Expander:
                 case AutoSuggestBox:
-                case TextBlock tb when (tb.Inlines.FirstOrDefault(x => x is Hyperlink) is not null):
+                case TextBlock tb when tb.Inlines.Any(x => x is Hyperlink):
                 {
                     Point offset = GetOffsetFromXamlRoot(child);
                     Vector2 actualSize = child.ActualSize;
@@ -338,7 +344,7 @@ internal abstract class WindowBase : Window
                 case ScrollViewer:
                 {
                     // nested scroll viewers is not supported
-                    bounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(child), child.ActualSize);
+                    parentBounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(child), child.ActualSize);
 
                     if (((ScrollViewer)child).ComputedVerticalScrollBarVisibility == Visibility.Visible)
                     {
@@ -359,7 +365,7 @@ internal abstract class WindowBase : Window
                 default: break;
             }
 
-            LocatePassThroughContent(rects, child, bounds);
+            LocatePassThroughContent(rects, child, parentBounds);
         }
     }
 
@@ -381,16 +387,22 @@ internal abstract class WindowBase : Window
 
                 case SplitButton sb:
                 {
-                    sb.Flyout.Opened += Flyout_Opened;
-                    sb.Flyout.Closed += Flyout_Closed;
+                    if (sb.Flyout is not null)
+                    {
+                        sb.Flyout.Opened += Flyout_Opened;
+                        sb.Flyout.Closed += Flyout_Closed;
+                    }
                     continue;
                 }
 
                 case TreeView:
                 case ListView:
                 {
-                    child.ContextFlyout.Opened += Flyout_Opened;
-                    child.ContextFlyout.Closed += Flyout_Closed;
+                    if (child.ContextFlyout is not null)
+                    {
+                        child.ContextFlyout.Opened += Flyout_Opened;
+                        child.ContextFlyout.Closed += Flyout_Closed;
+                    }
                     continue;
                 }
 
@@ -415,7 +427,6 @@ internal abstract class WindowBase : Window
                         popup.Opened += Flyout_Opened;
                         popup.Closed += Flyout_Closed;
                     }
-
                     continue;
                 }
 
