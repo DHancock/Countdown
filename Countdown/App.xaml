@@ -23,8 +23,8 @@
                 <Setter Property="Margin" Value="5"/>
                 <Setter Property="SelectionMode" Value="Extended"/>
                 <Setter Property="Background" Value="{ThemeResource ResultsListBackgroundBrush}"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBoderBrush}"/>
-                <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBoderThickness}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBorderThickness}"/>
                 <Setter Property="CornerRadius" Value="6"/>
             </Style>
 
@@ -33,8 +33,8 @@
                 <Setter Property="Padding" Value="7"/>
                 <Setter Property="CornerRadius" Value="6"/>
                 <Setter Property="HeadingMargin" Value="12"/>
-                <Setter Property="BorderBrush" Value="{ThemeResource CommonBoderBrush}"/>
-                <Setter Property="BorderThickness" Value="{ThemeResource CommonBoderThickness}"/>
+                <Setter Property="BorderBrush" Value="{ThemeResource CommonBorderBrush}"/>
+                <Setter Property="BorderThickness" Value="{ThemeResource CommonBorderThickness}"/>
             </Style>
 
             <Style x:Key="ClockStyle" TargetType="local:Clock">

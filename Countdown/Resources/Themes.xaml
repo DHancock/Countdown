@@ -17,13 +17,13 @@
             <x:Boolean x:Key="ClockIsDropShadowVisible">false</x:Boolean>
 
             <!-- borders -->
-            <SolidColorBrush x:Key="CommonBoderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
-            <Thickness x:Key="CommonBoderThickness">1</Thickness>
+            <SolidColorBrush x:Key="CommonBorderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+            <Thickness x:Key="CommonBorderThickness">1</Thickness>
 
             <!-- lists -->
             <SolidColorBrush x:Key="ResultsListBackgroundBrush" Color="{ThemeResource SystemColorWindowColor}"/>
-            <SolidColorBrush x:Key="ResultsListBoderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
-            <Thickness x:Key="ResultsListBoderThickness">1</Thickness>
+            <SolidColorBrush x:Key="ResultsListBorderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
+            <Thickness x:Key="ResultsListBorderThickness">1</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
 
@@ -49,13 +49,13 @@
             <x:Boolean x:Key="ClockIsDropShadowVisible">true</x:Boolean>
 
             <!-- borders -->
-            <SolidColorBrush x:Key="CommonBoderBrush" Color="Gray"/>
-            <Thickness x:Key="CommonBoderThickness">1</Thickness>
+            <SolidColorBrush x:Key="CommonBorderBrush" Color="Gray"/>
+            <Thickness x:Key="CommonBorderThickness">1</Thickness>
 
             <!-- lists -->
             <SolidColorBrush x:Key="ResultsListBackgroundBrush">#FF272727</SolidColorBrush>
-            <SolidColorBrush x:Key="ResultsListBoderBrush" Color="Gray"/>
-            <Thickness x:Key="ResultsListBoderThickness">1</Thickness>
+            <SolidColorBrush x:Key="ResultsListBorderBrush" Color="Gray"/>
+            <Thickness x:Key="ResultsListBorderThickness">1</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush">DarkGray</SolidColorBrush>
 
@@ -76,13 +76,13 @@
             <x:Boolean x:Key="ClockIsDropShadowVisible">true</x:Boolean>
 
             <!-- borders -->
-            <SolidColorBrush x:Key="CommonBoderBrush" Color="LightGray"/>
-            <Thickness x:Key="CommonBoderThickness">1</Thickness>
+            <SolidColorBrush x:Key="CommonBorderBrush" Color="LightGray"/>
+            <Thickness x:Key="CommonBorderThickness">1</Thickness>
 
             <!-- lists -->
             <SolidColorBrush x:Key="ResultsListBackgroundBrush">Snow</SolidColorBrush>
-            <SolidColorBrush x:Key="ResultsListBoderBrush" Color="LightGray"/>
-            <Thickness x:Key="ResultsListBoderThickness">1</Thickness>
+            <SolidColorBrush x:Key="ResultsListBorderBrush" Color="LightGray"/>
+            <Thickness x:Key="ResultsListBorderThickness">1</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush">DarkGray</SolidColorBrush>
             
