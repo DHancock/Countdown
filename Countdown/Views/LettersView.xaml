@@ -41,8 +41,8 @@
             <Setter Property="Margin" Value="0,5,0,0"/>
             <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Background" Value="{ThemeResource ResultsListBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBoderBrush}"/>
-            <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBoderThickness}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBorderThickness}"/>
         </Style>
     </Page.Resources>
 
