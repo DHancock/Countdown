@@ -21,8 +21,9 @@ internal abstract class WindowBase : Window
         CLOSE = 0xF060,
     }
 
-    public double MinWidth { get; set; }
-    public double MinHeight { get; set; }
+    private const double cMinWidth = 660;
+    private const double cMinHeight = 500;
+
     public double InitialWidth { get; set; }
     public double InitialHeight { get; set; }
     public IntPtr WindowPtr { get; }
@@ -35,9 +36,13 @@ internal abstract class WindowBase : Window
 
     private readonly InputNonClientPointerSource inputNonClientPointerSource;
     private readonly SUBCLASSPROC subClassDelegate;
+    private readonly DispatcherTimer dispatcherTimer;
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
     private MenuFlyout? systemMenu;
+    private int scaledMinWidth;
+    private int scaledMinHeight;
+    private double scaleFactor;
 
     public WindowBase()
     {
@@ -49,6 +54,12 @@ internal abstract class WindowBase : Window
             throw new Win32Exception(Marshal.GetLastPInvokeError());
 
         inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
+
+        dispatcherTimer = InitialiseDragRegionTimer();
+
+        scaleFactor = IntialiseScaleFactor();
+        scaledMinWidth = (int)(cMinWidth * scaleFactor);
+        scaledMinHeight = (int)(cMinHeight * scaleFactor);
 
         AppWindow.Changed += AppWindow_Changed;
 
@@ -70,12 +81,9 @@ internal abstract class WindowBase : Window
                 restoreSize = AppWindow.Size;
             }
         }
-        else if (args.DidPresenterChange) // including properties of the current presenter
+        else if (args.DidPresenterChange)
         {
-            if (AppWindow.Presenter.Kind == AppWindowPresenterKind.FullScreen)
-                HideSystemMenu();
-            else
-                UpdateSystemMenuItemsEnabledState();
+            UpdateSystemMenuItemsEnabledState();
         }
     }
 
@@ -88,11 +96,20 @@ internal abstract class WindowBase : Window
         {
             case PInvoke.WM_GETMINMAXINFO:
             {
-                MINMAXINFO minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
-                double scaleFactor = GetScaleFactor();
-                minMaxInfo.ptMinTrackSize.X = Math.Max(ConvertToDeviceSize(MinWidth, scaleFactor), minMaxInfo.ptMinTrackSize.X);
-                minMaxInfo.ptMinTrackSize.Y = Math.Max(ConvertToDeviceSize(MinHeight, scaleFactor), minMaxInfo.ptMinTrackSize.Y);
-                Marshal.StructureToPtr(minMaxInfo, lParam, true);
+                unsafe
+                {
+                    MINMAXINFO* mptr = (MINMAXINFO*)lParam.Value;
+                    mptr->ptMinTrackSize.X = scaledMinWidth;
+                    mptr->ptMinTrackSize.Y = scaledMinHeight;
+                }
+                break;
+            }
+
+            case PInvoke.WM_DPICHANGED:
+            {
+                scaleFactor = (wParam & 0xFFFF) / 96.0;
+                scaledMinWidth = (int)(cMinWidth * scaleFactor);
+                scaledMinHeight = (int)(cMinHeight * scaleFactor);
                 break;
             }
 
@@ -158,7 +175,7 @@ internal abstract class WindowBase : Window
             }
 
             double scale = GetScaleFactor();
-            systemMenu.ShowAt(null, new Windows.Foundation.Point(p.X / scale, p.Y / scale));
+            systemMenu.ShowAt(null, new Point(p.X / scale, p.Y / scale));
             return true;
         }
 
@@ -252,14 +269,13 @@ internal abstract class WindowBase : Window
 
     public static int ConvertToDeviceSize(double value, double scaleFactor) => Convert.ToInt32(Math.Clamp(value * scaleFactor, 0, short.MaxValue));
 
-    public double GetScaleFactor()
+    private double IntialiseScaleFactor()
     {
-        if ((Content is not null) && (Content.XamlRoot is not null))
-            return Content.XamlRoot.RasterizationScale;
-
         double dpi = PInvoke.GetDpiForWindow((HWND)WindowPtr);
         return dpi / 96.0;
     }
+
+    public double GetScaleFactor() => scaleFactor;
 
     protected void ClearWindowDragRegions()
     {
@@ -269,7 +285,7 @@ internal abstract class WindowBase : Window
             inputNonClientPointerSource.ClearRegionRects(NonClientRegionKind.Caption);
     }
 
-    protected void SetWindowDragRegions()
+    private void SetWindowDragRegionsInternal()
     {
         const int cInitialCapacity = 27;
 
@@ -297,15 +313,8 @@ internal abstract class WindowBase : Window
         }
     }
 
-    private record class ScrollViewerBounds(in Point Offset, in Vector2 Size)
+    private void LocatePassThroughContent(List<RectInt32> rects, UIElement item)
     {
-        public double Top => Offset.Y;
-    }
-
-    private static void LocatePassThroughContent(List<RectInt32> rects, UIElement item, ScrollViewerBounds? bounds = null)
-    {
-        ScrollViewerBounds? parentBounds = bounds;
-
         static Point GetOffsetFromXamlRoot(UIElement e)
         {
             GeneralTransform gt = e.TransformToVisual(null);
@@ -327,41 +336,10 @@ internal abstract class WindowBase : Window
                 case Expander:
                 case AutoSuggestBox:
                 case TextBlock tb when tb.Inlines.Any(x => x is Hyperlink):
+                case ScrollViewer sv when (sv.ComputedVerticalScrollBarVisibility == Visibility.Visible):
                 {
-                    Point offset = GetOffsetFromXamlRoot(child);
-                    Vector2 actualSize = child.ActualSize;
-
-                    if ((bounds is not null) && (offset.Y < bounds.Top)) // top clip (for vertical scroll bars)
-                    {
-                        actualSize.Y -= (float)(bounds.Top - offset.Y);
-
-                        if (actualSize.Y < 0.0)
-                            continue;
-
-                        offset.Y = bounds.Top;
-                    }
-
-                    rects.Add(ScaledRect(offset, actualSize, child.XamlRoot.RasterizationScale));
+                    rects.Add(ScaledRect(GetOffsetFromXamlRoot(child), child.ActualSize, scaleFactor));
                     continue;
-                }
-
-                case ScrollViewer:
-                {
-                    // nested scroll viewers is not supported
-                    parentBounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(child), child.ActualSize);
-
-                    if (((ScrollViewer)child).ComputedVerticalScrollBarVisibility == Visibility.Visible)
-                    {
-                        ScrollBar? vScrollBar = child.FindChild<ScrollBar>();
-
-                        if (vScrollBar is not null)
-                        {
-                            Debug.Assert(vScrollBar.Name.Equals("VerticalScrollBar"));
-                            rects.Add(ScaledRect(GetOffsetFromXamlRoot(vScrollBar), vScrollBar.ActualSize, child.XamlRoot.RasterizationScale));
-                        }
-                    }
-
-                    break;
                 }
 
                 case CustomTitleBar: continue;
@@ -369,7 +347,7 @@ internal abstract class WindowBase : Window
                 default: break;
             }
 
-            LocatePassThroughContent(rects, child, parentBounds);
+            LocatePassThroughContent(rects, child);
         }
     }
 
@@ -416,12 +394,6 @@ internal abstract class WindowBase : Window
                     continue;
                 }
 
-                case ScrollViewer scrollViewer:
-                {
-                    scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
-                    break;
-                }
-
                 case AutoSuggestBox autoSuggestBox:
                 {
                     Popup? popup = autoSuggestBox.FindChild<Popup>();
@@ -447,8 +419,28 @@ internal abstract class WindowBase : Window
         }
 
         void Flyout_Opened(object? sender, object e) => ClearWindowDragRegions();
-        void Flyout_Closed(object? sender, object e) => SetWindowDragRegions();
-        void Expander_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegions();
-        void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
+        void Flyout_Closed(object? sender, object e) => SetWindowDragRegionsInternal();
+        void Expander_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegionsInternal();
+    }
+
+    private DispatcherTimer InitialiseDragRegionTimer()
+    {
+        DispatcherTimer dt = new DispatcherTimer();
+        dt.Interval = TimeSpan.FromMilliseconds(125);
+        dt.Tick += DispatcherTimer_Tick;
+        return dt;
+    }
+
+    protected void SetWindowDragRegions()
+    {
+        // defer setting the drag regions while still resizing the window or scrolling
+        // it's content. If the timer is already running, this resets the interval.
+        dispatcherTimer.Start();
+    }
+
+    private void DispatcherTimer_Tick(object? sender, object e)
+    {
+        dispatcherTimer.Stop();
+        SetWindowDragRegionsInternal();
     }
 }
