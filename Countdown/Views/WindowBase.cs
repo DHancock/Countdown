@@ -336,14 +336,8 @@ internal abstract class WindowBase : Window
                 case Expander:
                 case AutoSuggestBox:
                 case TextBlock tb when tb.Inlines.Any(x => x is Hyperlink):
-                {
-                    rects.Add(ScaledRect(GetOffsetFromXamlRoot(child), child.ActualSize, scaleFactor));
-                    continue;
-                }
-
                 case ScrollViewer sv when (sv.ComputedVerticalScrollBarVisibility == Visibility.Visible):
                 {
-                    // scrolling via gestures trumps dragging the window
                     rects.Add(ScaledRect(GetOffsetFromXamlRoot(child), child.ActualSize, scaleFactor));
                     continue;
                 }
