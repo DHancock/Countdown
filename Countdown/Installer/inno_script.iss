@@ -4,7 +4,7 @@
 
 #define appName "Countdown"
 #define appExeName appName + ".exe"
-#define appVer RemoveFileExt(GetFileVersion("..\bin\x64\Release\publish\" + appExeName))
+#define appVer RemoveFileExt(GetVersionNumbersString("..\bin\x64\Release\publish\" + appExeName))
 #define appId appName
 
 #define winAppSdk_MajorMinorVersion "1.5"
