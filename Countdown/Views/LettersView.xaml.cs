@@ -154,6 +154,10 @@ internal sealed partial class LettersView : Page
 
                 sender.ItemsSource = suggestions;
             }
+            else
+            {
+                sender.ItemsSource = null;
+            }
         }
     }
 
