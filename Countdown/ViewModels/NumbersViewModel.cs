@@ -119,12 +119,18 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     private void UpdateProperties([CallerMemberName] string? propertyName = default)
     {
         if (propertyName == nameof(Target))
+        {
             ValidateTarget();
+        }
         else
+        {
             ValidateTiles();
+        }
 
         if (EquationList.Any())
+        {
             EquationList = new List<string>();
+        }
 
         RaisePropertyChanged(propertyName);
         SolveCommand.RaiseCanExecuteChanged();
@@ -133,7 +139,9 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     private static int Convert(string input)
     {
         if ((input.Length > 0) && int.TryParse(input, out int output))
+        {
             return output;
+        }
 
         return cEmptyTileValue;
     }
@@ -141,7 +149,9 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
     private static string Convert(int input)
     {
         if (input is cEmptyTileValue)
+        {
             return string.Empty;
+        }
 
         return input.ToString();
     }
@@ -166,12 +176,18 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
                 searchResult[index] = Array.BinarySearch(validTileValues, tiles[index]);
 
                 if (searchResult[index] < 0) // not found, an invalid value
+                {
                     SetValidationError(index, "Tile values must be from 1 to 10, or 25, 50, 75 or 100");
+                }
                 else
+                {
                     tileCount[searchResult[index]] += 1; // count how many of each value
+                }
             }
             else
+            {
                 ClearValidationError(index);
+            }
         }
 
         // check the tile counts of valid tiles
@@ -184,12 +200,18 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
                 if (tileCount[searchResult[index]] > validTileCount)
                 {
                     if (validTileCount == 1)
+                    {
                         SetValidationError(index, "Only one 25, 50, 75 or 100 tile is allowed.");
+                    }
                     else
+                    {
                         SetValidationError(index, "Only two tiles with the same value of 10 or less are allowed.");
+                    }
                 }
                 else
+                {
                     ClearValidationError(index);
+                }
             }
         }
 
@@ -203,9 +225,13 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
         const int cIndex = NumberModel.cNumberTileCount;
 
         if (((target < NumberModel.cMinTarget) || (target > NumberModel.cMaxTarget)) && (target != cEmptyTileValue))
+        {
             SetValidationError(cIndex, $"The target must be between {NumberModel.cMinTarget} and {NumberModel.cMaxTarget}");
+        }
         else
+        {
             ClearValidationError(cIndex);
+        }
     }
 
     private void ExecuteChoose(object? _)
@@ -225,7 +251,9 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
         ClearAllErrors();
 
         if (EquationList.Any())
+        {
             EquationList = new List<string>();
+        }
 
         SolveCommand.RaiseCanExecuteChanged();
     }
@@ -285,7 +313,9 @@ internal sealed class NumbersViewModel : DataErrorInfoBase
         int newIndex = 0;
 
         if (int.TryParse(p as string, out int value))
+        {
             newIndex = value;
+        }
        
         Settings.Data.ChooseNumbersIndex = newIndex;
         ChooseNumbersCommand.Execute(null);

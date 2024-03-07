@@ -49,7 +49,9 @@
             string newText = (string)e.NewValue;
 
             if (string.CompareOrdinal(tb.Text, newText) != 0)
+            {
                 tb.Text = newText;
+            }
         }
 
 
@@ -166,9 +168,13 @@
             if (!IsReadOnly)
             {
                 if (ContentStyle == ContentType.Number)
+                {
                     args.Cancel = !args.NewText.All(c => c is >= '0' and <= '9');
+                }
                 else
+                {
                     args.Cancel = !args.NewText.All(c => c is (>= 'A' and <= 'Z') or (>= 'a' and <= 'z'));
+                }
             }
         }
 

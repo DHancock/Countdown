@@ -57,7 +57,9 @@ internal sealed partial class CustomTitleBar : UserControl
         Debug.Assert(ParentAppWindow.TitleBar is not null);
 
         if (theme == ElementTheme.Default)
+        {
             theme = App.Current.RequestedTheme == ApplicationTheme.Light ? ElementTheme.Light : ElementTheme.Dark;
+        }
 
         AppWindowTitleBar titleBar = ParentAppWindow.TitleBar;
 

@@ -149,7 +149,9 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         ValidateLetters();
 
         if (WordList.Any())
+        {
             WordList = new List<string>();
+        }
 
         RaisePropertyChanged(propertyName);
         UpdateCommandsExecuteStatus();
@@ -166,7 +168,9 @@ internal sealed class LettersViewModel : DataErrorInfoBase
             for (int index = 0; index < letters.Length; index++)
             {
                 if (IsUpperVowel(letters[index]))
+                {
                     SetValidationError(index, $"A maximum of {cMaxVowels} vowels are allowed");
+                }
             }
         }
         else
@@ -178,7 +182,9 @@ internal sealed class LettersViewModel : DataErrorInfoBase
                 for (int index = 0; index < letters.Length; index++)
                 {
                     if (IsUpperConsonant(letters[index]))
+                    {
                         SetValidationError(index, $"A maximum of {cMaxConsonants} consonants are allowed");
+                    }
                 }
             }
         }
@@ -187,7 +193,9 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     private static bool IsUpperVowel(string letter)
     {
         if (string.IsNullOrEmpty(letter))
+        {
             return false;
+        }
 
         return IsUpperVowel(letter[0]);
     }
@@ -195,7 +203,9 @@ internal sealed class LettersViewModel : DataErrorInfoBase
     private static bool IsUpperConsonant(string letter)
     {
         if (string.IsNullOrEmpty(letter))
+        {
             return false;
+        }
 
         return IsUpperLetter(letter[0]) && !IsUpperVowel(letter[0]);
     }
@@ -226,7 +236,9 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         }
 
         if (WordList.Any())
+        {
             WordList = new List<string>();
+        }
 
         UpdateCommandsExecuteStatus();
     }
@@ -320,7 +332,9 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         }
 
         if (WordList.Any())
+        {
             WordList = new List<string>();
+        }
 
         UpdateCommandsExecuteStatus();
     }
@@ -330,7 +344,9 @@ internal sealed class LettersViewModel : DataErrorInfoBase
         int newIndex = 0;
 
         if (int.TryParse(p as string, out int value))
+        {
             newIndex = value;
+        }
 
         Settings.Data.ChooseLettersIndex = newIndex;
         ChooseLettersCommand.Execute(null);

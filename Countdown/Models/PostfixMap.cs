@@ -152,7 +152,9 @@ internal sealed class PostfixMap
         }
 
         if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+        {
             AddText(text);
+        }
         else
         {
             Thread t = new(() => AddText(text));
@@ -196,7 +198,9 @@ internal sealed class PostfixMap
                     sb.Append(entry[valueIndex]);
 
                     if (valueIndex < (entry.Count - 1))
+                    {
                         sb.Append(", ");
+                    }
                 }
 
                 sb.AppendLine($"]);");
@@ -235,13 +239,17 @@ internal sealed class PostfixMap
         for (int op0 = 0; op0 < 2; op0++)
         {
             if (op0 == 1)
+            {
                 AddMapRow(localMap[0], op0); // for 2 tiles
+            }
 
             // op1 can be between 0..2
             for (int op1 = 0; op1 < 3; op1++)
             {
                 if (op0 + op1 == 2)
+                {
                     AddMapRow(localMap[1], op0, op1); // for 3 tiles
+                }
 
                 int op0and1 = op0 + op1;
 
@@ -249,7 +257,9 @@ internal sealed class PostfixMap
                 for (int op2 = 0; (op2 < 4) && ((op0and1 + op2) < 6); op2++)
                 {
                     if (op0and1 + op2 == 3)
+                    {
                         AddMapRow(localMap[2], op0, op1, op2); // for 4 tiles
+                    }
 
                     int op01and2 = op0 + op1 + op2;
 
@@ -257,7 +267,9 @@ internal sealed class PostfixMap
                     for (int op3 = 0; (op3 < 5) && ((op01and2 + op3) < 6); op3++)
                     {
                         if (op01and2 + op3 == 4)
+                        {
                             AddMapRow(localMap[3], op0, op1, op2, op3); // for 5 tiles
+                        }
 
                         // op4 can be between 1..5 operators and the total operator count in the 
                         // equation must be 5 or less. If the total operators so far 
@@ -292,7 +304,9 @@ internal sealed class PostfixMap
         foreach (int operatorCount in operators)
         {
             if (operatorCount == 0) // push another digit on to the stack
+            {
                 digitCount++;
+            }
             else
             {
                 digitTotal += digitCount;
@@ -310,7 +324,9 @@ internal sealed class PostfixMap
                     digitCount = 1; // reset digit count
                 }
                 else
+                {
                     return; // invalid, more operators than digits so far, ignore this entry
+                }
             }
         }
 

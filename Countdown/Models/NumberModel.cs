@@ -25,13 +25,17 @@ internal class NumberModel
             largeTiles.Shuffle();
 
             for (int index = 0; index < largeTileCount; index++)
+            {
                 output[tileIndex++] = largeTiles[index];
+            }
         }
 
         smallTiles.Shuffle();
 
         for (int index = 0; index < smallTileCount; index++)
+        {
             output[tileIndex++] = smallTiles[index];
+        }
 
         return output;
     }

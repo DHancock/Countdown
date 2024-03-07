@@ -136,12 +136,16 @@ internal sealed class SolvingEngine
             if (op == cMultiply)
             {
                 if ((left > 1) && (right > 1) && (derived || (left <= right)))
+                {
                     result = left * right;
+                }
             }
             else if (op == cAdd)
             {
                 if (derived || (left <= right))
+                {
                     result = left + right;
+                }
             }
             else if (op == cSubtract)
             {
@@ -150,7 +154,9 @@ internal sealed class SolvingEngine
             else // cDivide
             {
                 if ((right > 1) && (left >= right) && ((left % right) == 0))
+                {
                     result = left / right;
+                }
             }
 
             if (result > cInvalidResult)  // valid result
@@ -167,7 +173,9 @@ internal sealed class SolvingEngine
                         copyToNextStack = false;
 
                         for (int index = 0; index < stackHead; index++)
+                        {
                             nextStack[index] = stack[index];
+                        }
                     }
 
                     // record the current result
@@ -317,7 +325,9 @@ internal sealed class SolvingEngine
             int operand = operators[operatorIndex++];
 
             if (mapIndex < mapEntry.Length)
+            {
                 ConcatWithParentheses(left, operand, right); // left is also the destination
+            }
             else
             {
                 Concat(left, operand, right);
@@ -332,7 +342,9 @@ internal sealed class SolvingEngine
     public void Solve(ReadOnlySpan<int> permutation)
     {
         foreach (int[] mapEntry in PostfixMap.Instance[permutation.Length])
+        {
             SolveRecursive(-1, mapEntry, 0, permutation, 0, 0);
+        }
     }
 
     private readonly struct StackManager<T> where T : struct   // caution: written for speed, not safety

@@ -46,17 +46,27 @@ internal sealed partial class MainWindow : WindowBase
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events
         // https://github.com/microsoft/microsoft-ui-xaml/issues/5744
         if (RootNavigationView.SelectionFollowsFocus == NavigationViewSelectionFollowsFocus.Disabled)
+        {
             RootNavigationView.SelectedItem = RootNavigationView.MenuItems[0];
+        }
 
         if (Settings.Data.IsFirstRun)
+        {
             AppWindow.MoveAndResize(CenterInPrimaryDisplay());
+        }
         else
+        {
             AppWindow.MoveAndResize(ValidateRestoreBounds(Settings.Data.RestoreBounds));
+        }
 
         if (Settings.Data.WindowState == WindowState.Minimized)
+        {
             WindowState = WindowState.Normal;
+        }
         else
+        {
             WindowState = Settings.Data.WindowState;
+        }
 
         LayoutRoot.Loaded += (s, e) =>
         {
@@ -68,22 +78,32 @@ internal sealed partial class MainWindow : WindowBase
     private RectInt32 ValidateRestoreBounds(RectInt32 windowArea)
     {
         if (windowArea == default)
+        {
             return CenterInPrimaryDisplay();
+        }
 
         RectInt32 workArea = DisplayArea.GetFromRect(windowArea, DisplayAreaFallback.Nearest).WorkArea;
         PointInt32 position = new PointInt32(windowArea.X, windowArea.Y);
 
         if ((position.Y + windowArea.Height) > (workArea.Y + workArea.Height))
+        {
             position.Y = (workArea.Y + workArea.Height) - windowArea.Height;
+        }
 
         if (position.Y < workArea.Y)
+        {
             position.Y = workArea.Y;
+        }
 
         if ((position.X + windowArea.Width) > (workArea.X + workArea.Width))
+        {
             position.X = (workArea.X + workArea.Width) - windowArea.Width;
+        }
 
         if (position.X < workArea.X)
+        {
             position.X = workArea.X;
+        }
 
         SizeInt32 size = new SizeInt32(Math.Min(windowArea.Width, workArea.Width),
                                         Math.Min(windowArea.Height, workArea.Height));
@@ -98,7 +118,9 @@ internal sealed partial class MainWindow : WindowBase
             Type? type = Type.GetType($"Countdown.Views.{item.Tag}");
 
             if (type is not null)
+            {
                 _ = ContentFrame.NavigateToType(type, null, frameNavigationOptions);
+            }
         }
     }
 
