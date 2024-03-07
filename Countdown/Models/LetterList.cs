@@ -8,7 +8,9 @@ internal abstract class LetterList
     protected void AddRange(char c, int count)
     {
         for (int i = 0; i < count; i++)
+        {
             chars.Add(c);
+        }
     }
 
     public char GetLetter() => chars[index++ % chars.Count];

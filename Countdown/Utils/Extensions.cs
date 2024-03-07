@@ -9,7 +9,9 @@ internal static class Extensions
             Random random = new Random();
 
             for (int index = list.Count - 1; index > 0; --index)
+            {
                 Swap(list, index, random.Next(index + 1));
+            }
         }
 
         return list;
@@ -30,9 +32,13 @@ internal static class Extensions
                 T current = list[index];
 
                 if (comparer.Equals(previous, current))
+                {
                     duplicateCount++;
+                }
                 else
+                {
                     previous = current;
+                }
 
                 if (duplicateCount > 0)
                 {
@@ -64,7 +70,9 @@ internal static class Extensions
         int remainder = index % size; 
 
         if (index < 0)
+        {
             return (remainder == 0) ? 0 : size + remainder;
+        }
 
         return remainder;
     }
@@ -86,7 +94,9 @@ internal static class Extensions
     public static int ReadAll(this Stream stream, byte[] buffer, int offset, int count)
     {
         if (count == 0)
+        {
             return 0;
+        }
 
         int size;
         int bytesLeft = count;
@@ -113,12 +123,16 @@ internal static class Extensions
             DependencyObject child = VisualTreeHelper.GetChild(parent, index);
 
             if (child is T target)
+            {
                 return target;
+            }
 
             T? result = child.FindChild<T>();
 
             if (result is not null)
+            {
                 return result;
+            }
         }
 
         return null;

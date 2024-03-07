@@ -9,7 +9,9 @@ abstract internal class DataErrorInfoBase : PropertyChangedBase
         ErrorText = new ObservableCollection<string>();
 
         for (int index = 0; index < propertyCount; index++)
+        {
             ErrorText.Add(string.Empty);
+        }
     }
 
 
@@ -19,7 +21,9 @@ abstract internal class DataErrorInfoBase : PropertyChangedBase
     protected void SetValidationError(int index, string message)
     {
         if (string.CompareOrdinal(ErrorText[index], message) != 0)
+        {
             ErrorText[index] = message;
+        }
     }
 
 
@@ -32,6 +36,8 @@ abstract internal class DataErrorInfoBase : PropertyChangedBase
     protected void ClearAllErrors()
     {
         for (int index = 0; index < ErrorText.Count; index++)
+        {
             ClearValidationError(index);
+        }
     }
 }

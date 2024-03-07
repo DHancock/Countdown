@@ -37,7 +37,9 @@ internal sealed class SolverResults
     public void AggregateData(SolvingEngine solvingEngine)
     {
         if ((solvingEngine is null) || (solvingEngine.Solutions is null))
+        {
             throw new ArgumentNullException(nameof(solvingEngine));
+        }
 
         if (solvingEngine.Solutions.Count > 0)
         {
@@ -67,11 +69,15 @@ internal sealed class SolverResults
         int size = 0;
 
         foreach (List<string> solverResults in SolverLists)
+        {
             size += solverResults.Count;
+        }
 
         Solutions.EnsureCapacity(size);
 
         foreach (List<string> solverResults in SolverLists)
+        {
             Solutions.AddRange(solverResults);
+        }
     }
 }

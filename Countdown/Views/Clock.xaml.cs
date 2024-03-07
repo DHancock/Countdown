@@ -21,10 +21,14 @@ internal sealed partial class Clock : UserControl
                 State = StopwatchState.AtStart;
             }
             else
+            {
                 sCompositionClock.XamlClock = xamlClock;
+            }
 
             if (ElementCompositionPreview.GetElementChildVisual(xamlClock) is null)
+            {
                 ElementCompositionPreview.SetElementChildVisual(xamlClock, sCompositionClock.Visual);
+            }
         };
     }
 
@@ -43,16 +47,22 @@ internal sealed partial class Clock : UserControl
     private static void StatePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (sCompositionClock is null || !ReferenceEquals(d, sCompositionClock.XamlClock))
+        {
             return;
+        }
         
         StopwatchState oldState = (StopwatchState)e.OldValue;
         StopwatchState newState = (StopwatchState)e.NewValue;
 
         if (oldState == StopwatchState.Undefined) // a new page has been loaded
+        {
             return;
+        }
 
         if (oldState == newState) // bindings have been re-evaluated
+        {
             return;
+        }
 
         switch (newState)
         {
@@ -188,12 +198,16 @@ internal sealed partial class Clock : UserControl
     private static void UpdateBrush(BrushId brushIndex, Color newColor)
     {
         if (sCompositionClock is null)
+        {
             return;
+        }
 
         CompositionColorBrush brush = sCompositionClock.Brushes[brushIndex];
 
         if (brush is not null && (brush.Color != newColor))
+        {
             brush.Color = newColor;
+        }
     }
 
     public bool IsDropShadowVisible
@@ -211,10 +225,14 @@ internal sealed partial class Clock : UserControl
     private static void UpdateDropShadowVisibility(bool isVisible)
     {
         if (sCompositionClock is null)
+        {
             return;
+        }
 
         if (sCompositionClock.IsDropShadowVisible != isVisible)
+        {
             sCompositionClock.IsDropShadowVisible = isVisible;
+        }
     }
 
 
@@ -355,7 +373,9 @@ internal sealed partial class Clock : UserControl
             float tickRadius = innerFrameStroke / 5.0f;      // TODO constants, and color static
 
             for (float degrees = 0; degrees < 360.0; degrees += 30.0f)
+            {
                 shapeContainer.Shapes.Add(CreateCircle(tickRadius, 0f, VectorToCartesian(radius, degrees, center), BrushId.FrameTick, BrushId.Transparent));
+            }
 
             // clock face fill
             radius -= innerFrameStroke * 0.5f;
@@ -543,7 +563,9 @@ internal sealed partial class Clock : UserControl
         public void StartForwardAnimations()
         {
             if (batch is not null)
+            {
                 batch.Completed -= Batch_Completed;
+            }
 
             batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
             batch.Completed += Batch_Completed;
@@ -564,13 +586,19 @@ internal sealed partial class Clock : UserControl
             try
             {
                 if (sCompositionClock is null)
+                {
                     return;
+                }
 
                 if (sCompositionClock.XamlClock.State == StopwatchState.Running)
+                {
                     sCompositionClock.XamlClock.State = StopwatchState.Completed;
+                }
 
                 else if (sCompositionClock.XamlClock.State == StopwatchState.Rewinding)
+                {
                     sCompositionClock.XamlClock.State = StopwatchState.AtStart;
+                }
             }
             catch (Exception ex)
             {
@@ -590,7 +618,9 @@ internal sealed partial class Clock : UserControl
         public void StartRewindAnimations()
         {
             if (batch is not null)
+            {
                 batch.Completed -= Batch_Completed;
+            }
 
             batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
             batch.Completed += Batch_Completed;
@@ -607,7 +637,9 @@ internal sealed partial class Clock : UserControl
                 AnimationController? ac = visual.TryGetAnimationController(animation.Target);
 
                 if (ac is not null)
+                {
                     ac.Progress = startPoint;
+                }
             }
 
             batch.End();

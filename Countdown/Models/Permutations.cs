@@ -26,7 +26,9 @@ internal sealed class Permutations<T> : IEnumerable<T[]>
     public Permutations(IEnumerable<T> source, IComparer<T> comp)
     {
         if (!source.Any())
+        {
             throw new ArgumentOutOfRangeException(nameof(source));
+        }
 
         // setup the comparer
         comparer = comp;
@@ -111,7 +113,9 @@ internal sealed class Permutations<T> : IEnumerable<T[]>
             }
 
             if (GetNext())
+            {
                 return true;
+            }
 
             // prepare for the next iteration sequence
             setUpFirstItem = true;
@@ -137,7 +141,9 @@ internal sealed class Permutations<T> : IEnumerable<T[]>
             get
             {
                 if (setUpFirstItem)
+                {
                     throw new InvalidOperationException("Enumerator state is invalid");
+                }
 
                 T[] copy = new T[current.Length];
                 current.AsSpan().CopyTo(copy);

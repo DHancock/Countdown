@@ -37,9 +37,13 @@ internal class WordModel
         for (int index = 0; index < cLetterCount; index++)
         {
             if (index < vowelCount)
+            {
                 list[index] = GetVowel();
+            }
             else
+            {
                 list[index] = GetConsonant();
+            }
         }
 
         return list.Shuffle();
@@ -62,7 +66,9 @@ internal class WordModel
                 AddDictionaryWordsToList(key, otherWords, results);
 
                 if (k == letters.Length)
+                {
                     AddDictionaryWordsToList(key, conundrumWords, results);
+                }
             }
         }
 
@@ -76,9 +82,13 @@ internal class WordModel
             string line = new string(GetChars(data, data.Length));
 
             if (line.Length == key.Length)
+            {
                 list.Add(line);
+            }
             else
+            {
                 list.AddRange(line.Split((char)cWord_seperator));
+            }
         }
     }
 
@@ -92,7 +102,9 @@ internal class WordModel
         string key = new string(letters);
 
         if (conundrumWords.TryGetValue(key, out byte[]? data) && (data is not null))
+        {
             return new string(GetChars(data, data.Length, true));
+        }
 
         return string.Empty;
     }
@@ -146,7 +158,9 @@ internal class WordModel
                     int pos = line.Slice(cMinLetters).IndexOf(cWord_seperator);
 
                     if (pos >= 0)
+                    {
                         keyLength = pos + cMinLetters;
+                    }
                 }
 
                 // make key
@@ -156,9 +170,13 @@ internal class WordModel
 
                 // add to dictionary
                 if ((keyLength == cMaxLetters) && (keyLength == line.Length))
+                {
                     conundrumWords[key] = line.ToArray();
+                }
                 else
+                {
                     otherWords[key] = line.ToArray();
+                }
             }
         }
     }
@@ -167,7 +185,9 @@ internal class WordModel
     private static char[] GetChars(ReadOnlySpan<byte> bytes, int count, bool toUpper = false)
     {
         if ((count < 0) || (count > bytes.Length))
+        {
             throw new ArgumentOutOfRangeException(nameof(count));
+        }
 
         char[] chars = new char[count];
         int index = 0;
@@ -226,7 +246,9 @@ internal class WordModel
                 int sizeLeft = dataSize - position;
 
                 if (sizeLeft > 0)  // move partial line to the start of the buffer
+                {
                     Buffer.BlockCopy(buffer, position, buffer, 0, sizeLeft);
+                }
 
                 // refill buffer
                 dataSize = sizeLeft;

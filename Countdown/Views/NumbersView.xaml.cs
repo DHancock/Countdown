@@ -16,7 +16,9 @@ internal sealed partial class NumbersView : Page
         StringBuilder sb = new StringBuilder();
 
         foreach (object equationItem in EquationList.SelectedItems)
+        {
             sb.AppendLine(equationItem.ToString());
+        }
 
         if (sb.Length > 0)
         {
@@ -37,6 +39,8 @@ internal sealed partial class NumbersView : Page
         int selectedIndex = Settings.Data.ChooseNumbersIndex;
 
         for (int index = 0; index < menu.Items.Count; index++)
+        {
             ((RadioMenuFlyoutItem)menu.Items[index]).IsChecked = index == selectedIndex;
+        }
     }
 }

@@ -29,7 +29,9 @@ internal sealed partial class LettersView : Page
                     textBox.BeforeTextChanging += (s, a) =>
                     {
                         if (a.NewText.Length > 0)
+                        {
                             a.Cancel = a.NewText.Any(c => c is < 'a' or > 'z');
+                        }
                     };
                 }
             }
@@ -54,7 +56,9 @@ internal sealed partial class LettersView : Page
     private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(ViewModel.WordList))
+        {
             LoadTreeView();
+        }
     }
 
     // Guarantee that there is a one to one mapping between tree view nodes and grouped word list items
@@ -65,7 +69,9 @@ internal sealed partial class LettersView : Page
         WordTreeView.RootNodes.Clear();
 
         if (ViewModel is null || ViewModel.WordList is null)
+        {
             return;
+        }
 
         IEnumerable<IGrouping<int, string>> query = from word in ViewModel.WordList
                                                     group word by word.Length into g
@@ -88,7 +94,9 @@ internal sealed partial class LettersView : Page
         }
 
         if (WordTreeView.RootNodes.Count > 0)
+        {
             WordTreeView.Expand(WordTreeView.RootNodes[0]);
+        }
     }
 
     private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
@@ -101,7 +109,9 @@ internal sealed partial class LettersView : Page
             sb.AppendLine(selectedNode.Content.ToString());
 
             foreach (TreeViewNode node in selectedNode.Children)
+            {
                 sb.AppendLine(node.Content.ToString());
+            }
 
             if (sb.Length > 0)
             {
@@ -126,7 +136,9 @@ internal sealed partial class LettersView : Page
                 List<string> suggestions = new(ViewModel.WordList.Where(x =>
                 {
                     if (x.StartsWith(sender.Text, StringComparison.Ordinal))
+                    {
                         return true;
+                    }
 
                     return DistanceFilter(x, sender.Text);
                 }));
@@ -141,10 +153,14 @@ internal sealed partial class LettersView : Page
                         bool bStartsWith = b.StartsWith(sender.Text, StringComparison.Ordinal);
 
                         if (aStartsWith == bStartsWith)
+                        {
                             return string.Compare(a, b);
+                        }
 
                         else if (aStartsWith)
+                        {
                             return -1;
+                        }
 
                         return +1;
                     }
@@ -170,10 +186,14 @@ internal sealed partial class LettersView : Page
     private void AutoSuggestBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
         if (string.IsNullOrEmpty(args.QueryText))
+        {
             return;
+        }
 
         if (!FindTreeViewItem(args.QueryText) && !FindTreeViewItem(FindClosestItem(args.QueryText)))
+        {
             Utils.User32Sound.PlayExclamation();
+        }
     }
 
     private bool FindTreeViewItem(string target)
@@ -181,7 +201,9 @@ internal sealed partial class LettersView : Page
         foreach (TreeViewNode parent in WordTreeView.RootNodes)
         {
             if (target.Length != ((WordHeading)parent.Content).Count)
+            {
                 continue;
+            }
 
             foreach (TreeViewNode child in parent.Children)
             {
@@ -217,7 +239,9 @@ internal sealed partial class LettersView : Page
     private string FindClosestItem(string target)
     {
         if ((target.Length == 0) || (ViewModel is null))
+        {
             return string.Empty;
+        }
 
         List<string> subset = ViewModel.WordList.Where(s => DistanceFilter(s, target)).ToList();
 
@@ -226,10 +250,14 @@ internal sealed partial class LettersView : Page
         foreach (string word in subset)
         {
             if (word == target)
+            {
                 return word;
+            }
 
             if ((foundWord.Length < word.Length) || ((foundWord.Length == word.Length) && (string.Compare(foundWord, word) >= 0)))
+            {
                 foundWord = word;
+            }
         }
 
         return foundWord;
@@ -241,7 +269,9 @@ internal sealed partial class LettersView : Page
         int size = (s1.Length + 1) * (s2.Length + 1);
 
         if (size <= cThreshold)
+        {
             return DamerauLevenshteinDistance(s1, s2, stackalloc int[size]);
+        }
 
         int[] buffer = ArrayPool<int>.Shared.Rent(size);
         int distance = DamerauLevenshteinDistance(s1, s2, buffer);
@@ -255,15 +285,21 @@ internal sealed partial class LettersView : Page
         int height = s2.Length + 1;
 
         if ((width * height) > buffer.Length)
+        {
             throw new ArgumentException("buffer too small");
+        }
 
         int idx(int x, int y) => x + (y * width);
 
         for (int i = 0; i < width; i++)
+        {
             buffer[idx(i, 0)] = i;
+        }
 
         for (int j = 0; j < height; j++)
+        {
             buffer[idx(0, j)] = j;
+        }
 
         for (int i = 1; i < width; i++)
         {
@@ -278,9 +314,13 @@ internal sealed partial class LettersView : Page
                 int distance = Math.Min(deletionCost, Math.Min(insertionCost, substitutionCost));
 
                 if ((i > 1) && (j > 1) && (s1[i - 1] == s2[j - 2]) && (s1[i - 2] == s2[j - 1])) // adjacent transpositions
+                {
                     buffer[idx(i, j)] = Math.Min(distance, buffer[idx(i - 2, j - 2)] + cost);
+                }
                 else
+                {
                     buffer[idx(i, j)] = distance;
+                }
             }
         }
 
@@ -296,12 +336,16 @@ internal sealed partial class LettersView : Page
             DependencyObject child = VisualTreeHelper.GetChild(parent, index);
 
             if (child is T target)
+            {
                 return target;
+            }
 
             T? result = FindChild<T>(child);
 
             if (result is not null)
+            {
                 return result;
+            }
         }
 
         return null;
@@ -313,7 +357,9 @@ internal sealed partial class LettersView : Page
         int selectedIndex = Settings.Data.ChooseLettersIndex;
 
         for (int index = 0; index < menu.Items.Count; index++)
+        {
             ((RadioMenuFlyoutItem)menu.Items[index]).IsChecked = index == selectedIndex;
+        }
     }
 }
 

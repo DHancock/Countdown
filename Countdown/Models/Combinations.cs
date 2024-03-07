@@ -53,10 +53,14 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
         int n = source.Count();
 
         if (n < 1)
+        {
             throw new ArgumentOutOfRangeException(nameof(source));
+        }
 
         if ((k < 0) || (k > n))
+        {
             throw new ArgumentOutOfRangeException(nameof(k));
+        }
 
         // setup the comparer
         comparer = comp;
@@ -75,7 +79,9 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
         noDuplicates = true;
 
         for (int index = 1; (index < n) && noDuplicates; index++)
+        {
             noDuplicates = comparer.Compare(input[index - 1], input[index]) != 0;
+        }
     }
 
 
@@ -189,7 +195,9 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
             }
 
             if (GetNext())
+            {
                 return true;
+            }
 
             // prepare for the next iteration sequence
             setUpFirstItem = true;
@@ -215,7 +223,9 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
             get
             {
                 if (setUpFirstItem)
+                {
                     throw new InvalidOperationException("Enumerator state is invalid");
+                }
 
                 T[] copy = new T[k];
                 current.AsSpan().CopyTo(copy);
@@ -249,15 +259,21 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
         {
             // first check if there is anything to do
             if (k < 1)
+            {
                 return false;
+            }
 
             // initialise the map with 0, 1, 2... the first combination
             for (int index = 0; index < k; index++)
+            {
                 map[index] = index;
+            }
 
             // copy sorted input to current 
             for (int index = 0; index < k; index++)
+            {
                 current[index] = input[index];
+            }
 
             return true;
         }
@@ -276,7 +292,9 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
                 {
                     // build current from the map
                     for (int index = 0; index < k; index++)
+                    {
                         current[index] = input[map[index]];
+                    }
 
                     return true;
                 }
@@ -305,12 +323,16 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
                             cr = comparer.Compare(current[index], previous[index]);
 
                             if (cr < 0) // less than, its a duplicate
+                            {
                                 break;
+                            }
                         }
                     }
 
                     if (cr > 0)  // greater than, its not a duplicate
+                    {
                         return true;
+                    }
                 }
 
                 return false;
@@ -332,14 +354,18 @@ internal sealed class Combinations<T> : IEnumerable<T[]>
             while (map[i] == (n - k + i))  // find next item to increment 
             {
                 if (--i < 0)
+                {
                     return false; // all done
+                }
             }
 
             ++map[i]; // increment
 
             // do next 
             for (int j = i + 1; j < k; j++)
+            {
                 map[j] = map[i] + j - i;
+            }
 
             return true;
         }
