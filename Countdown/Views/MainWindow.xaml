@@ -21,22 +21,6 @@
             <SolidColorBrush x:Key="NavigationViewItemBackground" Color="Transparent" />
             <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
             <Thickness x:Key="TopNavigationViewContentGridBorderThickness">0</Thickness>
-
-            <!--use x:Name rather then x:Key to guarantee the menu is constructed before xaml tries to update the commands-->
-            <MenuFlyout x:Name="SystemMenuFlyout">
-                <MenuFlyoutItem Command="{x:Bind RestoreCommand}" Text="Restore" AccessKey="R"/>
-                <MenuFlyoutItem Command="{x:Bind MoveCommand}" Text="Move" AccessKey="M"/>
-                <MenuFlyoutItem Command="{x:Bind SizeCommand}" Text="Size" AccessKey="S"/>
-                <MenuFlyoutItem Command="{x:Bind MinimizeCommand}" Text="Minimize" AccessKey="N"/>
-                <MenuFlyoutItem Command="{x:Bind MaximizeCommand}" Text="Maximize" AccessKey="X"/>
-                <MenuFlyoutSeparator/>
-                <MenuFlyoutItem Command="{x:Bind CloseCommand}" Text="Close" AccessKey="C">
-                    <MenuFlyoutItem.KeyboardAccelerators>
-                        <!-- disabled to avoid two close messages -->
-                        <KeyboardAccelerator Modifiers="Menu" Key="F4" IsEnabled="False"/>
-                    </MenuFlyoutItem.KeyboardAccelerators>
-                </MenuFlyoutItem>
-            </MenuFlyout>
         </Grid.Resources>
 
         <Grid.BackgroundTransition>
