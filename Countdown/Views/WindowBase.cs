@@ -38,6 +38,7 @@ internal abstract class WindowBase : Window
     private readonly InputNonClientPointerSource inputNonClientPointerSource;
     private readonly SUBCLASSPROC subClassDelegate;
     private readonly DispatcherTimer dispatcherTimer;
+    private bool cancelDragRegionTimerEvent = false;
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
     private MenuFlyout? systemMenu;
@@ -61,8 +62,8 @@ internal abstract class WindowBase : Window
         dispatcherTimer = InitialiseDragRegionTimer();
 
         scaleFactor = IntialiseScaleFactor();
-        scaledMinWidth = (int)(cMinWidth * scaleFactor);
-        scaledMinHeight = (int)(cMinHeight * scaleFactor);
+        scaledMinWidth = ConvertToDeviceSize(cMinWidth, scaleFactor);
+        scaledMinHeight = ConvertToDeviceSize(cMinHeight, scaleFactor);
 
         AppWindow.Changed += AppWindow_Changed;
     }
@@ -104,8 +105,8 @@ internal abstract class WindowBase : Window
             case PInvoke.WM_DPICHANGED:
             {
                 scaleFactor = (wParam & 0xFFFF) / 96.0;
-                scaledMinWidth = (int)(cMinWidth * scaleFactor);
-                scaledMinHeight = (int)(cMinHeight * scaleFactor);
+                scaledMinWidth = ConvertToDeviceSize(cMinWidth, scaleFactor);
+                scaledMinHeight = ConvertToDeviceSize(cMinHeight, scaleFactor);
                 break;
             }
 
@@ -300,7 +301,7 @@ internal abstract class WindowBase : Window
         get => new RectInt32(restorePosition.X, restorePosition.Y, restoreSize.Width, restoreSize.Height);
     }
 
-    public static int ConvertToDeviceSize(double value, double scaleFactor) => Convert.ToInt32(Math.Clamp(value * scaleFactor, 0, short.MaxValue));
+    public static int ConvertToDeviceSize(double value, double scaleFactor) => Convert.ToInt32(value * scaleFactor);
 
     private double IntialiseScaleFactor()
     {
@@ -312,6 +313,12 @@ internal abstract class WindowBase : Window
 
     protected void ClearWindowDragRegions()
     {
+        // Guard against race hazards. If a size changed event is generated the timer will be
+        // started. The drag regions could then be cleared when a context menu is opened, followed
+        // by the timer event which could then reset the drag regions while the menu was still open. Stopping
+        // the timer isn't enough because the tick event may have already been queued (on the same thread).
+        cancelDragRegionTimerEvent = true;
+
         // allow mouse interaction with menu fly outs,  
         // including clicks anywhere in the client area used to dismiss the menu
         if (AppWindowTitleBar.IsCustomizationSupported())
@@ -323,6 +330,8 @@ internal abstract class WindowBase : Window
     private void SetWindowDragRegionsInternal()
     {
         const int cInitialCapacity = 27;
+
+        cancelDragRegionTimerEvent = false;
 
         try
         {
@@ -348,13 +357,14 @@ internal abstract class WindowBase : Window
         }
     }
 
-    private void LocatePassThroughContent(List<RectInt32> rects, UIElement item)
+    private record class ScrollViewerBounds(in Point Offset, in Vector2 Size)
     {
-        static Point GetOffsetFromXamlRoot(UIElement e)
-        {
-            GeneralTransform gt = e.TransformToVisual(null);
-            return gt.TransformPoint(new Point(0, 0));
-        }
+        public double Top => Offset.Y;
+    }
+
+    private void LocatePassThroughContent(List<RectInt32> rects, UIElement item, ScrollViewerBounds? bounds = null)
+    {
+        ScrollViewerBounds? parentBounds = bounds;
 
         foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
         {
@@ -371,10 +381,41 @@ internal abstract class WindowBase : Window
                 case Expander:
                 case AutoSuggestBox:
                 case TextBlock tb when tb.Inlines.Any(x => x is Hyperlink):
-                case ScrollViewer sv when (sv.ComputedVerticalScrollBarVisibility == Visibility.Visible):
                 {
-                    rects.Add(ScaledRect(GetOffsetFromXamlRoot(child), child.ActualSize, scaleFactor));
+                    Point offset = GetOffsetFromXamlRoot(child);
+                    Vector2 actualSize = child.ActualSize;
+
+                    if ((parentBounds is not null) && (offset.Y < parentBounds.Top)) // top clip (for vertical scroll bars)
+                    {
+                        actualSize.Y -= (float)(parentBounds.Top - offset.Y);
+
+                        if (actualSize.Y < 0.0)
+                            continue;
+
+                        offset.Y = parentBounds.Top;
+                    }
+
+                    rects.Add(ScaledRect(offset, actualSize, scaleFactor));
                     continue;
+                }
+
+                case ScrollViewer:
+                {
+                    // nested scroll viewers is not supported
+                    bounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(child), child.ActualSize);
+
+                    if (((ScrollViewer)child).ComputedVerticalScrollBarVisibility == Visibility.Visible)
+                    {
+                        ScrollBar? vScrollBar = child.FindChild<ScrollBar>();
+
+                        if (vScrollBar is not null)
+                        {
+                            Debug.Assert(vScrollBar.Name.Equals("VerticalScrollBar"));
+                            rects.Add(ScaledRect(GetOffsetFromXamlRoot(vScrollBar), vScrollBar.ActualSize, scaleFactor));
+                        }
+                    }
+
+                    break;
                 }
 
                 case CustomTitleBar: continue;
@@ -382,7 +423,13 @@ internal abstract class WindowBase : Window
                 default: break;
             }
 
-            LocatePassThroughContent(rects, child);
+            LocatePassThroughContent(rects, child, bounds);
+        }
+
+        static Point GetOffsetFromXamlRoot(UIElement e)
+        {
+            GeneralTransform gt = e.TransformToVisual(null);
+            return gt.TransformPoint(new Point(0, 0));
         }
     }
 
@@ -441,6 +488,12 @@ internal abstract class WindowBase : Window
                     continue;
                 }
 
+                case ScrollViewer scrollViewer:
+                {
+                    scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
+                    break;
+                }
+
                 case Button:
                 case GroupBox:
                 case TextBlock:
@@ -456,6 +509,7 @@ internal abstract class WindowBase : Window
         void Flyout_Opened(object? sender, object e) => ClearWindowDragRegions();
         void Flyout_Closed(object? sender, object e) => SetWindowDragRegionsInternal();
         void Expander_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegionsInternal();
+        void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
     }
 
     private DispatcherTimer InitialiseDragRegionTimer()
@@ -476,6 +530,10 @@ internal abstract class WindowBase : Window
     private void DispatcherTimer_Tick(object? sender, object e)
     {
         dispatcherTimer.Stop();
-        SetWindowDragRegionsInternal();
+
+        if (!cancelDragRegionTimerEvent)
+        {
+            SetWindowDragRegionsInternal();
+        }
     }
 }
