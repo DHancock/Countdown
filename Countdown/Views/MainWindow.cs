@@ -26,9 +26,7 @@ internal partial class MainWindow : Window
     private const double cInitialWidth = 660;
     private const double cInitialHeight = 500;
 
-    public double InitialWidth { get; set; }
-    public double InitialHeight { get; set; }
-    public IntPtr WindowPtr { get; }
+    private readonly IntPtr windowPtr;
 
     private RelayCommand? restoreCommand;
     private RelayCommand? moveCommand;
@@ -50,11 +48,11 @@ internal partial class MainWindow : Window
 
     private MainWindow()
     {
-        WindowPtr = WindowNative.GetWindowHandle(this);
+        windowPtr = WindowNative.GetWindowHandle(this);
 
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
 
-        if (!PInvoke.SetWindowSubclass((HWND)WindowPtr, subClassDelegate, 0, 0))
+        if (!PInvoke.SetWindowSubclass((HWND)windowPtr, subClassDelegate, 0, 0))
         {
             throw new Win32Exception(Marshal.GetLastPInvokeError());
         }
@@ -64,10 +62,16 @@ internal partial class MainWindow : Window
         dispatcherTimer = InitialiseDragRegionTimer();
 
         scaleFactor = IntialiseScaleFactor();
-        scaledMinWidth = ConvertToDeviceSize(cMinWidth, scaleFactor);
-        scaledMinHeight = ConvertToDeviceSize(cMinHeight, scaleFactor);
+        scaledMinWidth = ConvertToDeviceSize(cMinWidth);
+        scaledMinHeight = ConvertToDeviceSize(cMinHeight);
 
         AppWindow.Changed += AppWindow_Changed;
+        
+        Closed += (s, e) =>
+        {
+            cancelDragRegionTimerEvent = true;
+            dispatcherTimer.Stop();
+        };
     }
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
@@ -79,10 +83,6 @@ internal partial class MainWindow : Window
                 restorePosition = AppWindow.Position;
                 restoreSize = AppWindow.Size;
             }
-        }
-        else if (args.DidPresenterChange)
-        {
-            UpdateSystemMenuItemsEnabledState();
         }
     }
 
@@ -107,8 +107,8 @@ internal partial class MainWindow : Window
             case PInvoke.WM_DPICHANGED:
             {
                 scaleFactor = (wParam & 0xFFFF) / 96.0;
-                scaledMinWidth = ConvertToDeviceSize(cMinWidth, scaleFactor);
-                scaledMinHeight = ConvertToDeviceSize(cMinHeight, scaleFactor);
+                scaledMinWidth = ConvertToDeviceSize(cMinWidth);
+                scaledMinHeight = ConvertToDeviceSize(cMinHeight);
                 break;
             }
 
@@ -152,7 +152,7 @@ internal partial class MainWindow : Window
 
     private void PostSysCommandMessage(SC command)
     {
-        bool success = PInvoke.PostMessage((HWND)WindowPtr, PInvoke.WM_SYSCOMMAND, (WPARAM)(nuint)command, 0);
+        bool success = PInvoke.PostMessage((HWND)windowPtr, PInvoke.WM_SYSCOMMAND, (WPARAM)(nuint)command, 0);
         Debug.Assert(success);
     }
 
@@ -160,7 +160,7 @@ internal partial class MainWindow : Window
     {
         System.Drawing.Point p = default;
 
-        if (viaKeyboard || !PInvoke.GetCursorPos(out p) || !PInvoke.ScreenToClient((HWND)WindowPtr, ref p))
+        if (viaKeyboard || !PInvoke.GetCursorPos(out p) || !PInvoke.ScreenToClient((HWND)windowPtr, ref p))
         {
             p.X = 3;
             p.Y = AppWindow.TitleBar.Height;
@@ -219,20 +219,6 @@ internal partial class MainWindow : Window
         return menuFlyout;
     }
 
-    private void UpdateSystemMenuItemsEnabledState()
-    {
-        if (systemMenu is not null)
-        {
-            restoreCommand?.RaiseCanExecuteChanged();
-            moveCommand?.RaiseCanExecuteChanged();
-            sizeCommand?.RaiseCanExecuteChanged();
-            minimizeCommand?.RaiseCanExecuteChanged();
-            maximizeCommand?.RaiseCanExecuteChanged();
-        }
-    }
-
-    public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);
-
     private bool CanRestore(object? param)
     {
         return (AppWindow.Presenter is OverlappedPresenter op) && (op.State == OverlappedPresenterState.Maximized);
@@ -263,7 +249,7 @@ internal partial class MainWindow : Window
         return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMaximizable && (op.State != OverlappedPresenterState.Maximized);
     }
 
-    public WindowState WindowState
+    private WindowState WindowState
     {
         get
         {
@@ -298,20 +284,18 @@ internal partial class MainWindow : Window
         }
     }
 
-    public RectInt32 RestoreBounds
+    private RectInt32 RestoreBounds
     {
         get => new RectInt32(restorePosition.X, restorePosition.Y, restoreSize.Width, restoreSize.Height);
     }
 
-    public static int ConvertToDeviceSize(double value, double scaleFactor) => Convert.ToInt32(value * scaleFactor);
+    private int ConvertToDeviceSize(double value) => Convert.ToInt32(value * scaleFactor);
 
     private double IntialiseScaleFactor()
     {
-        double dpi = PInvoke.GetDpiForWindow((HWND)WindowPtr);
+        double dpi = PInvoke.GetDpiForWindow((HWND)windowPtr);
         return dpi / 96.0;
     }
-
-    public double GetScaleFactor() => scaleFactor;
 
     private void ClearWindowDragRegions()
     {
@@ -517,7 +501,7 @@ internal partial class MainWindow : Window
     private DispatcherTimer InitialiseDragRegionTimer()
     {
         DispatcherTimer dt = new DispatcherTimer();
-        dt.Interval = TimeSpan.FromMilliseconds(125);
+        dt.Interval = TimeSpan.FromMilliseconds(50);
         dt.Tick += DispatcherTimer_Tick;
         return dt;
     }

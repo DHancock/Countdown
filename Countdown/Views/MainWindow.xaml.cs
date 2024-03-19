@@ -174,9 +174,8 @@ internal sealed partial class MainWindow : Window
         RectInt32 workArea = DisplayArea.Primary.WorkArea;
         RectInt32 windowArea;
 
-        double scaleFactor = GetScaleFactor();
-        windowArea.Width = ConvertToDeviceSize(InitialWidth, scaleFactor);
-        windowArea.Height = ConvertToDeviceSize(InitialHeight, scaleFactor);
+        windowArea.Width = ConvertToDeviceSize(cInitialWidth);
+        windowArea.Height = ConvertToDeviceSize(cInitialHeight);
 
         windowArea.Width = Math.Min(windowArea.Width, workArea.Width);
         windowArea.Height = Math.Min(windowArea.Height, workArea.Height);
