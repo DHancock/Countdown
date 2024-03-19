@@ -1,4 +1,4 @@
-﻿<local:WindowBase
+﻿<Window
     x:Class="Countdown.Views.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,9 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:av="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
-    mc:Ignorable="d"
-    InitialWidth="660"
-    InitialHeight="500">
+    mc:Ignorable="d">
     
     <Window.SystemBackdrop>
         <MicaBackdrop/>
@@ -68,4 +66,4 @@
             <Frame x:Name="ContentFrame" Navigated="ContentFrame_Navigated" IsNavigationStackEnabled="False" Margin="5,0,5,5" SizeChanged="ContentFrame_SizeChanged"/>
         </NavigationView>
     </Grid>
-</local:WindowBase>
+</Window>

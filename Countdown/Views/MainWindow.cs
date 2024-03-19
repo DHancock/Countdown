@@ -9,7 +9,7 @@ namespace Countdown.Views;
 
 public enum WindowState { Normal, Minimized, Maximized }
 
-internal abstract class WindowBase : Window
+internal partial class MainWindow : Window
 {
     private enum SC
     {
@@ -23,6 +23,8 @@ internal abstract class WindowBase : Window
 
     private const double cMinWidth = 660;
     private const double cMinHeight = 500;
+    private const double cInitialWidth = 660;
+    private const double cInitialHeight = 500;
 
     public double InitialWidth { get; set; }
     public double InitialHeight { get; set; }
@@ -46,7 +48,7 @@ internal abstract class WindowBase : Window
     private int scaledMinHeight;
     private double scaleFactor;
 
-    public WindowBase()
+    private MainWindow()
     {
         WindowPtr = WindowNative.GetWindowHandle(this);
 
@@ -311,7 +313,7 @@ internal abstract class WindowBase : Window
 
     public double GetScaleFactor() => scaleFactor;
 
-    protected void ClearWindowDragRegions()
+    private void ClearWindowDragRegions()
     {
         // Guard against race hazards. If a size changed event is generated the timer will be
         // started. The drag regions could then be cleared when a context menu is opened, followed
@@ -441,7 +443,7 @@ internal abstract class WindowBase : Window
                              Convert.ToInt32(size.Y * scale));
     }
 
-    protected void AddDragRegionEventHandlers(UIElement item)
+    private void AddDragRegionEventHandlers(UIElement item)
     {
         foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
         {
@@ -520,7 +522,7 @@ internal abstract class WindowBase : Window
         return dt;
     }
 
-    protected void SetWindowDragRegions()
+    private void SetWindowDragRegions()
     {
         // defer setting the drag regions while still resizing the window or scrolling
         // it's content. If the timer is already running, this resets the interval.
