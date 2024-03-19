@@ -7,7 +7,6 @@ namespace Countdown;
 /// </summary>
 public partial class App : Application
 {
-    public const string cDisplayName = "Countdown";
     public static App Instance => (App)Current;
 
     private MainWindow? m_window;
@@ -26,9 +25,9 @@ public partial class App : Application
     /// will be used such as when the application is launched to open a specific file.
     /// </summary>
     /// <param name="args">Details about the launch request and process.</param>
-    protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        m_window = new MainWindow();
+        m_window = new MainWindow("Countdown");
     }
 
     internal static MainWindow? MainWindow { get => Instance.m_window; }

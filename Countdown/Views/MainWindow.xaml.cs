@@ -5,7 +5,7 @@ namespace Countdown.Views;
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.
 /// </summary>
-internal sealed partial class MainWindow : WindowBase
+internal sealed partial class MainWindow : Window
 {
     private readonly ViewModel rootViewModel = new ViewModel();
 
@@ -15,7 +15,7 @@ internal sealed partial class MainWindow : WindowBase
         IsNavigationStackEnabled = false,
     };
 
-    public MainWindow()
+    public MainWindow(string title) : this()
     {
         this.InitializeComponent();
 
@@ -30,7 +30,7 @@ internal sealed partial class MainWindow : WindowBase
         {
             customTitleBar.ParentAppWindow = AppWindow;
             customTitleBar.UpdateThemeAndTransparency(Settings.Data.CurrentTheme);
-            customTitleBar.Title = App.cDisplayName;           
+            customTitleBar.Title = title;           
             Activated += customTitleBar.ParentWindow_Activated;
             AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
         }
@@ -41,7 +41,7 @@ internal sealed partial class MainWindow : WindowBase
 
         // always set the window icon and title, it's used in the task switcher
         AppWindow.SetIcon("Resources\\app.ico");
-        AppWindow.Title = App.cDisplayName;
+        AppWindow.Title = title;
 
         // SelectionFollowsFocus is disabled to avoid multiple selection changed events
         // https://github.com/microsoft/microsoft-ui-xaml/issues/5744
@@ -71,7 +71,7 @@ internal sealed partial class MainWindow : WindowBase
         LayoutRoot.Loaded += (s, e) =>
         {
             // set duration for the next theme change
-            ThemeBrushTransition.Duration = new TimeSpan(0, 0, 0, 0, 250);
+            ThemeBrushTransition.Duration = TimeSpan.FromMicroseconds(250);
         };
     }
 
