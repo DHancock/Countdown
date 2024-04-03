@@ -1,5 +1,5 @@
 ; This script assumes that all release configurations have been published
-; and they are WinAppSdk and .Net framework are self contained.
+; and the WinAppSdk and .Net framework are self contained.
 ; Inno 6.2.2
 
 #define appName "Countdown"
