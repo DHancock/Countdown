@@ -5,7 +5,7 @@ namespace Countdown.Views;
 internal sealed partial class Clock : UserControl
 {
     private static CompositionClock? sCompositionClock;
-    private static readonly AudioHelper sAudioHelper = new AudioHelper();
+    private static AudioHelper? sAudioHelper;
 
     public Clock()
     {
@@ -18,6 +18,7 @@ internal sealed partial class Clock : UserControl
             if (sCompositionClock is null)
             {
                 sCompositionClock = new CompositionClock(xamlClock);
+                sAudioHelper = new AudioHelper();
                 State = StopwatchState.AtStart;
             }
             else
@@ -69,14 +70,14 @@ internal sealed partial class Clock : UserControl
             case StopwatchState.Running:
                 {
                     sCompositionClock.Animations.StartForwardAnimations();
-                    sAudioHelper.Start();
+                    sAudioHelper?.Start();
                     break;
                 }
             
             case StopwatchState.Stopped: // the user halted the countdown 
                 {
                     sCompositionClock.Animations.StopAnimations();
-                    sAudioHelper.Stop();
+                    sAudioHelper?.Stop();
                     break;
                 }
                 
@@ -696,6 +697,9 @@ internal sealed partial class Clock : UserControl
                 mediaPlayer.SetStreamSource(stream.AsRandomAccessStream());
                 mediaPlayer.Volume = Settings.Data.VolumePercentage / 100.0;
                 Settings.Data.VolumeChanged += (s, a) => mediaPlayer.Volume = Settings.Data.VolumePercentage / 100.0;
+
+                Debug.Assert(App.MainWindow is not null);
+                App.MainWindow.Closed += (s, e) => Stop();
             }
         }
 
