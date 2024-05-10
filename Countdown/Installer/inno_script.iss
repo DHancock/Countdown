@@ -3,9 +3,17 @@
 ; have been published and the WinAppSdk and .Net framework are self contained.
 ; Inno 6.2.2
 
+#ifndef platform
+  #error platform is not defined
+#endif
+  
+#if !((platform == "x64") || (platform == "x86") || (platform == "arm64"))
+  #error invalid platform definition
+#endif
+
 #define appName "Countdown"
 #define appExeName appName + ".exe"
-#define appVer RemoveFileExt(GetVersionNumbersString("..\bin\Release\win-x64\publish\" + appExeName))
+#define appVer RemoveFileExt(GetVersionNumbersString("..\bin\Release\win-" + platform + "\publish\" + appExeName));
 #define appId appName
 
 [Setup]
@@ -37,15 +45,7 @@ AppUpdatesURL=https://github.com/DHancock/Countdown/releases
 #endif
 
 [Files]
-#if platform == "x64"
-  Source: "..\bin\Release\win-x64\publish\*"; DestDir: "{app}"; Flags: recursesubdirs; 
-#elif platform == "arm64"
-  Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Flags: recursesubdirs;
-#elif platform == "x86"
-  Source: "..\bin\Release\win-x86\publish\*"; DestDir: "{app}"; Flags: recursesubdirs;
-#else
-  #error unknown platform
-#endif
+Source: "..\bin\Release\win-{#platform}\publish\*"; DestDir: "{app}"; Flags: recursesubdirs;
 
 [Icons]
 Name: "{group}\{#appName}"; Filename: "{app}\{#appExeName}"
