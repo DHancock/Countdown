@@ -9,12 +9,8 @@ namespace Countdown.ViewModels;
 
 internal class Settings
 {
-    public static Settings Data = Inner.Load();
+    public static Settings Data = Load();
     private int volumePercentage = 50;
-
-    private Settings()
-    {
-    }
 
     public int ChooseNumbersIndex { get; set; } = 1;
     public int ChooseLettersIndex { get; set; } = 1;
@@ -42,89 +38,70 @@ internal class Settings
     public bool IsFirstRun { get; private set; } = true;
 
 
+    // while this breaks the singlton pattern, the code generator doesn't 
+    // work with private nested classes. Worse things have happened at sea...
+    public Settings()
+    {
+    }
 
     public async Task Save()
     {
-        await Inner.Save(this);
-    }
-
-    private sealed class Inner : Settings
-    {
-        // Json deserialization requires a public parameterless constructor.
-        // That breaks the singleton pattern, so use a private inner inherited class
-        public Inner()
-        {
-        }
-
-        internal static async Task Save(Settings settings)
-        {
-            try
-            {
-                string path = GetSettingsFilePath();
-                string? directory = Path.GetDirectoryName(path);
-                Debug.Assert(!string.IsNullOrWhiteSpace(directory));
-
-                if (!Directory.Exists(directory))
-                {
-                    Directory.CreateDirectory(directory);
-                }
-
-                await File.WriteAllTextAsync(path, JsonSerializer.Serialize(settings, GetSerializerOptions()));
-            }
-            catch (Exception ex)
-            {
-                Debug.Fail(ex.ToString());
-            }
-        }
-
-        internal static Settings Load()
+        try
         {
             string path = GetSettingsFilePath();
+            string? directory = Path.GetDirectoryName(path);
+            Debug.Assert(!string.IsNullOrWhiteSpace(directory));
 
-            if (File.Exists(path))
+            Directory.CreateDirectory(directory);
+
+            string jsonString = JsonSerializer.Serialize(this, SettingsJsonContext.Default.Settings);
+            await File.WriteAllTextAsync(GetSettingsFilePath(), jsonString);
+        }
+        catch (Exception ex)
+        {
+            Debug.Fail(ex.ToString());
+        }
+    }
+
+    internal static Settings Load()
+    {
+        string path = GetSettingsFilePath();
+
+        try
+        {
+            string data = File.ReadAllText(path);
+
+            if (!string.IsNullOrWhiteSpace(data))
             {
-                try
-                {
-                    string data = File.ReadAllText(path);
+                Settings? settings = JsonSerializer.Deserialize<Settings>(data, SettingsJsonContext.Default.Settings);
 
-                    if (!string.IsNullOrWhiteSpace(data))
-                    {
-                        Settings? settings = JsonSerializer.Deserialize<Inner>(data, GetSerializerOptions());
-
-                        if (settings is not null)
-                        {
-                            settings.IsFirstRun = false;
-                            return settings;
-                        }
-                    }
-                }
-                catch (Exception ex)
+                if (settings is not null)
                 {
-                    Debug.Fail(ex.Message);
+                    settings.IsFirstRun = false;
+                    return settings;
                 }
             }
-
-            return new Settings();
         }
-
-        private static string GetSettingsFilePath()
+        catch (Exception ex)
         {
-            const string cFileName = "settings.json";
-            const string cDirName = "Countdown.davidhancock.net";
-            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-            return Path.Join(localAppData, cDirName, cFileName);
+            Debug.Fail(ex.Message);
         }
 
-        private static JsonSerializerOptions GetSerializerOptions()
-        {
-            return new JsonSerializerOptions()
-            {
-                WriteIndented = true,
-                IncludeFields = true,
-            };
-        }
+        return new Settings();
+    }
+
+    private static string GetSettingsFilePath()
+    {
+        const string cFileName = "settings.json";
+        const string cDirName = "Countdown.davidhancock.net";
+        string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+        return Path.Join(localAppData, cDirName, cFileName);
     }
 }
 
-
+[JsonSourceGenerationOptions(IncludeFields = true)]
+[JsonSerializable(typeof(Settings))]
+internal partial class SettingsJsonContext : JsonSerializerContext
+{
+}
