@@ -368,7 +368,7 @@ internal record struct WordHeading(int Count)
     public override readonly string? ToString() => $"{Count} letter words";
 }
 
-internal sealed class WordTreeTemplateSelector : DataTemplateSelector
+internal sealed partial class WordTreeTemplateSelector : DataTemplateSelector
 {
     public DataTemplate? HeadingTemplate { get; set; }
     public DataTemplate? WordTemplate { get; set; }
