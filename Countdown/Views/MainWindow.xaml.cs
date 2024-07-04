@@ -123,6 +123,7 @@ internal sealed partial class MainWindow : Window
                 case "LettersView": type = Type.GetType("Countdown.Views.LettersView"); break;
                 case "ConundrumView": type = Type.GetType("Countdown.Views.ConundrumView"); break;
                 case "StopwatchView": type = Type.GetType("Countdown.Views.StopwatchView"); break;
+                case "SettingsView": type = Type.GetType("Countdown.Views.SettingsView"); break;
                 default:
                     throw new InvalidOperationException();
             }
