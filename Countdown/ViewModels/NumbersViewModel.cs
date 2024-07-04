@@ -2,7 +2,7 @@
 
 namespace Countdown.ViewModels;
 
-internal sealed class NumbersViewModel : DataErrorInfoBase
+internal sealed partial class NumbersViewModel : DataErrorInfoBase
 {
     // this tile value indicates an empty string
     private const int cEmptyTileValue = -1;

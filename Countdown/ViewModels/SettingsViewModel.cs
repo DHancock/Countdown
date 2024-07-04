@@ -1,6 +1,6 @@
 ﻿namespace Countdown.ViewModels;
 
-internal sealed class SettingsViewModel : PropertyChangedBase
+internal sealed partial class SettingsViewModel : PropertyChangedBase
 {
     public StopwatchController StopwatchController { get; }
 

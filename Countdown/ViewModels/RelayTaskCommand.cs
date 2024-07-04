@@ -10,7 +10,7 @@
 /// This class is not thread safe. In a multi-threaded environment there is no 
 /// correlation between the CanExecute() method and the Execute() method. 
 /// </summary>
-internal sealed class RelayTaskCommand : ICommand
+internal sealed partial class RelayTaskCommand : ICommand
 {
     private readonly Func<object?, Task> execute;
     private readonly Func<object?, bool, bool> canExecute;

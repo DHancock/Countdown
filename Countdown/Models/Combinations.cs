@@ -15,7 +15,7 @@
 ///        
 /// </summary>
 /// <typeparam name="T"></typeparam>
-internal sealed class Combinations<T> : IEnumerable<T[]>
+internal sealed partial class Combinations<T> : IEnumerable<T[]>
 {
     /// <summary>
     /// copy of the source 
