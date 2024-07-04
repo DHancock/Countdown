@@ -3,7 +3,7 @@
 /// <summary>
 /// Generates all permutations for a collection of objects. 
 /// </summary>
-internal sealed class Permutations<T> : IEnumerable<T[]>
+internal sealed partial class Permutations<T> : IEnumerable<T[]>
 {
     /// <summary>
     /// store for the source 

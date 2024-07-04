@@ -2,7 +2,7 @@
 
 public enum StopwatchState { Undefined, Initializing, AtStart, Running, Stopped, Completed, Rewinding }
 
-internal sealed class StopwatchController : PropertyChangedBase
+internal sealed partial class StopwatchController : PropertyChangedBase
 {
     private StopwatchState stopwatchState = StopwatchState.Initializing;
     private string commandText = string.Empty;

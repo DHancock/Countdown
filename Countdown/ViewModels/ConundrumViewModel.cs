@@ -2,7 +2,7 @@
 
 namespace Countdown.ViewModels;
 
-internal sealed class ConundrumViewModel : PropertyChangedBase
+internal sealed partial class ConundrumViewModel : PropertyChangedBase
 {
     private const string emptySolution = "         ";
     

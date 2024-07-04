@@ -2,7 +2,7 @@
 
 namespace Countdown.ViewModels;
 
-internal sealed class LettersViewModel : DataErrorInfoBase
+internal sealed partial class LettersViewModel : DataErrorInfoBase
 {
     private const int cMaxVowels = 5;
     private const int cMaxConsonants = 6;
