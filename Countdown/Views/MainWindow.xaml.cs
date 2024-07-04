@@ -115,8 +115,18 @@ internal sealed partial class MainWindow : Window
     {
         if (args.SelectedItem is NavigationViewItem item)
         {
-            Type? type = Type.GetType($"Countdown.Views.{item.Tag}");
+            Type? type;
 
+            switch (item.Tag as string) // use the actual full type name to allow for trimming
+            {
+                case "NumbersView": type = Type.GetType("Countdown.Views.NumbersView"); break;
+                case "LettersView": type = Type.GetType("Countdown.Views.LettersView"); break;
+                case "ConundrumView": type = Type.GetType("Countdown.Views.ConundrumView"); break;
+                case "StopwatchView": type = Type.GetType("Countdown.Views.StopwatchView"); break;
+                default:
+                    throw new InvalidOperationException();
+            }
+            
             if (type is not null)
             {
                 _ = ContentFrame.NavigateToType(type, null, frameNavigationOptions);
