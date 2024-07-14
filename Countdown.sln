@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Countdown", "Countdown\Coun
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordListUtility", "WordListUtility\WordListUtility.csproj", "{DD7D1EB0-141E-45FE-B2B1-3CC507C0F3B6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Countdown.SourceGenerator", "MapSourceGenerator\Countdown.SourceGenerator.csproj", "{F6BC6374-CCA5-4BA9-9EEB-651B804D24F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Countdown.SourceGenerator", "Countdown.SourceGenerator\Countdown.SourceGenerator.csproj", "{F6BC6374-CCA5-4BA9-9EEB-651B804D24F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
