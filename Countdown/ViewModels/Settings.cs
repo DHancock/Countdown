@@ -9,7 +9,7 @@ namespace Countdown.ViewModels;
 
 internal class Settings
 {
-    public static Settings Data = Load();
+    public static Settings Instance = Load();
     private int volumePercentage = 50;
 
     public int ChooseNumbersIndex { get; set; } = 1;
@@ -38,7 +38,7 @@ internal class Settings
     public bool IsFirstRun { get; private set; } = true;
 
 
-    // while this breaks the singlton pattern, the code generator doesn't 
+    // while this breaks the singleton pattern, the code generator doesn't 
     // work with private nested classes. Worse things have happened at sea...
     public Settings()
     {

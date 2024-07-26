@@ -236,7 +236,7 @@ internal sealed partial class NumbersViewModel : DataErrorInfoBase
 
     private void ExecuteChoose(object? _)
     {
-        int[] numbers = numberModel.GenerateNumberData(Settings.Data.ChooseNumbersIndex);
+        int[] numbers = numberModel.GenerateNumberData(Settings.Instance.ChooseNumbersIndex);
 
         // set the backing store directly, no validation is required
         for (int index = 0; index < NumberModel.cNumberTileCount; ++index)
@@ -317,7 +317,7 @@ internal sealed partial class NumbersViewModel : DataErrorInfoBase
             newIndex = value;
         }
        
-        Settings.Data.ChooseNumbersIndex = newIndex;
+        Settings.Instance.ChooseNumbersIndex = newIndex;
         ChooseNumbersCommand.Execute(null);
     }
 }

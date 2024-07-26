@@ -695,8 +695,8 @@ internal sealed partial class Clock : UserControl
             if (stream is not null)
             {
                 mediaPlayer.SetStreamSource(stream.AsRandomAccessStream());
-                mediaPlayer.Volume = Settings.Data.VolumePercentage / 100.0;
-                Settings.Data.VolumeChanged += (s, a) => mediaPlayer.Volume = Settings.Data.VolumePercentage / 100.0;
+                mediaPlayer.Volume = Settings.Instance.VolumePercentage / 100.0;
+                Settings.Instance.VolumeChanged += (s, a) => mediaPlayer.Volume = Settings.Instance.VolumePercentage / 100.0;
 
                 Debug.Assert(App.MainWindow is not null);
                 App.MainWindow.Closed += (s, e) => Stop();
