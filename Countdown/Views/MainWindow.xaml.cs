@@ -21,15 +21,15 @@ internal sealed partial class MainWindow : Window
 
         AppWindow.Closing += async (s, a) =>
         {
-            Settings.Data.RestoreBounds = RestoreBounds;
-            Settings.Data.WindowState = WindowState;
-            await Settings.Data.Save();
+            Settings.Instance.RestoreBounds = RestoreBounds;
+            Settings.Instance.WindowState = WindowState;
+            await Settings.Instance.Save();
         };
 
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
             customTitleBar.ParentAppWindow = AppWindow;
-            customTitleBar.UpdateThemeAndTransparency(Settings.Data.CurrentTheme);
+            customTitleBar.UpdateThemeAndTransparency(Settings.Instance.CurrentTheme);
             customTitleBar.Title = title;           
             Activated += customTitleBar.ParentWindow_Activated;
             AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
@@ -50,22 +50,22 @@ internal sealed partial class MainWindow : Window
             RootNavigationView.SelectedItem = RootNavigationView.MenuItems[0];
         }
 
-        if (Settings.Data.IsFirstRun)
+        if (Settings.Instance.IsFirstRun)
         {
             AppWindow.MoveAndResize(CenterInPrimaryDisplay());
         }
         else
         {
-            AppWindow.MoveAndResize(ValidateRestoreBounds(Settings.Data.RestoreBounds));
+            AppWindow.MoveAndResize(ValidateRestoreBounds(Settings.Instance.RestoreBounds));
         }
 
-        if (Settings.Data.WindowState == WindowState.Minimized)
+        if (Settings.Instance.WindowState == WindowState.Minimized)
         {
             WindowState = WindowState.Normal;
         }
         else
         {
-            WindowState = Settings.Data.WindowState;
+            WindowState = Settings.Instance.WindowState;
         }
 
         LayoutRoot.Loaded += (s, e) =>

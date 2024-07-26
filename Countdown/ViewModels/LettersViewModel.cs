@@ -319,7 +319,7 @@ internal sealed partial class LettersViewModel : DataErrorInfoBase
 
     private void ExecuteChooseLetters(object? _)
     {
-        int vowelCount = Settings.Data.ChooseLettersIndex + 3;   // index 0 is "3 vowels and 6 consonants"
+        int vowelCount = Settings.Instance.ChooseLettersIndex + 3;   // index 0 is "3 vowels and 6 consonants"
 
         IList<char> letters = wordModel.GenerateLettersData(vowelCount);
 
@@ -348,7 +348,7 @@ internal sealed partial class LettersViewModel : DataErrorInfoBase
             newIndex = value;
         }
 
-        Settings.Data.ChooseLettersIndex = newIndex;
+        Settings.Instance.ChooseLettersIndex = newIndex;
         ChooseLettersCommand.Execute(null);
     }
 

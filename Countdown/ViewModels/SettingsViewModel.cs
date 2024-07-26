@@ -11,11 +11,11 @@ internal sealed partial class SettingsViewModel : PropertyChangedBase
 
     public ElementTheme SelectedTheme
     {
-        get => Settings.Data.CurrentTheme;
+        get => Settings.Instance.CurrentTheme;
 
         set
         {
-            Settings.Data.CurrentTheme = value;
+            Settings.Instance.CurrentTheme = value;
             RaisePropertyChanged();
         }
     }
@@ -40,10 +40,10 @@ internal sealed partial class SettingsViewModel : PropertyChangedBase
 
     public int Volume
     {
-        get => Settings.Data.VolumePercentage;
+        get => Settings.Instance.VolumePercentage;
         set
         {
-            Settings.Data.VolumePercentage = value;
+            Settings.Instance.VolumePercentage = value;
             RaisePropertyChanged();
         }
     }

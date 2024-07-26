@@ -36,7 +36,7 @@ internal sealed partial class NumbersView : Page
     internal static void MenuFlyout_Opening(object sender, object e)
     {
         MenuFlyout menu = (MenuFlyout)sender;
-        int selectedIndex = Settings.Data.ChooseNumbersIndex;
+        int selectedIndex = Settings.Instance.ChooseNumbersIndex;
 
         for (int index = 0; index < menu.Items.Count; index++)
         {
