@@ -30,5 +30,11 @@ public partial class App : Application
         m_window = new MainWindow("Countdown");
     }
 
-    internal static MainWindow? MainWindow { get => Instance.m_window; }
+    internal static MainWindow? MainWindow => Instance.m_window;
+
+    public static string GetAppDataPath()
+    {
+        string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        return Path.Join(localAppData, "countdown.davidhancock.net");
+    }
 }
