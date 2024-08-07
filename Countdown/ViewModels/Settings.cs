@@ -48,11 +48,7 @@ internal class Settings
     {
         try
         {
-            string path = GetSettingsFilePath();
-            string? directory = Path.GetDirectoryName(path);
-            Debug.Assert(!string.IsNullOrWhiteSpace(directory));
-
-            Directory.CreateDirectory(directory);
+            Directory.CreateDirectory(App.GetAppDataPath());
 
             string jsonString = JsonSerializer.Serialize(this, SettingsJsonContext.Default.Settings);
             await File.WriteAllTextAsync(GetSettingsFilePath(), jsonString);
@@ -92,11 +88,7 @@ internal class Settings
 
     private static string GetSettingsFilePath()
     {
-        const string cFileName = "settings.json";
-        const string cDirName = "Countdown.davidhancock.net";
-        string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-        return Path.Join(localAppData, cDirName, cFileName);
+        return Path.Join(App.GetAppDataPath(), "settings.json");
     }
 }
 
