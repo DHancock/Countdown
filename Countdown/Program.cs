@@ -12,6 +12,7 @@ public static class Program
         if ((args.Length == 1) && (args[0] == "/uninstall"))
         {
             DeleteAppData();
+            KillOtherProcesses();
         }
         else
         {             
@@ -30,6 +31,26 @@ public static class Program
         {
             DirectoryInfo di = new DirectoryInfo(App.GetAppDataPath());
             di.Delete(true);
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine(ex.ToString());
+        }
+    }
+
+    private static void KillOtherProcesses()
+    {
+        try
+        {
+            Process thisProcess = Process.GetCurrentProcess();
+
+            foreach (Process process in Process.GetProcessesByName(thisProcess.ProcessName))
+            {
+                if ((process.Id != thisProcess.Id) && (process.MainModule?.FileName == thisProcess.MainModule?.FileName))
+                {
+                    process.Kill(); // ensure uninstall is able to complete
+                }
+            }
         }
         catch (Exception ex)
         {
