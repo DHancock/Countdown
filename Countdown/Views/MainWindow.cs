@@ -112,37 +112,23 @@ internal partial class MainWindow : Window
                 break;
             }
 
-            case PInvoke.WM_SYSCOMMAND:
+            case PInvoke.WM_SYSCOMMAND when (lParam == VK_SPACE) && (AppWindow.Presenter.Kind != AppWindowPresenterKind.FullScreen):
             {
-                if ((lParam == VK_SPACE) && (AppWindow.Presenter.Kind != AppWindowPresenterKind.FullScreen))
-                {
-                    HideSystemMenu();
-                    ShowSystemMenu(viaKeyboard: true);
-                    return (LRESULT)0;
-                }
-
-                break;
+                HideSystemMenu();
+                ShowSystemMenu(viaKeyboard: true);
+                return (LRESULT)0;
             }
 
-            case PInvoke.WM_NCRBUTTONUP:
+            case PInvoke.WM_NCRBUTTONUP when wParam == HTCAPTION:
             {
-                if (wParam == HTCAPTION)
-                {
-                    HideSystemMenu();
-                    ShowSystemMenu(viaKeyboard: false);
-                    return (LRESULT)0;
-                }
-
-                break;
+                HideSystemMenu();
+                ShowSystemMenu(viaKeyboard: false);
+                return (LRESULT)0;
             }
 
-            case PInvoke.WM_NCLBUTTONDOWN:
+            case PInvoke.WM_NCLBUTTONDOWN when wParam == HTCAPTION:
             {
-                if (wParam == HTCAPTION)
-                {
-                    HideSystemMenu();
-                }
-
+                HideSystemMenu();
                 break;
             }
         }
