@@ -11,3 +11,4 @@ PostMessage
 GetCursorPos
 ScreenToClient
 WM_DPICHANGED
+GetDoubleClickTime

@@ -100,4 +100,6 @@ internal sealed partial class CustomTitleBar : UserControl
             Debug.Assert(stateFound);
         }
     }
+
+    public UIElement WindowIconArea => windowIconArea;
 }
