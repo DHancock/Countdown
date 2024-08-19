@@ -78,6 +78,10 @@ internal class Settings
                 }
             }
         }
+        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
+        {
+            Debug.WriteLine(ex.Message);
+        }
         catch (Exception ex)
         {
             Debug.Fail(ex.Message);
