@@ -29,7 +29,9 @@
             <ColumnDefinition x:Name="RightPaddingColumn" Width="0"/>
         </Grid.ColumnDefinitions>
 
-        <ImageIcon Grid.Column="1" x:Name="windowIcon" Source="ms-appx:///Resources/app.png" Width="16" Height="16" HorizontalAlignment="Left" Margin="12,0,0,0"/>
+        <Grid Grid.Column="1" x:Name="windowIconArea" Background="{ThemeResource LayerOnMicaBaseAltFillColorTransparentBrush}">
+            <ImageIcon x:Name="windowIcon" Source="ms-appx:///Resources/app.png" Width="16" Height="16" HorizontalAlignment="Left" Margin="12,0,0,0"/>
+        </Grid>
         <TextBlock Grid.Column="2" x:Name="windowTitle" VerticalAlignment="Center" Foreground="{ThemeResource WindowCaptionForeground}" TextTrimming="CharacterEllipsis"/>
     </Grid>
 </UserControl>

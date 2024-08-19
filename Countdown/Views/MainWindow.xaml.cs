@@ -7,6 +7,7 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class MainWindow : Window
 {
+    private DateTime lastPointerTimeStamp;
     private readonly ViewModel rootViewModel = new ViewModel();
 
     private readonly FrameNavigationOptions frameNavigationOptions = new FrameNavigationOptions()
@@ -30,8 +31,10 @@ internal sealed partial class MainWindow : Window
         {
             customTitleBar.ParentAppWindow = AppWindow;
             customTitleBar.UpdateThemeAndTransparency(Settings.Instance.CurrentTheme);
-            customTitleBar.Title = title;           
+            customTitleBar.Title = title;
+            customTitleBar.WindowIconArea.PointerPressed += WindowIconArea_PointerPressed;
             Activated += customTitleBar.ParentWindow_Activated;
+            
             AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
         }
         else
@@ -199,5 +202,23 @@ internal sealed partial class MainWindow : Window
         windowArea.X = Math.Max(windowArea.X, workArea.X);
 
         return windowArea;
+    }
+
+    private void WindowIconArea_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        HideSystemMenu();
+        ShowSystemMenu(viaKeyboard: true); // open at keyboard location as not to obscure double clicks
+
+        TimeSpan doubleClickTime = TimeSpan.FromMilliseconds(PInvoke.GetDoubleClickTime());
+        DateTime utcNow = DateTime.UtcNow;
+
+        if ((utcNow - lastPointerTimeStamp) < doubleClickTime)
+        {
+            PostCloseMessage();
+        }
+        else
+        {
+            lastPointerTimeStamp = utcNow;
+        }
     }
 }

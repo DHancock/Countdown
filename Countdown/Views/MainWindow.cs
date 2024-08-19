@@ -219,6 +219,8 @@ internal partial class MainWindow : Window
         return menuFlyout;
     }
 
+    public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);
+
     private bool CanRestore(object? param)
     {
         return (AppWindow.Presenter is OverlappedPresenter op) && (op.State == OverlappedPresenterState.Maximized);
@@ -404,7 +406,11 @@ internal partial class MainWindow : Window
                     break;
                 }
 
-                case CustomTitleBar: continue;
+                case CustomTitleBar ctb:
+                {
+                    rects.Add(ScaledRect(GetOffsetFromXamlRoot(ctb.WindowIconArea), ctb.WindowIconArea.ActualSize, scaleFactor));
+                    break;
+                }
 
                 default: break;
             }
