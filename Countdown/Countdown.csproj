@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\audio.dat" />
+    <EmbeddedResource Include="Resources\wordlist.dat" />
   </ItemGroup>
   
   <ItemGroup>
