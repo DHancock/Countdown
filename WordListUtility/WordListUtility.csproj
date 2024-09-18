@@ -2,23 +2,13 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-    <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
-    <Version>1.1</Version>
-    <Authors>David Hancock</Authors>
-    <Copyright>David Hancock 2014-2019</Copyright>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <RepositoryUrl />
-    <Platforms>x64;x86;arm64</Platforms>
+	<Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
+	
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="call &quot;$(ProjectDir)build_wordlist_resource.bat&quot; &quot;$(TargetDir)&quot; &quot;$(TargetName)&quot; &quot;$(ProjectDir)&quot; &quot;$(SolutionDir)&quot;" />
+    <Exec Command="start /wait /b &quot;&quot; &quot;$(TargetDir)$(TargetName).exe&quot; &quot;$(ProjectDir)Input&quot; &quot;$(SolutionDir)Countdown\Resources\wordlist.dat&quot;" />
   </Target>
 
 </Project>
