@@ -1,19 +1,10 @@
-; This worker script is intended to be called from one of the build_XXX scripts
-; where the platform variable is defined. It assumes that all release configurations 
-; have been published and the WinAppSdk and .Net framework are self contained.
+; This script assumes that all release configurations have been published
+; and that the WinAppSdk and .Net framework are self contained.
 ; Inno 6.2.2
-
-#ifndef platform
-  #error platform is not defined
-#endif
-  
-#if !((platform == "x64") || (platform == "x86") || (platform == "arm64"))
-  #error invalid platform definition
-#endif
 
 #define appName "Countdown"
 #define appExeName appName + ".exe"
-#define appVer RemoveFileExt(GetVersionNumbersString("..\bin\Release\win-" + platform + "\publish\" + appExeName));
+#define appVer RemoveFileExt(GetVersionNumbersString("..\bin\Release\win-x64\publish\" + appExeName));
 #define appId appName
 
 [Setup]
@@ -27,7 +18,7 @@ OutputDir={#SourcePath}\bin
 UninstallDisplayIcon={app}\{#appExeName}
 Compression=lzma2/ultra64 
 SolidCompression=yes
-OutputBaseFilename={#appName}_{#platform}_v{#appVer}
+OutputBaseFilename={#appName}_v{#appVer}
 InfoBeforeFile="{#SourcePath}\unlicense.txt"
 PrivilegesRequired=lowest
 WizardStyle=classic
@@ -39,13 +30,13 @@ DisableReadyPage=yes
 MinVersion=10.0.17763
 AppPublisher=David
 AppUpdatesURL=https://github.com/DHancock/Countdown/releases
-
-#if platform == "x64" || platform == "arm64"
-  ArchitecturesAllowed={#platform} 
-#endif
+ArchitecturesInstallIn64BitMode=x64 arm64
+ArchitecturesAllowed=x86 x64 arm64
 
 [Files]
-Source: "..\bin\Release\win-{#platform}\publish\*"; DestDir: "{app}"; Flags: recursesubdirs;
+Source: "..\bin\Release\win-x64\publish\*"; DestDir: "{app}"; Check: IsX64; Flags: recursesubdirs;
+Source: "..\bin\Release\win-arm64\publish\*"; DestDir: "{app}"; Check: IsARM64; Flags: recursesubdirs solidbreak;
+Source: "..\bin\Release\win-x86\publish\*"; DestDir: "{app}"; Check: IsX86; Flags: recursesubdirs solidbreak;
 
 [Icons]
 Name: "{group}\{#appName}"; Filename: "{app}\{#appExeName}"
@@ -61,6 +52,9 @@ Filename: "{app}\{#appExeName}"; Description: "{cm:LaunchProgram,{#appName}}"; F
 Filename: "{app}\{#appExeName}"; Parameters: "/uninstall";
 
 [Code]
+function IsInstalledAppUntrimmed(const InstalledVersion: String): Boolean; forward;
+procedure BackupAppData; forward;
+procedure RestoreAppData; forward;
 
 // A < B returns -ve
 // A = B returns 0
@@ -115,3 +109,96 @@ begin
     Result := false;
   end;
 end;
+
+
+function IsInstalledAppUntrimmed(const InstalledVersion: String): Boolean;
+begin
+  Result := VersionComparer(InstalledVersion, '3.11.0') < 0 ;
+end;
+
+
+// The remnants of an untrimmed install will cause a trimmed version
+// to fail to start. Have to uninstall the untrimmed version first.
+// This also means the benfits of trimming will now be in effect.
+// The old installer releases will be removed from GitHub.
+procedure CurStepChanged(CurStep: TSetupStep);
+var
+  ResultCode, Attempts: Integer;
+  InstalledVersion, UninstallerPath: String; 
+begin
+  if (CurStep = ssInstall) then
+  begin
+    if RegQueryStringValue(HKCU, GetUninstallRegKey, 'DisplayVersion', InstalledVersion) and IsInstalledAppUntrimmed(InstalledVersion) then
+    begin
+      if RegQueryStringValue(HKCU, GetUninstallRegKey, 'UninstallString', UninstallerPath) then
+      begin
+        BackupAppData;
+
+        Exec(RemoveQuotes(UninstallerPath), '/VERYSILENT', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+        
+        if ResultCode = 0 then // wait until the uninstall has completed
+        begin
+          Attempts := 2 * 30 ; // timeout after approximately 30 seconds
+           
+          while FileExists(UninstallerPath) and (Attempts > 0) do
+          Begin
+            Sleep(500);
+            Attempts := Attempts - 1;
+          end;
+        end;
+      
+        if (ResultCode <> 0) or FileExists(UninstallerPath) then
+        begin
+          SuppressibleMsgBox('Setup failed to uninstall a previous version.', mbCriticalError, MB_OK, IDOK) ;
+          Abort;
+        end;
+        
+        RestoreAppData;
+      end;
+    end;
+  end;
+end;
+
+
+procedure TransferFiles(const BackUp: Boolean);
+var
+  SourceDir, DestDir, DirPart, FilePart, TempA, TempB: string;
+begin
+  try
+    DirPart := '\countdown.davidhancock.net';
+    TempA := ExpandConstant('{localappdata}') + DirPart;
+    TempB := ExpandConstant('{%temp}') + DirPart; 
+    
+    if BackUp then
+    begin
+      SourceDir := TempA;
+      DestDir := TempB;
+    end
+    else
+    begin
+      SourceDir := TempB
+      DestDir := TempA;
+    end;
+      
+    if ForceDirectories(DestDir) then
+    begin
+      FilePart := '\settings.json';
+      
+      if FileExists(SourceDir + FilePart) then
+        FileCopy(SourceDir + FilePart, DestDir + FilePart, false);        
+    end;
+  except
+  end;
+end;   
+
+
+procedure BackupAppData();
+begin
+  TransferFiles(true);
+end;  
+
+
+procedure RestoreAppData();
+begin
+  TransferFiles(false);
+end;  
