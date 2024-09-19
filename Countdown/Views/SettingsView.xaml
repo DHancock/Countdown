@@ -52,7 +52,7 @@
                     </Viewbox>
                     <TextBlock Grid.Row="1" Text="Countdown" FontSize="17" HorizontalAlignment="Center"/>
                     <TextBlock Grid.Row="2" x:Name="VersionTextBlock" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Row="3" HorizontalAlignment="Center"><Hyperlink NavigateUri="https://github.com/DHancock/Countdown">GitHub Repository</Hyperlink></TextBlock>
+                    <TextBlock Grid.Row="3" x:Name="HyperlinkTextBlock" HorizontalAlignment="Center"><Hyperlink NavigateUri="https://github.com/DHancock/Countdown">GitHub Repository</Hyperlink></TextBlock>
                 </Grid>
             </Grid>
         </ScrollViewer>
