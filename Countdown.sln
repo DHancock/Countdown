@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Countdown", "Countdown\Coun
 		{DD7D1EB0-141E-45FE-B2B1-3CC507C0F3B6} = {DD7D1EB0-141E-45FE-B2B1-3CC507C0F3B6}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordListUtility", "WordListUtility\WordListUtility.csproj", "{DD7D1EB0-141E-45FE-B2B1-3CC507C0F3B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordListGenerator", "WordListGenerator\WordListGenerator.csproj", "{DD7D1EB0-141E-45FE-B2B1-3CC507C0F3B6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceGenerator", "SourceGenerator\SourceGenerator.csproj", "{602858EC-A310-443D-BA53-BD44A62C37D3}"
 EndProject
