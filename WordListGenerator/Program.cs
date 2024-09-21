@@ -71,34 +71,34 @@ internal sealed class Program
             const int min_word_length = 4;
             const int max_word_length = 9;
 
-            using FileStream fs = File.OpenRead(path);
-
-            if (fs != null)
+            using (FileStream fs = File.OpenRead(path))
             {
-                using StreamReader sr = new StreamReader(fs);
-                string? line;
-
-                while ((line = sr.ReadLine()) != null)
+                using (StreamReader sr = new StreamReader(fs))
                 {
-                    string data = line.Trim().ToLower();
+                    string? line;
 
-                    if ((data.Length >= min_word_length) && (data.Length <= max_word_length) && data.All(c => IsLetter(c)))
+                    while ((line = sr.ReadLine()) != null)
                     {
-                        // construct the key
-                        char[] a = data.ToCharArray();
-                        Array.Sort(a);
-                        string key = new string(a);
+                        string data = line.Trim().ToLower();
 
-                        if (wordLists.TryGetValue(key, out List<string>? list))
+                        if ((data.Length >= min_word_length) && (data.Length <= max_word_length) && data.All(c => IsLetter(c)))
                         {
-                            Debug.Assert(list is not null);
-                            int index = list.BinarySearch(data);
+                            // construct the key
+                            char[] a = data.ToCharArray();
+                            Array.Sort(a);
+                            string key = new string(a);
 
-                            if (index < 0)
-                                list.Insert(~index, data);
+                            if (wordLists.TryGetValue(key, out List<string>? list))
+                            {
+                                Debug.Assert(list is not null);
+                                int index = list.BinarySearch(data);
+
+                                if (index < 0)
+                                    list.Insert(~index, data);
+                            }
+                            else
+                                wordLists[key] = new List<string>() { data };
                         }
-                        else
-                            wordLists[key] = new List<string>() { data };
                     }
                 }
             }
@@ -106,28 +106,31 @@ internal sealed class Program
        
         private void WriteCompressedData()
         {
-            const string word_seperator = " ";
-            const string line_seperator = ".";
+            const char word_seperator = ' ';
+            const char line_seperator = '\n';
 
-            using FileStream fs = File.Create(outputFile);
+            StringBuilder sb = new StringBuilder(100);
 
-            if (fs != null)
+            using (FileStream fs = File.Create(outputFile))
             {
-                using DeflateStream ds = new DeflateStream(fs, CompressionLevel.Optimal);
-
-                foreach (List<string> list in wordLists.Values)
+                using (MemoryStream ms = new MemoryStream())
                 {
-                    if (list.Count > 0)
+                    foreach (List<string> list in wordLists.Values)
                     {
-                        string line = list[0];
+                        if (list.Count > 0)
+                        {
+                            sb.Clear();
+                            sb.AppendJoin(word_seperator, list);
+                            sb.Append(line_seperator);
 
-                        for (int index = 1; index < list.Count; ++index)
-                            line += word_seperator + list[index];
+                            byte[] bytes = Encoding.ASCII.GetB‌​ytes(sb.ToString());
+                            ms.Write(bytes, 0, bytes.Length);
+                        }
+                    }
 
-                        line += line_seperator;
-
-                        byte[] bytes = Encoding.ASCII.GetB‌​ytes(line);
-                        ds.Write(bytes, 0, bytes.Length);
+                    using (DeflateStream ds = new DeflateStream(fs, CompressionLevel.Optimal))
+                    {
+                        ms.WriteTo(ds);
                     }
                 }
             }

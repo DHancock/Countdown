@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Style", "IDE0017:Simplify object initialization")]
 [assembly: SuppressMessage("Style", "IDE0028:Collection initialization can be simplified")]
+[assembly: SuppressMessage("Style", "IDE0063:'using' statement can be simplified")]
 [assembly: SuppressMessage("Style", "IDE0066:Convert switch statement to expression")]
 [assembly: SuppressMessage("Style", "IDE0090:'new' expression can be simplified")]
 [assembly: SuppressMessage("Style", "IDE0057:Use range operator")]
