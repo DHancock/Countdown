@@ -303,7 +303,7 @@ internal partial class MainWindow : Window
 
     private void SetWindowDragRegionsInternal()
     {
-        const int cInitialCapacity = 27;
+        const int cInitialCapacity = 28;
 
         cancelDragRegionTimerEvent = false;
 
