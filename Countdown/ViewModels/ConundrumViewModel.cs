@@ -24,8 +24,6 @@ internal sealed partial class ConundrumViewModel : PropertyChangedBase
 
         SolveCommand = new RelayCommand(ExecuteSolve, CanSolve);
         ChooseCommand = new RelayCommand(ExecuteChoose, CanChoose);
-
-        ExecuteChoose(null);
     }
 
     /// <summary>

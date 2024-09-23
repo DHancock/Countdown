@@ -7,6 +7,14 @@ internal sealed partial class ConundrumView : Page
     public ConundrumView()
     {
         this.InitializeComponent();
+
+        Loaded += ConundrumView_Loaded;
+    }
+
+    private void ConundrumView_Loaded(object sender, RoutedEventArgs e)
+    {
+        Loaded -= ConundrumView_Loaded;
+        ViewModel?.ChooseCommand.Execute(null);
     }
 
     public ConundrumViewModel? ViewModel { get; set; }
