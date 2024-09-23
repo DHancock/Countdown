@@ -11,8 +11,8 @@ internal class WordModel
     public const int cLetterCount = cMaxLetters;
 
     // conundrum words are 9 letters long with only one solution
-    private readonly Dictionary<string, string[]> conundrumWords = new();
-    private readonly Dictionary<string, string[]> otherWords = new();
+    private readonly Dictionary<string, string> conundrumWords = new();
+    private readonly Dictionary<string, string> otherWords = new();
 
     private readonly ConsonantList consonantList = new ConsonantList();
     private readonly VowelList vowelList = new VowelList();
@@ -73,11 +73,11 @@ internal class WordModel
         return results;
     }
 
-    private static void AddDictionaryWordsToList(string key, Dictionary<string, string[]> dictionary, List<string> list)
+    private static void AddDictionaryWordsToList(string key, Dictionary<string, string> dictionary, List<string> list)
     {
-        if (dictionary.TryGetValue(key, out string[]? data) && (data is not null))
+        if (dictionary.TryGetValue(key, out string? data) && (data is not null))
         {
-            list.AddRange(data);
+            list.AddRange(data.Split());
         }
     }
 
@@ -90,9 +90,9 @@ internal class WordModel
         Array.Sort(letters);
         string key = new string(letters);
 
-        if (conundrumWords.TryGetValue(key, out string[]? data) && (data is not null))
+        if (conundrumWords.TryGetValue(key, out string? data) && (data is not null))
         {
-            return data[0];
+            return data;
         }
 
         return string.Empty;
@@ -109,11 +109,11 @@ internal class WordModel
             // move a random distance into dictionary
             int index = new Random().Next(conundrumWords.Count);
 
-            IEnumerator<string[]> e = conundrumWords.Values.GetEnumerator();
+            IEnumerator<string> e = conundrumWords.Values.GetEnumerator();
 
             while (e.MoveNext() && (index-- > 0)) { }; // empty statement
 
-            return e.Current[0].ToCharArray().Shuffle();
+            return e.Current.ToCharArray().Shuffle();
         }
 
         return new string(' ', cMaxLetters).ToCharArray();
@@ -131,6 +131,7 @@ internal class WordModel
     private void LoadResourceFile()
     {
         Stream? resourceStream = typeof(App).Assembly.GetManifestResourceStream(cResourceName);
+        Debug.Assert(resourceStream is not null);
 
         if (resourceStream is not null)
         {
@@ -142,25 +143,34 @@ internal class WordModel
 
                     while ((line = sr.ReadLine()) != null)
                     {
-                        string[] words = line.Split();
+                        int length = line.IndexOf(' ');
 
-                        // make key
-                        char[] c = words[0].ToCharArray();
-                        Array.Sort(c);
-                        string key = new string(c);
-
-                        // add to dictionary
-                        if ((c.Length == cMaxLetters) && (words.Length == 1))
+                        if (length < 0)
                         {
-                            conundrumWords[key] = words;
+                            length = line.Length;
+                        }
+
+                        string key = string.Create(length, line, (chars, state) =>
+                        {
+                            ReadOnlySpan<char> s = state.AsSpan(0, chars.Length);
+                            s.CopyTo(chars);
+                            chars.Sort();
+                        });
+
+                        if ((key.Length == cMaxLetters) && (line.Length == cMaxLetters))
+                        {
+                            conundrumWords[key] = line;
                         }
                         else
                         {
-                            otherWords[key] = words;
+                            otherWords[key] = line;
                         }
                     }
                 }
             }
+
+            Debug.Assert(conundrumWords.Count > 0);
+            Debug.Assert(otherWords.Count > 0);
         }
     }
 }
