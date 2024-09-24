@@ -26,10 +26,10 @@ internal sealed class SolvingEngine
     /// The postfix equation evaluation stacks. 
     /// Each level of recursion has its own stack
     /// </summary>
-    private readonly StackManager<int> stacks;
+    private readonly StackHelper<int> stacks;
 
     // used to convert postfix equations into infix strings
-    private readonly StackManager<char> charStack;
+    private readonly StackHelper<char> charStack;
 
     /// <summary>
     /// Keeps a record of the operators used when evaluating the
@@ -61,14 +61,14 @@ internal sealed class SolvingEngine
         // initialize the stacks. Each recursive call gets a copy
         // of the current stack so that when the recursion unwinds
         // the caller can simply proceed with the next operator
-        stacks = new StackManager<int>(n, n);
+        stacks = new StackHelper<int>(n, n);
 
         // store for the operators used to build a string representation of the current equation
         operators = new int[n - 1];
 
         // minimum size is 41 chars:
         // [offset] + [size] + [space for 4 parentheses] + "100 + ((((75 + 50) + 25) + 10) + 1)" 
-        charStack = new StackManager<char>(44, n);
+        charStack = new StackHelper<char>(44, n);
 
         // ensure capacity
         Solutions = new List<string>(250);
@@ -347,17 +347,20 @@ internal sealed class SolvingEngine
         }
     }
 
-    private readonly struct StackManager<T> where T : struct   // caution: written for speed, not safety
+    private readonly struct StackHelper<T> where T : struct
     {
-        private readonly int segmentLength;
-        private readonly T[] store;
+        private readonly T[][] list;
 
-        public StackManager(int stackSize, int stackCount)
+        public StackHelper(int stackSize, int stackCount)
         {
-            segmentLength = stackSize;
-            store = new T[stackSize * stackCount];
+            list = new T[stackCount][];
+
+            for (int index = 0; index < stackCount; index++)
+            {
+                list[index] = new T[stackSize];
+            }
         }
 
-        public Span<T> this[int i] => store.AsSpan().Slice(i * segmentLength, segmentLength);
+        public Span<T> this[int i] => list[i];
     }
 }
