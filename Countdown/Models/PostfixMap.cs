@@ -11,12 +11,12 @@ internal sealed partial class PostfixMap
 {
     public static readonly PostfixMap Instance = new PostfixMap();
 
-    private readonly List<List<int[]>> map;    // the map is auto generated
+    private readonly int[][][] map;    // the map is auto generated
 
     /// <summary>
     /// Indexer access. The minimum number of tiles is 2, at index 0
     /// </summary>
     /// <param name="tileCount">the number of tiles in the equation</param>
     /// <returns></returns>
-    public List<int[]> this[int tileCount] => map[tileCount - 2];
+    public int[][] this[int tileCount] => map[tileCount - 2];
 }

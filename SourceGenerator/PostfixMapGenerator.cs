@@ -176,26 +176,27 @@ internal class PostfixMapGenerator
 
     private static string ConvertToText(List<List<List<int>>> localMap)
     {
-        StringBuilder sb = new($"map = new({localMap.Count});");
+        StringBuilder sb = new(3000);
+
+        sb.AppendLine($"map = new int[{localMap.Count}][][];");
         sb.AppendLine();
 
         for (int tileIndex = 0; tileIndex < localMap.Count; tileIndex++)
         {
-            sb.AppendLine($"\t\tmap.Add(new({localMap[tileIndex].Count}));\t// capacity for {tileIndex + 2} tiles");
+            sb.AppendLine($"\t\tmap[{tileIndex}] = new int[{localMap[tileIndex].Count}][];\t// capacity for {tileIndex + 2} tiles");
         }
+
+        sb.AppendLine();
 
         for (int tileIndex = 0; tileIndex < localMap.Count; tileIndex++)
         {
             List<List<int>> tileEntries = localMap[tileIndex];
 
-            sb.AppendLine();
-            sb.AppendLine($"\t\t{(tileIndex == 0 ? "List<int[]> " : "")}entry = map[{tileIndex}];\t// for {tileIndex + 2} tiles");
-
             for (int entryIndex = 0; entryIndex < tileEntries.Count; entryIndex++)
             {
                 List<int> entry = tileEntries[entryIndex];
 
-                sb.Append($"\t\tentry.Add([");
+                sb.Append($"\t\tmap[{tileIndex}][{entryIndex}] = [");
 
                 for (int valueIndex = 0; valueIndex < entry.Count; valueIndex++)
                 {
@@ -207,8 +208,10 @@ internal class PostfixMapGenerator
                     }
                 }
 
-                sb.AppendLine($"]);");
+                sb.AppendLine($"];");
             }
+
+            sb.AppendLine();
         }
 
         return sb.ToString();
