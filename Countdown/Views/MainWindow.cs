@@ -341,12 +341,12 @@ internal partial class MainWindow : Window
         ScrollViewerBounds? parentBounds = bounds;
 
         foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
-        {
+        {            
             switch (child)
             {
                 case Panel: break;
 
-                case CountdownTextBox:
+                case CountdownTextBox ctb when !ctb.IsReadOnly:
                 case Button:
                 case TreeView:
                 case ListView:
@@ -395,7 +395,7 @@ internal partial class MainWindow : Window
                 case CustomTitleBar ctb:
                 {
                     rects.Add(ScaledRect(GetOffsetFromXamlRoot(ctb.WindowIconArea), ctb.WindowIconArea.ActualSize, scaleFactor));
-                    break;
+                    continue;
                 }
 
                 default: break;
