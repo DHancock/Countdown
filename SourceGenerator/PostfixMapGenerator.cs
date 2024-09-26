@@ -176,7 +176,7 @@ internal class PostfixMapGenerator
 
     private static string ConvertToText(List<List<List<int>>> localMap)
     {
-        StringBuilder sb = new(3000);
+        StringBuilder sb = new(3629);
 
         sb.AppendLine($"map = new int[{localMap.Count}][][];");
         sb.AppendLine();
@@ -196,7 +196,7 @@ internal class PostfixMapGenerator
             {
                 List<int> entry = tileEntries[entryIndex];
 
-                sb.Append($"\t\tmap[{tileIndex}][{entryIndex}] = [");
+                sb.Append($"\t\tmap[{tileIndex}][{entryIndex}] = new int[{entry.Count}] {{ ");
 
                 for (int valueIndex = 0; valueIndex < entry.Count; valueIndex++)
                 {
@@ -208,7 +208,7 @@ internal class PostfixMapGenerator
                     }
                 }
 
-                sb.AppendLine($"];");
+                sb.AppendLine($" }};");
             }
 
             sb.AppendLine();
