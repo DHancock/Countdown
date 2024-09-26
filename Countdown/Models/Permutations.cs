@@ -30,7 +30,6 @@ internal sealed partial class Permutations<T> : IEnumerable<T[]>
             throw new ArgumentOutOfRangeException(nameof(source));
         }
 
-        // setup the comparer
         comparer = comp;
 
         // copy source, shallow if T is a reference type
@@ -103,6 +102,7 @@ internal sealed partial class Permutations<T> : IEnumerable<T[]>
         /// Moves to the next item. 
         /// </summary>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool MoveNext()
         {
             if (setUpFirstItem)
@@ -138,6 +138,7 @@ internal sealed partial class Permutations<T> : IEnumerable<T[]>
         /// </summary>
         public readonly T[] Current
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (setUpFirstItem)
@@ -186,9 +187,11 @@ internal sealed partial class Permutations<T> : IEnumerable<T[]>
         /// The Art of Computer Programming, Volume 4, Fascicle 2: Generating All Tuples and Permutations.
         /// </summary>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private readonly bool GetNext()
         {
-            int end = current.Length - 1;
+            Span<T> span = current;
+            int end = span.Length - 1;
             int i = end;
 
             while (i > 0)
@@ -196,40 +199,33 @@ internal sealed partial class Permutations<T> : IEnumerable<T[]>
                 int j = i;
                 i--;
 
-                // find the end of the head and start of the tail
-                if (comparer.Compare(current[i], current[j]) < 0)
+                // find the end of the head
+                if (comparer.Compare(span[i], span[j]) < 0)
                 {
                     int k = end;
 
                     // find smallest tail element that is less than or equal to the last head element
-                    while (comparer.Compare(current[k], current[i]) < 1)
+                    while (comparer.Compare(span[k], span[i]) < 1)
+                    {
                         k--;
+                    }
 
                     // swap the head and tail elements
-                    Swap(i, k);
+                    (span[k], span[i]) = (span[i], span[k]);
 
                     // reverse the tail
                     while (j < end)
-                        Swap(j++, end--);
+                    {
+                        (span[end], span[j]) = (span[j], span[end]);
+                        end--;
+                        j++;
+                    }
 
                     return true;
                 }
             }
 
             return false;
-        }
-
-
-        /// <summary>
-        /// Utility swap routine
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        private readonly void Swap(int a, int b)
-        {
-            T temp = current[a];
-            current[a] = current[b];
-            current[b] = temp;
         }
     }
 }
