@@ -41,6 +41,19 @@ internal sealed partial class Permutations<T> : IEnumerable<T[]>
     {
     }
 
+    public Permutations(T[] source)
+    {
+        if (source.Length == 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(source));
+        }
+
+        comparer = Comparer<T>.Default;
+
+        input = new T[source.Length];
+        source.AsSpan().CopyTo(input);
+    }
+
     /// <summary>
     /// Gets the non generic enumerator for the permutations.
     /// </summary>
