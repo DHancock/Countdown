@@ -28,10 +28,7 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
     private readonly int n;
     private readonly int k;
 
-    /// <summary>
-    /// the source has duplicate entries
-    /// </summary>
-    private readonly bool noDuplicates;
+    private readonly bool sourceHasDuplicates;
 
     /// <summary>
     /// null friendly comparer 
@@ -76,11 +73,15 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
         Array.Sort(input, comparer);
 
         // now check the source for duplicates
-        noDuplicates = true;
+        sourceHasDuplicates = false;
 
-        for (int index = 1; (index < n) && noDuplicates; index++)
+        for (int index = 1; index < n; index++)
         {
-            noDuplicates = comparer.Compare(input[index - 1], input[index]) != 0;
+            if (comparer.Compare(input[index - 1], input[index]) == 0)
+            {
+                sourceHasDuplicates = true;
+                break;
+            }
         }
     }
 
@@ -111,11 +112,6 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
 
 
 
-
-    /// <summary>
-    /// The enumerator for the combinations. Each time MoveNext()
-    /// is called a new combination generated on demand.
-    /// </summary>
     private struct CombinationEnumerator : IEnumerator<T[]>
     {
         /// <summary>
@@ -124,18 +120,15 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
         private readonly T[] input;
 
         /// <summary>
-        /// the current combination
+        /// used to generate the next combination when the source
+        /// collection contains duplicate entries
         /// </summary>
-        private T[] current;
+        private T[]? current;
+        private T[]? previous;
 
         /// <summary>
-        /// The previous combination
-        /// Used to filter out duplicate combinations
-        /// </summary>
-        private T[] previous;
-
-        /// <summary>
-        /// An integer look up table
+        /// An integer look up table. The next combination is generated in the table. 
+        /// The enumerator output is built from the table indexing in to the source.
         /// </summary>
         private readonly int[] map;
 
@@ -148,7 +141,7 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
         /// <summary>
         /// Stores if the source contains duplicates
         /// </summary>
-        private readonly bool noDuplicates;
+        private readonly bool sourceHasDuplicates;
 
         /// <summary>
         /// null friendly comparer 
@@ -170,14 +163,17 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
             input = c.input;
             n = c.n;
             k = c.k;
-            noDuplicates = c.noDuplicates;
+            sourceHasDuplicates = c.sourceHasDuplicates;
 
-            // allocate storage
             map = new int[k];
-            current = new T[k];
 
             comparer = c.comparer;
-            previous = (noDuplicates) ? current : new T[k];
+
+            if (sourceHasDuplicates)
+            {
+                previous = new T[k];
+                current = new T[k];
+            }
         }
 
 
@@ -186,12 +182,19 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
         /// Moves to the next item. 
         /// </summary>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool MoveNext()
         {
             if (setUpFirstItem)
             {
+                if (k < 1) // nothing to do
+                {
+                    return false;
+                }
+
                 setUpFirstItem = false;
-                return Initialise();
+                Initialise();
+                return true;
             }
 
             if (GetNext())
@@ -220,6 +223,7 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
         /// </summary>
         public readonly T[] Current
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (setUpFirstItem)
@@ -228,7 +232,19 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
                 }
 
                 T[] copy = new T[k];
-                current.AsSpan().CopyTo(copy);
+
+                if (sourceHasDuplicates)
+                {
+                    current.AsSpan().CopyTo(copy);
+                }
+                else
+                {
+                    // building from the map here avoids an extra copy into current.
+                    for (int index = 0; index < k; index++)
+                    {
+                        copy[index] = input[map[index]];
+                    }
+                }
 
                 return copy;
             }
@@ -240,7 +256,7 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
         /// </summary>
         readonly object IEnumerator.Current
         {
-            get { return this.Current; }
+            get { return Current; }
         }
 
 
@@ -255,27 +271,19 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
         /// <summary>
         /// Set up state for the first enumerator call
         /// </summary>
-        private readonly bool Initialise()
+        private readonly void Initialise()
         {
-            // first check if there is anything to do
-            if (k < 1)
-            {
-                return false;
-            }
-
-            // initialise the map with 0, 1, 2... the first combination
+            // initialise the map with the first combination
             for (int index = 0; index < k; index++)
             {
                 map[index] = index;
             }
 
-            // copy sorted input to current 
-            for (int index = 0; index < k; index++)
+            if (sourceHasDuplicates)
             {
-                current[index] = input[index];
+                // store current, it's used to generate the next combination
+                input.AsSpan(0, k).CopyTo(current);
             }
-
-            return true;
         }
 
 
@@ -284,29 +292,19 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
         /// It first gets the next map entry and uses it to
         /// build a list of the input objects of type T.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool GetNext()
         {
-            if (noDuplicates) // the input has no duplicate entries
+            if (!sourceHasDuplicates)
             {
-                if (GetNextMapEntry())
-                {
-                    // build current from the map
-                    for (int index = 0; index < k; index++)
-                    {
-                        current[index] = input[map[index]];
-                    }
-
-                    return true;
-                }
-
-                return false;
+                return GetNextMapEntry();
             }
             else
             {
-                // swap current to previous
-                T[] temp = previous;
-                previous = current;
-                current = temp;
+                Debug.Assert(previous is not null);
+                Debug.Assert(current is not null);
+
+                (previous, current) = (current, previous);
 
                 while (GetNextMapEntry())
                 {
@@ -343,15 +341,18 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
         /// <summary>
         /// Generate combinations of integers in lexicographic order
         /// The resultant combinations are used as a look up table to build
-        /// combinations of objects of type T 
+        /// combinations of the input objects of type T 
         /// Algorithm by Donald Knuth
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private readonly bool GetNextMapEntry()
         {
+            Span<int> span = map;
+
             // start at last item
             int i = k - 1;
 
-            while (map[i] == (n - k + i))  // find next item to increment 
+            while (span[i] == n - k + i)  // find next item to increment 
             {
                 if (--i < 0)
                 {
@@ -359,12 +360,12 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
                 }
             }
 
-            ++map[i]; // increment
+            ++span[i]; // increment
 
             // do next 
             for (int j = i + 1; j < k; j++)
             {
-                map[j] = map[i] + j - i;
+                span[j] = span[i] + j - i;
             }
 
             return true;
