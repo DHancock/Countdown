@@ -299,42 +299,40 @@ internal sealed partial class Combinations<T> : IEnumerable<T[]>
             {
                 return GetNextMapEntry();
             }
-            else
+            
+            Debug.Assert(previous is not null);
+            Debug.Assert(current is not null);
+
+            (previous, current) = (current, previous);
+
+            while (GetNextMapEntry())
             {
-                Debug.Assert(previous is not null);
-                Debug.Assert(current is not null);
+                int cr = 0;
 
-                (previous, current) = (current, previous);
-
-                while (GetNextMapEntry())
+                // build current from the map, checking for duplicates
+                // by comparing this combination with the previous combination
+                for (int index = 0; index < k; index++)
                 {
-                    int cr = 0;
+                    current[index] = input[map[index]];
 
-                    // build current from the map, checking for duplicates
-                    // by comparing this combination with the previous combination
-                    for (int index = 0; index < k; index++)
+                    if (cr == 0)  // equal so far
                     {
-                        current[index] = input[map[index]];
+                        cr = comparer.Compare(current[index], previous[index]);
 
-                        if (cr == 0)  // equal so far
+                        if (cr < 0) // less than, its a duplicate
                         {
-                            cr = comparer.Compare(current[index], previous[index]);
-
-                            if (cr < 0) // less than, its a duplicate
-                            {
-                                break;
-                            }
+                            break;
                         }
-                    }
-
-                    if (cr > 0)  // greater than, its not a duplicate
-                    {
-                        return true;
                     }
                 }
 
-                return false;
+                if (cr > 0)  // greater than, its not a duplicate
+                {
+                    return true;
+                }
             }
+
+            return false;
         }
 
 
