@@ -83,10 +83,11 @@ internal sealed class Program
 
                         if ((data.Length >= min_word_length) && (data.Length <= max_word_length) && data.All(c => IsLetter(c)))
                         {
-                            // construct the key
-                            char[] a = data.ToCharArray();
-                            Array.Sort(a);
-                            string key = new string(a);
+                            string key = string.Create(data.Length, data, (chars, state) =>
+                            {
+                                state.AsSpan().CopyTo(chars);
+                                chars.Sort();
+                            });
 
                             if (wordLists.TryGetValue(key, out List<string>? list))
                             {
