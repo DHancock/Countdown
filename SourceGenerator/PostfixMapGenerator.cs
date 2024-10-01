@@ -160,7 +160,9 @@ internal class PostfixMapGenerator
                     int count = operatorCount;
 
                     while (count-- > 0)
+                    {
                         row.Add(0); // add zeros which force the evaluation of an operator
+                    }
 
                     digitCount = 1; // reset digit count
                 }

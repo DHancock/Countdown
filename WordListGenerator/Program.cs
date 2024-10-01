@@ -15,6 +15,8 @@ internal sealed class Program
 
     static int Main(string[] args)
     {
+        //System.Diagnostics.Debugger.Launch();
+
         try
         {
             App app = new App(args);
@@ -35,17 +37,10 @@ internal sealed class Program
 
         public App(string[] args)
         {
-            if (args.Length != 2)
-                throw new ArgumentOutOfRangeException(nameof(args));
+            ArgumentOutOfRangeException.ThrowIfNotEqual(args.Length, 2, nameof(args));
 
             inputDir = args[0];
             outputFile = args[1];
-
-            if (!Directory.Exists(inputDir))
-                throw new DirectoryNotFoundException();
-
-            if (!Directory.Exists(Path.GetDirectoryName(outputFile)))
-                throw new DirectoryNotFoundException();
         }
 
         public int Run()
@@ -95,10 +90,14 @@ internal sealed class Program
                                 int index = list.BinarySearch(data);
 
                                 if (index < 0)
+                                {
                                     list.Insert(~index, data);
+                                }
                             }
                             else
+                            {
                                 wordLists[key] = new List<string>() { data };
+                            }
                         }
                     }
                 }

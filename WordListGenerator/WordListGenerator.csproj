@@ -6,9 +6,18 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 	<Nullable>enable</Nullable>
   </PropertyGroup>
+
+	<PropertyGroup>
+		<GeneratedFilePath>$(SolutionDir)Countdown\Resources\wordlist.dat</GeneratedFilePath>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="!exists('$(GeneratedFilePath)')">
+		<!-- always trigger a rebuild and post build event -->
+		<DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+	</PropertyGroup>
 	
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="start /wait /b &quot;&quot; &quot;$(TargetDir)$(TargetName).exe&quot; &quot;$(ProjectDir)Input&quot; &quot;$(SolutionDir)Countdown\Resources\wordlist.dat&quot;" />
-  </Target>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="start /wait /b &quot;&quot; &quot;$(TargetDir)$(TargetName).exe&quot; &quot;$(ProjectDir)Input&quot; &quot;$(GeneratedFilePath)&quot;" />
+	</Target>
 
 </Project>

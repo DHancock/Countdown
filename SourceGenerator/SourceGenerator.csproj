@@ -7,8 +7,16 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="start /wait /b &quot;&quot; &quot;$(TargetDir)$(TargetName).exe&quot; &quot;$(SolutionDir)Countdown\Models\PostfixMap.g.cs&quot;" />
-  </Target>
-	
+	<PropertyGroup>
+		<GeneratedFilePath>$(SolutionDir)Countdown\Models\PostfixMap.g.cs</GeneratedFilePath>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="!exists('$(GeneratedFilePath)')">
+		<!-- always trigger a rebuild and post build event -->
+		<DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+	</PropertyGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="start /wait /b &quot;&quot; &quot;$(TargetDir)$(TargetName).exe&quot; &quot;$(GeneratedFilePath)&quot;" />
+	</Target>
 </Project>

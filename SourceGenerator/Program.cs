@@ -10,6 +10,8 @@ internal sealed class Program
 
     static int Main(string[] args)
     {
+        //System.Diagnostics.Debugger.Launch();
+
         try
         {
             App app = new App(args);
@@ -24,22 +26,17 @@ internal sealed class Program
 
     private sealed class App
     {
-        private readonly string destinationPath;
+        private readonly string path;
 
         public App(string[] args)
         {
-            if (args.Length != 1)
-                throw new ArgumentOutOfRangeException(nameof(args));
-
-            destinationPath = args[0];
-
-            if (!Directory.Exists(Path.GetDirectoryName(destinationPath)))
-                throw new DirectoryNotFoundException();
+            ArgumentOutOfRangeException.ThrowIfNotEqual(args.Length, 1, nameof(args));
+            path = args[0];
         }
 
         public int Run()
         {
-            File.WriteAllText(destinationPath, PostfixMapGenerator.Generate());   
+            File.WriteAllText(path, PostfixMapGenerator.Generate());   
             return error_success;
         }
     }
