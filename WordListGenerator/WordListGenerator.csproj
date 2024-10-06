@@ -1,23 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-	<Nullable>enable</Nullable>
-  </PropertyGroup>
-
 	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+		<Nullable>enable</Nullable>
+
 		<GeneratedFilePath>$(SolutionDir)Countdown\Resources\wordlist.dat</GeneratedFilePath>
+		<DisableFastUpToDateCheck Condition="!exists('$(GeneratedFilePath)')">true</DisableFastUpToDateCheck>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="!exists('$(GeneratedFilePath)')">
-		<!-- always trigger a rebuild and post build event -->
-		<DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
-	</PropertyGroup>
-	
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="start /wait /b &quot;&quot; &quot;$(TargetDir)$(TargetName).exe&quot; &quot;$(ProjectDir)Input&quot; &quot;$(GeneratedFilePath)&quot;" />
 	</Target>
-
 </Project>
