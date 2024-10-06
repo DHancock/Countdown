@@ -1,19 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-
 	<PropertyGroup>
-		<GeneratedFilePath>$(SolutionDir)Countdown\Models\PostfixMap.g.cs</GeneratedFilePath>
-	</PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+		<Nullable>enable</Nullable>
 
-	<PropertyGroup Condition="!exists('$(GeneratedFilePath)')">
-		<!-- always trigger a rebuild and post build event -->
-		<DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+		<GeneratedFilePath>$(SolutionDir)Countdown\Models\PostfixMap.g.cs</GeneratedFilePath>
+		<DisableFastUpToDateCheck Condition="!exists('$(GeneratedFilePath)')">true</DisableFastUpToDateCheck>
 	</PropertyGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
