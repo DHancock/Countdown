@@ -102,18 +102,21 @@ internal class WordModel
     {
         loadingEvent.Wait();  // until finished loading resources
 
-        Debug.Assert(conundrumWords.Count > 0);
-
         if (conundrumWords.Count > 0)
         {
             // move a random distance into dictionary
             int index = new Random().Next(conundrumWords.Count);
+            Dictionary<string, string>.ValueCollection.Enumerator e = conundrumWords.Values.GetEnumerator();
 
-            IEnumerator<string> e = conundrumWords.Values.GetEnumerator();
+            while (e.MoveNext()) 
+            {
+                if (index == 0)
+                {
+                    return e.Current.ToCharArray().Shuffle();
+                }
 
-            while (e.MoveNext() && (index-- > 0)) { }; // empty statement
-
-            return e.Current.ToCharArray().Shuffle();
+                index -= 1;
+            };
         }
 
         return new string(' ', cMaxLetters).ToCharArray();
