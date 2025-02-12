@@ -83,7 +83,7 @@ internal sealed partial class LettersView : Page
             TreeViewNode parent = new TreeViewNode();
             parent.Content = new WordHeading(group.Key);
 
-            foreach (string word in group.OrderBy(w => w))
+            foreach (string word in group.Order())
             {
                 TreeViewNode child = new TreeViewNode();
                 child.Content = word;

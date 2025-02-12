@@ -13,7 +13,7 @@ internal sealed partial class SettingsView : Page
     {
         this.InitializeComponent();
 
-        VersionTextBlock.Text = $"Version: {Path.GetFileNameWithoutExtension(typeof(App).Assembly.GetName().Version?.ToString())}";
+        VersionTextBlock.Text = $"Version: {typeof(App).Assembly.GetName().Version?.ToString(3)}";
 
         // Use the Tag to identify that this text block contains a hyperlink. Work around for:
         // https://github.com/microsoft/WindowsAppSDK/issues/4722
