@@ -10,6 +10,10 @@
 		<DisableFastUpToDateCheck Condition="!exists('$(GeneratedFilePath)')">true</DisableFastUpToDateCheck>
 	</PropertyGroup>
 
+	<Target Name="PostFixMapCustomClean" BeforeTargets="CoreClean">
+		<Delete Files='$(GeneratedFilePath)'/>
+	</Target>
+	
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="start /wait /b &quot;&quot; &quot;$(TargetDir)$(TargetName).exe&quot; &quot;$(GeneratedFilePath)&quot;" />
 	</Target>
