@@ -5,11 +5,14 @@
 		<TargetFramework>net8.0-windows</TargetFramework>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 		<Nullable>enable</Nullable>
-
-		<GeneratedFilePath>$(SolutionDir)Countdown\Resources\wordlist.dat</GeneratedFilePath>
-		<DisableFastUpToDateCheck Condition="!exists('$(GeneratedFilePath)')">true</DisableFastUpToDateCheck>
+		<GeneratedFilePath>$(SolutionDir)Countdown\Resources\wordlist.dat</GeneratedFilePath>		
 	</PropertyGroup>
 
+	<ItemGroup>
+		<UpToDateCheckOutput Include='$(GeneratedFilePath)'/>
+		<UpToDateCheckInput Include='$(ProjectDir)Input\*.txt' />
+	</ItemGroup>
+	
 	<Target Name="WordListCustomClean" BeforeTargets="CoreClean">
 		<Delete Files='$(GeneratedFilePath)'/>
 	</Target>

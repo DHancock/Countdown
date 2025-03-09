@@ -5,11 +5,13 @@
 		<TargetFramework>net8.0-windows</TargetFramework>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 		<Nullable>enable</Nullable>
-
 		<GeneratedFilePath>$(SolutionDir)Countdown\Models\PostfixMap.g.cs</GeneratedFilePath>
-		<DisableFastUpToDateCheck Condition="!exists('$(GeneratedFilePath)')">true</DisableFastUpToDateCheck>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<UpToDateCheckOutput Include='$(GeneratedFilePath)'/>
+	</ItemGroup>
+	
 	<Target Name="PostFixMapCustomClean" BeforeTargets="CoreClean">
 		<Delete Files='$(GeneratedFilePath)'/>
 	</Target>
