@@ -131,6 +131,12 @@ internal partial class MainWindow : Window
                 HideSystemMenu();
                 break;
             }
+
+            case PInvoke.WM_ENDSESSION:
+            {
+                HandleEndSession();
+                return (LRESULT)0;
+            }
         }
 
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
@@ -513,5 +519,22 @@ internal partial class MainWindow : Window
         {
             SetWindowDragRegionsInternal();
         }
+    } 
+
+    private void HandleEndSession()
+    {
+        Settings.Instance.RestoreBounds = RestoreBounds;
+        Settings.Instance.WindowState = WindowState;
+
+        // convert to synchronous, the window subclass proc cannot be async
+        ManualResetEventSlim mres = new();
+
+        Task.Run(async () =>
+        {
+            await Settings.Instance.Save();
+            mres.Set();
+        });
+
+        mres.Wait();
     }
 }

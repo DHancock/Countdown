@@ -12,3 +12,4 @@ GetCursorPos
 ScreenToClient
 WM_DPICHANGED
 GetDoubleClickTime
+WM_ENDSESSION
