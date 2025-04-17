@@ -134,7 +134,7 @@ internal partial class MainWindow : Window
 
             case PInvoke.WM_ENDSESSION:
             {
-                HandleEndSession();
+                SaveStateOnEndSession();
                 return (LRESULT)0;
             }
         }
@@ -521,7 +521,7 @@ internal partial class MainWindow : Window
         }
     } 
 
-    private void HandleEndSession()
+    private void SaveStateOnEndSession()
     {
         Settings.Instance.RestoreBounds = RestoreBounds;
         Settings.Instance.WindowState = WindowState;
