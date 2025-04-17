@@ -2,12 +2,8 @@
 
 internal sealed class SolverResults
 {
-    /// <summary>
-    /// thread synchronization objects
-    /// </summary>
-    private readonly object addLock = new object();
-    private readonly object updateLock = new object();
-
+    private readonly Lock addLock = new();
+    private readonly Lock updateLock = new();
 
     // collects a reference of each solver's solution list
     private List<List<string>> SolverLists { get; } = new List<List<string>>(100);
