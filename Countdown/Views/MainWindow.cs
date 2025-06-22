@@ -525,16 +525,6 @@ internal partial class MainWindow : Window
     {
         Settings.Instance.RestoreBounds = RestoreBounds;
         Settings.Instance.WindowState = WindowState;
-
-        // convert to synchronous, the window subclass proc cannot be async
-        ManualResetEventSlim mres = new();
-
-        Task.Run(async () =>
-        {
-            await Settings.Instance.Save();
-            mres.Set();
-        });
-
-        mres.Wait();
+        Settings.Instance.Save();
     }
 }

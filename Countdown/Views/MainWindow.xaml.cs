@@ -20,11 +20,11 @@ internal sealed partial class MainWindow : Window
     {
         this.InitializeComponent();
 
-        AppWindow.Closing += async (s, a) =>
+        AppWindow.Closing += (s, a) =>
         {
             Settings.Instance.RestoreBounds = RestoreBounds;
             Settings.Instance.WindowState = WindowState;
-            await Settings.Instance.Save();
+            Settings.Instance.Save();
         };
 
         if (AppWindowTitleBar.IsCustomizationSupported())
