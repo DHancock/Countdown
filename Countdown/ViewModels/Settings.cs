@@ -44,14 +44,18 @@ internal class Settings
     {
     }
 
-    public async Task Save()
+    public void Save()
     {
         try
         {
-            Directory.CreateDirectory(App.GetAppDataPath());
+            string parentDir = App.GetAppDataPath();
 
-            string jsonString = JsonSerializer.Serialize(this, SettingsJsonContext.Default.Settings);
-            await File.WriteAllTextAsync(GetSettingsFilePath(), jsonString);
+            Directory.CreateDirectory(parentDir);
+
+            using (FileStream fs = File.Create(GetSettingsFilePath(parentDir)))
+            {
+                JsonSerializer.Serialize(fs, this, SettingsJsonContext.Default.Settings);
+            }
         }
         catch (Exception ex)
         {
@@ -61,15 +65,11 @@ internal class Settings
 
     internal static Settings Load()
     {
-        string path = GetSettingsFilePath();
-
         try
         {
-            string data = File.ReadAllText(path);
-
-            if (!string.IsNullOrWhiteSpace(data))
+            using (FileStream fs = File.OpenRead(GetSettingsFilePath(App.GetAppDataPath())))
             {
-                Settings? settings = JsonSerializer.Deserialize<Settings>(data, SettingsJsonContext.Default.Settings);
+                Settings? settings = JsonSerializer.Deserialize(fs, SettingsJsonContext.Default.Settings);
 
                 if (settings is not null)
                 {
@@ -90,13 +90,13 @@ internal class Settings
         return new Settings();
     }
 
-    private static string GetSettingsFilePath()
+    private static string GetSettingsFilePath(string parentDir)
     {
-        return Path.Join(App.GetAppDataPath(), "settings.json");
+        return Path.Join(parentDir, "settings.json");
     }
 }
 
-[JsonSourceGenerationOptions(IncludeFields = true)]
+[JsonSourceGenerationOptions(IncludeFields = true, WriteIndented = false)]
 [JsonSerializable(typeof(Settings))]
 internal partial class SettingsJsonContext : JsonSerializerContext
 {
