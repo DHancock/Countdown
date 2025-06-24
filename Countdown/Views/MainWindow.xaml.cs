@@ -22,6 +22,7 @@ internal sealed partial class MainWindow : Window
 
         AppWindow.Closing += (s, a) =>
         {
+            AppWindow.Hide();
             Settings.Instance.RestoreBounds = RestoreBounds;
             Settings.Instance.WindowState = WindowState;
             Settings.Instance.Save();
