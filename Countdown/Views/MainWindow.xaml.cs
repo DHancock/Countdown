@@ -121,7 +121,7 @@ internal sealed partial class MainWindow : Window
         {
             Type? type;
 
-            switch (item.Tag as string) // use the actual full type name to allow for trimming
+            switch (item.Tag as string) // using a compile time constant for the type name allows for trimming
             {
                 case "NumbersView": type = Type.GetType("Countdown.Views.NumbersView"); break;
                 case "LettersView": type = Type.GetType("Countdown.Views.LettersView"); break;
