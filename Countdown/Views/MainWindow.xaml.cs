@@ -119,17 +119,15 @@ internal sealed partial class MainWindow : Window
     {
         if (args.SelectedItem is NavigationViewItem item)
         {
-            Type? type;
+            Type? type = null;
 
-            switch (item.Tag as string) // using a compile time constant for the type name allows for trimming
+            switch (item.Tag as string) // trimming requires a compile time constant for the type name
             {
                 case "NumbersView": type = Type.GetType("Countdown.Views.NumbersView"); break;
                 case "LettersView": type = Type.GetType("Countdown.Views.LettersView"); break;
                 case "ConundrumView": type = Type.GetType("Countdown.Views.ConundrumView"); break;
                 case "StopwatchView": type = Type.GetType("Countdown.Views.StopwatchView"); break;
                 case "SettingsView": type = Type.GetType("Countdown.Views.SettingsView"); break;
-                default:
-                    throw new InvalidOperationException();
             }
             
             if (type is not null)

@@ -9,6 +9,8 @@
     NavigationCacheMode="Required"
     mc:Ignorable="d">
 
+    <!-- left, top, right, bottom -->
+    
     <Page.Resources>
         <Style x:Key="ctbs" TargetType="local:CountdownTextBox">
             <Setter Property="ContentStyle" Value="Letter"/>
@@ -99,18 +101,18 @@
         </StackPanel>
 
         <Grid Grid.Column="1" Margin="5" RowDefinitions="Auto,*">
-            <Grid.Resources>
-                <Style TargetType="ListView">
-                    <!-- differentiate the AutoSuggestBox suggestion list from the results list -->
-                    <Setter Property="Background" Value="{ThemeResource SystemControlPageBackgroundChromeLowBrush}"/>
-                </Style>
-            </Grid.Resources>
-            
+
             <AutoSuggestBox x:Name="SuggestionBox" MinWidth="175" HorizontalAlignment="Left"
                 TextChanged="AutoSuggestBox_TextChanged"
                 SuggestionChosen="AutoSuggestBox_SuggestionChosen"
                 QueryIcon="Find"
-                QuerySubmitted="AutoSuggestBox_QuerySubmitted"/>
+                QuerySubmitted="AutoSuggestBox_QuerySubmitted">
+                
+                <AutoSuggestBox.Resources>
+                    <!-- remove the bottom margin, other lists don't have one -->
+                    <Thickness x:Key="AutoSuggestListMargin">0,2,0,0</Thickness>
+                </AutoSuggestBox.Resources>
+            </AutoSuggestBox>
 
             <Border Grid.Row="1" Style="{StaticResource TreeViewBorderStyle}">
                 <TreeView x:Name="WordTreeView" ItemTemplateSelector="{StaticResource WordTreeTemplateSelector}" CanReorderItems="False">
