@@ -273,9 +273,18 @@ internal sealed partial class LettersView : Page
             return DamerauLevenshteinDistance(s1, s2, stackalloc int[size]);
         }
 
+        int distance;
         int[] buffer = ArrayPool<int>.Shared.Rent(size);
-        int distance = DamerauLevenshteinDistance(s1, s2, buffer);
-        ArrayPool<int>.Shared.Return(buffer);
+
+        try
+        {
+            distance = DamerauLevenshteinDistance(s1, s2, buffer);
+        }
+        finally
+        {
+            ArrayPool<int>.Shared.Return(buffer);
+        }
+
         return distance;
     }
 
