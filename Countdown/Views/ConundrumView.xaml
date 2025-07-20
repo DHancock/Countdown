@@ -73,7 +73,7 @@
 
         </StackPanel>
 
-        <ListView x:Name="ConundrumList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.SolutionList, Mode=OneWay}">
+        <ListView x:Name="ConundrumList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.SolutionList, Mode=OneWay}" Style="{StaticResource ResultsListStyle}">
             <ListView.Resources>
                 <StandardUICommand x:Name="CopyCommand" Kind="Copy" ExecuteRequested="CopyCommand_ExecuteRequested" CanExecuteRequested="CopyCommand_CanExecuteRequested"/>
                 <StandardUICommand x:Name="DeleteCommand" Kind="Delete" ExecuteRequested="DeleteCommand_ExecuteRequested" CanExecuteRequested="DeleteCommand_CanExecuteRequested"/>
