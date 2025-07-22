@@ -14,7 +14,7 @@
             tb.IsTextPredictionEnabled = false;
             tb.IsColorFontEnabled = false;
 
-            SetContentProperties(tb, ContentStyle);
+            SetContentProperties(tb, Contents);
             SetReadOnlyProperties(tb, IsReadOnly);
 
             tb.TextChanged += Tb_TextChanged;
@@ -82,19 +82,19 @@
         /// <summary>
         /// Defines which characters are allowed, letters or numbers.
         /// </summary>
-        public ContentType ContentStyle
+        public ContentType Contents
         {
-            get { return (ContentType)GetValue(ContentStyleProperty); }
-            set { SetValue(ContentStyleProperty, value); }
+            get { return (ContentType)GetValue(ContentsProperty); }
+            set { SetValue(ContentsProperty, value); }
         }
 
-        public static readonly DependencyProperty ContentStyleProperty =
-            DependencyProperty.Register(nameof(ContentStyle),
+        public static readonly DependencyProperty ContentsProperty =
+            DependencyProperty.Register(nameof(Contents),
                 typeof(ContentType),
                 typeof(CountdownTextBox),
-                new PropertyMetadata(ContentType.Number, ContentStylePropertyChanged));
+                new PropertyMetadata(ContentType.Number, ContentsPropertyChanged));
 
-        private static void ContentStylePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void ContentsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         { 
             SetContentProperties(((CountdownTextBox)d).tb, (ContentType)e.NewValue);
         }
@@ -116,14 +116,14 @@
         /// <summary>
         /// Defines if auto tabbing is off or conditionally on. 
         /// </summary>
-        public AutoTabType AutoTabStyle
+        public AutoTabType AutoTab
         {
-            get { return (AutoTabType)GetValue(AutoTabStyleProperty); }
-            set { SetValue(AutoTabStyleProperty, value); }
+            get { return (AutoTabType)GetValue(AutoTabProperty); }
+            set { SetValue(AutoTabProperty, value); }
         }
 
-        public static readonly DependencyProperty AutoTabStyleProperty =
-            DependencyProperty.Register(nameof(AutoTabStyle),
+        public static readonly DependencyProperty AutoTabProperty =
+            DependencyProperty.Register(nameof(AutoTab),
                 typeof(AutoTabType),
                 typeof(CountdownTextBox),
                 new PropertyMetadata(AutoTabType.AlwaysTab));
@@ -167,7 +167,7 @@
         {
             if (!IsReadOnly)
             {
-                if (ContentStyle == ContentType.Number)
+                if (Contents == ContentType.Number)
                 {
                     args.Cancel = !args.NewText.All(c => c is >= '0' and <= '9');
                 }
@@ -190,7 +190,7 @@
             if ((tb.FocusState != FocusState.Unfocused) &&
                 (tb.MaxLength > 0) &&
                 (tb.Text.Length == tb.MaxLength) &&
-                ((AutoTabStyle == AutoTabType.AlwaysTab) || ((AutoTabStyle == AutoTabType.TabIfErrorFree) && string.IsNullOrWhiteSpace(ErrorToolTipText))))
+                ((AutoTab == AutoTabType.AlwaysTab) || ((AutoTab == AutoTabType.TabIfErrorFree) && string.IsNullOrWhiteSpace(ErrorToolTipText))))
             {
                 try
                 {

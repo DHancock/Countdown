@@ -14,8 +14,8 @@
     
     <Page.Resources>
         <Style x:Key="RW" TargetType="local:CountdownTextBox">
-            <Setter Property="ContentStyle" Value="Letter"/>
-            <Setter Property="AutoTabStyle" Value="AlwaysTab"/>
+            <Setter Property="Contents" Value="Letter"/>
+            <Setter Property="AutoTab" Value="AlwaysTab"/>
         </Style>
         <Style x:Key="RO" TargetType="local:CountdownTextBox" BasedOn="{StaticResource RW}">
             <Setter Property="IsReadOnly" Value="true"/>
@@ -42,7 +42,7 @@
                     <local:CountdownTextBox Grid.Column="5" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Grid.Column="6" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Grid.Column="7" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Grid.Column="8" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutoTabStyle="Off"/>
+                    <local:CountdownTextBox Grid.Column="8" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutoTab="Off"/>
                 </Grid>
             </w3c:GroupBox>
 
