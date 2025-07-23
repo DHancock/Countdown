@@ -16,6 +16,7 @@
         <Style x:Key="RW" TargetType="local:CountdownTextBox">
             <Setter Property="Contents" Value="Letter"/>
             <Setter Property="AutoTab" Value="AlwaysTab"/>
+            <Setter Property="Margin" Value="0,5,0,5"/>
         </Style>
         <Style x:Key="RO" TargetType="local:CountdownTextBox" BasedOn="{StaticResource RW}">
             <Setter Property="IsReadOnly" Value="true"/>
