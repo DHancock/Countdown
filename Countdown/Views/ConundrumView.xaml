@@ -10,10 +10,12 @@
     NavigationCacheMode="Required"
     mc:Ignorable="d">
 
+    <!-- left, top, right, bottom -->
+    
     <Page.Resources>
         <Style x:Key="RW" TargetType="local:CountdownTextBox">
-            <Setter Property="ContentStyle" Value="Letter"/>
-            <Setter Property="AutoTabStyle" Value="AlwaysTab"/>
+            <Setter Property="Contents" Value="Letter"/>
+            <Setter Property="AutoTab" Value="AlwaysTab"/>
             <Setter Property="Margin" Value="0,5,0,5"/>
         </Style>
         <Style x:Key="RO" TargetType="local:CountdownTextBox" BasedOn="{StaticResource RW}">
@@ -41,12 +43,16 @@
                     <local:CountdownTextBox Grid.Column="5" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Grid.Column="6" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Grid.Column="7" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_7, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <local:CountdownTextBox Grid.Column="8" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutoTabStyle="Off"/>
+                    <local:CountdownTextBox Grid.Column="8" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_8, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AutoTab="Off"/>
                 </Grid>
             </w3c:GroupBox>
 
             <w3c:GroupBox Heading="Solution" Style="{StaticResource CommonGroupBoxStyle}">
                 <Grid RowDefinitions="*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
+                    <Grid.Resources>
+                        <SolidColorBrush x:Key="TextControlBorderBrush" Color="Transparent" />
+                    </Grid.Resources>
+                    
                     <local:CountdownTextBox Grid.Column="0" Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(0, 1), Mode=OneWay}"/>
                     <local:CountdownTextBox Grid.Column="1" Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(1, 1), Mode=OneWay}"/>
                     <local:CountdownTextBox Grid.Column="2" Style="{StaticResource RO}" Text="{x:Bind ViewModel.Solution.Substring(2, 1), Mode=OneWay}"/>

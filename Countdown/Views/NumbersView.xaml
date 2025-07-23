@@ -12,8 +12,8 @@
 
     <Page.Resources>
         <Style x:Key="ctbs" TargetType="local:CountdownTextBox">
-            <Setter Property="ContentStyle" Value="Number"/>
-            <Setter Property="AutoTabStyle" Value="Off"/>
+            <Setter Property="Contents" Value="Number"/>
+            <Setter Property="AutoTab" Value="Off"/>
             <Setter Property="Margin" Value="3,5,3,5"/>
         </Style>
     </Page.Resources>
