@@ -21,6 +21,25 @@
             tb.BeforeTextChanging += Tb_BeforeTextChanging;
             tb.PreviewKeyDown += Tb_PreviewKeyDown;
             tb.GotFocus += Tb_GotFocus;
+
+            tb.ContextFlyout.Opening += ContextFlyout_Opening;
+        }
+
+        private void ContextFlyout_Opening(object? sender, object e)
+        {
+            // the context flyout is the standard cut/copy/paste text menu provided by the sdk
+            if (tb.ContextFlyout is CommandBarFlyout cbf)
+            {
+                foreach (ICommandBarElement icbe in cbf.SecondaryCommands)
+                {
+                    if (icbe is AppBarButton abb)
+                    {
+                        // fix the menu item's text brush colour when the app's theme isn't the defult
+                        // (this will also fix each item's context flyout colours)
+                        abb.RequestedTheme = tb.ActualTheme;
+                    }
+                }
+            }
         }
 
 
