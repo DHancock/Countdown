@@ -43,7 +43,7 @@
                 {
                     if (icbe is AppBarButton abb)
                     {
-                        // fix the menu item's text colour when the app's custom theme isn't equal to the default
+                        // fix the menu item's text colour for theme changes occuring after the context flyout was created
                         // (this will also fix each menu item's tool tip colours)
                         abb.RequestedTheme = tb.ActualTheme;
                     }
