@@ -1,4 +1,5 @@
-﻿using Countdown.ViewModels;
+﻿using Countdown.Utils;
+using Countdown.ViewModels;
 
 namespace Countdown.Views;
 
@@ -76,7 +77,41 @@ internal sealed partial class MainWindow : Window
         {
             // set duration for the next theme change
             ThemeBrushTransition.Duration = TimeSpan.FromMicroseconds(250);
+
+            FixTextBoxContextFlyoutMenuForThemeChange();
         };
+    }
+
+    private void FixTextBoxContextFlyoutMenuForThemeChange()
+    {
+        TextBox? tb = LayoutRoot.FindChild<TextBox>();
+
+        Debug.Assert(tb is not null);
+        Debug.Assert(tb.ContextFlyout is not null);
+
+        if ((tb is not null) && (tb.ContextFlyout is not null))
+        {
+            // The context flyout is the standard cut/copy/paste menu provided by the sdk.
+            // This event handler will affect all other TextBox instances, I can  
+            // only assume that they're all sharing a single context flyout.
+            tb.ContextFlyout.Opening += ContextFlyout_Opening;
+        }
+
+        static void ContextFlyout_Opening(object? sender, object e)
+        {
+            if ((sender is TextCommandBarFlyout tcbf) && (tcbf.Target is TextBox tb))
+            {
+                foreach (ICommandBarElement icbe in tcbf.SecondaryCommands)
+                {
+                    if ((icbe is FrameworkElement fe) && (fe.ActualTheme != tb.ActualTheme))
+                    {
+                        // update the menu item's text colour for theme changes occuring after the context flyout was created
+                        // (this will also update each menu item's tool tip colours)
+                        fe.RequestedTheme = tb.ActualTheme;
+                    }
+                }
+            }
+        }
     }
 
     private RectInt32 ValidateRestoreBounds(RectInt32 windowArea)
