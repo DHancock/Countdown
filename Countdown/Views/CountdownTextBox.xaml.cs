@@ -5,8 +5,6 @@
         public enum ContentType { Number, Letter }
         public enum AutoTabType { Off, TabIfErrorFree, AlwaysTab }
 
-        private static bool sContextFlyoutEventRegistered = false;
-
         public CountdownTextBox()
         {
             this.InitializeComponent();
@@ -23,32 +21,6 @@
             tb.BeforeTextChanging += Tb_BeforeTextChanging;
             tb.PreviewKeyDown += Tb_PreviewKeyDown;
             tb.GotFocus += Tb_GotFocus;
-
-            if (!sContextFlyoutEventRegistered)
-            {
-                sContextFlyoutEventRegistered = true;
-
-                // The context flyout is the standard cut/copy/paste menu provided by the sdk.
-                // Weirdly, adding this event handler affects all other TextBox instances, I can  
-                // only assume that they're all sharing a single context flyout.
-                tb.ContextFlyout.Opening += ContextFlyout_Opening;
-            }
-        }
-
-        private static void ContextFlyout_Opening(object? sender, object e)
-        {
-            if ((sender is TextCommandBarFlyout tcbf) && (tcbf.Target is TextBox tb))
-            {
-                foreach (ICommandBarElement icbe in tcbf.SecondaryCommands)
-                {
-                    if (icbe is AppBarButton abb)
-                    {
-                        // fix the menu item's text colour for theme changes occuring after the context flyout was created
-                        // (this will also fix each menu item's tool tip colours)
-                        abb.RequestedTheme = tb.ActualTheme;
-                    }
-                }
-            }
         }
 
 
