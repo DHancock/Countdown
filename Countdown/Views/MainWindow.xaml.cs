@@ -75,9 +75,6 @@ internal sealed partial class MainWindow : Window
 
         LayoutRoot.Loaded += (s, e) =>
         {
-            // set duration for the next theme change
-            ThemeBrushTransition.Duration = TimeSpan.FromMicroseconds(250);
-
             FixTextBoxContextFlyoutMenuForThemeChange();
         };
     }
