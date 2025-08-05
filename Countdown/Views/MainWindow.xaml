@@ -21,10 +21,6 @@
             <Thickness x:Key="TopNavigationViewContentGridBorderThickness">0</Thickness>
         </Grid.Resources>
 
-        <Grid.BackgroundTransition>
-            <BrushTransition x:Name="ThemeBrushTransition" Duration="0"/>
-        </Grid.BackgroundTransition>
-
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
