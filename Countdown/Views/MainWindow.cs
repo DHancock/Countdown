@@ -1,6 +1,5 @@
 ﻿// included here due to name conflicts
 using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Documents;
 
 using Countdown.ViewModels;
 using Countdown.Utils;

@@ -73,15 +73,15 @@ internal sealed partial class MainWindow : Window
             WindowState = Settings.Instance.WindowState;
         }
 
-        LayoutRoot.Loaded += (s, e) =>
+        LayoutRoot.Loaded += static (s, e) =>
         {
-            FixTextBoxContextFlyoutMenuForThemeChange();
+            FixTextBoxContextFlyoutMenuForThemeChange((DependencyObject)s);
         };
     }
 
-    private void FixTextBoxContextFlyoutMenuForThemeChange()
+    private static void FixTextBoxContextFlyoutMenuForThemeChange(DependencyObject root)
     {
-        TextBox? tb = LayoutRoot.FindChild<TextBox>();
+        TextBox? tb = root.FindChild<TextBox>();
 
         Debug.Assert(tb is not null);
         Debug.Assert(tb.ContextFlyout is not null);
