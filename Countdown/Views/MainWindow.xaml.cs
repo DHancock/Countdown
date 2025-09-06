@@ -1,4 +1,4 @@
-﻿using Countdown.Utils;
+﻿using Countdown.Utilities;
 using Countdown.ViewModels;
 
 namespace Countdown.Views;
@@ -8,6 +8,7 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class MainWindow : Window
 {
+    private IPageItem? selectedPage;
     private DateTime lastPointerTimeStamp;
     private readonly ViewModel rootViewModel = new ViewModel();
 
@@ -29,20 +30,13 @@ internal sealed partial class MainWindow : Window
             Settings.Instance.Save();
         };
 
-        if (AppWindowTitleBar.IsCustomizationSupported())
-        {
-            customTitleBar.ParentAppWindow = AppWindow;
-            customTitleBar.UpdateThemeAndTransparency(Settings.Instance.CurrentTheme);
-            customTitleBar.Title = title;
-            customTitleBar.WindowIconArea.PointerPressed += WindowIconArea_PointerPressed;
-            Activated += customTitleBar.ParentWindow_Activated;
+        customTitleBar.ParentAppWindow = AppWindow;
+        customTitleBar.UpdateThemeAndTransparency(Settings.Instance.CurrentTheme);
+        customTitleBar.Title = title;
+        customTitleBar.WindowIconArea.PointerPressed += WindowIconArea_PointerPressed;
+        Activated += customTitleBar.ParentWindow_Activated;
             
-            AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-        }
-        else
-        {
-            customTitleBar.Visibility = Visibility.Collapsed;
-        }
+        AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
 
         // always set the window icon and title, it's used in the task switcher
         AppWindow.SetIcon("Resources\\app.ico");
@@ -55,14 +49,7 @@ internal sealed partial class MainWindow : Window
             RootNavigationView.SelectedItem = RootNavigationView.MenuItems[0];
         }
 
-        if (Settings.Instance.IsFirstRun)
-        {
-            AppWindow.MoveAndResize(CenterInPrimaryDisplay());
-        }
-        else
-        {
-            AppWindow.MoveAndResize(ValidateRestoreBounds(Settings.Instance.RestoreBounds));
-        }
+        AppWindow.MoveAndResize(ValidateRestoreBounds(Settings.Instance.RestoreBounds));
 
         if (Settings.Instance.WindowState == WindowState.Minimized)
         {
@@ -153,7 +140,7 @@ internal sealed partial class MainWindow : Window
         {
             Type? type = null;
 
-            switch (item.Tag as string) // trimming requires a compile time constant for the type name
+            switch (item.Tag as string) // trimming requires the type name to be a compile time constant 
             {
                 case "NumbersView": type = Type.GetType("Countdown.Views.NumbersView"); break;
                 case "LettersView": type = Type.GetType("Countdown.Views.LettersView"); break;
@@ -173,21 +160,15 @@ internal sealed partial class MainWindow : Window
     {
         Debug.Assert(e.Content is Page);
 
-        if ((e.Content is Page page) && (page.Tag is null))
+        Page page = (Page)e.Content;
+        selectedPage = (IPageItem)e.Content;
+
+        if (page.Tag is null)   // one time initialisation
         {
-            page.Tag = new Phase();
+            page.Tag = page;
 
             page.Loaded += (s, e) =>
             {
-                Page page = (Page)s;
-                Phase phase = (Phase)page.Tag;
-
-                if (phase.Current == 0)
-                {
-                    phase.Current = 1;
-                    AddDragRegionEventHandlers(page);
-                }
-
                 SetWindowDragRegions();
             };
 
@@ -202,11 +183,6 @@ internal sealed partial class MainWindow : Window
                     throw new InvalidOperationException();
             }
         }
-    }
-
-    private sealed class Phase
-    {
-        public int Current { get; set; } = 0;
     }
 
     private void ContentFrame_SizeChanged(object sender, SizeChangedEventArgs e)

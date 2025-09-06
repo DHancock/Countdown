@@ -1,8 +1,5 @@
-﻿// included here due to name conflicts
-using Microsoft.UI.Xaml.Controls.Primitives;
-
-using Countdown.ViewModels;
-using Countdown.Utils;
+﻿using Countdown.ViewModels;
+using Countdown.Utilities;
 
 namespace Countdown.Views;
 
@@ -37,7 +34,6 @@ internal partial class MainWindow : Window
     private readonly InputNonClientPointerSource inputNonClientPointerSource;
     private readonly SUBCLASSPROC subClassDelegate;
     private readonly DispatcherTimer dispatcherTimer;
-    private bool cancelDragRegionTimerEvent = false;
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
     private MenuFlyout? systemMenu;
@@ -68,18 +64,21 @@ internal partial class MainWindow : Window
         
         Closed += (s, e) =>
         {
-            cancelDragRegionTimerEvent = true;
             dispatcherTimer.Stop();
         };
     }
 
     private void AppWindow_Changed(AppWindow sender, AppWindowChangedEventArgs args)
     {
-        if (args.DidPositionChange || args.DidSizeChange)
+        if (WindowState == WindowState.Normal)
         {
-            if (WindowState == WindowState.Normal)
+            if (args.DidPositionChange)
             {
                 restorePosition = AppWindow.Position;
+            }
+
+            if (args.DidSizeChange)
+            {
                 restoreSize = AppWindow.Size;
             }
         }
@@ -290,209 +289,48 @@ internal partial class MainWindow : Window
         return dpi / 96.0;
     }
 
-    private void ClearWindowDragRegions()
-    {
-        // Guard against race hazards. If a size changed event is generated the timer will be
-        // started. The drag regions could then be cleared when a context menu is opened, followed
-        // by the timer event which could then reset the drag regions while the menu was still open. Stopping
-        // the timer isn't enough because the tick event may have already been queued (on the same thread).
-        cancelDragRegionTimerEvent = true;
-
-        // allow mouse interaction with menu fly outs,  
-        // including clicks anywhere in the client area used to dismiss the menu
-        if (AppWindowTitleBar.IsCustomizationSupported())
-        {
-            inputNonClientPointerSource.ClearRegionRects(NonClientRegionKind.Caption);
-        }
-    }
-
     private void SetWindowDragRegionsInternal()
     {
-        const int cInitialCapacity = 28;
-
-        cancelDragRegionTimerEvent = false;
+        const int cNavigationViewPassthroughCount = 6;
 
         try
         {
-            if ((Content is FrameworkElement layoutRoot) && layoutRoot.IsLoaded && AppWindowTitleBar.IsCustomizationSupported())
-            {
-                // as there is no clear distinction any more between the title bar region and the client area,
-                // just treat the whole window as a title bar, click anywhere on the backdrop to drag the window.
-                RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
-                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
+            // as there is no clear distinction any more between the title bar region and the client area,
+            // just treat the whole window as a title bar, click anywhere on the backdrop to drag the window.
+            RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
+            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
 
-                List<RectInt32> rects = new List<RectInt32>(cInitialCapacity);
-                LocatePassThroughContent(rects, layoutRoot);
-                Debug.Assert(rects.Count <= cInitialCapacity);
+            Debug.Assert(selectedPage is not null);
+            int size = selectedPage.PassthroughCount + cNavigationViewPassthroughCount;
 
-                inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects.ToArray());
-            }
+            RectInt32[] rects = new RectInt32[size];
+
+            selectedPage.AddPassthroughContent(rects);
+            AddNavigationViewPassthroughContent(rects);
+
+            inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Passthrough, rects);
         }
         catch (Exception ex)
         {
-            // accessing Window.Content can throw an object closed exception when
-            // a menu unloaded event fires because the window is closing
             Debug.WriteLine(ex);
         }
     }
 
-    private record class ScrollViewerBounds(in Point Offset, in Vector2 Size)
+    private void AddNavigationViewPassthroughContent(RectInt32[] rects)
     {
-        public double Top => Offset.Y;
-    }
+        int index = rects.Length;
 
-    private void LocatePassThroughContent(List<RectInt32> rects, UIElement item, ScrollViewerBounds? bounds = null)
-    {
-        ScrollViewerBounds? parentBounds = bounds;
+        rects[--index] = Utils.GetPassthroughRect(customTitleBar.WindowIconArea);
 
-        foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
-        {            
-            switch (child)
-            {
-                case Panel: break;
-
-                case CountdownTextBox ctb when !ctb.IsReadOnly:
-                case Button:
-                case TreeView:
-                case ListView:
-                case SplitButton:
-                case NavigationViewItem:
-                case Expander:
-                case AutoSuggestBox:
-                case TextBlock tb when ReferenceEquals(tb, tb.Tag): // it contains a hyperlink
-                {
-                    Point offset = GetOffsetFromXamlRoot(child);
-                    Vector2 actualSize = child.ActualSize;
-
-                    if ((parentBounds is not null) && (offset.Y < parentBounds.Top)) // top clip (for vertical scroll bars)
-                    {
-                        actualSize.Y -= (float)(parentBounds.Top - offset.Y);
-
-                        if (actualSize.Y < 0.1)
-                            continue;
-
-                        offset.Y = parentBounds.Top;
-                    }
-
-                    rects.Add(ScaledRect(offset, actualSize, scaleFactor));
-                    continue;
-                }
-
-                case ScrollViewer:
-                {
-                    // nested scroll viewers is not supported
-                    bounds = new ScrollViewerBounds(GetOffsetFromXamlRoot(child), child.ActualSize);
-
-                    if (((ScrollViewer)child).ComputedVerticalScrollBarVisibility == Visibility.Visible)
-                    {
-                        ScrollBar? vScrollBar = child.FindChild<ScrollBar>();
-
-                        if (vScrollBar is not null)
-                        {
-                            Debug.Assert(vScrollBar.Name.Equals("VerticalScrollBar"));
-                            rects.Add(ScaledRect(GetOffsetFromXamlRoot(vScrollBar), vScrollBar.ActualSize, scaleFactor));
-                        }
-                    }
-
-                    break;
-                }
-
-                case CustomTitleBar ctb:
-                {
-                    rects.Add(ScaledRect(GetOffsetFromXamlRoot(ctb.WindowIconArea), ctb.WindowIconArea.ActualSize, scaleFactor));
-                    continue;
-                }
-
-                default: break;
-            }
-
-            LocatePassThroughContent(rects, child, bounds);
-        }
-
-        static Point GetOffsetFromXamlRoot(UIElement e)
+        foreach (object item in RootNavigationView.MenuItems)
         {
-            GeneralTransform gt = e.TransformToVisual(null);
-            return gt.TransformPoint(new Point(0, 0));
+            rects[--index] = Utils.GetPassthroughRect((UIElement)item); // 4
         }
-    }
 
-    private static RectInt32 ScaledRect(in Point location, in Vector2 size, double scale)
-    {
-        return new RectInt32(Convert.ToInt32(location.X * scale),
-                             Convert.ToInt32(location.Y * scale),
-                             Convert.ToInt32(size.X * scale),
-                             Convert.ToInt32(size.Y * scale));
-    }
-
-    private void AddDragRegionEventHandlers(UIElement item)
-    {
-        foreach (UIElement child in LogicalTreeHelper.GetChildren(item))
+        foreach (object item in RootNavigationView.FooterMenuItems)
         {
-            switch (child)
-            {
-                case Panel: break;
-
-                case SplitButton sb:
-                {
-                    if (sb.Flyout is not null)
-                    {
-                        sb.Flyout.Opened += Flyout_Opened;
-                        sb.Flyout.Closed += Flyout_Closed;
-                    }
-                    continue;
-                }
-
-                case TreeView:
-                case ListView:
-                {
-                    if (child.ContextFlyout is not null)
-                    {
-                        child.ContextFlyout.Opened += Flyout_Opened;
-                        child.ContextFlyout.Closed += Flyout_Closed;
-                    }
-                    continue;
-                }
-
-                case Expander expander:
-                {
-                    expander.SizeChanged += Expander_SizeChanged;
-                    continue;
-                }
-
-                case AutoSuggestBox autoSuggestBox:
-                {
-                    Popup? popup = autoSuggestBox.FindChild<Popup>();
-
-                    if (popup is not null)
-                    {
-                        popup.Opened += Flyout_Opened;
-                        popup.Closed += Flyout_Closed;
-                    }
-                    continue;
-                }
-
-                case ScrollViewer scrollViewer:
-                {
-                    scrollViewer.ViewChanged += ScrollViewer_ViewChanged;
-                    break;
-                }
-
-                case Button:
-                case GroupBox:
-                case TextBlock:
-                case CustomTitleBar:
-                case NavigationViewItem: continue;
-
-                default: break;
-            }
-
-            AddDragRegionEventHandlers(child);
+            rects[--index] = Utils.GetPassthroughRect((UIElement)item); // 1
         }
-
-        void Flyout_Opened(object? sender, object e) => ClearWindowDragRegions();
-        void Flyout_Closed(object? sender, object e) => SetWindowDragRegionsInternal();
-        void Expander_SizeChanged(object sender, SizeChangedEventArgs e) => SetWindowDragRegionsInternal();
-        void ScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e) => SetWindowDragRegions();
     }
 
     private DispatcherTimer InitialiseDragRegionTimer()
@@ -503,7 +341,7 @@ internal partial class MainWindow : Window
         return dt;
     }
 
-    private void SetWindowDragRegions()
+    public void SetWindowDragRegions()
     {
         // defer setting the drag regions while still resizing the window or scrolling
         // it's content. If the timer is already running, this resets the interval.
@@ -513,11 +351,7 @@ internal partial class MainWindow : Window
     private void DispatcherTimer_Tick(object? sender, object e)
     {
         dispatcherTimer.Stop();
-
-        if (!cancelDragRegionTimerEvent)
-        {
-            SetWindowDragRegionsInternal();
-        }
+        SetWindowDragRegionsInternal();
     } 
 
     private void SaveStateOnEndSession()

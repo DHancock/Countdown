@@ -1,4 +1,4 @@
-﻿namespace Countdown.Utils;
+﻿namespace Countdown.Utilities;
 
 internal static class User32Sound
 {

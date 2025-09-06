@@ -1,8 +1,9 @@
-﻿using Countdown.ViewModels;
+﻿using Countdown.Utilities;
+using Countdown.ViewModels;
 
 namespace Countdown.Views;
 
-internal sealed partial class NumbersView : Page
+internal sealed partial class NumbersView : Page, IPageItem
 {
     public NumbersView()
     {
@@ -42,5 +43,28 @@ internal sealed partial class NumbersView : Page
         {
             ((RadioMenuFlyoutItem)menu.Items[index]).IsChecked = index == selectedIndex;
         }
+    }
+
+    public int PassthroughCount => 11;
+
+    public void AddPassthroughContent(in RectInt32[] rects)
+    {
+        int index = 0;
+
+        foreach (UIElement element in TileGrid.Children)
+        {
+            rects[index++] = Utils.GetPassthroughRect(element); // 6
+        }
+
+        rects[index++] = Utils.GetPassthroughRect(TargetCTB);
+
+        foreach (UIElement element in ButtonGrid.Children)
+        {
+            rects[index++] = Utils.GetPassthroughRect(element); // 3
+        }
+
+        rects[index++] = Utils.GetPassthroughRect(EquationList);
+
+        Debug.Assert(index == PassthroughCount);
     }
 }

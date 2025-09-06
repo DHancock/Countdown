@@ -30,7 +30,14 @@ public partial class App : Application
         m_window = new MainWindow("Countdown");
     }
 
-    internal static MainWindow? MainWindow => Instance.m_window;
+    internal static MainWindow MainWindow
+    {
+        get
+        {
+            Debug.Assert(Instance.m_window is not null);
+            return Instance.m_window;
+        }
+    }
 
     public static string GetAppDataPath()
     {

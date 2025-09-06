@@ -1,11 +1,10 @@
 ﻿using Countdown.ViewModels;
+using Countdown.Utilities;
 
 namespace Countdown.Views;
 
-internal sealed partial class LettersView : Page
+internal sealed partial class LettersView : Page, IPageItem
 {
-    private bool firstLoad = true;
-
     private TreeViewList? treeViewList;
     private LettersViewModel? viewModel;
 
@@ -13,29 +12,31 @@ internal sealed partial class LettersView : Page
     {
         this.InitializeComponent();
 
-        Loaded += (s, e) =>
+        Loaded += LettersView_Loaded; 
+
+        static void LettersView_Loaded(object sender, RoutedEventArgs e)
         {
-            if (firstLoad)
+            LettersView lettersview = (LettersView)sender;
+
+            lettersview.Loaded -= LettersView_Loaded;
+
+            TextBox? textBox = lettersview.SuggestionBox.FindChild<TextBox>();
+
+            if (textBox is not null)
             {
-                firstLoad = false;
-
-                TextBox? textBox = FindChild<TextBox>(SuggestionBox);
-
-                if (textBox is not null)
-                {
-                    textBox.CharacterCasing = CharacterCasing.Lower;
-                    textBox.MaxLength = Models.WordModel.cMaxLetters;
-
-                    textBox.BeforeTextChanging += (s, a) =>
-                    {
-                        if (a.NewText.Length > 0)
-                        {
-                            a.Cancel = a.NewText.Any(c => c is < 'a' or > 'z');
-                        }
-                    };
-                }
+                textBox.CharacterCasing = CharacterCasing.Lower;              
+                textBox.MaxLength = Models.WordModel.cMaxLetters;
+                textBox.BeforeTextChanging += TextBox_BeforeTextChanging;
             }
-        };
+        }
+
+        static void TextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
+        {
+            if (args.NewText.Length > 0)
+            {
+                args.Cancel = args.NewText.Any(c => c is < 'a' or > 'z');
+            }
+        }
     }
 
     public LettersViewModel? ViewModel
@@ -192,7 +193,7 @@ internal sealed partial class LettersView : Page
 
         if (!FindTreeViewItem(args.QueryText) && !FindTreeViewItem(FindClosestItem(args.QueryText)))
         {
-            Utils.User32Sound.PlayExclamation();
+            User32Sound.PlayExclamation();
         }
     }
 
@@ -211,7 +212,7 @@ internal sealed partial class LettersView : Page
 
                 if (string.Equals(word, target, StringComparison.Ordinal))
                 {
-                    treeViewList ??= FindChild<TreeViewList>(WordTreeView);
+                    treeViewList ??= WordTreeView.FindChild<TreeViewList>();
 
                     if (treeViewList is not null)
                     {
@@ -336,30 +337,6 @@ internal sealed partial class LettersView : Page
         return buffer[idx(s1.Length, s2.Length)];
     }
 
-    private static T? FindChild<T>(DependencyObject parent) where T : DependencyObject
-    {
-        int count = VisualTreeHelper.GetChildrenCount(parent);
-
-        for (int index = 0; index < count; index++)
-        {
-            DependencyObject child = VisualTreeHelper.GetChild(parent, index);
-
-            if (child is T target)
-            {
-                return target;
-            }
-
-            T? result = FindChild<T>(child);
-
-            if (result is not null)
-            {
-                return result;
-            }
-        }
-
-        return null;
-    }
-
     internal static void MenuFlyout_Opening(object sender, object e)
     {
         MenuFlyout menu = (MenuFlyout)sender;
@@ -369,6 +346,38 @@ internal sealed partial class LettersView : Page
         {
             ((RadioMenuFlyoutItem)menu.Items[index]).IsChecked = index == selectedIndex;
         }
+    }
+
+    public int PassthroughCount => 17;
+
+    public void AddPassthroughContent(in RectInt32[] rects)
+    {
+        int index = 0;
+
+        foreach (UIElement element in LettersGrid.Children)
+        {
+            if (element is Grid childGrid)
+            {
+                foreach (UIElement innerElement in childGrid.Children)
+                {
+                    rects[index++] = Utils.GetPassthroughRect(innerElement); // 3
+                }
+            }
+            else
+            {
+                rects[index++] = Utils.GetPassthroughRect(element); // 9
+            }
+        }
+
+        foreach (UIElement element in ButtonGrid.Children)
+        {
+            rects[index++] = Utils.GetPassthroughRect(element); // 3
+        }
+
+        rects[index++] = Utils.GetPassthroughRect(SuggestionBox);
+        rects[index++] = Utils.GetPassthroughRect(WordTreeView);
+
+        Debug.Assert(index == PassthroughCount);
     }
 }
 

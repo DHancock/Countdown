@@ -1,4 +1,4 @@
-﻿using Countdown.Utils;
+﻿using Countdown.Utilities;
 
 namespace Countdown.Models;
 

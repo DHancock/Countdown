@@ -1,8 +1,9 @@
-﻿using Countdown.ViewModels;
+﻿using Countdown.Utilities;
+using Countdown.ViewModels;
 
 namespace Countdown.Views;
 
-internal sealed partial class ConundrumView : Page
+internal sealed partial class ConundrumView : Page, IPageItem
 {
     public ConundrumView()
     {
@@ -57,5 +58,25 @@ internal sealed partial class ConundrumView : Page
     private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
         args.CanExecute = ConundrumList.SelectedItems.Count > 0;
+    }
+
+    public int PassthroughCount => 13;
+
+    public void AddPassthroughContent(in RectInt32[] rects)
+    {
+        int index = 0;
+
+        foreach (UIElement element in LettersGrid.Children)
+        {
+            rects[index++] = Utils.GetPassthroughRect(element); // 9
+        }
+
+        foreach (UIElement element in ButtonGrid.Children)
+        {
+            rects[index++] = Utils.GetPassthroughRect(element); // 3
+        }
+
+        rects[index++] = Utils.GetPassthroughRect(ConundrumList);
+        Debug.Assert(index == PassthroughCount);
     }
 }
