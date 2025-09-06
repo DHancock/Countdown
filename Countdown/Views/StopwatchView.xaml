@@ -10,7 +10,7 @@
     mc:Ignorable="d">
 
     <Grid>
-        <Button Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Grid.Column="0" VerticalAlignment="Bottom" Margin="7,0,0,7" Style="{StaticResource StartStopButtonStyle}"/>
+        <Button x:Name="StopwatchButton" Content="{x:Bind ViewModel.StopwatchController.CommandText, Mode=OneWay}" Command="{x:Bind ViewModel.StopwatchController.TimerCommand}" Grid.Column="0" VerticalAlignment="Bottom" Margin="7,0,0,7" Style="{StaticResource StartStopButtonStyle}"/>
         <Viewbox Margin="0" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center">
             <local:Clock Style="{StaticResource ClockStyle}" Margin="5,0,5,5" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
         </Viewbox>

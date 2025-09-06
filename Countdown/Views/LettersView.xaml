@@ -60,7 +60,7 @@
 
             <w3c:GroupBox Heading="Tiles" Style="{StaticResource CommonGroupBoxStyle}">
                 
-                <Grid RowDefinitions="*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
+                <Grid x:Name="LettersGrid" RowDefinitions="*,*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
                     
                     <local:CountdownTextBox Grid.Column="0" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[0], Mode=OneWay}"/>
                     <local:CountdownTextBox Grid.Column="1" Style="{StaticResource ctbs}" Text="{x:Bind ViewModel.Letter_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ErrorToolTipText="{x:Bind ViewModel.ErrorText[1], Mode=OneWay}"/>
@@ -83,7 +83,7 @@
                 </Grid>
             </w3c:GroupBox>
 
-            <Grid Margin="7,28,7,7" ColumnDefinitions="Auto,*,Auto">
+            <Grid x:Name="ButtonGrid" Margin="7,28,7,7" ColumnDefinitions="Auto,*,Auto">
 
                 <SplitButton Content="Choose" Command="{x:Bind ViewModel.ChooseLettersCommand}">
                     <SplitButton.Flyout>

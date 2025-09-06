@@ -10,53 +10,50 @@
     mc:Ignorable="d">
 
     <!-- left, top, right, bottom -->
-    
-    <!-- this grid is used to add a margin to the ScrollViewer, adding it directly caused a layout cycle exception -->
-    <Grid RowDefinitions="10,*">
 
-        <ScrollViewer x:Name="MainScrollViewer" Grid.Row="1" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
-            
-            <Grid RowDefinitions="Auto,Auto,*" Margin="10,0,20,0">
-                <Grid.Resources>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Margin" Value="10,0,0,0"/>
-                    </Style>
-                </Grid.Resources>
-                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
-                            <TextBlock Text="Theme Mode"/>
-                        </StackPanel>
-                    </Expander.Header>
-                    <StackPanel>
-                        <RadioButton Content="Light" IsChecked="{x:Bind ViewModel.IsLightTheme, Mode=TwoWay}"/>
-                        <RadioButton Content="Dark" IsChecked="{x:Bind ViewModel.IsDarkTheme, Mode=TwoWay}"/>
-                        <RadioButton Content="Use system setting" IsChecked="{x:Bind ViewModel.IsSystemTheme, Mode=TwoWay}"/>
+    <ScrollViewer x:Name="RootScrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" ViewChanged="RootScrollViewer_ViewChanged">
+
+        <Grid RowDefinitions="Auto,Auto,*" Margin="10,10,20,0">
+            <Grid.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Margin" Value="10,0,0,0"/>
+                </Style>
+            </Grid.Resources>
+
+            <Expander x:Name="ThemeExpander" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" SizeChanged="Expander_SizeChanged">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
+                        <TextBlock Text="App theme"/>
                     </StackPanel>
-                </Expander>
+                </Expander.Header>
+                <StackPanel>
+                    <RadioButton Content="Light" IsChecked="{x:Bind ViewModel.IsLightTheme, Mode=TwoWay}"/>
+                    <RadioButton Content="Dark" IsChecked="{x:Bind ViewModel.IsDarkTheme, Mode=TwoWay}"/>
+                    <RadioButton Content="Use system setting" IsChecked="{x:Bind ViewModel.IsSystemTheme, Mode=TwoWay}"/>
+                </StackPanel>
+            </Expander>
 
-                <Expander Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,10,0,0">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <SymbolIcon Symbol="Volume"/>
-                            <TextBlock Text="Sounds"/>
-                        </StackPanel>
-                    </Expander.Header>
-                    <Slider Header="Stopwatch volume:" Width="200" Maximum="100" StepFrequency="1" LargeChange="10" Value="{x:Bind ViewModel.Volume, Mode=TwoWay}"/>
-                </Expander>
+            <Expander x:Name="VolumeExpander" Grid.Row="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,10,0,0" SizeChanged="Expander_SizeChanged">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <SymbolIcon Symbol="Volume"/>
+                        <TextBlock Text="Sounds"/>
+                    </StackPanel>
+                </Expander.Header>
+                <Slider Header="Stopwatch volume:" Width="200" Maximum="100" StepFrequency="1" LargeChange="10" Value="{x:Bind ViewModel.Volume, Mode=TwoWay}"/>
+            </Expander>
 
-                <Grid Grid.Row="2" Grid.RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,5,0,20" VerticalAlignment="Bottom">
-                    <Viewbox Width="62" Height="62">
-                        <local:Clock Style="{StaticResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
-                    </Viewbox>
-                    <TextBlock Grid.Row="1" Text="Countdown" FontSize="17" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Row="2" x:Name="VersionTextBlock" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Row="3" x:Name="HyperlinkTextBlock" HorizontalAlignment="Center"><Hyperlink NavigateUri="https://github.com/DHancock/Countdown">GitHub Repository</Hyperlink></TextBlock>
-                </Grid>
+            <Grid Grid.Row="2" Grid.RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,5,0,20" VerticalAlignment="Bottom">
+                <Viewbox Width="62" Height="62">
+                    <local:Clock Style="{StaticResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
+                </Viewbox>
+                <TextBlock Grid.Row="1" Text="Countdown" FontSize="17" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="2" x:Name="VersionTextBlock" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="3" x:Name="HyperlinkTextBlock" HorizontalAlignment="Center"><Hyperlink NavigateUri="https://github.com/DHancock/Countdown">GitHub Repository</Hyperlink></TextBlock>
             </Grid>
-        </ScrollViewer>
-    </Grid>
+        </Grid>
+    </ScrollViewer>
 </Page>
 
     

@@ -1,4 +1,4 @@
-﻿namespace Countdown.Utils;
+﻿namespace Countdown.Utilities;
 
 internal static class Extensions
 {
@@ -114,7 +114,7 @@ internal static class Extensions
         return bytesRead;
     }
 
-    public static T? FindChild<T>(this DependencyObject parent) where T : DependencyObject
+    public static T? FindChild<T>(this DependencyObject parent, string? name = default) where T : FrameworkElement
     {
         int count = VisualTreeHelper.GetChildrenCount(parent);
 
@@ -122,12 +122,12 @@ internal static class Extensions
         {
             DependencyObject child = VisualTreeHelper.GetChild(parent, index);
 
-            if (child is T target)
+            if ((child is T target) && (string.IsNullOrEmpty(name) || string.Equals(name, target.Name, StringComparison.Ordinal)))
             {
                 return target;
             }
 
-            T? result = child.FindChild<T>();
+            T? result = child.FindChild<T>(name);
 
             if (result is not null)
             {

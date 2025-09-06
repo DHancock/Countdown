@@ -74,8 +74,8 @@ internal sealed partial class CustomTitleBar : UserControl
             titleBar.ButtonForegroundColor = Colors.Black;
             titleBar.ButtonPressedForegroundColor = Colors.Black;
             titleBar.ButtonHoverForegroundColor = Colors.Black;
-            titleBar.ButtonHoverBackgroundColor = Colors.White;
-            titleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
+            titleBar.ButtonHoverBackgroundColor = Colors.LightGray;
+            titleBar.ButtonInactiveForegroundColor = Colors.Gray;
         }
         else
         {
@@ -83,7 +83,7 @@ internal sealed partial class CustomTitleBar : UserControl
             titleBar.ButtonPressedForegroundColor = Colors.White;
             titleBar.ButtonHoverForegroundColor = Colors.White;
             titleBar.ButtonHoverBackgroundColor = Colors.DimGray;
-            titleBar.ButtonInactiveForegroundColor = Colors.DimGray;
+            titleBar.ButtonInactiveForegroundColor = Colors.Gray;
         }
     }
 

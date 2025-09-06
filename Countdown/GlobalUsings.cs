@@ -1,13 +1,10 @@
-﻿global using AssyntSoftware.WinUI3Controls;
-
-global using Microsoft.Graphics.Canvas.Geometry;
+﻿global using Microsoft.Graphics.Canvas.Geometry;
 global using Microsoft.UI;
 global using Microsoft.UI.Composition;
 global using Microsoft.UI.Input;
 global using Microsoft.UI.Windowing;
 global using Microsoft.UI.Xaml;
 global using Microsoft.UI.Xaml.Controls;
-global using Microsoft.UI.Xaml.Controls.AnimatedVisuals;
 global using Microsoft.UI.Xaml.Hosting;
 global using Microsoft.UI.Xaml.Input;
 global using Microsoft.UI.Xaml.Media;

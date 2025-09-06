@@ -34,7 +34,7 @@
             <local:Clock Style="{StaticResource ClockStyle}" State="{x:Bind ViewModel.StopwatchController.State, Mode=TwoWay}"/>
 
             <w3c:GroupBox Heading="Conundrum" Style="{StaticResource CommonGroupBoxStyle}">
-                <Grid RowDefinitions="*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
+                <Grid x:Name="LettersGrid" RowDefinitions="*" ColumnDefinitions="*,*,*,*,*,*,*,*,*">
                     <local:CountdownTextBox Grid.Column="0" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_0, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Grid.Column="1" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <local:CountdownTextBox Grid.Column="2" Style="{StaticResource RW}" Text="{x:Bind ViewModel.Conundrum_2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -65,7 +65,7 @@
                 </Grid>
             </w3c:GroupBox>
 
-            <Grid Margin="7,7,7,7">
+            <Grid x:Name="ButtonGrid" Margin="7,7,7,7">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
