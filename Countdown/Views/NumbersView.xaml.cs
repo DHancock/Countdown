@@ -8,6 +8,48 @@ internal sealed partial class NumbersView : Page, IPageItem
     public NumbersView()
     {
         this.InitializeComponent();
+
+        TargetCTB.Loaded += TargetCTB_Loaded;
+    }
+
+    private static void TargetCTB_Loaded(object sender, RoutedEventArgs e)
+    {
+        CountdownTextBox ctb = (CountdownTextBox)sender;
+        ctb.Loaded -= TargetCTB_Loaded;
+
+        FixTextBoxContextFlyoutMenuForThemeChange(ctb); // this is the first page loaded
+
+        static void FixTextBoxContextFlyoutMenuForThemeChange(DependencyObject root)
+        {
+            TextBox? tb = root.FindChild<TextBox>();
+
+            Debug.Assert(tb is not null);
+            Debug.Assert(tb.ContextFlyout is not null);
+
+            if ((tb is not null) && (tb.ContextFlyout is not null))
+            {
+                // The context flyout is the standard cut/copy/paste menu provided by the sdk.
+                // This event handler affects all other TextBox instances, seems that they're
+                // all sharing a single context flyout.
+                tb.ContextFlyout.Opening += ContextFlyout_Opening;
+            }
+
+            static void ContextFlyout_Opening(object? sender, object e)
+            {
+                if ((sender is TextCommandBarFlyout tcbf) && (tcbf.Target is TextBox tb))
+                {
+                    foreach (ICommandBarElement icbe in tcbf.SecondaryCommands)
+                    {
+                        if ((icbe is FrameworkElement fe) && (fe.ActualTheme != tb.ActualTheme))
+                        {
+                            // update the menu item's text colour for theme changes occuring after the context flyout was created
+                            // (this will also update each menu item's tool tip colours)
+                            fe.RequestedTheme = tb.ActualTheme;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public NumbersViewModel? ViewModel { get; set; }
