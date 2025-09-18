@@ -10,10 +10,15 @@ internal static class Utils
 
     public static RectInt32 ScaledRect(in Point location, in Vector2 size, double scale)
     {
-        return new RectInt32(Convert.ToInt32(location.X * scale),
-                             Convert.ToInt32(location.Y * scale),
-                             Convert.ToInt32(size.X * scale),
-                             Convert.ToInt32(size.Y * scale));
+        Debug.Assert(location.X >= 0.0);
+        Debug.Assert(location.Y >= 0.0);
+        Debug.Assert(size.X >= 0f);
+        Debug.Assert(size.Y >= 0f);
+
+        return new RectInt32((int)Math.FusedMultiplyAdd(location.X, scale, 0.5),
+                             (int)Math.FusedMultiplyAdd(location.Y, scale, 0.5),
+                             (int)Math.FusedMultiplyAdd(size.X, scale, 0.5),
+                             (int)Math.FusedMultiplyAdd(size.Y, scale, 0.5));
     }
 
     public static RectInt32 GetPassthroughRect(UIElement e, double topBounds = 0.0)
@@ -32,12 +37,8 @@ internal static class Utils
 
             offset.Y = topBounds;
         }
-        else if (offset.Y > e.XamlRoot.Size.Height) // it's scrolled off the window bottom
-        {
-            return default;
-        }
 
-        // ignore clipping when part of the element is below the window bottom, it can't be clicked anyway
+        // ignore clipping when part or all of the element is below the window bottom, it can't be clicked anyway
 
         return ScaledRect(offset, visibleSize, e.XamlRoot.RasterizationScale);
     }

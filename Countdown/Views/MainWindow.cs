@@ -37,8 +37,8 @@ internal partial class MainWindow : Window
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
     private MenuFlyout? systemMenu;
-    private int scaledMinWidth;
-    private int scaledMinHeight;
+    private int pixelMinWidth;
+    private int pixelMinHeight;
     private double scaleFactor;
 
     private MainWindow()
@@ -57,8 +57,8 @@ internal partial class MainWindow : Window
         dispatcherTimer = InitialiseDragRegionTimer();
 
         scaleFactor = IntialiseScaleFactor();
-        scaledMinWidth = ConvertToDeviceSize(cMinWidth);
-        scaledMinHeight = ConvertToDeviceSize(cMinHeight);
+        pixelMinWidth = ConvertToPixels(cMinWidth);
+        pixelMinHeight = ConvertToPixels(cMinHeight);
 
         AppWindow.Changed += AppWindow_Changed;
         
@@ -96,8 +96,8 @@ internal partial class MainWindow : Window
                 unsafe
                 {
                     MINMAXINFO* mptr = (MINMAXINFO*)lParam.Value;
-                    mptr->ptMinTrackSize.X = scaledMinWidth;
-                    mptr->ptMinTrackSize.Y = scaledMinHeight;
+                    mptr->ptMinTrackSize.X = pixelMinWidth;
+                    mptr->ptMinTrackSize.Y = pixelMinHeight;
                 }
                 break;
             }
@@ -105,8 +105,8 @@ internal partial class MainWindow : Window
             case PInvoke.WM_DPICHANGED:
             {
                 scaleFactor = (wParam & 0xFFFF) / 96.0;
-                scaledMinWidth = ConvertToDeviceSize(cMinWidth);
-                scaledMinHeight = ConvertToDeviceSize(cMinHeight);
+                pixelMinWidth = ConvertToPixels(cMinWidth);
+                pixelMinHeight = ConvertToPixels(cMinHeight);
                 break;
             }
 
@@ -281,7 +281,13 @@ internal partial class MainWindow : Window
         get => new RectInt32(restorePosition.X, restorePosition.Y, restoreSize.Width, restoreSize.Height);
     }
 
-    private int ConvertToDeviceSize(double value) => Convert.ToInt32(value * scaleFactor);
+    private int ConvertToPixels(double value)
+    {
+        Debug.Assert(value >= 0.0);
+        Debug.Assert(scaleFactor > 0.0);
+
+        return (int)Math.FusedMultiplyAdd(value, scaleFactor, 0.5);
+    }
 
     private double IntialiseScaleFactor()
     {
