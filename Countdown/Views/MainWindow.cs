@@ -1,6 +1,9 @@
 ﻿using Countdown.ViewModels;
 using Countdown.Utilities;
 
+// causes conflicts with Composition.AnimationDirection
+using Microsoft.UI.Xaml.Controls.Primitives;
+
 namespace Countdown.Views;
 
 public enum WindowState { Normal, Minimized, Maximized }
@@ -40,6 +43,8 @@ internal partial class MainWindow : Window
     private int pixelMinWidth;
     private int pixelMinHeight;
     private double scaleFactor;
+    private readonly HOOKPROC hookProc;
+    private UnhookWindowsHookExSafeHandle? hookSafeHandle;
 
     private MainWindow()
     {
@@ -59,6 +64,8 @@ internal partial class MainWindow : Window
         scaleFactor = IntialiseScaleFactor();
         pixelMinWidth = ConvertToPixels(cMinWidth);
         pixelMinHeight = ConvertToPixels(cMinHeight);
+
+        hookProc = new HOOKPROC(KeyboardHookProc);
 
         AppWindow.Changed += AppWindow_Changed;
         
@@ -191,7 +198,10 @@ internal partial class MainWindow : Window
             OverlayInputPassThroughElement = Content,
         };
 
-        // always use narrow padding (the first time the menu is opened it may use normal padding, other times narrrow)
+        // auto isn't appropriate for vertical lists where items may be disabled
+        menuFlyout.MenuFlyoutPresenterStyle.Setters.Add(new Setter(MenuFlyoutPresenter.KeyTipPlacementModeProperty, "Right"));
+
+        // always use narrow padding (the first time the menu is opened it may use normal padding, other times narrow)
         Thickness narrow = (Thickness)((FrameworkElement)Content).Resources[cPaddingKey];
 
         menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Restore", Command = restoreCommand, Padding = narrow, AccessKey = "R" });
@@ -206,7 +216,59 @@ internal partial class MainWindow : Window
         closeItem.KeyboardAccelerators.Add(new() { Modifiers = VirtualKeyModifiers.Menu, Key = VirtualKey.F4, IsEnabled = false });
         menuFlyout.Items.Add(closeItem);
 
+        menuFlyout.Opening += MenuFlyout_Opening;
+        menuFlyout.Closing += MenuFlyout_Closing;
+
         return menuFlyout;
+    }
+
+    private void MenuFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
+    {
+        AccessKeyManager.ExitDisplayMode();
+
+        hookSafeHandle?.Dispose(); // dispose calls UnhookWindowsHookEx() 
+        hookSafeHandle = null;
+    }
+
+    private void MenuFlyout_Opening(object? sender, object e)
+    {
+        Debug.Assert(hookSafeHandle is null);
+        hookSafeHandle = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD, hookProc, null, PInvoke.GetCurrentThreadId());
+    }
+
+    private LRESULT KeyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
+    {
+        if ((code >= 0) && (systemMenu is not null) && systemMenu.IsOpen)
+        {
+            VirtualKey key = (VirtualKey)(nuint)wParam;
+            bool isKeyDown = (lParam >>> 31) == 0;
+
+            if (isKeyDown)
+            {
+                if ((key == VirtualKey.Menu) || (key == VirtualKey.Escape))
+                {
+                    HideSystemMenu();
+                }
+                else
+                {
+                    foreach (MenuFlyoutItemBase mfib in systemMenu.Items)
+                    {
+                        if (mfib.IsEnabled && (mfib is MenuFlyoutItem item) && (item.AccessKey == key.ToString()))
+                        {
+                            HideSystemMenu();
+                            item.Command.Execute(item.CommandParameter);
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (key == VirtualKey.Menu) // the menu is being opened via Alt+Space
+            {
+                AccessKeyManager.EnterDisplayMode(Content.XamlRoot);
+            }
+        }
+
+        return PInvoke.CallNextHookEx(null, code, wParam, lParam);
     }
 
     public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);
