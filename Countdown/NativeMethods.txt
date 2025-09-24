@@ -13,3 +13,6 @@ ScreenToClient
 WM_DPICHANGED
 GetDoubleClickTime
 WM_ENDSESSION
+SetWindowsHookEx
+CallNextHookEx
+GetCurrentThreadId
