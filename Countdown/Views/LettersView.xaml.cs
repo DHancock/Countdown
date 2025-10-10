@@ -193,7 +193,7 @@ internal sealed partial class LettersView : Page, IPageItem
 
         if (!FindTreeViewItem(args.QueryText) && !FindTreeViewItem(FindClosestItem(args.QueryText)))
         {
-            User32Sound.PlayExclamation();
+            Utils.PlayExclamation();
         }
     }
 

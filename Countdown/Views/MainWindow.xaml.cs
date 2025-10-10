@@ -20,8 +20,6 @@ internal sealed partial class MainWindow : Window
 
     public MainWindow(string title) : this()
     {
-        this.InitializeComponent();
-
         AppWindow.Closing += (s, a) =>
         {
             AppWindow.Hide();
@@ -176,7 +174,6 @@ internal sealed partial class MainWindow : Window
 
     private void WindowIconArea_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        HideSystemMenu();
         ShowSystemMenu(viaKeyboard: true); // open at keyboard location as not to obscure double clicks
 
         TimeSpan doubleClickTime = TimeSpan.FromMilliseconds(PInvoke.GetDoubleClickTime());

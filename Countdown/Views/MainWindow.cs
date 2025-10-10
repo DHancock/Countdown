@@ -27,19 +27,19 @@ internal partial class MainWindow : Window
 
     private readonly IntPtr windowPtr;
 
-    private RelayCommand? restoreCommand;
-    private RelayCommand? moveCommand;
-    private RelayCommand? sizeCommand;
-    private RelayCommand? minimizeCommand;
-    private RelayCommand? maximizeCommand;
-    private RelayCommand? closeCommand;
+    private readonly RelayCommand restoreCommand;
+    private readonly RelayCommand moveCommand;
+    private readonly RelayCommand sizeCommand;
+    private readonly RelayCommand minimizeCommand;
+    private readonly RelayCommand maximizeCommand;
+    private readonly RelayCommand closeWindowCommand;
 
     private readonly InputNonClientPointerSource inputNonClientPointerSource;
     private readonly SUBCLASSPROC subClassDelegate;
     private readonly DispatcherTimer dispatcherTimer;
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
-    private MenuFlyout? systemMenu;
+    private readonly MenuFlyout systemMenu;
     private int pixelMinWidth;
     private int pixelMinHeight;
     private double scaleFactor;
@@ -48,6 +48,8 @@ internal partial class MainWindow : Window
 
     private MainWindow()
     {
+        this.InitializeComponent();
+
         windowPtr = WindowNative.GetWindowHandle(this);
 
         subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
@@ -64,6 +66,15 @@ internal partial class MainWindow : Window
         scaleFactor = IntialiseScaleFactor();
         pixelMinWidth = ConvertToPixels(cMinWidth);
         pixelMinHeight = ConvertToPixels(cMinHeight);
+
+        restoreCommand = new RelayCommand(o => PostSysCommandMessage(SC.RESTORE), CanRestore);
+        moveCommand = new RelayCommand(o => PostSysCommandMessage(SC.MOVE), CanMove);
+        sizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.SIZE), CanSize);
+        minimizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MINIMIZE), CanMinimize);
+        maximizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MAXIMIZE), CanMaximize);
+        closeWindowCommand = new RelayCommand(o => PostSysCommandMessage(SC.CLOSE));
+
+        systemMenu = (MenuFlyout)LayoutRoot.Resources["SystemMenu"];
 
         hookProc = new HOOKPROC(KeyboardHookProc);
 
@@ -119,19 +130,17 @@ internal partial class MainWindow : Window
 
             case PInvoke.WM_SYSCOMMAND when (lParam == VK_SPACE) && (AppWindow.Presenter.Kind != AppWindowPresenterKind.FullScreen):
             {
-                HideSystemMenu();
                 ShowSystemMenu(viaKeyboard: true);
                 return (LRESULT)0;
             }
 
             case PInvoke.WM_NCRBUTTONUP when wParam == HTCAPTION:
             {
-                HideSystemMenu();
                 ShowSystemMenu(viaKeyboard: false);
                 return (LRESULT)0;
             }
 
-            case PInvoke.WM_NCLBUTTONDOWN when wParam == HTCAPTION:
+            case PInvoke.WM_NCLBUTTONDOWN:
             {
                 HideSystemMenu();
                 break;
@@ -163,63 +172,15 @@ internal partial class MainWindow : Window
             p.Y = AppWindow.TitleBar.Height;
         }
 
-        systemMenu ??= BuildSystemMenu();
         systemMenu.ShowAt(null, new Point(p.X / scaleFactor, p.Y / scaleFactor));
     }
 
     private void HideSystemMenu()
     {
-        if ((systemMenu is not null) && systemMenu.IsOpen)
+        if (systemMenu.IsOpen)
         {
             systemMenu.Hide();
         }
-    }
-
-    private MenuFlyout BuildSystemMenu()
-    {
-        const string cStyleKey = "DefaultMenuFlyoutPresenterStyle";
-        const string cPaddingKey = "MenuFlyoutItemThemePaddingNarrow";
-
-        Debug.Assert(Content is FrameworkElement);
-        Debug.Assert(((FrameworkElement)Content).Resources.ContainsKey(cStyleKey));
-        Debug.Assert(((FrameworkElement)Content).Resources.ContainsKey(cPaddingKey));
-
-        restoreCommand = new RelayCommand(o => PostSysCommandMessage(SC.RESTORE), CanRestore);
-        moveCommand = new RelayCommand(o => PostSysCommandMessage(SC.MOVE), CanMove);
-        sizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.SIZE), CanSize);
-        minimizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MINIMIZE), CanMinimize);
-        maximizeCommand = new RelayCommand(o => PostSysCommandMessage(SC.MAXIMIZE), CanMaximize);
-        closeCommand = new RelayCommand(o => PostSysCommandMessage(SC.CLOSE));
-
-        MenuFlyout menuFlyout = new MenuFlyout()
-        {
-            XamlRoot = Content.XamlRoot,
-            MenuFlyoutPresenterStyle = (Style)((FrameworkElement)Content).Resources[cStyleKey],
-            OverlayInputPassThroughElement = Content,
-        };
-
-        // auto isn't appropriate for vertical lists where items may be disabled
-        menuFlyout.MenuFlyoutPresenterStyle.Setters.Add(new Setter(MenuFlyoutPresenter.KeyTipPlacementModeProperty, "Right"));
-
-        // always use narrow padding (the first time the menu is opened it may use normal padding, other times narrow)
-        Thickness narrow = (Thickness)((FrameworkElement)Content).Resources[cPaddingKey];
-
-        menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Restore", Command = restoreCommand, Padding = narrow, AccessKey = "R" });
-        menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Move", Command = moveCommand, Padding = narrow, AccessKey = "M" });
-        menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Size", Command = sizeCommand, Padding = narrow, AccessKey = "S" });
-        menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Minimize", Command = minimizeCommand, Padding = narrow, AccessKey = "N" });
-        menuFlyout.Items.Add(new MenuFlyoutItem() { Text = "Maximize", Command = maximizeCommand, Padding = narrow, AccessKey = "X" });
-        menuFlyout.Items.Add(new MenuFlyoutSeparator());
-
-        MenuFlyoutItem closeItem = new MenuFlyoutItem() { Text = "Close", Command = closeCommand, Padding = narrow, AccessKey = "C" };
-        // the accelerator is disabled to avoid two close messages (the original system menu still exists)
-        closeItem.KeyboardAccelerators.Add(new() { Modifiers = VirtualKeyModifiers.Menu, Key = VirtualKey.F4, IsEnabled = false });
-        menuFlyout.Items.Add(closeItem);
-
-        menuFlyout.Opening += MenuFlyout_Opening;
-        menuFlyout.Closing += MenuFlyout_Closing;
-
-        return menuFlyout;
     }
 
     private void MenuFlyout_Closing(FlyoutBase sender, FlyoutBaseClosingEventArgs args)
@@ -238,27 +199,41 @@ internal partial class MainWindow : Window
 
     private LRESULT KeyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
     {
-        if ((code >= 0) && (systemMenu is not null) && systemMenu.IsOpen)
+        Debug.Assert(systemMenu.IsOpen);
+
+        if (code >= 0)
         {
             VirtualKey key = (VirtualKey)(nuint)wParam;
             bool isKeyDown = (lParam >>> 31) == 0;
 
             if (isKeyDown)
             {
-                if ((key == VirtualKey.Menu) || (key == VirtualKey.Escape))
+                if (IsAcceleratorKeyModifier(key))
                 {
-                    HideSystemMenu();
+                    systemMenu.Hide();
                 }
-                else
+                else if ((key != VirtualKey.Escape) && (key != VirtualKey.Enter) && (key != VirtualKey.Up) && (key != VirtualKey.Down))
                 {
-                    foreach (MenuFlyoutItemBase mfib in systemMenu.Items)
+                    bool found = false;
+
+                    foreach (MenuFlyoutItemBase itemBase in systemMenu.Items)
                     {
-                        if (mfib.IsEnabled && (mfib is MenuFlyoutItem item) && (item.AccessKey == key.ToString()))
+                        if (itemBase.AccessKey == key.ToString())
                         {
-                            HideSystemMenu();
-                            item.Command.Execute(item.CommandParameter);
-                            break;
+                            systemMenu.Hide();
+                            found = true;
+
+                            if (itemBase.IsEnabled)
+                            {
+                                MenuFlyoutItem item = (MenuFlyoutItem)itemBase;
+                                item.Command.Execute(item.CommandParameter);
+                            }
                         }
+                    }
+
+                    if (!found)
+                    {
+                        Utils.PlayExclamation();
                     }
                 }
             }
@@ -269,6 +244,11 @@ internal partial class MainWindow : Window
         }
 
         return PInvoke.CallNextHookEx(null, code, wParam, lParam);
+    }
+
+    private static bool IsAcceleratorKeyModifier(VirtualKey key)
+    {
+        return (key == VirtualKey.Menu) || (key == VirtualKey.Control) || (key == VirtualKey.Shift) || (key == VirtualKey.LeftWindows) || (key == VirtualKey.RightWindows);
     }
 
     public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);
