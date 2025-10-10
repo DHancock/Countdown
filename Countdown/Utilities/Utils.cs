@@ -42,4 +42,10 @@ internal static class Utils
 
         return ScaledRect(offset, visibleSize, e.XamlRoot.RasterizationScale);
     }
+
+    public static void PlayExclamation()
+    {
+        bool succeeded = PInvoke.MessageBeep(MESSAGEBOX_STYLE.MB_ICONEXCLAMATION);
+        Debug.Assert(succeeded);
+    }
 }
