@@ -16,3 +16,4 @@ WM_ENDSESSION
 SetWindowsHookEx
 CallNextHookEx
 GetCurrentThreadId
+CreateMutex
