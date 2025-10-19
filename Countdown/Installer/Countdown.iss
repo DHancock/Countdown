@@ -131,7 +131,6 @@ end;
 
 procedure TransferSettingsIfRequired;
 var
-  ResultCode, Attempts: Integer;
   old, new, root, file : String; 
 begin    
   old := '\countdown.davidhancock.net';
