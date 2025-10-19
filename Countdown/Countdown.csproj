@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows10.0.22621.0</TargetFramework>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>Countdown</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -15,8 +15,7 @@
     <ApplicationIcon>Resources\app.ico</ApplicationIcon>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 	<WindowsPackageType>None</WindowsPackageType>
-    <AssemblyVersion>3.11.0</AssemblyVersion>
-    <FileVersion>3.11.0</FileVersion>
+    <Version>3.12.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,20 +24,17 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="2.3.0" />
+    <PackageReference Include="AssyntSoftware.WinUI3Controls" Version="2.4.0" />
     <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.3.2" />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.217">
       <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.2.0" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
-	<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+	<!-- cannot use the WinAppSdk meta package parts until Win2D supports it -->
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251003001" />
+	<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6584" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
-
-	<PropertyGroup>
-		<WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
-	</PropertyGroup>
 
 	<ItemGroup>
 		<None Update="Resources\app.png">
@@ -48,24 +44,9 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
-	
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-	</PropertyGroup>
+
+	<ItemGroup>
+	  <Folder Include="Installer\bin\" />
+	</ItemGroup>
 </Project>
 
