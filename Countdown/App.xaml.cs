@@ -51,6 +51,6 @@ public partial class App : Application
     public static string GetAppDataPath()
     {
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        return Path.Join(localAppData, "countdown.davidhancock.net.v2");
+        return Path.Join(localAppData, "countdown.davidhancock.net");
     }
 }

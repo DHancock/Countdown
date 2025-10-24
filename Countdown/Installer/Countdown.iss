@@ -137,33 +137,6 @@ begin
 end;
 
 
-procedure TransferSettingsIfRequired;
-var
-  old, new, root, file : String; 
-begin    
-  old := '\countdown.davidhancock.net';
-  new := '\countdown.davidhancock.net.v2';
-  root := ExpandConstant('{localappdata}')
-  file := '\settings.json';
-  
-  if (not FileExists(root + new + file)) and FileExists(root + old + file) then
-  begin 
-    CreateDir(root + new);
-    CopyFile(root + old + file,  root + new + file, false);
-  end;
-end;
-
-
-procedure CurStepChanged(CurStep: TSetupStep);
-begin
-  if (CurStep = ssInstall) then
-  begin
-    // unfortunately I once thought that deleting the settings on uninstall was a good idea
-    TransferSettingsIfRequired;
-  end;
-end;
-
-
 function GetDefaultDirName(Param: string): String;
 begin
   // construct a unique install dir
