@@ -56,7 +56,7 @@ internal class NumberModel
 
                 Parallel.ForEach(permutations,
                                 // the partitions local solver
-                                () => new SolvingEngine(target),
+                                () => new SolvingEngine(target, results),
                                 // the parallel action
                                 (permutation, loopState, solvingEngine) =>
                                 {
@@ -67,8 +67,6 @@ internal class NumberModel
                                 (solvingEngine) => results.AggregateData(solvingEngine));
             }
         }
-
-        results.AggregateResults();
 
         return results;
     }

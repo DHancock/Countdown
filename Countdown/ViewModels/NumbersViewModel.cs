@@ -266,28 +266,29 @@ internal sealed partial class NumbersViewModel : DataErrorInfoBase
 
         SolverResults results = await Task.Run(() => NumberModel.Solve(tilesCopy, targetCopy));
 
-        if (results.Solutions.Count == 0)
-        {
-            results.Solutions.Add("There are no solutions.");
+        List<string> output = results.GetResults();
 
-            if (results.HasClosestResult)
-            {
-                results.Solutions.Add($"The closest match is {results.Difference} away.");
-                results.Solutions.Add(string.Empty);
-                results.Solutions.Add($"{results.ClosestEquation} = {results.ClosestResult}");
-            }
+        if (output.Count == 0)
+        {
+            output.Add($"No solutions are {SolvingEngine.cNonMatchThreshold} or less away.");
         }
         else
         {
             // guarantee ordering independent of parallel partition order
-            results.Solutions.Sort((a, b) =>
+            output.Sort((a, b) =>
             {
                 int lengthCompare = a.Length - b.Length;
                 return lengthCompare == 0 ? string.Compare(b, a, StringComparison.CurrentCulture) : lengthCompare;
             });
+
+            if (!results.HasSolutions)
+            {
+                output.Insert(0, $"The closest match is {results.LowestDifference} away.");
+                output.Insert(1, string.Empty);
+            }
         }
 
-        EquationList = results.Solutions;
+        EquationList = output;
     }
 
     private bool CanSolve(object? _, bool isExecuting)
