@@ -166,7 +166,20 @@ internal sealed partial class ConundrumViewModel : PropertyChangedBase
         if (solution.Length > 0)
         {
             Solution = solution;
-            SolutionList.Insert(0, new ConundrumItem(new string(ConvertLetters()), solution));
+
+            ConundrumItem ci = new ConundrumItem(new string(ConvertLetters()), solution);
+
+            if (SolutionList.Count > 0)
+            {
+                if (!ci.Equals(SolutionList[0]))
+                {
+                    SolutionList.Insert(0, ci);
+                }
+            }
+            else
+            {
+                SolutionList.Add(ci);
+            }
 
             SolveCommand.RaiseCanExecuteChanged();
         }
@@ -174,8 +187,7 @@ internal sealed partial class ConundrumViewModel : PropertyChangedBase
 
     private bool CanSolve(object? _)
     {
-        return string.IsNullOrWhiteSpace(Solution) && 
-                conundrum.All(s => !string.IsNullOrEmpty(s)) && 
+        return conundrum.All(s => !string.IsNullOrEmpty(s)) && 
                 !string.IsNullOrEmpty(wordModel.SolveConundrum(ConvertLetters(toLowerCase: true)));
     }
 

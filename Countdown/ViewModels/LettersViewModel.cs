@@ -313,7 +313,7 @@ internal sealed partial class LettersViewModel : DataErrorInfoBase
 
     private bool CanSolve(object? _, bool isExecuting)
     {
-        return !(HasErrors || isExecuting || letters.Any(s => string.IsNullOrEmpty(s)) || WordList.Any());
+        return !(HasErrors || isExecuting || letters.Any(s => string.IsNullOrEmpty(s)));
     }
 
 
