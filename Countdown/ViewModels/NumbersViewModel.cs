@@ -293,7 +293,7 @@ internal sealed partial class NumbersViewModel : DataErrorInfoBase
 
     private bool CanSolve(object? _, bool isExecuting)
     {
-        return !(HasErrors || isExecuting || tiles.Contains(cEmptyTileValue) || target is cEmptyTileValue || EquationList.Any());
+        return !(HasErrors || isExecuting || tiles.Contains(cEmptyTileValue) || target is cEmptyTileValue);
     }
 
     /// <summary>
