@@ -157,6 +157,12 @@ internal sealed class SolvingEngine
                     if (result == target)   // got one...
                     {
                         Solutions.Add(ConvertToString(mapEntry, permutation));
+
+                        if (solverResults.LowestDifference > 0)
+                        {
+                            solverResults.LowestDifference = 0;  // notify other solvers
+                        }
+
                         break;
                     }
 
