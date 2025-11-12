@@ -2,78 +2,103 @@
 
 internal sealed class SolverResults
 {
-    private readonly Lock addLock = new();
-    private readonly Lock updateLock = new();
+    private readonly Lock solvedLock = new();
+    private readonly Lock closestLock = new();
+    private readonly Lock differenceLock = new();
 
     // collects a reference of each solver's solution list
-    private List<List<string>> SolverLists { get; } = new List<List<string>>(100);
+    private readonly List<List<string>> solverLists = new(100);
+    private readonly List<List<(string, int)>> closestLists = new(100);
 
-    // used to aggregate all the solver list contents into a single list
-    public List<string> Solutions { get; private set; } = new List<string>();
+    public bool HasSolutions => solverLists.Count > 0;
 
-    // If no solutions found this is the closest equation
-    public string ClosestEquation { get; private set; } = string.Empty;
+    private int difference = SolvingEngine.cNonMatchThreshold;
 
-    // If no solutions found this is the closest result
-    public int ClosestResult { get; private set; }
-
-    public bool HasClosestResult => ClosestResult > 0;
-
-    /// <summary>
-    /// If no solutions found this is how far from the target 
-    /// that the closest non match equation is
-    /// </summary>
-    public int Difference { get; private set; } = int.MaxValue;
-
-    /// <summary>
-    /// aggregates the data from solving engines 
-    /// that were run in parallel partitions
-    /// </summary>
-    /// <param name="solvingEngine"></param>
-    public void AggregateData(SolvingEngine solvingEngine)
+    // How far from the target that the closest non matching equation is.
+    // Shared by all soving engine instances so that they each know when to ignore closest matches.
+    public int LowestDifference
     {
-        if ((solvingEngine is null) || (solvingEngine.Solutions is null))
-        {
-            throw new ArgumentNullException(nameof(solvingEngine));
-        }
+        get => difference;
 
-        if (solvingEngine.Solutions.Count > 0)
+        set
         {
-            lock (addLock)
+            lock (differenceLock)
             {
-                SolverLists.Add(solvingEngine.Solutions);
-            }
-        }
-        else if ((SolverLists.Count == 0) && solvingEngine.HasClosestResult) // no existing or new matches
-        {
-            // there is a race hazard reading SolverLists.Count but the down side is trivial,
-            // even the c# concurrent collections don't guarantee counts
-            lock (updateLock)
-            {
-                if (solvingEngine.Difference < Difference) // record the closest
+                if (difference > value)
                 {
-                    Difference = solvingEngine.Difference;
-                    ClosestResult = solvingEngine.ClosestResult;
-                    ClosestEquation = solvingEngine.ClosestEquation;
+                    difference = value;
                 }
             }
         }
     }
 
-    public void AggregateResults()
+    // aggregates the solving engine results from each parallel partition
+    public void AggregateData(SolvingEngine solvingEngine)
+    {
+        if (solvingEngine.Solutions.Count > 0)
+        {
+            lock (solvedLock)
+            {
+                solverLists.Add(solvingEngine.Solutions);
+            }
+        }
+        else if (solverLists.Count == 0) 
+        {
+            lock (closestLock)
+            {
+                closestLists.Add(solvingEngine.Closests);
+            }
+        }
+    }
+
+    public List<string> GetResults()
     {
         int size = 0;
+        List<string> results;
 
-        foreach (List<string> solverResults in SolverLists)
+        if (solverLists.Count > 0)
         {
-            size += solverResults.Count;
+            foreach (List<string> solverResults in solverLists)
+            {
+                size += solverResults.Count;
+            }
+
+            results = new(size);
+
+            foreach (List<string> solverResults in solverLists)
+            {
+                results.AddRange(solverResults);
+            }
+
+            return results;
         }
 
-        Solutions.EnsureCapacity(size);
+        size += 2; // allow space for any preamble
 
-        foreach (List<string> solverResults in SolverLists)
+        foreach (List<(string, int difference)> solverResults in closestLists)
         {
-            Solutions.AddRange(solverResults);
+            foreach ((string equation, int difference) in solverResults)
+            {
+                if (difference == LowestDifference)
+                {
+                    ++size;
+                }
+            }
         }
+
+        results = new(size);
+
+        foreach (List<(string equation, int difference)> solverResults in closestLists)
+        {
+            foreach ((string equation, int difference) in solverResults)
+            {
+                if (difference == LowestDifference)
+                {
+                    results.Add(equation);
+                }
+            }
+        }
+
+        return results;
     }
 }

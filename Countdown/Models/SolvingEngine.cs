@@ -2,61 +2,39 @@
 
 internal sealed class SolvingEngine
 {
-    /// <summary>
-    /// if there are no solutions yet then results less than this 
-    /// threshold will be recorded if the difference is less any previous 
-    /// recorder non solution results 
-    /// </summary>
-    private const int cNonMatchThreshold = 11;
+    // record closest matches <= this threshold
+    public const int cNonMatchThreshold = 10;
 
-    /// <summary>
-    /// the target value
-    /// </summary>
     private readonly int target;
 
-    /// <summary>
-    /// Operator identifiers
-    /// </summary>
+    // Operator identifiers
     private const int cMultiply = 0;
     private const int cAdd = 1;
     private const int cSubtract = 2;
     private const int cDivide = 3;
 
-    /// <summary>
-    /// The postfix equation evaluation stacks. 
-    /// Each level of recursion has its own stack
-    /// </summary>
+    // The postfix equation evaluation stacks. Each level of recursion has its own stack
     private readonly StackHelper<int> stacks;
 
     // used to convert postfix equations into infix strings
     private readonly StackHelper<char> charStack;
 
-    /// <summary>
-    /// Keeps a record of the operators used when evaluating the
-    /// current postfix equation. Used to construct a string
-    /// representation of the equation
-    /// </summary>
+    // Keeps a record of the operators used when evaluating the current postfix equation.
+    // Used to construct a string representation of the equation
     private readonly int[] operators;
 
-    /// a list of results equaling the target
-    public List<string> Solutions { get; } = new List<string>();
+    // store results locally, avoids locks
+    public List<string> Solutions { get; } = new(25);
+    public List<(string, int)> Closests { get; } = new(25);
 
-    // If no solutions found this is the closest equation
-    public string ClosestEquation { get; private set; } = string.Empty;
-
-    // If no solutions found this is the closest result
-    public int ClosestResult { get; private set; }
-
-    public bool HasClosestResult => ClosestResult > 0;
-
-    // If no solutions found, this is how far from the target 
-    // that the closest result is. It's an absolute value, always > 0.
-    public int Difference { get; private set; } = cNonMatchThreshold;
-
-
-    public SolvingEngine(int target)
+    private readonly SolverResults solverResults;
+ 
+    public SolvingEngine(int value, SolverResults results)
     {
         const int n = 6;   // the "n choose k" maximum permutation length
+
+        target = value;
+        solverResults = results;
 
         // initialize the stacks. Each recursive call gets a copy
         // of the current stack so that when the recursion unwinds
@@ -67,19 +45,9 @@ internal sealed class SolvingEngine
         operators = new int[n - 1];
 
         // minimum size is 41 chars:
-        // [offset] + [size] + [space for 4 parentheses] + "100 + ((((75 + 50) + 25) + 10) + 1)" 
+        // [offset] + [size] + [space for may be 4 parentheses] + "100 + ((((75 + 50) + 25) + 10) + 1)" 
         charStack = new StackHelper<char>(44, n);
-
-        // ensure capacity
-        Solutions = new List<string>(250);
-
-        // record params
-        this.target = target;
     }
-
-
-
-
 
     /// <summary>
     /// The postfix equation solving method. It implements a sequence of pushing zero or more tiles 
@@ -93,7 +61,7 @@ internal sealed class SolvingEngine
     /// equations are calculated by executing only one operator rather than the complete equation.
     /// The same principal applies for each node in the tree as the recursion unwinds.
     /// </summary>
-    /// <param name="stackHead">the stack head pointer</param>
+    /// <param name="stackHead">the stack head index</param>
     /// <param name="mapEntry">the current postfix map entry</param>
     /// <param name="mapIndex">position within the map</param>
     /// <param name="permutation">the current tile permutation</param>
@@ -196,11 +164,17 @@ internal sealed class SolvingEngine
                     {
                         int difference = Math.Abs(target - result);
 
-                        if (difference < Difference)
+                        if (difference <= cNonMatchThreshold)
                         {
-                            Difference = difference;
-                            ClosestResult = result;
-                            ClosestEquation = ConvertToString(mapEntry, permutation);
+                            if (difference < solverResults.LowestDifference)
+                            {
+                                solverResults.LowestDifference = difference;
+                            }
+
+                            if (difference == solverResults.LowestDifference)
+                            {
+                                Closests.Add(($"{ConvertToString(mapEntry, permutation)} = {result}", difference));
+                            }
                         }
                     }
 
@@ -216,15 +190,9 @@ internal sealed class SolvingEngine
         }
     }
 
-
-    /// <summary>
-    /// Convert the current postfix equation to an infix formatted string
-    /// This works in the same way as evaluating the postfix equation
-    /// but instead of calculating simply concatenates strings.
-    /// </summary>
-    /// <param name="mapEntry"></param>
-    /// <param name="tiles">the current permutation</param>
-    /// <returns></returns>
+    // Convert the current postfix equation to an infix formatted string
+    // This works in the same way as evaluating the postfix equation
+    // but instead of calculating simply concatenates strings.
     private string ConvertToString(ReadOnlySpan<int> mapEntry, ReadOnlySpan<int> tiles)
     {
         const int cOffsetIndex = 0;      // holds the offset to the start of the data
@@ -320,7 +288,7 @@ internal sealed class SolvingEngine
             }
 
             // execute operator
-            Span<char> right = charStack[stackHead--]; // pop
+            ReadOnlySpan<char> right = charStack[stackHead--]; // pop
             Span<char> left = charStack[stackHead];    // peek
             int operand = operators[operatorIndex++];
 
