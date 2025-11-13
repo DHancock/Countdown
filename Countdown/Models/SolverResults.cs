@@ -7,8 +7,8 @@ internal sealed class SolverResults
     private readonly Lock differenceLock = new();
 
     // collects a reference of each solver's solution list
-    private readonly List<List<string>> solverLists = new(100);
-    private readonly List<List<(string, int)>> closestLists = new(100);
+    private readonly List<List<string>> solverLists = new(32);
+    private readonly List<List<(string, int)>> closestLists = new(32);
 
     public bool HasSolutions => solverLists.Count > 0;
 
@@ -42,7 +42,7 @@ internal sealed class SolverResults
                 solverLists.Add(solvingEngine.Solutions);
             }
         }
-        else if (solverLists.Count == 0) 
+        else if ((solvingEngine.Closests.Count > 0) && (solverLists.Count == 0))
         {
             lock (closestLock)
             {
