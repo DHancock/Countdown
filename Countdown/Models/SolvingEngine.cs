@@ -24,8 +24,8 @@ internal sealed class SolvingEngine
     private readonly int[] operators;
 
     // store results locally, avoids locks
-    public List<string> Solutions { get; } = new(25);
-    public List<(string, int)> Closests { get; } = new(25);
+    public List<string> Solutions { get; } = new(32);
+    public List<(string, int)> Closests { get; } = new(32);
 
     private readonly SolverResults solverResults;
  
