@@ -52,7 +52,7 @@
 
                 <SplitButton Grid.Column="0" Content="Choose" Command="{x:Bind ViewModel.ChooseNumbersCommand}">
                     <SplitButton.Flyout>
-                        <MenuFlyout Opening="{x:Bind local:NumbersView.MenuFlyout_Opening}">
+                        <MenuFlyout Opening="{x:Bind local:NumbersView.ChooseMenuFlyout_Opening}">
                             <RadioMenuFlyoutItem Text="6 small tiles" CommandParameter="0" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="6"/>
                             <RadioMenuFlyoutItem Text="1 large and 5 small tiles" CommandParameter="1" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="1"/>
                             <RadioMenuFlyoutItem Text="2 large and 4 small tiles" CommandParameter="2" Command="{x:Bind ViewModel.ChooseOptionCommand}" AccessKey="2"/>
@@ -67,13 +67,15 @@
             </Grid>
         </StackPanel>
 
-        <ListView x:Name="EquationList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.EquationList, Mode=OneWay}" Style="{StaticResource ResultsListStyle}" KeyUp="EquationList_KeyUp">
+        <ListView x:Name="EquationList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.EquationList, Mode=OneWay}" Style="{StaticResource ResultsListStyle}" KeyDown="EquationList_KeyDown">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="x:String">
                     <TextBlock Text="{x:Bind}">
                         <TextBlock.ContextFlyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem Icon="Copy" Text="Copy" Click="CopyMenuFlyoutItem_Click"/>
+                            <MenuFlyout Opening="ListItemMenuFlyout_Opening">
+                                <MenuFlyoutItem Text="Copy" Click="CopyMenuFlyoutItem_Click"/>
+                                <MenuFlyoutSeparator/>
+                                <MenuFlyoutItem Text="Select all" Name="SelectAll" Click="SelectAllMenuFlyoutItem_Click"/>
                             </MenuFlyout>
                         </TextBlock.ContextFlyout>
                     </TextBlock>
