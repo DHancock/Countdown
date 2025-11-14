@@ -275,11 +275,7 @@ internal sealed partial class NumbersViewModel : DataErrorInfoBase
         else
         {
             // guarantee ordering independent of parallel partition order
-            output.Sort((a, b) =>
-            {
-                int lengthCompare = a.Length - b.Length;
-                return lengthCompare == 0 ? string.Compare(b, a, StringComparison.CurrentCulture) : lengthCompare;
-            });
+            output.Sort(new EquationComparer());
 
             if (!results.HasSolutions)
             {
