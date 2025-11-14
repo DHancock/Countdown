@@ -54,23 +54,23 @@ internal sealed partial class NumbersView : Page, IPageItem
 
     public NumbersViewModel? ViewModel { get; set; }
 
-    private void CopyItems(IList<object> items)
+    private static void CopyItems(IList<object> items)
     {
         // convert to list order rather than the order items were selected in
-        // sorting is arkward because lists views aren't generic, performance isn't an issue here
-        List<(int index, object item)> indexedList = new(items.Count);
+        List<string> copy = new(items.Count);
 
         foreach (object item in items)
         {
-            indexedList.Add((EquationList.Items.IndexOf(item), item));
+            if (item is string str)
+            {
+                copy.Add(str);
+            }
         }
+
+        copy.Sort(new EquationComparer());
 
         StringBuilder sb = new StringBuilder();
-
-        foreach ((int index, object item) in indexedList.OrderBy(x => x.index))   
-        {
-            sb.AppendLine(item.ToString());
-        }
+        sb.AppendJoin(Environment.NewLine, copy);
 
         if (sb.Length > 0)
         {
