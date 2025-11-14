@@ -22,7 +22,8 @@ internal sealed partial class ConundrumView : Page, IPageItem
 
     private void CopyItems(IList<object> items)
     {
-        List<(int index, object item)> indexedList = new(ConundrumList.Items.Count);
+        // convert to unsorted list order rather than the order items were selected in
+        List<(int index, object item)> indexedList = new(items.Count);
 
         foreach (object item in items)
         {
