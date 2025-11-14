@@ -95,7 +95,7 @@ internal sealed partial class ConundrumView : Page, IPageItem
         }
     }
 
-    private void ConundrumList_KeyUp(object sender, KeyRoutedEventArgs e)
+    private void ConundrumList_KeyDown(object sender, KeyRoutedEventArgs e)
     {
         if (ConundrumList.SelectedItems.Count > 0)
         {
@@ -106,6 +106,25 @@ internal sealed partial class ConundrumView : Page, IPageItem
             else if ((e.Key == VirtualKey.C) && Utils.IsControlKeyDown())
             {
                 CopyItems(ConundrumList.SelectedItems);
+            }
+        }
+    }
+
+    private void SelectAllMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+    {
+        ConundrumList.SelectRange(new ItemIndexRange(0, (uint)ConundrumList.Items.Count));
+    }
+
+    private void ListItemMenuFlyout_Opening(object sender, object e)
+    {
+        MenuFlyout menu = (MenuFlyout)sender;
+
+        foreach (MenuFlyoutItemBase mfib in menu.Items)
+        {
+            if (string.Equals(mfib.Name, "SelectAll")) // DataTemplate template items can't have an x:Name
+            {
+                mfib.IsEnabled = ConundrumList.Items.Count != ConundrumList.SelectedItems.Count;
+                break;
             }
         }
     }

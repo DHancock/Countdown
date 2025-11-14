@@ -95,7 +95,7 @@ internal sealed partial class NumbersView : Page, IPageItem
         }
     }
 
-    internal static void MenuFlyout_Opening(object sender, object e)
+    internal static void ChooseMenuFlyout_Opening(object sender, object e)
     {
         MenuFlyout menu = (MenuFlyout)sender;
         int selectedIndex = Settings.Instance.ChooseNumbersIndex;
@@ -129,11 +129,30 @@ internal sealed partial class NumbersView : Page, IPageItem
         Debug.Assert(index == PassthroughCount);
     }
 
-    private void EquationList_KeyUp(object sender, KeyRoutedEventArgs e)
+    private void EquationList_KeyDown(object sender, KeyRoutedEventArgs e)
     {
         if ((EquationList.SelectedItems.Count > 0) && (e.Key == VirtualKey.C) && Utils.IsControlKeyDown())
         {
             CopyItems(EquationList.SelectedItems);
+        }
+    }
+
+    private void SelectAllMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+    {
+        EquationList.SelectRange(new ItemIndexRange(0, (uint)EquationList.Items.Count));
+    }
+
+    private void ListItemMenuFlyout_Opening(object sender, object e)
+    {
+        MenuFlyout menu = (MenuFlyout)sender;
+
+        foreach(MenuFlyoutItemBase mfib in menu.Items)
+        {
+            if (string.Equals(mfib.Name, "SelectAll")) // DataTemplate template items can't have an x:Name
+            {
+                mfib.IsEnabled = EquationList.Items.Count != EquationList.SelectedItems.Count;
+                break;
+            }
         }
     }
 }
