@@ -75,9 +75,9 @@ internal sealed class SolverResults
 
         size += 2; // allow space for any preamble
 
-        foreach (List<(string, int difference)> solverResults in closestLists)
+        foreach (List<(string, int difference)> closestResults in closestLists)
         {
-            foreach ((string equation, int difference) in solverResults)
+            foreach ((string equation, int difference) in closestResults)
             {
                 if (difference == LowestDifference)
                 {
@@ -88,9 +88,9 @@ internal sealed class SolverResults
 
         results = new(size);
 
-        foreach (List<(string equation, int difference)> solverResults in closestLists)
+        foreach (List<(string equation, int difference)> closestResults in closestLists)
         {
-            foreach ((string equation, int difference) in solverResults)
+            foreach ((string equation, int difference) in closestResults)
             {
                 if (difference == LowestDifference)
                 {
