@@ -67,15 +67,18 @@
             </Grid>
         </StackPanel>
 
-        <ListView x:Name="EquationList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.EquationList, Mode=OneWay}" Style="{StaticResource ResultsListStyle}">
-            <ListView.Resources>
-                <StandardUICommand x:Name="CopyCommand" Kind="Copy" ExecuteRequested="CopyCommand_ExecuteRequested" CanExecuteRequested="CopyCommand_CanExecuteRequested"/>
-            </ListView.Resources>
-            <ListView.ContextFlyout>
-                <MenuFlyout>
-                    <MenuFlyoutItem Command="{StaticResource CopyCommand}" />
-                </MenuFlyout>
-            </ListView.ContextFlyout>
+        <ListView x:Name="EquationList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.EquationList, Mode=OneWay}" Style="{StaticResource ResultsListStyle}" KeyUp="EquationList_KeyUp">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <TextBlock Text="{x:Bind}">
+                        <TextBlock.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Icon="Copy" Text="Copy" Click="CopyMenuFlyoutItem_Click"/>
+                            </MenuFlyout>
+                        </TextBlock.ContextFlyout>
+                    </TextBlock>
+                </DataTemplate>
+            </ListView.ItemTemplate>
         </ListView>
     </Grid>
 </Page>

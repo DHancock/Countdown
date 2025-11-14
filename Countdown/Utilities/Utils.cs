@@ -48,4 +48,14 @@ internal static class Utils
         bool succeeded = PInvoke.MessageBeep(MESSAGEBOX_STYLE.MB_ICONEXCLAMATION);
         Debug.Assert(succeeded);
     }
+
+    public static bool IsKeyDown(VirtualKey key)
+    {
+        return InputKeyboardSource.GetKeyStateForCurrentThread(key).HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
+    }
+
+    public static bool IsControlKeyDown()
+    {
+        return IsKeyDown(VirtualKey.LeftControl) || IsKeyDown(VirtualKey.RightControl) || IsKeyDown(VirtualKey.Control);
+    }
 }
