@@ -20,31 +20,20 @@ internal sealed partial class ConundrumView : Page, IPageItem
 
     public ConundrumViewModel? ViewModel { get; set; }
 
-    private void DeleteCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
+    private void CopyItems(IList<object> items)
     {
-        args.CanExecute = ConundrumList.SelectedItems.Count > 0;
-    }
-
-    private void DeleteCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
-    {
-        List<object> items = new List<object>(ConundrumList.SelectedItems);
-        IList<ConundrumItem> source = (IList<ConundrumItem>)ConundrumList.ItemsSource;
+        List<(int index, object item)> indexedList = new(ConundrumList.Items.Count);
 
         foreach (object item in items)
         {
-            Debug.Assert(item is ConundrumItem);
-            source.Remove((ConundrumItem)item);
+            indexedList.Add((ConundrumList.Items.IndexOf(item), item));
         }
-    }
 
-    private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
-    {
         StringBuilder sb = new StringBuilder();
 
-        foreach (object item in ConundrumList.SelectedItems)
+        foreach ((int index, object item) in indexedList.OrderBy(x => x.index))   // convert to list order
         {
-            Debug.Assert(item is ConundrumItem);
-            sb.AppendLine($"{((ConundrumItem)item).Conundrum}\t\t{((ConundrumItem)item).Solution}");
+            sb.AppendLine(item.ToString());        
         }
 
         if (sb.Length > 0)
@@ -53,11 +42,6 @@ internal sealed partial class ConundrumView : Page, IPageItem
             dp.SetText(sb.ToString());
             Clipboard.SetContent(dp);
         }
-    }
-
-    private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
-    {
-        args.CanExecute = ConundrumList.SelectedItems.Count > 0;
     }
 
     public int PassthroughCount => 13;
@@ -78,5 +62,50 @@ internal sealed partial class ConundrumView : Page, IPageItem
 
         rects[index++] = Utils.GetPassthroughRect(ConundrumList);
         Debug.Assert(index == PassthroughCount);
+    }
+
+    private void CopyMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (((FrameworkElement)sender).DataContext is ConundrumItem ci)
+        {
+            if (ConundrumList.SelectedItems.Contains(ci))
+            {
+                CopyItems(ConundrumList.SelectedItems);
+            }
+            else
+            {
+                CopyItems([ci]);
+            }
+        }
+    }
+
+    private void DeleteMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (((FrameworkElement)sender).DataContext is ConundrumItem ci)
+        {
+            if (ConundrumList.SelectedItems.Contains(ci))
+            {
+                ViewModel?.DeleteItems(ConundrumList.SelectedItems);
+            }
+            else
+            {
+                ViewModel?.DeleteItems([ci]);
+            }
+        }
+    }
+
+    private void ConundrumList_KeyUp(object sender, KeyRoutedEventArgs e)
+    {
+        if (ConundrumList.SelectedItems.Count > 0)
+        {
+            if (e.Key == VirtualKey.Delete)
+            {
+                ViewModel?.DeleteItems(ConundrumList.SelectedItems);
+            }
+            else if ((e.Key == VirtualKey.C) && Utils.IsControlKeyDown())
+            {
+                CopyItems(ConundrumList.SelectedItems);
+            }
+        }
     }
 }

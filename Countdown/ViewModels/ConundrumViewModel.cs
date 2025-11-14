@@ -180,8 +180,6 @@ internal sealed partial class ConundrumViewModel : PropertyChangedBase
             {
                 SolutionList.Add(ci);
             }
-
-            SolveCommand.RaiseCanExecuteChanged();
         }
     }
 
@@ -203,5 +201,18 @@ internal sealed partial class ConundrumViewModel : PropertyChangedBase
         }
 
         return data;
+    }
+
+    public void DeleteItems(IList<object> items)
+    {
+        List<object> copy = new List<object>(items);
+
+        foreach (object item in copy)
+        {
+            if (item is ConundrumItem ci)
+            {
+                SolutionList.Remove(ci);
+            }
+        }
     }
 }

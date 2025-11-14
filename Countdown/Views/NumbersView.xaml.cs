@@ -54,13 +54,22 @@ internal sealed partial class NumbersView : Page, IPageItem
 
     public NumbersViewModel? ViewModel { get; set; }
 
-    private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
+    private void CopyItems(IList<object> items)
     {
+        // convert to list order
+        // sorting is arkward because lists aren't generic, performance isn't an issue here
+        List<(int index, object item)> indexedList = new(EquationList.Items.Count);
+
+        foreach (object item in items)
+        {
+            indexedList.Add((EquationList.Items.IndexOf(item), item));
+        }
+
         StringBuilder sb = new StringBuilder();
 
-        foreach (object equationItem in EquationList.SelectedItems)
+        foreach ((int index, object item) in indexedList.OrderBy(x => x.index))   
         {
-            sb.AppendLine(equationItem.ToString());
+            sb.AppendLine(item.ToString());
         }
 
         if (sb.Length > 0)
@@ -71,9 +80,19 @@ internal sealed partial class NumbersView : Page, IPageItem
         }
     }
 
-    private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
+    private void CopyMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
     {
-        args.CanExecute = EquationList.SelectedItems.Count > 0;
+        if (((FrameworkElement)sender).DataContext is string equation)
+        {
+            if (EquationList.SelectedItems.Contains(equation))
+            {
+                CopyItems(EquationList.SelectedItems);
+            }
+            else
+            {
+                CopyItems([equation]);
+            }
+        }
     }
 
     internal static void MenuFlyout_Opening(object sender, object e)
@@ -108,5 +127,13 @@ internal sealed partial class NumbersView : Page, IPageItem
         rects[index++] = Utils.GetPassthroughRect(EquationList);
 
         Debug.Assert(index == PassthroughCount);
+    }
+
+    private void EquationList_KeyUp(object sender, KeyRoutedEventArgs e)
+    {
+        if ((EquationList.SelectedItems.Count > 0) && (e.Key == VirtualKey.C) && Utils.IsControlKeyDown())
+        {
+            CopyItems(EquationList.SelectedItems);
+        }
     }
 }

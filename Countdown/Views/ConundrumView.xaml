@@ -79,11 +79,7 @@
 
         </StackPanel>
 
-        <ListView x:Name="ConundrumList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.SolutionList, Mode=OneWay}" Style="{StaticResource ResultsListStyle}">
-            <ListView.Resources>
-                <StandardUICommand x:Name="CopyCommand" Kind="Copy" ExecuteRequested="CopyCommand_ExecuteRequested" CanExecuteRequested="CopyCommand_CanExecuteRequested"/>
-                <StandardUICommand x:Name="DeleteCommand" Kind="Delete" ExecuteRequested="DeleteCommand_ExecuteRequested" CanExecuteRequested="DeleteCommand_CanExecuteRequested"/>
-            </ListView.Resources>
+        <ListView x:Name="ConundrumList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.SolutionList, Mode=OneWay}" Style="{StaticResource ResultsListStyle}" KeyUp="ConundrumList_KeyUp">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="vm:ConundrumItem">
                     <Grid>
@@ -93,16 +89,16 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{x:Bind Solution}" Grid.Column="0" HorizontalAlignment="Left"/>
                         <TextBlock Text="{x:Bind Conundrum}" Grid.Column="1" HorizontalAlignment="Left"/>
+                        <Grid.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Icon="Copy" Text="Copy" Click="CopyMenuFlyoutItem_Click"/>
+                                <MenuFlyoutSeparator/>
+                                <MenuFlyoutItem Icon="Delete" Text="Delete" Click="DeleteMenuFlyoutItem_Click"/>
+                            </MenuFlyout>
+                        </Grid.ContextFlyout>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
-            <ListView.ContextFlyout>
-                <MenuFlyout>
-                    <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
-                    <MenuFlyoutSeparator/>
-                    <MenuFlyoutItem Command="{StaticResource DeleteCommand}"/>
-                </MenuFlyout>
-            </ListView.ContextFlyout>
         </ListView>
     </Grid>
 </Page>
