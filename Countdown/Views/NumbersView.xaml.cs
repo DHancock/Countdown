@@ -56,9 +56,9 @@ internal sealed partial class NumbersView : Page, IPageItem
 
     private void CopyItems(IList<object> items)
     {
-        // convert to list order
-        // sorting is arkward because lists aren't generic, performance isn't an issue here
-        List<(int index, object item)> indexedList = new(EquationList.Items.Count);
+        // convert to list order rather than the order items were selected in
+        // sorting is arkward because lists views aren't generic, performance isn't an issue here
+        List<(int index, object item)> indexedList = new(items.Count);
 
         foreach (object item in items)
         {
