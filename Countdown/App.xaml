@@ -29,6 +29,7 @@
             </Style>
 
             <Style x:Key="CommonGroupBoxStyle" TargetType="w3c:GroupBox">
+                <Setter Property="IsTabStop" Value="False"/>
                 <Setter Property="Margin" Value="7,7,7,7"/>
                 <Setter Property="Padding" Value="7"/>
                 <Setter Property="CornerRadius" Value="6"/>
