@@ -9,7 +9,17 @@ internal sealed partial class NumbersView : Page, IPageItem
     {
         this.InitializeComponent();
 
+        FirstFocusableElement.Loaded += FirstFocusableElement_Loaded;
         TargetCTB.Loaded += TargetCTB_Loaded;
+    }
+
+    private void FirstFocusableElement_Loaded(object sender, RoutedEventArgs e)
+    {
+        // When the first navigated page is shown on app start up this text box gets focus which also selects it's text. 
+        // While that may seem ok, the behaviour isn't replicated when navigating to other tabs.
+        // This will bump focus back to the parent tab view.
+        FirstFocusableElement.Loaded -= FirstFocusableElement_Loaded;
+        FocusManager.TryMoveFocus(FocusNavigationDirection.Previous, new FindNextElementOptions() { SearchRoot = XamlRoot.Content });
     }
 
     private static void TargetCTB_Loaded(object sender, RoutedEventArgs e)
