@@ -92,7 +92,7 @@
                         <Grid.ContextFlyout>
                             <MenuFlyout Opening="ListItemMenuFlyout_Opening">
                                 <MenuFlyoutItem Text="Copy" Click="CopyMenuFlyoutItem_Click"/>
-                                <MenuFlyoutItem Text="Clear" Click="DeleteMenuFlyoutItem_Click"/>
+                                <MenuFlyoutItem Text="Delete" Click="DeleteMenuFlyoutItem_Click"/>
                                 <MenuFlyoutSeparator/>
                                 <MenuFlyoutItem Text="Select all" Name="SelectAll" Click="SelectAllMenuFlyoutItem_Click"/>
                             </MenuFlyout>
