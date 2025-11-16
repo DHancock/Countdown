@@ -6,11 +6,11 @@ internal sealed class SolverResults
     private readonly Lock closestLock = new();
     private readonly Lock differenceLock = new();
 
-    // collects a reference of each solver's solution list
-    private readonly List<List<string>> solutionLists = new(32);
+    // collects a reference of each solver's lists
+    private readonly List<List<string>> solvedLists = new(32);
     private readonly List<List<(string, int)>> closestLists = new(32);
 
-    public bool HasSolutions => solutionLists.Count > 0;
+    public bool HasSolutions => solvedLists.Count > 0;
 
     private int difference = SolvingEngine.cNonMatchThreshold;
 
@@ -39,7 +39,7 @@ internal sealed class SolverResults
         {
             lock (solvedLock)
             {
-                solutionLists.Add(solvingEngine.Solutions);
+                solvedLists.Add(solvingEngine.Solutions);
             }
         }
         else if ((solvingEngine.Closests.Count > 0) && (LowestDifference > 0))
@@ -56,18 +56,18 @@ internal sealed class SolverResults
         int size = 0;
         List<string> results;
 
-        if (solutionLists.Count > 0)
+        if (solvedLists.Count > 0)
         {
-            foreach (List<string> solverResults in solutionLists)
+            foreach (List<string> solvedResults in solvedLists)
             {
-                size += solverResults.Count;
+                size += solvedResults.Count;
             }
 
             results = new(size);
 
-            foreach (List<string> solverResults in solutionLists)
+            foreach (List<string> solvedResults in solvedLists)
             {
-                results.AddRange(solverResults);
+                results.AddRange(solvedResults);
             }
 
             return results;
