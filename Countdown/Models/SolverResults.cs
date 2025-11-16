@@ -42,7 +42,7 @@ internal sealed class SolverResults
                 solverLists.Add(solvingEngine.Solutions);
             }
         }
-        else if ((solvingEngine.Closests.Count > 0) && (solverLists.Count == 0))
+        else if ((solvingEngine.Closests.Count > 0) && (LowestDifference > 0))
         {
             lock (closestLock)
             {
