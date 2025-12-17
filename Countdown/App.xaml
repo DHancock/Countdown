@@ -55,6 +55,11 @@
             
             <!-- make all the result lists start at the same x coordinate -->
             <GridLength x:Key="InputGridWidth">340</GridLength>
+
+            <Style TargetType="MenuFlyoutItem" BasedOn="{StaticResource DefaultMenuFlyoutItemStyle}">
+                <!-- auto isn't appropriate for vertical lists that may have disabled entries -->
+                <Setter Property="KeyTipPlacementMode" Value="Right"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
