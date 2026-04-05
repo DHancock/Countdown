@@ -25,7 +25,7 @@ internal partial class MainWindow : Window
     private const double cInitialWidth = 660;
     private const double cInitialHeight = 500;
 
-    private readonly IntPtr windowPtr;
+    private readonly HWND windowHandle;
 
     private readonly RelayCommand restoreCommand;
     private readonly RelayCommand moveCommand;
@@ -35,28 +35,28 @@ internal partial class MainWindow : Window
     private readonly RelayCommand closeWindowCommand;
 
     private readonly InputNonClientPointerSource inputNonClientPointerSource;
-    private readonly SUBCLASSPROC subClassDelegate;
     private readonly DispatcherTimer dispatcherTimer;
     private PointInt32 restorePosition;
     private SizeInt32 restoreSize;
     private readonly MenuFlyout systemMenu;
-    private int pixelMinWidth;
-    private int pixelMinHeight;
     private double scaleFactor;
-    private readonly HOOKPROC hookProc;
     private UnhookWindowsHookExSafeHandle? hookSafeHandle;
+
+    private const nuint cSubClassID = 0;
+    private readonly GCHandle thisGCHandle;
 
     private MainWindow()
     {
         this.InitializeComponent();
 
-        windowPtr = WindowNative.GetWindowHandle(this);
+        windowHandle = (HWND)WindowNative.GetWindowHandle(this);
 
-        subClassDelegate = new SUBCLASSPROC(NewSubWindowProc);
+        thisGCHandle = GCHandle.Alloc(this);
 
-        if (!PInvoke.SetWindowSubclass((HWND)windowPtr, subClassDelegate, 0, 0))
+        unsafe
         {
-            throw new Win32Exception(Marshal.GetLastPInvokeError());
+            bool success = PInvoke.SetWindowSubclass(windowHandle, &NewSubWindowProc, cSubClassID, (nuint)GCHandle.ToIntPtr(thisGCHandle));
+            Debug.Assert(success);
         }
 
         inputNonClientPointerSource = InputNonClientPointerSource.GetForWindowId(AppWindow.Id);
@@ -64,8 +64,10 @@ internal partial class MainWindow : Window
         dispatcherTimer = InitialiseDragRegionTimer();
 
         scaleFactor = IntialiseScaleFactor();
-        pixelMinWidth = ConvertToPixels(cMinWidth);
-        pixelMinHeight = ConvertToPixels(cMinHeight);
+
+        OverlappedPresenter op = AppWindow.Presenter.As<OverlappedPresenter>();
+        op.PreferredMinimumWidth = ConvertToPixels(cMinWidth);
+        op.PreferredMinimumHeight = ConvertToPixels(cMinHeight);
 
         restoreCommand = new RelayCommand(o => PostSysCommandMessage(SC.RESTORE), CanRestore);
         moveCommand = new RelayCommand(o => PostSysCommandMessage(SC.MOVE), CanMove);
@@ -75,8 +77,6 @@ internal partial class MainWindow : Window
         closeWindowCommand = new RelayCommand(o => PostSysCommandMessage(SC.CLOSE));
 
         systemMenu = (MenuFlyout)LayoutRoot.Resources["SystemMenu"];
-
-        hookProc = new HOOKPROC(KeyboardHookProc);
 
         AppWindow.Changed += AppWindow_Changed;
         
@@ -102,54 +102,50 @@ internal partial class MainWindow : Window
         }
     }
 
-    private LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    private static LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
-        const int VK_SPACE = 0x0020;
         const int HTCAPTION = 0x0002;
 
-        switch (uMsg)
+        GCHandle handle = GCHandle.FromIntPtr((nint)dwRefData);
+
+        if (handle.Target is MainWindow window)
         {
-            case PInvoke.WM_GETMINMAXINFO:
+            switch (uMsg)
             {
-                unsafe
+                case PInvoke.WM_DPICHANGED:
                 {
-                    MINMAXINFO* mptr = (MINMAXINFO*)lParam.Value;
-                    mptr->ptMinTrackSize.X = pixelMinWidth;
-                    mptr->ptMinTrackSize.Y = pixelMinHeight;
+                    window.scaleFactor = (wParam & 0xFFFF) / 96.0;
+
+                    OverlappedPresenter op = (OverlappedPresenter)window.AppWindow.Presenter;
+                    op.PreferredMinimumWidth = window.ConvertToPixels(cMinWidth);
+                    op.PreferredMinimumHeight = window.ConvertToPixels(cMinHeight);
+                    break;
                 }
-                break;
-            }
 
-            case PInvoke.WM_DPICHANGED:
-            {
-                scaleFactor = (wParam & 0xFFFF) / 96.0;
-                pixelMinWidth = ConvertToPixels(cMinWidth);
-                pixelMinHeight = ConvertToPixels(cMinHeight);
-                break;
-            }
+                case PInvoke.WM_SYSCOMMAND when (lParam == (int)VirtualKey.Space):
+                {
+                    window.ShowSystemMenu(viaKeyboard: true);
+                    return (LRESULT)0;
+                }
 
-            case PInvoke.WM_SYSCOMMAND when (lParam == VK_SPACE) && (AppWindow.Presenter.Kind != AppWindowPresenterKind.FullScreen):
-            {
-                ShowSystemMenu(viaKeyboard: true);
-                return (LRESULT)0;
-            }
+                case PInvoke.WM_NCRBUTTONUP when wParam == HTCAPTION:
+                {
+                    window.ShowSystemMenu(viaKeyboard: false);
+                    return (LRESULT)0;
+                }
 
-            case PInvoke.WM_NCRBUTTONUP when wParam == HTCAPTION:
-            {
-                ShowSystemMenu(viaKeyboard: false);
-                return (LRESULT)0;
-            }
+                case PInvoke.WM_NCLBUTTONDOWN:
+                {
+                    window.HideSystemMenu();
+                    break;
+                }
 
-            case PInvoke.WM_NCLBUTTONDOWN:
-            {
-                HideSystemMenu();
-                break;
-            }
-
-            case PInvoke.WM_ENDSESSION:
-            {
-                SaveStateOnEndSession();
-                return (LRESULT)0;
+                case PInvoke.WM_ENDSESSION:
+                {
+                    window.SaveStateOnEndSession();
+                    return (LRESULT)0;
+                }
             }
         }
 
@@ -158,7 +154,7 @@ internal partial class MainWindow : Window
 
     private void PostSysCommandMessage(SC command)
     {
-        bool success = PInvoke.PostMessage((HWND)windowPtr, PInvoke.WM_SYSCOMMAND, (WPARAM)(nuint)command, 0);
+        bool success = PInvoke.PostMessage(windowHandle, PInvoke.WM_SYSCOMMAND, (WPARAM)(nuint)command, 0);
         Debug.Assert(success);
     }
 
@@ -166,7 +162,7 @@ internal partial class MainWindow : Window
     {
         System.Drawing.Point p = default;
 
-        if (viaKeyboard || !PInvoke.GetCursorPos(out p) || !PInvoke.ScreenToClient((HWND)windowPtr, ref p))
+        if (viaKeyboard || !PInvoke.GetCursorPos(out p) || !PInvoke.ScreenToClient(windowHandle, ref p))
         {
             p.X = 3;
             p.Y = AppWindow.TitleBar.Height;
@@ -194,33 +190,40 @@ internal partial class MainWindow : Window
     private void MenuFlyout_Opening(object? sender, object e)
     {
         Debug.Assert(hookSafeHandle is null);
-        hookSafeHandle = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD, hookProc, null, PInvoke.GetCurrentThreadId());
+
+        unsafe
+        {
+            hookSafeHandle = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD, &KeyboardHookProc, null, PInvoke.GetCurrentThreadId());
+        }
     }
 
-    private LRESULT KeyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
+    private static LRESULT KeyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
     {
-        Debug.Assert(systemMenu.IsOpen);
+        MainWindow window = App.MainWindow;
+
+        Debug.Assert(window.systemMenu.IsOpen);
 
         if (code >= 0)
         {
             VirtualKey key = (VirtualKey)(nuint)wParam;
-            bool isKeyDown = (lParam & 0x80000000) == 0;
+            bool isKeyDown = (lParam & 0x8000_0000) == 0;
 
             if (isKeyDown)
             {
                 if (IsAcceleratorKeyModifier(key))
                 {
-                    systemMenu.Hide();
+                    window.systemMenu.Hide();
                 }
                 else if (!IsMenuNavigationKey(key))
                 {
                     bool found = false;
 
-                    foreach (MenuFlyoutItemBase itemBase in systemMenu.Items)
+                    foreach (MenuFlyoutItemBase itemBase in window.systemMenu.Items)
                     {
                         if (itemBase.AccessKey == key.ToString())
                         {
-                            systemMenu.Hide();
+                            window.systemMenu.Hide();
                             found = true;
 
                             if (itemBase.IsEnabled)
@@ -241,7 +244,7 @@ internal partial class MainWindow : Window
             }
             else if (key == VirtualKey.Menu) // the menu is being opened via Alt+Space
             {
-                AccessKeyManager.EnterDisplayMode(Content.XamlRoot);
+                AccessKeyManager.EnterDisplayMode(window.Content.XamlRoot);
             }
         }
 
@@ -340,7 +343,7 @@ internal partial class MainWindow : Window
 
     private double IntialiseScaleFactor()
     {
-        double dpi = PInvoke.GetDpiForWindow((HWND)windowPtr);
+        double dpi = PInvoke.GetDpiForWindow(windowHandle);
         return dpi / 96.0;
     }
 
