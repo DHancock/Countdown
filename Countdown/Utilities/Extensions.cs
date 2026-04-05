@@ -114,7 +114,7 @@ internal static class Extensions
         return bytesRead;
     }
 
-    public static T? FindChild<T>(this DependencyObject parent, string? name = default) where T : FrameworkElement
+    public static T? FindChild<T>(this DependencyObject parent, string? name = null) where T : FrameworkElement
     {
         int count = VisualTreeHelper.GetChildrenCount(parent);
 
@@ -122,9 +122,17 @@ internal static class Extensions
         {
             DependencyObject child = VisualTreeHelper.GetChild(parent, index);
 
-            if ((child is T target) && (string.IsNullOrEmpty(name) || string.Equals(name, target.Name, StringComparison.Ordinal)))
+            try
             {
-                return target;
+                T target = child.As<T>(); // casting WinRT.IInspectable to type T can fail on AOT builds
+
+                if ((name is null) || string.Equals(target.Name, name, StringComparison.Ordinal))
+                {
+                    return target;
+                }
+            }
+            catch (InvalidCastException)
+            {
             }
 
             T? result = child.FindChild<T>(name);
