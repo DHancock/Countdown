@@ -8,7 +8,7 @@ namespace Countdown.Views;
 
 public enum WindowState { Normal, Minimized, Maximized }
 
-internal partial class MainWindow : Window
+internal sealed partial class MainWindow : Window
 {
     private enum SC
     {
@@ -65,7 +65,7 @@ internal partial class MainWindow : Window
 
         scaleFactor = IntialiseScaleFactor();
 
-        OverlappedPresenter op = AppWindow.Presenter.As<OverlappedPresenter>();
+        OverlappedPresenter op = (OverlappedPresenter)AppWindow.Presenter;
         op.PreferredMinimumWidth = ConvertToPixels(cMinWidth);
         op.PreferredMinimumHeight = ConvertToPixels(cMinHeight);
 

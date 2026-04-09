@@ -1,5 +1,10 @@
 ﻿using Countdown.Views;
 
+// valid c# casts would otherwise fail for these types (using CsWinRT 2.2.0)
+[assembly: GeneratedWinRTExposedExternalType(typeof(Grid))]
+[assembly: GeneratedWinRTExposedExternalType(typeof(Border))]
+[assembly: GeneratedWinRTExposedExternalType(typeof(OverlappedPresenter))]
+
 namespace Countdown;
 
 /// <summary>
@@ -7,7 +12,7 @@ namespace Countdown;
 /// </summary>
 public partial class App : Application
 {
-    public static App Instance => (App)Current;
+    internal static App Instance => (App)Current;
 
     private readonly SafeHandle localMutex;
     private readonly SafeHandle globalMutex;
