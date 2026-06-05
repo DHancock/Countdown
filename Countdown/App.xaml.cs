@@ -14,9 +14,6 @@ public partial class App : Application
 {
     internal static App Instance => (App)Current;
 
-    private readonly SafeHandle localMutex;
-    private readonly SafeHandle globalMutex;
-
     private MainWindow? m_window;
 
     /// <summary>
@@ -25,12 +22,6 @@ public partial class App : Application
     /// </summary>
     public App()
     {
-        // Create the installer mutexes with current user access. The app is installed per
-        // user rather than all users.
-        const string name = "06482883-F905-4F5C-88E1-3B6B328144DD";
-        localMutex = PInvoke.CreateMutex(null, false, name);
-        globalMutex = PInvoke.CreateMutex(null, false, "Global\\" + name);
-
         InitializeComponent();
     }
 
