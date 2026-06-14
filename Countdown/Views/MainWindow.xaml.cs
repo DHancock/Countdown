@@ -124,7 +124,7 @@ internal sealed partial class MainWindow : Window
         Page page = (Page)e.Content;
         selectedPage = (IPageItem)e.Content;
 
-        if (page.Tag is null)   // one time initialisation
+        if (page.Tag is null)   // one time initialisation per page
         {
             page.Tag = page;
 
