@@ -80,6 +80,32 @@
         </StackPanel>
 
         <ListView x:Name="ConundrumList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.SolutionList, Mode=OneWay}" Style="{StaticResource ResultsListStyle}" KeyDown="ConundrumList_KeyDown">
+
+            <ListView.HeaderTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="FontSize" Value="14"/>
+                            </Style>
+                        </Grid.Resources>
+
+                        <TextBlock Grid.Column="0" Text="Solution" Margin="14,5,0,0"/>
+                        <TextBlock Grid.Column="1" Text="Conundrum" Margin="0,5,0,0"/>
+                        <Rectangle Grid.ColumnSpan="2" Grid.Row="1" Stroke="{ThemeResource ListViewHeaderItemDividerStroke}" StrokeThickness="0.5" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="12,8,12,0" />
+                    </Grid>
+                </DataTemplate>
+            </ListView.HeaderTemplate>
+
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="vm:ConundrumItem">
                     <Grid>

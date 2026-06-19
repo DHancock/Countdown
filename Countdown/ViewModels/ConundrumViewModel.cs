@@ -161,7 +161,7 @@ internal sealed partial class ConundrumViewModel : PropertyChangedBase
 
     private void ExecuteSolve(object? _)
     {
-        string solution = wordModel.SolveConundrum(ConvertLetters(toLowerCase: true));
+        string solution = wordModel.SolveConundrum(ConvertLetters());
 
         if (solution.Length > 0)
         {
@@ -186,10 +186,10 @@ internal sealed partial class ConundrumViewModel : PropertyChangedBase
     private bool CanSolve(object? _)
     {
         return conundrum.All(s => !string.IsNullOrEmpty(s)) && 
-                !string.IsNullOrEmpty(wordModel.SolveConundrum(ConvertLetters(toLowerCase: true)));
+                !string.IsNullOrEmpty(wordModel.SolveConundrum(ConvertLetters()));
     }
 
-    private char[] ConvertLetters(bool toLowerCase = false)
+    private char[] ConvertLetters()
     {
         char[] data = new char[WordModel.cLetterCount];
 
@@ -197,7 +197,7 @@ internal sealed partial class ConundrumViewModel : PropertyChangedBase
         {
             Debug.Assert(conundrum[index].Length == 1);
             char c = conundrum[index][0];
-            data[index] = toLowerCase ? char.ToLower(c) : c;
+            data[index] = char.ToLower(c);
         }
 
         return data;
