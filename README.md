@@ -161,7 +161,7 @@ The solver was run on a Dell Inspiron 5578 with an I7-7500 dual core processor (
 
 #### Letters Game
 
-In version 3.0 I've added the letters and conundrum games. I'd always intended too, but the problem was finding suitable word lists. Then I came across SOWPODS scrabble word lists. These don't contain proper nouns, hyphenated words, spelling errors etc. but unfortunately do include mass nouns.
+In version 3.0 I've added the letters and conundrum games. I'd always intended too, but the problem was finding suitable word lists. Then I came across SOWPODS scrabble word lists. These don't contain proper nouns, hyphenated words, spelling errors etc.
 To implement the game I preprocess the word list into a dictionary containing lists of anagrams. Once in anagram form the order of the letters within the words isn't relevant, so I use a sorted list of the letters as the dictionary key. The combination enumerator produces lexicographical combinations so to solve the puzzle it is simply a case feeding the users chosen letters into the enumerator and using its output as a key for the dictionary. The word list is compressed by a separate project within the solution and then added to the app as an embedded resource. The UI is straight forward:
 
 <dl><dd><dl><dd><dl><dd>
