@@ -92,15 +92,9 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <Grid.Resources>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="FontWeight" Value="SemiBold"/>
-                                <Setter Property="FontSize" Value="14"/>
-                            </Style>
-                        </Grid.Resources>
-
-                        <TextBlock Grid.Column="0" Text="Solution" Margin="14,5,0,0"/>
-                        <TextBlock Grid.Column="1" Text="Conundrum" Margin="0,5,0,0"/>
+                        
+                        <TextBlock Grid.Column="0" Text="Conundrum" Margin="14,5,0,0"/>
+                        <TextBlock Grid.Column="1" Text="Solution" Margin="0,5,0,0"/>
                         <Rectangle Grid.ColumnSpan="2" Grid.Row="1" Stroke="{ThemeResource ListViewHeaderItemDividerStroke}" StrokeThickness="0.5" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="12,8,12,0" />
                     </Grid>
                 </DataTemplate>
@@ -113,8 +107,8 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="{x:Bind Solution}" Grid.Column="0" HorizontalAlignment="Left"/>
-                        <TextBlock Text="{x:Bind Conundrum}" Grid.Column="1" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="0" Text="{x:Bind Conundrum}" HorizontalAlignment="Stretch"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind Solution}" HorizontalAlignment="Stretch"/>
                         <Grid.ContextFlyout>
                             <MenuFlyout Opening="ListItemMenuFlyout_Opening">
                                 <MenuFlyoutItem Text="Copy" Click="CopyMenuFlyoutItem_Click"/>
