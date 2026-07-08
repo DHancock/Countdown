@@ -23,7 +23,7 @@
             <Expander x:Name="ThemeExpander" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" SizeChanged="Expander_SizeChanged">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE790;"/>
+                        <FontIcon Glyph="&#xF08C;"/>
                         <TextBlock Text="App theme"/>
                     </StackPanel>
                 </Expander.Header>
