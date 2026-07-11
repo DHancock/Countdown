@@ -49,13 +49,13 @@ internal static class Utils
         Debug.Assert(succeeded);
     }
 
-    public static bool IsKeyDown(VirtualKey key)
-    {
-        return InputKeyboardSource.GetKeyStateForCurrentThread(key).HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
-    }
-
     public static bool IsControlKeyDown()
     {
-        return IsKeyDown(VirtualKey.LeftControl) || IsKeyDown(VirtualKey.RightControl) || IsKeyDown(VirtualKey.Control);
+        return IsKeyDown(VirtualKey.Control) || IsKeyDown(VirtualKey.LeftControl) || IsKeyDown(VirtualKey.RightControl);
+
+        static bool IsKeyDown(VirtualKey key)
+        {
+            return InputKeyboardSource.GetKeyStateForCurrentThread(key).HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
+        }
     }
 }

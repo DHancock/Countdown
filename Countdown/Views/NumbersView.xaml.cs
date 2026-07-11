@@ -90,21 +90,6 @@ internal sealed partial class NumbersView : Page, IPageItem
         }
     }
 
-    private void CopyMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        if (((FrameworkElement)sender).DataContext is string equation)
-        {
-            if (EquationList.SelectedItems.Contains(equation))
-            {
-                CopyItems(EquationList.SelectedItems);
-            }
-            else
-            {
-                CopyItems([equation]);
-            }
-        }
-    }
-
     internal static void ChooseMenuFlyout_Opening(object sender, object e)
     {
         MenuFlyout menu = (MenuFlyout)sender;
@@ -141,28 +126,39 @@ internal sealed partial class NumbersView : Page, IPageItem
 
     private void EquationList_KeyDown(object sender, KeyRoutedEventArgs e)
     {
-        if ((EquationList.SelectedItems.Count > 0) && (e.Key == VirtualKey.C) && Utils.IsControlKeyDown())
+        // handle the list's context menu items keyboard accelerators here because if it was left to  
+        // the api they would only be active after the context menu has been opened for the first time.
+
+        if (EquationList.SelectedItems.Count > 0)
         {
-            CopyItems(EquationList.SelectedItems);
-        }
-    }
-
-    private void SelectAllMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        EquationList.SelectRange(new ItemIndexRange(0, (uint)EquationList.Items.Count));
-    }
-
-    private void ListItemMenuFlyout_Opening(object sender, object e)
-    {
-        MenuFlyout menu = (MenuFlyout)sender;
-
-        foreach(MenuFlyoutItemBase mfib in menu.Items)
-        {
-            if (string.Equals(mfib.Name, "SelectAll")) // DataTemplate template items can't have an x:Name
+            if ((e.Key == VirtualKey.C) && Utils.IsControlKeyDown())
             {
-                mfib.IsEnabled = EquationList.Items.Count != EquationList.SelectedItems.Count;
-                break;
+                CopyItems(EquationList.SelectedItems);
             }
         }
+        else if ((EquationList.SelectedItems.Count != EquationList.Items.Count) && (e.Key == VirtualKey.A) && Utils.IsControlKeyDown())
+        {
+            EquationList.SelectRange(new ItemIndexRange(0, (uint)EquationList.Items.Count));
+        }
+    }
+
+    private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
+    {
+        args.CanExecute = EquationList.SelectedItems.Count > 0;
+    }
+
+    private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
+    {
+        CopyItems(EquationList.SelectedItems);
+    }
+
+    private void SelectAllCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
+    {
+        args.CanExecute = EquationList.SelectedItems.Count != EquationList.Items.Count;
+    }
+
+    private void SelectAllCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
+    {
+        EquationList.SelectRange(new ItemIndexRange(0, (uint)EquationList.Items.Count));
     }
 }

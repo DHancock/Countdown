@@ -65,38 +65,11 @@ internal sealed partial class ConundrumView : Page, IPageItem
         Debug.Assert(index == PassthroughCount);
     }
 
-    private void CopyMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        if (((FrameworkElement)sender).DataContext is ConundrumItem ci)
-        {
-            if (ConundrumList.SelectedItems.Contains(ci))
-            {
-                CopyItems(ConundrumList.SelectedItems);
-            }
-            else
-            {
-                CopyItems([ci]);
-            }
-        }
-    }
-
-    private void DeleteMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        if (((FrameworkElement)sender).DataContext is ConundrumItem ci)
-        {
-            if (ConundrumList.SelectedItems.Contains(ci))
-            {
-                ViewModel?.DeleteItems(ConundrumList.SelectedItems);
-            }
-            else
-            {
-                ViewModel?.DeleteItems([ci]);
-            }
-        }
-    }
-
     private void ConundrumList_KeyDown(object sender, KeyRoutedEventArgs e)
     {
+        // handle the list's context menu items keyboard accelerators here because if it was left to  
+        // the api they would only be active after the context menu has been opened for the first time.
+
         if (ConundrumList.SelectedItems.Count > 0)
         {
             if (e.Key == VirtualKey.Delete)
@@ -108,24 +81,39 @@ internal sealed partial class ConundrumView : Page, IPageItem
                 CopyItems(ConundrumList.SelectedItems);
             }
         }
+        else if ((ConundrumList.SelectedItems.Count != ConundrumList.Items.Count) && (e.Key == VirtualKey.A) && Utils.IsControlKeyDown())
+        {
+            ConundrumList.SelectRange(new ItemIndexRange(0, (uint)ConundrumList.Items.Count));
+        }
     }
 
-    private void SelectAllMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+    private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
+    {
+        args.CanExecute = ConundrumList.SelectedItems.Count > 0;
+    }
+
+    private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
+    {
+        CopyItems(ConundrumList.SelectedItems);
+    }
+
+    private void SelectAllCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
+    {
+        args.CanExecute = ConundrumList.SelectedItems.Count != ConundrumList.Items.Count;
+    }
+
+    private void SelectAllCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
     {
         ConundrumList.SelectRange(new ItemIndexRange(0, (uint)ConundrumList.Items.Count));
     }
 
-    private void ListItemMenuFlyout_Opening(object sender, object e)
+    private void DeleteCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        MenuFlyout menu = (MenuFlyout)sender;
+        args.CanExecute = ConundrumList.SelectedItems.Count > 0;
+    }
 
-        foreach (MenuFlyoutItemBase mfib in menu.Items)
-        {
-            if (string.Equals(mfib.Name, "SelectAll")) // DataTemplate template items can't have an x:Name
-            {
-                mfib.IsEnabled = ConundrumList.Items.Count != ConundrumList.SelectedItems.Count;
-                break;
-            }
-        }
+    private void DeleteCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
+    {
+        ViewModel?.DeleteItems(ConundrumList.SelectedItems);
     }
 }
