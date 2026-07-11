@@ -100,6 +100,48 @@
                 </DataTemplate>
             </ListView.HeaderTemplate>
 
+
+            <ListView.Resources>
+                <XamlUICommand x:Name="CopyCommand" Label="Copy" CanExecuteRequested="CopyCommand_CanExecuteRequested" ExecuteRequested="CopyCommand_ExecuteRequested">
+                    <XamlUICommand.KeyboardAccelerators>
+                        <!-- disabled because it would only be active after it's context menu has been opened, so handle it in code-->
+                        <KeyboardAccelerator Key="C" Modifiers="Control" IsEnabled="False"/>
+                    </XamlUICommand.KeyboardAccelerators>
+                    <XamlUICommand.IconSource>
+                        <SymbolIconSource Symbol="Copy"/>
+                    </XamlUICommand.IconSource>
+                </XamlUICommand>
+
+                <XamlUICommand x:Name="SelectAllCommand" Label="Select All" CanExecuteRequested="SelectAllCommand_CanExecuteRequested" ExecuteRequested="SelectAllCommand_ExecuteRequested">
+                    <XamlUICommand.KeyboardAccelerators>
+                        <!-- disabled because it would only be active after it's context menu has been opened, so handle it in code-->
+                        <KeyboardAccelerator Key="A" Modifiers="Control" IsEnabled="False"/>
+                    </XamlUICommand.KeyboardAccelerators>
+                    <XamlUICommand.IconSource>
+                        <SymbolIconSource Symbol="SelectAll"/>
+                    </XamlUICommand.IconSource>
+                </XamlUICommand>
+
+                <XamlUICommand x:Name="DeleteCommand" Label="Delete" CanExecuteRequested="DeleteCommand_CanExecuteRequested" ExecuteRequested="DeleteCommand_ExecuteRequested">
+                    <XamlUICommand.KeyboardAccelerators>
+                        <!-- disabled because it would only be active after it's context menu has been opened, so handle it in code-->
+                        <KeyboardAccelerator Key="Delete" Modifiers="Control" IsEnabled="False"/>
+                    </XamlUICommand.KeyboardAccelerators>
+                    <XamlUICommand.IconSource>
+                        <SymbolIconSource Symbol="Delete"/>
+                    </XamlUICommand.IconSource>
+                </XamlUICommand>
+            </ListView.Resources>
+
+            <ListView.ContextFlyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
+                    <MenuFlyoutItem Command="{StaticResource DeleteCommand}"/>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Command="{StaticResource SelectAllCommand}"/>
+                </MenuFlyout>
+            </ListView.ContextFlyout>
+            
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="vm:ConundrumItem">
                     <Grid>
@@ -109,14 +151,6 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{x:Bind Conundrum}" HorizontalAlignment="Stretch"/>
                         <TextBlock Grid.Column="1" Text="{x:Bind Solution}" HorizontalAlignment="Stretch"/>
-                        <Grid.ContextFlyout>
-                            <MenuFlyout Opening="ListItemMenuFlyout_Opening">
-                                <MenuFlyoutItem Text="Copy" Click="CopyMenuFlyoutItem_Click"/>
-                                <MenuFlyoutItem Text="Delete" Click="DeleteMenuFlyoutItem_Click"/>
-                                <MenuFlyoutSeparator/>
-                                <MenuFlyoutItem Text="Select all" Name="SelectAll" Click="SelectAllMenuFlyoutItem_Click"/>
-                            </MenuFlyout>
-                        </Grid.ContextFlyout>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>

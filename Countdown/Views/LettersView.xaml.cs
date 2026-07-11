@@ -100,10 +100,18 @@ internal sealed partial class LettersView : Page, IPageItem
         }
     }
 
+    private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
+    {
+        args.CanExecute = WordTreeView.SelectedNode is not null;
+    }
+
     private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
     {
-        TreeViewNode selectedNode = WordTreeView.SelectedNode;
+        Copy(WordTreeView.SelectedNode);
+    }
 
+    private static void Copy(TreeViewNode? selectedNode)
+    {
         if (selectedNode is not null)
         {
             StringBuilder sb = new StringBuilder();
@@ -121,11 +129,6 @@ internal sealed partial class LettersView : Page, IPageItem
                 Clipboard.SetContent(dp);
             }
         }
-    }
-
-    private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
-    {
-        args.CanExecute = WordTreeView.SelectedNode is not null;
     }
 
     private void AutoSuggestBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -378,6 +381,17 @@ internal sealed partial class LettersView : Page, IPageItem
         rects[index++] = Utils.GetPassthroughRect(WordTreeView);
 
         Debug.Assert(index == PassthroughCount);
+    }
+
+    private void WordTreeView_KeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        // handle the list's context menu items keyboard accelerators here because if it was left to  
+        // the api they would only be active after the context menu has been opened for the first time.
+
+        if ((WordTreeView.SelectedNode is not null) && (e.Key == VirtualKey.C) && Utils.IsControlKeyDown())
+        {
+            Copy(WordTreeView.SelectedNode);
+        }
     }
 }
 
