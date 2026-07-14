@@ -74,7 +74,10 @@ internal sealed partial class ConundrumView : Page, IPageItem
         {
             if (e.Key == VirtualKey.Delete)
             {
-                ViewModel?.DeleteItems(ConundrumList.SelectedItems);
+                if (Utils.IsControlKeyDown())
+                {
+                    ViewModel?.DeleteItems(ConundrumList.SelectedItems);
+                }
             }
             else if ((e.Key == VirtualKey.C) && Utils.IsControlKeyDown())
             {
