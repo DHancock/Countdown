@@ -1,6 +1,6 @@
 ﻿using Countdown.Views;
 
-// valid c# casts would otherwise fail for these types (using CsWinRT 2.2.0)
+// valid c# casts would otherwise fail for these types in AOT builds (using CsWinRT 2.2.0)
 [assembly: GeneratedWinRTExposedExternalType(typeof(Grid))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(Border))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(OverlappedPresenter))]
