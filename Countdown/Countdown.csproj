@@ -15,7 +15,7 @@
     <ApplicationIcon>Resources\app.ico</ApplicationIcon>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 	<WindowsPackageType>None</WindowsPackageType>
-	<Version>3.12.0</Version>
+	<Version>3.13.0</Version>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
