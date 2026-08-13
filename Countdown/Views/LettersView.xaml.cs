@@ -12,8 +12,9 @@ internal sealed partial class LettersView : Page, IPageItem
     {
         this.InitializeComponent();
 
-        Loaded += LettersView_Loaded; 
+        Loaded += LettersView_Loaded;
 
+        [DynamicWindowsRuntimeCast(typeof(TextBox))]
         static void LettersView_Loaded(object sender, RoutedEventArgs e)
         {
             LettersView lettersview = (LettersView)sender;
@@ -200,6 +201,7 @@ internal sealed partial class LettersView : Page, IPageItem
         }
     }
 
+    [DynamicWindowsRuntimeCast(typeof(TreeViewList))]
     private bool FindTreeViewItem(string target)
     {
         foreach (TreeViewNode parent in WordTreeView.RootNodes)
