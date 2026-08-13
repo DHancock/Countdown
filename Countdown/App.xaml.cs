@@ -1,14 +1,5 @@
 ﻿using Countdown.Views;
 
-// valid c# casts would otherwise fail for these types in AOT builds (using CsWinRT 2.3.1)
-[assembly: GeneratedWinRTExposedExternalType(typeof(Grid))]
-[assembly: GeneratedWinRTExposedExternalType(typeof(Border))]
-[assembly: GeneratedWinRTExposedExternalType(typeof(AppBarButton))]
-[assembly: GeneratedWinRTExposedExternalType(typeof(TextCommandBarFlyout))]
-[assembly: GeneratedWinRTExposedExternalType(typeof(OverlappedPresenter))]
-[assembly: GeneratedWinRTExposedExternalType(typeof(TreeViewList))]
-[assembly: GeneratedWinRTExposedExternalType(typeof(Microsoft.UI.Xaml.Controls.Primitives.ScrollBar))]
-
 namespace Countdown;
 
 /// <summary>

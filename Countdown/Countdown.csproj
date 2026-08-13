@@ -17,6 +17,7 @@
 	<WindowsPackageType>None</WindowsPackageType>
 	<Version>3.13.0</Version>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<CsWinRTAotWarningLevel>3</CsWinRTAotWarningLevel>
   </PropertyGroup>
 
   <ItemGroup>
