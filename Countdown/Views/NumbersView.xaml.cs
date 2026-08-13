@@ -50,11 +50,11 @@ internal sealed partial class NumbersView : Page, IPageItem
                 {
                     foreach (ICommandBarElement icbe in tcbf.SecondaryCommands)
                     {
-                        if ((icbe is FrameworkElement fe) && (fe.ActualTheme != tb.ActualTheme))
+                        if ((icbe is AppBarButton abb) && (abb.ActualTheme != tb.ActualTheme))
                         {
-                            // update the menu item's text colour for theme changes occuring after the context flyout was created
+                            // update the menu item's text colour for theme changes occurring after the context flyout was created
                             // (this will also update each menu item's tool tip colours)
-                            fe.RequestedTheme = tb.ActualTheme;
+                            abb.RequestedTheme = tb.ActualTheme;
                         }
                     }
                 }
