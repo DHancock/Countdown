@@ -31,6 +31,7 @@ internal sealed partial class SettingsView : Page, IPageItem
 
     public int PassthroughCount => 4;
 
+    [DynamicWindowsRuntimeCast(typeof(ScrollBar))]
     public void AddPassthroughContent(in RectInt32[] rects)
     {
         double topClip = 0.0;
