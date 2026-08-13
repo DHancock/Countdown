@@ -95,6 +95,7 @@ internal sealed partial class MainWindow : Window
         return new RectInt32(position.X, position.Y, size.Width, size.Height);
     }
 
+    [DynamicWindowsRuntimeCast(typeof(NavigationViewItem))]
     private void RootNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         if (args.SelectedItem is NavigationViewItem item)
@@ -117,6 +118,7 @@ internal sealed partial class MainWindow : Window
         }
     }
 
+    [DynamicWindowsRuntimeCast(typeof(Page))]
     private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
     {
         Debug.Assert(e.Content is Page);

@@ -22,6 +22,9 @@ internal sealed partial class NumbersView : Page, IPageItem
         FocusManager.TryMoveFocus(FocusNavigationDirection.Previous, new FindNextElementOptions() { SearchRoot = XamlRoot.Content });
     }
 
+    [DynamicWindowsRuntimeCast(typeof(TextCommandBarFlyout))]
+    [DynamicWindowsRuntimeCast(typeof(TextBox))]
+    [DynamicWindowsRuntimeCast(typeof(AppBarButton))]
     private static void TargetCTB_Loaded(object sender, RoutedEventArgs e)
     {
         CountdownTextBox ctb = (CountdownTextBox)sender;
@@ -90,6 +93,8 @@ internal sealed partial class NumbersView : Page, IPageItem
         }
     }
 
+    [DynamicWindowsRuntimeCast(typeof(MenuFlyout))]
+    [DynamicWindowsRuntimeCast(typeof(RadioMenuFlyoutItem))]
     internal static void ChooseMenuFlyout_Opening(object sender, object e)
     {
         MenuFlyout menu = (MenuFlyout)sender;
