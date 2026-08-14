@@ -12,9 +12,8 @@ internal sealed partial class LettersView : Page, IPageItem
     {
         this.InitializeComponent();
 
-        Loaded += LettersView_Loaded;
+        Loaded += LettersView_Loaded; 
 
-        [DynamicWindowsRuntimeCast(typeof(TextBox))]
         static void LettersView_Loaded(object sender, RoutedEventArgs e)
         {
             LettersView lettersview = (LettersView)sender;
@@ -201,7 +200,6 @@ internal sealed partial class LettersView : Page, IPageItem
         }
     }
 
-    [DynamicWindowsRuntimeCast(typeof(TreeViewList))]
     private bool FindTreeViewItem(string target)
     {
         foreach (TreeViewNode parent in WordTreeView.RootNodes)
@@ -342,8 +340,6 @@ internal sealed partial class LettersView : Page, IPageItem
         return buffer[idx(s1.Length, s2.Length)];
     }
 
-    [DynamicWindowsRuntimeCast(typeof(MenuFlyout))]
-    [DynamicWindowsRuntimeCast(typeof(RadioMenuFlyoutItem))]
     internal static void MenuFlyout_Opening(object sender, object e)
     {
         MenuFlyout menu = (MenuFlyout)sender;
@@ -357,7 +353,6 @@ internal sealed partial class LettersView : Page, IPageItem
 
     public int PassthroughCount => 17;
 
-    [DynamicWindowsRuntimeCast(typeof(Grid))]
     public void AddPassthroughContent(in RectInt32[] rects)
     {
         int index = 0;
@@ -410,7 +405,6 @@ internal sealed partial class WordTreeTemplateSelector : DataTemplateSelector
     public DataTemplate? HeadingTemplate { get; set; }
     public DataTemplate? WordTemplate { get; set; }
 
-    [DynamicWindowsRuntimeCast(typeof(TreeViewNode))]
     protected override DataTemplate? SelectTemplateCore(object obj, DependencyObject container)
     {
         bool IsHeading = ((TreeViewNode)obj).Content is WordHeading;
