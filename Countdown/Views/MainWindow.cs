@@ -46,8 +46,6 @@ internal sealed partial class MainWindow : Window
     private const nuint cSubClassID = 0;
     private readonly GCHandle thisGCHandle;
 
-    [DynamicWindowsRuntimeCast(typeof(OverlappedPresenter))]
-    [DynamicWindowsRuntimeCast(typeof(MenuFlyout))]
     private MainWindow()
     {
         this.InitializeComponent();
@@ -106,7 +104,6 @@ internal sealed partial class MainWindow : Window
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
-    [DynamicWindowsRuntimeCast(typeof(OverlappedPresenter))]
     private static LRESULT NewSubWindowProc(HWND hWnd, uint uMsg, WPARAM wParam, LPARAM lParam, nuint uIdSubclass, nuint dwRefData)
     {
         const int HTCAPTION = 0x0002;
@@ -171,7 +168,6 @@ internal sealed partial class MainWindow : Window
         return PInvoke.DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
 
-    [DynamicWindowsRuntimeCast(typeof(MenuFlyoutPresenter))]
     private static void CloseMenuPopups(XamlRoot xamlRoot)
     {
         foreach (Popup popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(xamlRoot))
@@ -229,7 +225,6 @@ internal sealed partial class MainWindow : Window
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
-    [DynamicWindowsRuntimeCast(typeof(MenuFlyoutItem))]
     private static LRESULT KeyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
     {
         MainWindow window = App.MainWindow;
@@ -295,13 +290,11 @@ internal sealed partial class MainWindow : Window
 
     public void PostCloseMessage() => PostSysCommandMessage(SC.CLOSE);
 
-    [DynamicWindowsRuntimeCast(typeof(OverlappedPresenter))]
     private bool CanRestore(object? param)
     {
         return (AppWindow.Presenter is OverlappedPresenter op) && (op.State == OverlappedPresenterState.Maximized);
     }
 
-    [DynamicWindowsRuntimeCast(typeof(OverlappedPresenter))]
     private bool CanMove(object? param)
     {
         if (AppWindow.Presenter is OverlappedPresenter op)
@@ -312,19 +305,16 @@ internal sealed partial class MainWindow : Window
         return AppWindow.Presenter.Kind == AppWindowPresenterKind.CompactOverlay;
     }
 
-    [DynamicWindowsRuntimeCast(typeof(OverlappedPresenter))]
     private bool CanSize(object? param)
     {
         return (AppWindow.Presenter is OverlappedPresenter op) && op.IsResizable && (op.State != OverlappedPresenterState.Maximized);
     }
 
-    [DynamicWindowsRuntimeCast(typeof(OverlappedPresenter))]
     private bool CanMinimize(object? param)
     {
         return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMinimizable;
     }
 
-    [DynamicWindowsRuntimeCast(typeof(OverlappedPresenter))]
     private bool CanMaximize(object? param)
     {
         return (AppWindow.Presenter is OverlappedPresenter op) && op.IsMaximizable && (op.State != OverlappedPresenterState.Maximized);
@@ -332,7 +322,6 @@ internal sealed partial class MainWindow : Window
 
     private WindowState WindowState
     {
-        [DynamicWindowsRuntimeCast(typeof(OverlappedPresenter))]
         get
         {
             if (AppWindow.Presenter is OverlappedPresenter op)
@@ -348,7 +337,6 @@ internal sealed partial class MainWindow : Window
             return WindowState.Normal;
         }
 
-        [DynamicWindowsRuntimeCast(typeof(OverlappedPresenter))]
         set
         {
             if (AppWindow.Presenter is OverlappedPresenter op)
@@ -413,7 +401,6 @@ internal sealed partial class MainWindow : Window
         }
     }
 
-    [DynamicWindowsRuntimeCast(typeof(UIElement))]
     private void AddNavigationViewPassthroughContent(RectInt32[] rects)
     {
         int index = rects.Length;
