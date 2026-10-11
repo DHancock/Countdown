@@ -18,19 +18,36 @@
             <Setter Property="Margin" Value="0,5,0,0"/>
         </Style>
 
+        <StandardUICommand x:Name="CopyCommand" Kind="Copy" CanExecuteRequested="CopyCommand_CanExecuteRequested" ExecuteRequested="CopyCommand_ExecuteRequested"/>
+
         <DataTemplate x:Key="HeadingTemplate" x:DataType="TreeViewNode">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition MinWidth="175" Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
+
+                <Grid.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
+                    </MenuFlyout>
+                </Grid.ContextFlyout>
+                
                 <TextBlock Text="{x:Bind Content.ToString()}" Foreground="{ThemeResource WordListGroupHeaderTextBrush}" FontWeight="SemiBold"/>
                 <TextBlock Grid.Column="1" Text="{x:Bind Children.Count}" Foreground="{ThemeResource WordListGroupHeaderCountBrush}"/>
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="WordTemplate" x:DataType="TreeViewNode">
-            <TextBlock Text="{x:Bind Content}"/>
+            <Grid>
+                <Grid.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
+                    </MenuFlyout>
+                </Grid.ContextFlyout>
+
+                <TextBlock Text="{x:Bind Content}"/>
+            </Grid>
         </DataTemplate>
 
         <local:WordTreeTemplateSelector x:Key="WordTreeTemplateSelector"
@@ -115,27 +132,12 @@
             </AutoSuggestBox>
 
             <Border Grid.Row="1" Style="{StaticResource TreeViewBorderStyle}">
-                
-                <TreeView x:Name="WordTreeView" ItemTemplateSelector="{StaticResource WordTreeTemplateSelector}" CanReorderItems="False" KeyDown="WordTreeView_KeyDown">
-                    
-                    <TreeView.Resources>
-                        <XamlUICommand x:Name="CopyCommand" Label="Copy" CanExecuteRequested="CopyCommand_CanExecuteRequested" ExecuteRequested="CopyCommand_ExecuteRequested">
-                            <XamlUICommand.KeyboardAccelerators>
-                                <!-- disabled because it would only be active after it's context menu has been opened, so handle it in code-->
-                                <KeyboardAccelerator Key="C" Modifiers="Control" IsEnabled="False"/>
-                            </XamlUICommand.KeyboardAccelerators>
-                            <XamlUICommand.IconSource>
-                                <SymbolIconSource Symbol="Copy"/>
-                            </XamlUICommand.IconSource>
-                        </XamlUICommand>
-                    </TreeView.Resources>
-                    
-                    <TreeView.ContextFlyout>
-                        <MenuFlyout>
-                            <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
-                        </MenuFlyout>
-                    </TreeView.ContextFlyout>
-                </TreeView>
+                <TreeView 
+                    x:Name="WordTreeView" 
+                    ItemTemplateSelector="{StaticResource WordTreeTemplateSelector}" 
+                    CanReorderItems="False" 
+                    PointerPressed="WordTreeView_PointerPressed"
+                    ProcessKeyboardAccelerators="WordTreeView_ProcessKeyboardAccelerators"/>
             </Border>
         </Grid>
     </Grid>

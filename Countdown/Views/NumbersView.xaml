@@ -67,37 +67,34 @@
             </Grid>
         </StackPanel>
 
-        <ListView x:Name="EquationList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.EquationList, Mode=OneWay}" Style="{StaticResource ResultsListStyle}" KeyDown="EquationList_KeyDown">
+        <ListView x:Name="EquationList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.EquationList, Mode=OneWay}" PointerPressed="EquationList_PointerPressed" ProcessKeyboardAccelerators="EquationList_ProcessKeyboardAccelerators">
 
             <ListView.Resources>
-                <XamlUICommand x:Name="CopyCommand" Label="Copy" CanExecuteRequested="CopyCommand_CanExecuteRequested" ExecuteRequested="CopyCommand_ExecuteRequested">
-                    <XamlUICommand.KeyboardAccelerators>
-                        <!-- disabled because it would only be active after it's context menu has been opened, so handle it in code-->
-                        <KeyboardAccelerator Key="C" Modifiers="Control" IsEnabled="False"/>
-                    </XamlUICommand.KeyboardAccelerators>
-                    <XamlUICommand.IconSource>
-                        <SymbolIconSource Symbol="Copy"/>
-                    </XamlUICommand.IconSource>
-                </XamlUICommand>
-
-                <XamlUICommand x:Name="SelectAllCommand" Label="Select All" CanExecuteRequested="SelectAllCommand_CanExecuteRequested" ExecuteRequested="SelectAllCommand_ExecuteRequested">
-                    <XamlUICommand.KeyboardAccelerators>
-                        <!-- disabled because it would only be active after it's context menu has been opened, so handle it in code-->
-                        <KeyboardAccelerator Key="A" Modifiers="Control" IsEnabled="False"/>
-                    </XamlUICommand.KeyboardAccelerators>
-                    <XamlUICommand.IconSource>
-                        <SymbolIconSource Symbol="SelectAll"/>
-                    </XamlUICommand.IconSource>
-                </XamlUICommand>
+                <StandardUICommand x:Name="CopyCommand" Kind="Copy" CanExecuteRequested="CopyCommand_CanExecuteRequested" ExecuteRequested="CopyCommand_ExecuteRequested"/>
+                <StandardUICommand x:Name="SelectAllCommand" Kind="SelectAll" CanExecuteRequested="SelectAllCommand_CanExecuteRequested" ExecuteRequested="SelectAllCommand_ExecuteRequested"/>
             </ListView.Resources>
 
-            <ListView.ContextFlyout>
-                <MenuFlyout>
-                    <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
-                    <MenuFlyoutSeparator/>
-                    <MenuFlyoutItem Command="{StaticResource SelectAllCommand}"/>
-                </MenuFlyout>
-            </ListView.ContextFlyout>
+            <ListView.Style>
+                <Style TargetType="ListView" BasedOn="{StaticResource ResultsListStyle}">
+                    <Setter Property="ItemTemplate" >
+                        <Setter.Value>
+                            <DataTemplate x:DataType="x:String">
+                                <Grid>
+                                    <Grid.ContextFlyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
+                                            <MenuFlyoutSeparator/>
+                                            <MenuFlyoutItem Command="{StaticResource SelectAllCommand}"/>
+                                        </MenuFlyout>
+                                    </Grid.ContextFlyout>
+
+                                    <TextBlock Text="{x:Bind}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.Style>
         </ListView>
     </Grid>
 </Page>

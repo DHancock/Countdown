@@ -1,24 +1,11 @@
-﻿
-namespace Countdown.ViewModels;
+﻿namespace Countdown.ViewModels;
 
-internal class EquationComparer : Comparer<string>
+internal readonly struct EquationComparer : IComparer<string>
 {
-    public override int Compare(string? a, string? b)
+    public int Compare(string? a, string? b)
     {
-        if (ReferenceEquals(a, b))
-        {
-            return 0;
-        }
-
-        if (a is null)
-        {
-            return -1;
-        }
-
-        if (b is null)
-        {
-            return 1;
-        }
+        Debug.Assert(a is not null);
+        Debug.Assert(b is not null);
 
         int result = a.Length - b.Length;
 
