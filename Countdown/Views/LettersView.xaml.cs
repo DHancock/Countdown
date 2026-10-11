@@ -5,7 +5,6 @@ namespace Countdown.Views;
 
 internal sealed partial class LettersView : Page, IPageItem
 {
-    private TreeViewList? treeViewList;
     private LettersViewModel? viewModel;
 
     public LettersView()
@@ -16,11 +15,11 @@ internal sealed partial class LettersView : Page, IPageItem
 
         static void LettersView_Loaded(object sender, RoutedEventArgs e)
         {
-            LettersView lettersview = (LettersView)sender;
+            LettersView lettersView = (LettersView)sender;
 
-            lettersview.Loaded -= LettersView_Loaded;
+            lettersView.Loaded -= LettersView_Loaded;
 
-            TextBox? textBox = lettersview.SuggestionBox.FindChild<TextBox>();
+            TextBox? textBox = lettersView.SuggestionBox.FindChild<TextBox>();
 
             if (textBox is not null)
             {
@@ -115,12 +114,9 @@ internal sealed partial class LettersView : Page, IPageItem
         if (selectedNode is not null)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(selectedNode.Content.ToString());
 
-            foreach (TreeViewNode node in selectedNode.Children)
-            {
-                sb.AppendLine(node.Content.ToString());
-            }
+            sb.AppendLine(selectedNode.Content.ToString());
+            sb.AppendJoin(Environment.NewLine, selectedNode.Children.Select(x => x.Content.ToString()));
 
             if (sb.Length > 0)
             {
@@ -215,13 +211,14 @@ internal sealed partial class LettersView : Page, IPageItem
 
                 if (string.Equals(word, target, StringComparison.Ordinal))
                 {
-                    treeViewList ??= WordTreeView.FindChild<TreeViewList>();
+                    TreeViewList? treeViewList = WordTreeView.FindChild<TreeViewList>();
 
                     if (treeViewList is not null)
                     {
                         WordTreeView.Expand(parent);
                         treeViewList.ScrollIntoView(child);
                         WordTreeView.SelectedNode = child;
+                        WordTreeView.Focus(FocusState.Programmatic);
                         return true;
                     }
                 }
@@ -383,14 +380,44 @@ internal sealed partial class LettersView : Page, IPageItem
         Debug.Assert(index == PassthroughCount);
     }
 
-    private void WordTreeView_KeyDown(object sender, KeyRoutedEventArgs e)
+    private void WordTreeView_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
     {
-        // handle the list's context menu items keyboard accelerators here because if it was left to  
-        // the api they would only be active after the context menu has been opened for the first time.
-
-        if ((WordTreeView.SelectedNode is not null) && (e.Key == VirtualKey.C) && Utils.IsControlKeyDown())
+        // keyboard accelerators only work on the selected item
+        if (WordTreeView.ContainerFromNode(WordTreeView.SelectedNode) is TreeViewItem tvi)
         {
-            Copy(WordTreeView.SelectedNode);
+            Grid grid = (Grid)tvi.ContentTemplateRoot;
+
+            if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
+            {
+                TreeViewList? treeViewList = WordTreeView.FindChild<TreeViewList>();
+
+                if (treeViewList is not null)
+                {
+                    // explicitly creating TreeViewNodes allows ScrollIntoView() to work
+                    // the selected node's parents must have already been expanded
+                    treeViewList.ScrollIntoView(WordTreeView.SelectedNode);
+                    grid.ContextFlyout.ShowAt(tvi);
+                }
+            }
+            else
+            {
+                Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)grid.ContextFlyout).Items, args.Modifiers, args.Key);
+            }
+        }
+
+        args.Handled = true;
+    }
+
+    private void WordTreeView_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+        {
+            PointerPoint pointerPoint = e.GetCurrentPoint(null);
+
+            if (pointerPoint.Properties.IsRightButtonPressed && (e.OriginalSource is FrameworkElement fe) && (fe.DataContext is TreeViewNode tvn))
+            {
+                WordTreeView.SelectedNode = tvn;
+            }
         }
     }
 }

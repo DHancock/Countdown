@@ -66,21 +66,8 @@ internal sealed partial class NumbersView : Page, IPageItem
 
     private static void CopyItems(IList<object> items)
     {
-        // convert to list order rather than the order items were selected in
-        List<string> copy = new(items.Count);
-
-        foreach (object item in items)
-        {
-            if (item is string str)
-            {
-                copy.Add(str);
-            }
-        }
-
-        copy.Sort(new EquationComparer());
-
-        StringBuilder sb = new StringBuilder();
-        sb.AppendJoin(Environment.NewLine, copy);
+        List<string> copy = new(items.Cast<string>());
+        StringBuilder sb = new StringBuilder().AppendJoin(Environment.NewLine, copy.Order(new EquationComparer()));
 
         if (sb.Length > 0)
         {
@@ -124,27 +111,9 @@ internal sealed partial class NumbersView : Page, IPageItem
         Debug.Assert(index == PassthroughCount);
     }
 
-    private void EquationList_KeyDown(object sender, KeyRoutedEventArgs e)
-    {
-        // handle the list's context menu items keyboard accelerators here because if it was left to  
-        // the api they would only be active after the context menu has been opened for the first time.
-
-        if (EquationList.SelectedItems.Count > 0)
-        {
-            if ((e.Key == VirtualKey.C) && Utils.IsControlKeyDown())
-            {
-                CopyItems(EquationList.SelectedItems);
-            }
-        }
-        else if ((EquationList.SelectedItems.Count != EquationList.Items.Count) && (e.Key == VirtualKey.A) && Utils.IsControlKeyDown())
-        {
-            EquationList.SelectRange(new ItemIndexRange(0, (uint)EquationList.Items.Count));
-        }
-    }
-
     private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = EquationList.SelectedItems.Count > 0;
+        args.CanExecute = EquationList.SelectedRanges.Count > 0;
     }
 
     private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
@@ -154,11 +123,63 @@ internal sealed partial class NumbersView : Page, IPageItem
 
     private void SelectAllCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = EquationList.SelectedItems.Count != EquationList.Items.Count;
+        args.CanExecute = EquationList.SelectedRanges.Sum(range => range.Length) != EquationList.Items.Count;
     }
 
     private void SelectAllCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
     {
         EquationList.SelectRange(new ItemIndexRange(0, (uint)EquationList.Items.Count));
+    }
+
+    private void EquationList_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
+    {
+        if (EquationList.SelectedRanges.Count > 0)
+        {
+            if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
+            {
+                int index = EquationList.SelectedRanges.Min(range => range.FirstIndex);
+
+                if ((index >= 0) && (index < EquationList.Items.Count))
+                {
+                    EquationList.ScrollIntoView(EquationList.Items[index]);
+
+                    if (EquationList.ContainerFromIndex(index) is ListViewItem lvi)
+                    {
+                        Grid grid = (Grid)lvi.ContentTemplateRoot;
+                        grid.ContextFlyout.ShowAt(lvi);
+                    }
+                }
+            }
+            else if (EquationList.ContainerFromIndex(((ItemsStackPanel)EquationList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
+            {
+                // using the first visible index ensures that it's container exists, all menu items use the list view's selected items
+                Grid grid = (Grid)lvi.ContentTemplateRoot;
+                Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)grid.ContextFlyout).Items, args.Modifiers, args.Key);
+            }
+        }
+
+        args.Handled = true;
+    }
+
+    private void EquationList_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+        {
+            PointerPoint pointerPoint = e.GetCurrentPoint(null);
+
+            if (pointerPoint.Properties.IsRightButtonPressed)
+            {
+                object? conundrum = (e.OriginalSource as FrameworkElement)?.DataContext;
+
+                if (EquationList.ContainerFromItem(conundrum) is ListViewItem lvi)
+                {
+                    if (!lvi.IsSelected)
+                    {
+                        EquationList.DeselectRange(new ItemIndexRange(0, (uint)EquationList.Items.Count));
+                        lvi.IsSelected = true;
+                    }
+                }
+            }
+        }
     }
 }

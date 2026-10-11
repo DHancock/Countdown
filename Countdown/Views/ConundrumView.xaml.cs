@@ -16,6 +16,14 @@ internal sealed partial class ConundrumView : Page, IPageItem
     {
         Loaded -= ConundrumView_Loaded;
         ViewModel?.ChooseCommand.Execute(null);
+
+#if DEBUG
+        for (int i = 0; i < 20; i++)
+        {
+            ViewModel?.ChooseCommand.Execute(null);
+            ViewModel?.SolveCommand.Execute(null);
+        }
+#endif
     }
 
     public ConundrumViewModel? ViewModel { get; set; }
@@ -65,34 +73,9 @@ internal sealed partial class ConundrumView : Page, IPageItem
         Debug.Assert(index == PassthroughCount);
     }
 
-    private void ConundrumList_KeyDown(object sender, KeyRoutedEventArgs e)
-    {
-        // handle the list's context menu items keyboard accelerators here because if it was left to  
-        // the api they would only be active after the context menu has been opened for the first time.
-
-        if (ConundrumList.SelectedItems.Count > 0)
-        {
-            if (e.Key == VirtualKey.Delete)
-            {
-                if (Utils.IsControlKeyDown())
-                {
-                    ViewModel?.DeleteItems(ConundrumList.SelectedItems);
-                }
-            }
-            else if ((e.Key == VirtualKey.C) && Utils.IsControlKeyDown())
-            {
-                CopyItems(ConundrumList.SelectedItems);
-            }
-        }
-        else if ((ConundrumList.SelectedItems.Count != ConundrumList.Items.Count) && (e.Key == VirtualKey.A) && Utils.IsControlKeyDown())
-        {
-            ConundrumList.SelectRange(new ItemIndexRange(0, (uint)ConundrumList.Items.Count));
-        }
-    }
-
     private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = ConundrumList.SelectedItems.Count > 0;
+        args.CanExecute = ConundrumList.SelectedRanges.Count > 0;
     }
 
     private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
@@ -102,7 +85,7 @@ internal sealed partial class ConundrumView : Page, IPageItem
 
     private void SelectAllCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = ConundrumList.SelectedItems.Count != ConundrumList.Items.Count;
+        args.CanExecute = ConundrumList.SelectedRanges.Sum(range => range.Length) != ConundrumList.Items.Count;
     }
 
     private void SelectAllCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
@@ -112,11 +95,63 @@ internal sealed partial class ConundrumView : Page, IPageItem
 
     private void DeleteCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = ConundrumList.SelectedItems.Count > 0;
+        args.CanExecute = ConundrumList.SelectedRanges.Count > 0;
     }
 
     private void DeleteCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
     {
         ViewModel?.DeleteItems(ConundrumList.SelectedItems);
+    }
+
+    private void ConundrumList_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
+    {
+        if (ConundrumList.SelectedRanges.Count > 0)
+        {
+            if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
+            {
+                int index = ConundrumList.SelectedRanges.Min(range => range.FirstIndex);
+
+                if ((index >= 0) && (index < ConundrumList.Items.Count))
+                {
+                    ConundrumList.ScrollIntoView(ConundrumList.Items[index]);
+
+                    if (ConundrumList.ContainerFromIndex(index) is ListViewItem lvi)
+                    {
+                        Grid grid = (Grid)lvi.ContentTemplateRoot;
+                        grid.ContextFlyout.ShowAt(lvi);
+                    }
+                }
+            }
+            else if (ConundrumList.ContainerFromIndex(((ItemsStackPanel)ConundrumList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
+            {
+                // using the first visible index ensures that it's container exists, all menu items use the list view's selected items
+                Grid grid = (Grid)lvi.ContentTemplateRoot;
+                Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)grid.ContextFlyout).Items, args.Modifiers, args.Key);
+            }
+        }
+
+        args.Handled = true;
+    }
+
+    private void ConundrumList_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+        {
+            PointerPoint pointerPoint = e.GetCurrentPoint(null);
+
+            if (pointerPoint.Properties.IsRightButtonPressed)
+            {
+                object? conundrum = (e.OriginalSource as FrameworkElement)?.DataContext;
+
+                if (ConundrumList.ContainerFromItem(conundrum) is ListViewItem lvi)
+                {
+                    if (!lvi.IsSelected)
+                    {
+                        ConundrumList.DeselectRange(new ItemIndexRange(0, (uint)ConundrumList.Items.Count));
+                        lvi.IsSelected = true;
+                    }
+                }
+            }
+        }
     }
 }
