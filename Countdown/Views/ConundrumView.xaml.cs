@@ -118,17 +118,16 @@ internal sealed partial class ConundrumView : Page, IPageItem
                     if (ConundrumList.ContainerFromIndex(index) is ListViewItem lvi)
                     {
                         lvi.ContextFlyout.ShowAt(lvi);
+                        args.Handled = true;
                     }
                 }
             }
             else if (ConundrumList.ContainerFromIndex(((ItemsStackPanel)ConundrumList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
             {
                 // using the first visible index ensures that it's container exists, all menu items use the list view's selected items
-                Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)lvi.ContextFlyout).Items, args.Modifiers, args.Key);
+                args.Handled = Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)lvi.ContextFlyout).Items, args.Modifiers, args.Key);
             }
         }
-
-        args.Handled = true;
     }
 
     private void ConundrumList_PointerPressed(object sender, PointerRoutedEventArgs e)

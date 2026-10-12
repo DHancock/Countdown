@@ -28,7 +28,8 @@
                     </MenuFlyout>
                 </Setter.Value>
             </Setter>
-            <Setter Property="Margin" Value="0,0,14,0"/>
+            <Setter Property="Margin" Value="5,0,14,0"/>
+            <Setter Property="FocusVisualMargin" Value="-3,-1,0,-1"/>
         </Style>
          
         <DataTemplate x:Key="HeadingTemplate" x:DataType="TreeViewNode">
@@ -67,7 +68,6 @@
 
         <!-- tree views don't have a built in border -->
         <Style x:Key="TreeViewBorderStyle" TargetType="Border">
-            <Setter Property="Padding" Value="4,0,0,0"/>
             <Setter Property="Margin" Value="0,5,0,0"/>
             <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Background" Value="{ThemeResource ResultsListBackgroundBrush}"/>
