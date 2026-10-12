@@ -79,26 +79,7 @@
 
         </StackPanel>
 
-        <ListView x:Name="ConundrumList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.SolutionList, Mode=OneWay}" PointerPressed="ConundrumList_PointerPressed" ProcessKeyboardAccelerators="ConundrumList_ProcessKeyboardAccelerators">
-
-            <ListView.HeaderTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="Conundrum" Margin="14,4,0,0"/>
-                        <TextBlock Grid.Column="1" Text="Solution" Margin="0,4,0,0"/>
-                        <Rectangle Grid.ColumnSpan="2" Grid.Row="1" Stroke="{ThemeResource ListViewHeaderItemDividerStroke}" StrokeThickness="0.5" Height="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="12,6,12,2" />
-                    </Grid>
-                </DataTemplate>
-            </ListView.HeaderTemplate>
+        <ListView x:Name="ConundrumList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.ConundrumsView}" PointerPressed="ConundrumList_PointerPressed" ProcessKeyboardAccelerators="ConundrumList_ProcessKeyboardAccelerators">
 
             <ListView.Resources>
                 <StandardUICommand x:Name="CopyCommand" Kind="Copy" CanExecuteRequested="CopyCommand_CanExecuteRequested" ExecuteRequested="CopyCommand_ExecuteRequested"/>
@@ -106,6 +87,43 @@
                 <StandardUICommand x:Name="DeleteCommand" Kind="Delete" CanExecuteRequested="DeleteCommand_CanExecuteRequested" ExecuteRequested="DeleteCommand_ExecuteRequested"/>
             </ListView.Resources>
 
+            <ListView.GroupStyle>
+                <GroupStyle HidesIfEmpty="True">
+                    
+                    <GroupStyle.HeaderContainerStyle>
+                        <Style TargetType="ListViewHeaderItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="ContentTransitions">
+                                <Setter.Value>
+                                    <TransitionCollection/>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </GroupStyle.HeaderContainerStyle>
+
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate x:DataType="vm:GroupInfo">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FontWeight" Value="Normal"/>
+                                        <Setter Property="FontSize" Value="14"/>
+                                    </Style>
+                                </Grid.Resources>
+
+                                <TextBlock Grid.Column="0" Text="{x:Bind vm:GroupInfo.ConundrumHeader}"/>
+                                <TextBlock Grid.Column="1" Text="{x:Bind vm:GroupInfo.SolutionHeader}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+            </ListView.GroupStyle>
+            
             <ListView.Style>
                 <Style TargetType="ListView" BasedOn="{StaticResource ResultsListStyle}">
                     <Setter Property="ItemTemplate">

@@ -2,20 +2,29 @@
 
 namespace Countdown.ViewModels;
 
+
+internal sealed partial class GroupInfo : ObservableCollection<ConundrumItem>
+{
+    public GroupInfo() : base()
+    {
+    }
+
+    public static string SolutionHeader => "Solution";
+    public static string ConundrumHeader => "Conundrum";
+    public override string ToString() => $"{SolutionHeader} {ConundrumHeader}"; // the narrator uses this to read the group headers
+}
+
+
 internal sealed partial class ConundrumViewModel : PropertyChangedBase
 {
     private const string emptySolution = "         ";
-    
     private string solution = emptySolution;
-
     private readonly string[] conundrum = new string[WordModel.cMaxLetters];
-
     private readonly WordModel wordModel;
     public StopwatchController StopwatchController { get; }
-    public ObservableCollection<ConundrumItem> SolutionList { get; } = new ObservableCollection<ConundrumItem>();
     public ICommand ChooseCommand { get; }
     public RelayCommand SolveCommand { get; }
-
+    private readonly CollectionViewSource viewSource = new() { IsSourceGrouped = true };
 
     public ConundrumViewModel(WordModel model, StopwatchController sc)
     {
@@ -24,6 +33,10 @@ internal sealed partial class ConundrumViewModel : PropertyChangedBase
 
         SolveCommand = new RelayCommand(ExecuteSolve, CanSolve);
         ChooseCommand = new RelayCommand(ExecuteChoose, CanChoose);
+
+        List<GroupInfo> groups = new();
+        groups.Add(new GroupInfo());
+        viewSource.Source = groups;
     }
 
     /// <summary>
@@ -138,6 +151,8 @@ internal sealed partial class ConundrumViewModel : PropertyChangedBase
         }
     }
 
+    public ICollectionView ConundrumsView => viewSource.View;
+    
     private void ExecuteChoose(object? _)
     {
         IList<char> conundrum = wordModel.GenerateConundrum();
@@ -169,16 +184,18 @@ internal sealed partial class ConundrumViewModel : PropertyChangedBase
 
             ConundrumItem ci = new ConundrumItem(new string(ConvertLetters(toUpperCase: true)), solution.ToUpper());
 
-            if (SolutionList.Count > 0)
+            ObservableCollection<ConundrumItem> solutionList = ((List<GroupInfo>)viewSource.Source)[0];
+
+            if (solutionList.Count > 0)
             {
-                if (!ci.Equals(SolutionList[0]))
+                if (!ci.Equals(solutionList[0]))
                 {
-                    SolutionList.Insert(0, ci);
+                    solutionList.Insert(0, ci);
                 }
             }
             else
             {
-                SolutionList.Add(ci);
+                solutionList.Add(ci);
             }
         }
     }
@@ -206,12 +223,13 @@ internal sealed partial class ConundrumViewModel : PropertyChangedBase
     public void DeleteItems(IList<object> items)
     {
         List<object> copy = new List<object>(items);
+        ObservableCollection<ConundrumItem> solutionList = ((List<GroupInfo>)viewSource.Source)[0];
 
         foreach (object item in copy)
         {
             if (item is ConundrumItem ci)
             {
-                SolutionList.Remove(ci);
+                solutionList.Remove(ci);
             }
         }
     }
