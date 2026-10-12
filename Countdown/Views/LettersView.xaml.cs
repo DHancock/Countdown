@@ -385,8 +385,6 @@ internal sealed partial class LettersView : Page, IPageItem
         // keyboard accelerators only work on the selected item
         if (WordTreeView.ContainerFromNode(WordTreeView.SelectedNode) is TreeViewItem tvi)
         {
-            Grid grid = (Grid)tvi.ContentTemplateRoot;
-
             if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
             {
                 TreeViewList? treeViewList = WordTreeView.FindChild<TreeViewList>();
@@ -396,12 +394,12 @@ internal sealed partial class LettersView : Page, IPageItem
                     // explicitly creating TreeViewNodes allows ScrollIntoView() to work
                     // the selected node's parents must have already been expanded
                     treeViewList.ScrollIntoView(WordTreeView.SelectedNode);
-                    grid.ContextFlyout.ShowAt(tvi);
+                    tvi.ContextFlyout.ShowAt(tvi);
                 }
             }
             else
             {
-                Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)grid.ContextFlyout).Items, args.Modifiers, args.Key);
+                Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)tvi.ContextFlyout).Items, args.Modifiers, args.Key);
             }
         }
 
