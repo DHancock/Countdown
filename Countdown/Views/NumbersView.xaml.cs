@@ -145,16 +145,14 @@ internal sealed partial class NumbersView : Page, IPageItem
 
                     if (EquationList.ContainerFromIndex(index) is ListViewItem lvi)
                     {
-                        Grid grid = (Grid)lvi.ContentTemplateRoot;
-                        grid.ContextFlyout.ShowAt(lvi);
+                        lvi.ContextFlyout.ShowAt(lvi);
                     }
                 }
             }
             else if (EquationList.ContainerFromIndex(((ItemsStackPanel)EquationList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
             {
                 // using the first visible index ensures that it's container exists, all menu items use the list view's selected items
-                Grid grid = (Grid)lvi.ContentTemplateRoot;
-                Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)grid.ContextFlyout).Items, args.Modifiers, args.Key);
+                Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)lvi.ContextFlyout).Items, args.Modifiers, args.Key);
             }
         }
 

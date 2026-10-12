@@ -85,6 +85,19 @@
                 <StandardUICommand x:Name="CopyCommand" Kind="Copy" CanExecuteRequested="CopyCommand_CanExecuteRequested" ExecuteRequested="CopyCommand_ExecuteRequested"/>
                 <StandardUICommand x:Name="SelectAllCommand" Kind="SelectAll" CanExecuteRequested="SelectAllCommand_CanExecuteRequested" ExecuteRequested="SelectAllCommand_ExecuteRequested"/>
                 <StandardUICommand x:Name="DeleteCommand" Kind="Delete" CanExecuteRequested="DeleteCommand_CanExecuteRequested" ExecuteRequested="DeleteCommand_ExecuteRequested"/>
+
+                <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
+                    <Setter Property="ContextFlyout">
+                        <Setter.Value>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
+                                <MenuFlyoutItem Command="{StaticResource DeleteCommand}"/>
+                                <MenuFlyoutSeparator/>
+                                <MenuFlyoutItem Command="{StaticResource SelectAllCommand}"/>
+                            </MenuFlyout>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
             </ListView.Resources>
 
             <ListView.GroupStyle>
@@ -134,15 +147,6 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-
-                                    <Grid.ContextFlyout>
-                                        <MenuFlyout>
-                                            <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
-                                            <MenuFlyoutItem Command="{StaticResource DeleteCommand}"/>
-                                            <MenuFlyoutSeparator/>
-                                            <MenuFlyoutItem Command="{StaticResource SelectAllCommand}"/>
-                                        </MenuFlyout>
-                                    </Grid.ContextFlyout>
 
                                     <TextBlock Grid.Column="0" Text="{x:Bind Conundrum}" HorizontalAlignment="Stretch"/>
                                     <TextBlock Grid.Column="1" Text="{x:Bind Solution}" HorizontalAlignment="Stretch"/>

@@ -20,6 +20,17 @@
 
         <StandardUICommand x:Name="CopyCommand" Kind="Copy" CanExecuteRequested="CopyCommand_CanExecuteRequested" ExecuteRequested="CopyCommand_ExecuteRequested"/>
 
+        <Style TargetType="TreeViewItem">
+            <Setter Property="ContextFlyout">
+                <Setter.Value>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
+                    </MenuFlyout>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Margin" Value="0,0,14,0"/>
+        </Style>
+         
         <DataTemplate x:Key="HeadingTemplate" x:DataType="TreeViewNode">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -56,7 +67,7 @@
 
         <!-- tree views don't have a built in border -->
         <Style x:Key="TreeViewBorderStyle" TargetType="Border">
-            <Setter Property="Padding" Value="5,0,0,0"/>
+            <Setter Property="Padding" Value="4,0,0,0"/>
             <Setter Property="Margin" Value="0,5,0,0"/>
             <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Background" Value="{ThemeResource ResultsListBackgroundBrush}"/>
