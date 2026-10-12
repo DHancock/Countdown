@@ -395,15 +395,14 @@ internal sealed partial class LettersView : Page, IPageItem
                     // the selected node's parents must have already been expanded
                     treeViewList.ScrollIntoView(WordTreeView.SelectedNode);
                     tvi.ContextFlyout.ShowAt(tvi);
+                    args.Handled = true;
                 }
             }
             else
             {
-                Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)tvi.ContextFlyout).Items, args.Modifiers, args.Key);
+                args.Handled = Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)tvi.ContextFlyout).Items, args.Modifiers, args.Key);
             }
         }
-
-        args.Handled = true;
     }
 
     private void WordTreeView_PointerPressed(object sender, PointerRoutedEventArgs e)
