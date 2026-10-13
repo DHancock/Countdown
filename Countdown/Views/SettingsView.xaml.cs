@@ -33,7 +33,7 @@ internal sealed partial class SettingsView : Page, IPageItem
 
     public void AddPassthroughContent(in RectInt32[] rects)
     {
-        float topClip = 0f;
+        double topClip = 0.0;
 
         if (RootScrollViewer.ComputedVerticalScrollBarVisibility == Visibility.Visible)
         {
