@@ -106,11 +106,6 @@
                     <GroupStyle.HeaderContainerStyle>
                         <Style TargetType="ListViewHeaderItem">
                             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Setter Property="ContentTransitions">
-                                <Setter.Value>
-                                    <TransitionCollection/>
-                                </Setter.Value>
-                            </Setter>
                         </Style>
                     </GroupStyle.HeaderContainerStyle>
 
