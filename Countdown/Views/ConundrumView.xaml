@@ -91,9 +91,9 @@
                         <Setter.Value>
                             <MenuFlyout>
                                 <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
-                                <MenuFlyoutItem Command="{StaticResource DeleteCommand}"/>
-                                <MenuFlyoutSeparator/>
                                 <MenuFlyoutItem Command="{StaticResource SelectAllCommand}"/>
+                                <MenuFlyoutSeparator/>
+                                <MenuFlyoutItem Command="{StaticResource DeleteCommand}"/>
                             </MenuFlyout>
                         </Setter.Value>
                     </Setter>
@@ -143,8 +143,8 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Column="0" Text="{x:Bind Conundrum}" HorizontalAlignment="Stretch"/>
-                                    <TextBlock Grid.Column="1" Text="{x:Bind Solution}" HorizontalAlignment="Stretch"/>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind Conundrum}"/>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Solution}"/>
                                 </Grid>
                             </DataTemplate>
                         </Setter.Value>

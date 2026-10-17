@@ -78,7 +78,6 @@
                         <Setter.Value>
                             <MenuFlyout>
                                 <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
-                                <MenuFlyoutSeparator/>
                                 <MenuFlyoutItem Command="{StaticResource SelectAllCommand}"/>
                             </MenuFlyout>
                         </Setter.Value>
@@ -87,19 +86,7 @@
             </ListView.Resources>
 
             <ListView.Style>
-                <Style TargetType="ListView" BasedOn="{StaticResource ResultsListStyle}">
-                    <Setter Property="ItemTemplate" >
-                        <Setter.Value>
-                            <DataTemplate x:DataType="x:String">
-                                <Grid>
-                                   
-
-                                    <TextBlock Text="{x:Bind}"/>
-                                </Grid>
-                            </DataTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
+                <Style TargetType="ListView" BasedOn="{StaticResource ResultsListStyle}"/>
             </ListView.Style>
         </ListView>
     </Grid>
