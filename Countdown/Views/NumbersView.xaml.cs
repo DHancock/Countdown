@@ -137,7 +137,7 @@ internal sealed partial class NumbersView : Page, IPageItem
         {
             if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
             {
-                int index = EquationList.SelectedRanges.Min(range => range.FirstIndex);
+                int index = Utils.FindSuitablePlacementIndex(EquationList);
 
                 if ((index >= 0) && (index < EquationList.Items.Count))
                 {
@@ -152,7 +152,7 @@ internal sealed partial class NumbersView : Page, IPageItem
             }
             else if (EquationList.ContainerFromIndex(((ItemsStackPanel)EquationList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
             {
-                // using the first visible index ensures that it's container exists, all menu items use the list view's selected items
+                // using the first visible index ensures that it's container exists, the menus aren't item specific
                 args.Handled = Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)lvi.ContextFlyout).Items, args.Modifiers, args.Key);
             }
         }

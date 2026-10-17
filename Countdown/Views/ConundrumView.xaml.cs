@@ -90,7 +90,7 @@ internal sealed partial class ConundrumView : Page, IPageItem
 
     private void SelectAllCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
     {
-        ConundrumList.SelectRange(new ItemIndexRange(0, (uint)ConundrumList.Items.Count));
+        ConundrumList.SelectAll();
     }
 
     private void DeleteCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
@@ -109,7 +109,7 @@ internal sealed partial class ConundrumView : Page, IPageItem
         {
             if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
             {
-                int index = ConundrumList.SelectedRanges.Min(range => range.FirstIndex);
+                int index = Utils.FindSuitablePlacementIndex(ConundrumList);
 
                 if ((index >= 0) && (index < ConundrumList.Items.Count))
                 {
@@ -124,7 +124,7 @@ internal sealed partial class ConundrumView : Page, IPageItem
             }
             else if (ConundrumList.ContainerFromIndex(((ItemsStackPanel)ConundrumList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
             {
-                // using the first visible index ensures that it's container exists, all menu items use the list view's selected items
+                // using the first visible index ensures that it's container exists, the menus aren't item specific
                 args.Handled = Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)lvi.ContextFlyout).Items, args.Modifiers, args.Key);
             }
         }
