@@ -32,6 +32,7 @@ internal sealed partial class MainWindow : Window
         customTitleBar.UpdateThemeAndTransparency(Settings.Instance.CurrentTheme);
         customTitleBar.Title = title;
         customTitleBar.WindowIconArea.PointerPressed += WindowIconArea_PointerPressed;
+        customTitleBar.WindowIconArea.DoubleTapped += WindowIconArea_DoubleTapped;
         Activated += customTitleBar.ParentWindow_Activated;
             
         AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
@@ -175,17 +176,12 @@ internal sealed partial class MainWindow : Window
     private void WindowIconArea_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
         ShowSystemMenu(viaKeyboard: true); // open at keyboard location as not to obscure double clicks
+        e.Handled = true;
+    }
 
-        TimeSpan doubleClickTime = TimeSpan.FromMilliseconds(PInvoke.GetDoubleClickTime());
-        DateTime utcNow = DateTime.UtcNow;
-
-        if ((utcNow - lastPointerTimeStamp) < doubleClickTime)
-        {
-            PostCloseMessage();
-        }
-        else
-        {
-            lastPointerTimeStamp = utcNow;
-        }
+    private void WindowIconArea_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        PostCloseMessage();
+        e.Handled = true;
     }
 }

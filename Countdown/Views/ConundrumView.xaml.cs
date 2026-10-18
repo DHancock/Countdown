@@ -132,21 +132,18 @@ internal sealed partial class ConundrumView : Page, IPageItem
 
     private void ConundrumList_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+        PointerPoint pointerPoint = e.GetCurrentPoint(null);
+
+        if (pointerPoint.Properties.IsRightButtonPressed)
         {
-            PointerPoint pointerPoint = e.GetCurrentPoint(null);
+            object? conundrum = (e.OriginalSource as FrameworkElement)?.DataContext;
 
-            if (pointerPoint.Properties.IsRightButtonPressed)
+            if (ConundrumList.ContainerFromItem(conundrum) is ListViewItem lvi)
             {
-                object? conundrum = (e.OriginalSource as FrameworkElement)?.DataContext;
-
-                if (ConundrumList.ContainerFromItem(conundrum) is ListViewItem lvi)
+                if (!lvi.IsSelected)
                 {
-                    if (!lvi.IsSelected)
-                    {
-                        ConundrumList.DeselectRange(new ItemIndexRange(0, (uint)ConundrumList.Items.Count));
-                        lvi.IsSelected = true;
-                    }
+                    ConundrumList.DeselectRange(new ItemIndexRange(0, (uint)ConundrumList.Items.Count));
+                    lvi.IsSelected = true;
                 }
             }
         }

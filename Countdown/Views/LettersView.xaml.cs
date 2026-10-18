@@ -407,14 +407,11 @@ internal sealed partial class LettersView : Page, IPageItem
 
     private void WordTreeView_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
-        {
-            PointerPoint pointerPoint = e.GetCurrentPoint(null);
+        PointerPoint pointerPoint = e.GetCurrentPoint(null);
 
-            if (pointerPoint.Properties.IsRightButtonPressed && (e.OriginalSource is FrameworkElement fe) && (fe.DataContext is TreeViewNode tvn))
-            {
-                WordTreeView.SelectedNode = tvn;
-            }
+        if (pointerPoint.Properties.IsRightButtonPressed && (e.OriginalSource is FrameworkElement fe) && (fe.DataContext is TreeViewNode tvn))
+        {
+            WordTreeView.SelectedNode = tvn;
         }
     }
 }

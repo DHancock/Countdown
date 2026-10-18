@@ -160,21 +160,18 @@ internal sealed partial class NumbersView : Page, IPageItem
 
     private void EquationList_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        if (e.Pointer.PointerDeviceType == PointerDeviceType.Mouse)
+        PointerPoint pointerPoint = e.GetCurrentPoint(null);
+
+        if (pointerPoint.Properties.IsRightButtonPressed)
         {
-            PointerPoint pointerPoint = e.GetCurrentPoint(null);
+            object? conundrum = (e.OriginalSource as FrameworkElement)?.DataContext;
 
-            if (pointerPoint.Properties.IsRightButtonPressed)
+            if (EquationList.ContainerFromItem(conundrum) is ListViewItem lvi)
             {
-                object? conundrum = (e.OriginalSource as FrameworkElement)?.DataContext;
-
-                if (EquationList.ContainerFromItem(conundrum) is ListViewItem lvi)
+                if (!lvi.IsSelected)
                 {
-                    if (!lvi.IsSelected)
-                    {
-                        EquationList.DeselectRange(new ItemIndexRange(0, (uint)EquationList.Items.Count));
-                        lvi.IsSelected = true;
-                    }
+                    EquationList.DeselectRange(new ItemIndexRange(0, (uint)EquationList.Items.Count));
+                    lvi.IsSelected = true;
                 }
             }
         }
