@@ -120,6 +120,7 @@
                     ItemTemplateSelector="{StaticResource WordTreeTemplateSelector}" 
                     CanReorderItems="False" 
                     PointerPressed="WordTreeView_PointerPressed"
+                    DoubleTapped="WordTreeView_DoubleTapped"   
                     ProcessKeyboardAccelerators="WordTreeView_ProcessKeyboardAccelerators">
 
                     <TreeView.Resources>
