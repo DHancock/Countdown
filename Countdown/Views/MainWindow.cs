@@ -376,8 +376,6 @@ internal sealed partial class MainWindow : Window
 
     private void SetWindowDragRegionsInternal()
     {
-        const int cNavigationViewPassthroughCount = 6;
-
         try
         {
             // as there is no clear distinction any more between the title bar region and the client area,
@@ -385,10 +383,9 @@ internal sealed partial class MainWindow : Window
             RectInt32 windowRect = new RectInt32(0, 0, AppWindow.ClientSize.Width, AppWindow.ClientSize.Height);
             inputNonClientPointerSource.SetRegionRects(NonClientRegionKind.Caption, [windowRect]);
 
-            Debug.Assert(selectedPage is not null);
-            int size = selectedPage.PassthroughCount + cNavigationViewPassthroughCount;
+            IPageItem selectedPage = (IPageItem)ContentFrame.Content;
 
-            RectInt32[] rects = new RectInt32[size];
+            RectInt32[] rects = new RectInt32[selectedPage.PassthroughCount + 6];
 
             selectedPage.AddPassthroughContent(rects);
             AddNavigationViewPassthroughContent(rects);
@@ -409,13 +406,16 @@ internal sealed partial class MainWindow : Window
 
         foreach (object item in RootNavigationView.MenuItems)
         {
-            rects[--index] = Utils.GetPassthroughRect((UIElement)item); // 4
+            rects[--index] = Utils.GetPassthroughRect((UIElement)item); 
         }
 
         foreach (object item in RootNavigationView.FooterMenuItems)
         {
-            rects[--index] = Utils.GetPassthroughRect((UIElement)item); // 1
+            rects[--index] = Utils.GetPassthroughRect((UIElement)item);
         }
+
+        Debug.Assert(RootNavigationView.MenuItems.Count == 4);
+        Debug.Assert(RootNavigationView.FooterMenuItems.Count == 1);
     }
 
     private DispatcherTimer InitialiseDragRegionTimer()

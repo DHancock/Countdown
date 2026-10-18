@@ -8,8 +8,6 @@ namespace Countdown.Views;
 /// </summary>
 internal sealed partial class MainWindow : Window
 {
-    private IPageItem? selectedPage;
-    private DateTime lastPointerTimeStamp;
     private readonly ViewModel rootViewModel = new ViewModel();
 
     private readonly FrameNavigationOptions frameNavigationOptions = new FrameNavigationOptions()
@@ -123,7 +121,6 @@ internal sealed partial class MainWindow : Window
         Debug.Assert(e.Content is Page);
 
         Page page = (Page)e.Content;
-        selectedPage = (IPageItem)e.Content;
 
         if (page.Tag is null)   // one time initialisation per page
         {

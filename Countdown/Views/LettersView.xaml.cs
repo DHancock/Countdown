@@ -414,6 +414,14 @@ internal sealed partial class LettersView : Page, IPageItem
             WordTreeView.SelectedNode = tvn;
         }
     }
+
+    private void WordTreeView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        if ((e.OriginalSource is FrameworkElement fe) && (fe.DataContext is TreeViewNode tvn))
+        {
+            tvn.IsExpanded = !tvn.IsExpanded;
+        }
+    }
 }
 
 internal record struct WordHeading(int Count)
