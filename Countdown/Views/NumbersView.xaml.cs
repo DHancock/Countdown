@@ -113,7 +113,7 @@ internal sealed partial class NumbersView : Page, IPageItem
 
     private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = EquationList.SelectedRanges.Count > 0;
+        args.CanExecute = EquationList.IsAnySelected;
     }
 
     private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
@@ -123,19 +123,35 @@ internal sealed partial class NumbersView : Page, IPageItem
 
     private void SelectAllCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = EquationList.SelectedRanges.Sum(range => range.Length) != EquationList.Items.Count;
+        if (EquationList.IsAllSelected)
+        {
+            sender.Label = "Deselect All";
+            sender.Description = "Deselects all content";
+        }
+        else
+        {
+            sender.Label = "Select All";
+            sender.Description = "Selects all content";
+        }
     }
 
     private void SelectAllCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
     {
-        EquationList.SelectRange(new ItemIndexRange(0, (uint)EquationList.Items.Count));
+        if (EquationList.IsAllSelected)
+        {
+            EquationList.DeselectAll();
+        }
+        else
+        {
+            EquationList.SelectAll();
+        }
     }
 
     private void EquationList_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
     {
-        if (EquationList.SelectedRanges.Count > 0)
+        if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
         {
-            if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
+            if (EquationList.IsAnySelected)
             {
                 int index = Utils.FindSuitablePlacementIndex(EquationList);
 
@@ -150,11 +166,11 @@ internal sealed partial class NumbersView : Page, IPageItem
                     }
                 }
             }
-            else if (EquationList.ContainerFromIndex(((ItemsStackPanel)EquationList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
-            {
-                // using the first visible index ensures that it's container exists, the menus aren't item specific
-                args.Handled = Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)lvi.ContextFlyout).Items, args.Modifiers, args.Key);
-            }
+        }
+        else if (EquationList.ContainerFromIndex(((ItemsStackPanel)EquationList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
+        {
+            // using the first visible index ensures that it's container exists, the menu item commands aren't item specific
+            args.Handled = Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)lvi.ContextFlyout).Items, args.Modifiers, args.Key);
         }
     }
 
@@ -170,7 +186,7 @@ internal sealed partial class NumbersView : Page, IPageItem
             {
                 if (!lvi.IsSelected)
                 {
-                    EquationList.DeselectRange(new ItemIndexRange(0, (uint)EquationList.Items.Count));
+                    EquationList.DeselectAll();
                     lvi.IsSelected = true;
                 }
             }

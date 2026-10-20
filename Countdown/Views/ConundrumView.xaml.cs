@@ -75,7 +75,7 @@ internal sealed partial class ConundrumView : Page, IPageItem
 
     private void CopyCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = ConundrumList.SelectedRanges.Count > 0;
+        args.CanExecute = ConundrumList.IsAnySelected;
     }
 
     private void CopyCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
@@ -85,17 +85,33 @@ internal sealed partial class ConundrumView : Page, IPageItem
 
     private void SelectAllCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = ConundrumList.SelectedRanges.Sum(range => range.Length) != ConundrumList.Items.Count;
+        if (ConundrumList.IsAllSelected)
+        {
+            sender.Label = "Deselect All";
+            sender.Description = "Deselects all content";
+        }
+        else
+        {
+            sender.Label = "Select All";
+            sender.Description = "Selects all content";
+        }
     }
 
     private void SelectAllCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
     {
-        ConundrumList.SelectAll();
+        if (ConundrumList.IsAllSelected)
+        {
+            ConundrumList.DeselectAll();
+        }
+        else
+        {
+            ConundrumList.SelectAll();
+        }
     }
 
     private void DeleteCommand_CanExecuteRequested(XamlUICommand sender, CanExecuteRequestedEventArgs args)
     {
-        args.CanExecute = ConundrumList.SelectedRanges.Count > 0;
+        args.CanExecute = ConundrumList.IsAnySelected;
     }
 
     private void DeleteCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
@@ -105,9 +121,9 @@ internal sealed partial class ConundrumView : Page, IPageItem
 
     private void ConundrumList_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
     {
-        if (ConundrumList.SelectedRanges.Count > 0)
+        if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
         {
-            if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
+            if (ConundrumList.IsAnySelected)
             {
                 int index = Utils.FindSuitablePlacementIndex(ConundrumList);
 
@@ -118,15 +134,22 @@ internal sealed partial class ConundrumView : Page, IPageItem
                     if (ConundrumList.ContainerFromIndex(index) is ListViewItem lvi)
                     {
                         lvi.ContextFlyout.ShowAt(lvi);
-                        args.Handled = true;
                     }
                 }
             }
-            else if (ConundrumList.ContainerFromIndex(((ItemsStackPanel)ConundrumList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
-            {
-                // using the first visible index ensures that it's container exists, the menus aren't item specific
-                args.Handled = Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)lvi.ContextFlyout).Items, args.Modifiers, args.Key);
-            }
+
+            args.Handled = true;
+        }
+        else if ((args.Modifiers == VirtualKeyModifiers.Control) && (args.Key == VirtualKey.A))
+        {
+            // ignore select/deselect all, the sdk's default list view accelerators handle it
+            // it isn't clear why this is needed here while other lists work ok without it
+            args.Handled = true;
+        }
+        else if (ConundrumList.ContainerFromIndex(((ItemsStackPanel)ConundrumList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
+        {
+            // using the first visible index ensures that it's container exists, the menu item commands aren't item specific
+            args.Handled = Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)lvi.ContextFlyout).Items, args.Modifiers, args.Key);
         }
     }
 
@@ -142,7 +165,7 @@ internal sealed partial class ConundrumView : Page, IPageItem
             {
                 if (!lvi.IsSelected)
                 {
-                    ConundrumList.DeselectRange(new ItemIndexRange(0, (uint)ConundrumList.Items.Count));
+                    ConundrumList.DeselectAll();
                     lvi.IsSelected = true;
                 }
             }
