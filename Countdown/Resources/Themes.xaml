@@ -18,12 +18,10 @@
 
             <!-- borders -->
             <SolidColorBrush x:Key="CommonBorderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
-            <Thickness x:Key="CommonBorderThickness">1</Thickness>
 
             <!-- lists -->
             <SolidColorBrush x:Key="ResultsListBackgroundBrush" Color="{ThemeResource SystemColorWindowColor}"/>
             <SolidColorBrush x:Key="ResultsListBorderBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
-            <Thickness x:Key="ResultsListBorderThickness">1</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush" Color="{ThemeResource SystemColorButtonTextColor}"/>
 
@@ -50,12 +48,9 @@
 
             <!-- borders -->
             <SolidColorBrush x:Key="CommonBorderBrush" Color="Gray"/>
-            <Thickness x:Key="CommonBorderThickness">1</Thickness>
 
             <!-- lists -->
-            <SolidColorBrush x:Key="ResultsListBackgroundBrush">#FF272727</SolidColorBrush>
             <SolidColorBrush x:Key="ResultsListBorderBrush" Color="Gray"/>
-            <Thickness x:Key="ResultsListBorderThickness">1</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush">DarkGray</SolidColorBrush>
 
@@ -77,12 +72,9 @@
 
             <!-- borders -->
             <SolidColorBrush x:Key="CommonBorderBrush" Color="LightGray"/>
-            <Thickness x:Key="CommonBorderThickness">1</Thickness>
 
             <!-- lists -->
-            <SolidColorBrush x:Key="ResultsListBackgroundBrush">Snow</SolidColorBrush>
             <SolidColorBrush x:Key="ResultsListBorderBrush" Color="LightGray"/>
-            <Thickness x:Key="ResultsListBorderThickness">1</Thickness>
             <SolidColorBrush x:Key="WordListGroupHeaderTextBrush">#FF0068C7</SolidColorBrush>
             <SolidColorBrush x:Key="WordListGroupHeaderCountBrush">DarkGray</SolidColorBrush>
             

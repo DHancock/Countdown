@@ -42,9 +42,9 @@
         <Style x:Key="TreeViewBorderStyle" TargetType="Border">
             <Setter Property="Margin" Value="0,5,0,0"/>
             <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="Background" Value="{ThemeResource ResultsListBackgroundBrush}"/>
+            <Setter Property="Background" Value="{ThemeResource ControlFillColorDefaultBrush}"/>
             <Setter Property="BorderBrush" Value="{ThemeResource ResultsListBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="{ThemeResource ResultsListBorderThickness}"/>
+            <Setter Property="BorderThickness" Value="1"/>
         </Style>
     </Page.Resources>
 
