@@ -382,9 +382,7 @@ internal sealed partial class LettersView : Page, IPageItem
 
     private void WordTreeView_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
     {
-        TreeViewList? treeViewList = WordTreeView.FindChild(typeof(TreeViewList)) as TreeViewList;
-
-        if (treeViewList is not null)
+        if (WordTreeView.FindChild(typeof(TreeViewList)) is TreeViewList treeViewList)
         {
             if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
             {
