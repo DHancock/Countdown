@@ -114,7 +114,7 @@ internal static class Extensions
         return bytesRead;
     }
 
-    public static T? FindChild<T>(this DependencyObject parent, string? name = null) where T : FrameworkElement
+    public static DependencyObject? FindChild(this DependencyObject parent, Type type, string? name = null)
     {
         int count = VisualTreeHelper.GetChildrenCount(parent);
 
@@ -122,12 +122,20 @@ internal static class Extensions
         {
             DependencyObject child = VisualTreeHelper.GetChild(parent, index);
 
-            if ((child is T target) && ((name is null) || string.Equals(target.Name, name, StringComparison.Ordinal)))
+            if (child.GetType() == type)
             {
-                return target;
+                if (name is null)
+                {
+                    return child;
+                }
+
+                if ((child is FrameworkElement fe) && string.Equals(fe.Name, name, StringComparison.Ordinal))
+                {
+                    return child;
+                }
             }
 
-            T? result = child.FindChild<T>(name);
+            DependencyObject? result = child.FindChild(type, name);
 
             if (result is not null)
             {

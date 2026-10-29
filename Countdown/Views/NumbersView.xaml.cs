@@ -31,7 +31,7 @@ internal sealed partial class NumbersView : Page, IPageItem
 
         static void FixTextBoxContextFlyoutMenuForThemeChange(DependencyObject root)
         {
-            TextBox? tb = root.FindChild<TextBox>();
+            TextBox? tb = root.FindChild(typeof(TextBox)) as TextBox;
 
             Debug.Assert(tb is not null);
             Debug.Assert(tb.ContextFlyout is not null);
@@ -162,10 +162,11 @@ internal sealed partial class NumbersView : Page, IPageItem
                     if (EquationList.ContainerFromIndex(index) is ListViewItem lvi)
                     {
                         lvi.ContextFlyout.ShowAt(lvi);
-                        args.Handled = true;
                     }
                 }
             }
+
+            args.Handled = true;
         }
         else if (EquationList.ContainerFromIndex(((ItemsStackPanel)EquationList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
         {

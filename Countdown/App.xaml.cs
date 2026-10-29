@@ -14,8 +14,6 @@
 [assembly: GeneratedWinRTExposedExternalType(typeof(AppBarButton))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(TextCommandBarFlyout))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(OverlappedPresenter))]
-[assembly: GeneratedWinRTExposedExternalType(typeof(TreeViewList))]
-[assembly: GeneratedWinRTExposedExternalType(typeof(Microsoft.UI.Xaml.Controls.Primitives.ScrollBar))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(MenuFlyoutPresenter))]
 
 namespace Countdown;

@@ -19,7 +19,7 @@ internal sealed partial class LettersView : Page, IPageItem
 
             lettersView.Loaded -= LettersView_Loaded;
 
-            TextBox? textBox = lettersView.SuggestionBox.FindChild<TextBox>();
+            TextBox? textBox = lettersView.SuggestionBox.FindChild(typeof(TextBox)) as TextBox;
 
             if (textBox is not null)
             {
@@ -211,7 +211,7 @@ internal sealed partial class LettersView : Page, IPageItem
 
                 if (string.Equals(word, target, StringComparison.Ordinal))
                 {
-                    TreeViewList? treeViewList = WordTreeView.FindChild<TreeViewList>();
+                    TreeViewList? treeViewList = WordTreeView.FindChild(typeof(TreeViewList)) as TreeViewList;
 
                     if (treeViewList is not null)
                     {
@@ -387,7 +387,7 @@ internal sealed partial class LettersView : Page, IPageItem
         {
             if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
             {
-                TreeViewList? treeViewList = WordTreeView.FindChild<TreeViewList>();
+                TreeViewList? treeViewList = WordTreeView.FindChild(typeof(TreeViewList)) as TreeViewList;
 
                 if (treeViewList is not null)
                 {
