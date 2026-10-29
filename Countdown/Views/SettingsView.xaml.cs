@@ -39,7 +39,7 @@ internal sealed partial class SettingsView : Page, IPageItem
         {
             topClip = Utils.GetOffsetFromXamlRoot(RootScrollViewer).Y;
 
-            ScrollBar? vScrollBar = RootScrollViewer.FindChild<ScrollBar>("VerticalScrollBar");
+            ScrollBar? vScrollBar = RootScrollViewer.FindChild(typeof(ScrollBar), "VerticalScrollBar") as ScrollBar;
             Debug.Assert(vScrollBar is not null);
 
             if (vScrollBar is not null)

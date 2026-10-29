@@ -19,7 +19,7 @@ internal sealed partial class LettersView : Page, IPageItem
 
             lettersView.Loaded -= LettersView_Loaded;
 
-            TextBox? textBox = lettersView.SuggestionBox.FindChild<TextBox>();
+            TextBox? textBox = lettersView.SuggestionBox.FindChild(typeof(TextBox)) as TextBox;
 
             if (textBox is not null)
             {
@@ -211,7 +211,7 @@ internal sealed partial class LettersView : Page, IPageItem
 
                 if (string.Equals(word, target, StringComparison.Ordinal))
                 {
-                    TreeViewList? treeViewList = WordTreeView.FindChild<TreeViewList>();
+                    TreeViewList? treeViewList = WordTreeView.FindChild(typeof(TreeViewList)) as TreeViewList;
 
                     if (treeViewList is not null)
                     {
@@ -382,24 +382,24 @@ internal sealed partial class LettersView : Page, IPageItem
 
     private void WordTreeView_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
     {
-        // keyboard accelerators only work on the selected item
-        if (WordTreeView.ContainerFromNode(WordTreeView.SelectedNode) is TreeViewItem tvi)
+        TreeViewList? treeViewList = WordTreeView.FindChild(typeof(TreeViewList)) as TreeViewList;
+
+        if (treeViewList is not null)
         {
             if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
             {
-                TreeViewList? treeViewList = WordTreeView.FindChild<TreeViewList>();
+                treeViewList.ScrollIntoView(WordTreeView.SelectedNode);
 
-                if (treeViewList is not null)
+                if (WordTreeView.ContainerFromNode(WordTreeView.SelectedNode) is TreeViewItem tvi)
                 {
-                    // explicitly creating TreeViewNodes allows ScrollIntoView() to work
-                    // the selected node's parents must have already been expanded
-                    treeViewList.ScrollIntoView(WordTreeView.SelectedNode);
                     tvi.ContextFlyout.ShowAt(tvi);
-                    args.Handled = true;
                 }
+
+                args.Handled = true;
             }
-            else
+            else if (treeViewList.ContainerFromIndex(((ItemsStackPanel)treeViewList.ItemsPanelRoot).FirstVisibleIndex) is TreeViewItem tvi)
             {
+                // using the first visible index ensures that it's container exists, the menu commands only access the selected node
                 args.Handled = Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)tvi.ContextFlyout).Items, args.Modifiers, args.Key);
             }
         }
