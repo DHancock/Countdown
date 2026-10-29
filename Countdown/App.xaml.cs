@@ -15,6 +15,7 @@
 [assembly: GeneratedWinRTExposedExternalType(typeof(TextCommandBarFlyout))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(OverlappedPresenter))]
 [assembly: GeneratedWinRTExposedExternalType(typeof(MenuFlyoutPresenter))]
+[assembly: GeneratedWinRTExposedExternalType(typeof(ItemsStackPanel))]
 
 namespace Countdown;
 
