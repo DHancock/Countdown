@@ -19,13 +19,11 @@ internal sealed partial class LettersView : Page, IPageItem
 
             lettersView.Loaded -= LettersView_Loaded;
 
-            TextBox? textBox = lettersView.SuggestionBox.FindChild(typeof(TextBox)) as TextBox;
-
-            if (textBox is not null)
+            if (lettersView.SuggestionBox.FindChild(typeof(TextBox)) is TextBox tb)
             {
-                textBox.CharacterCasing = CharacterCasing.Lower;              
-                textBox.MaxLength = Models.WordModel.cMaxLetters;
-                textBox.BeforeTextChanging += TextBox_BeforeTextChanging;
+                tb.CharacterCasing = CharacterCasing.Lower;              
+                tb.MaxLength = Models.WordModel.cMaxLetters;
+                tb.BeforeTextChanging += TextBox_BeforeTextChanging;
             }
         }
 
@@ -211,16 +209,20 @@ internal sealed partial class LettersView : Page, IPageItem
 
                 if (string.Equals(word, target, StringComparison.Ordinal))
                 {
-                    TreeViewList? treeViewList = WordTreeView.FindChild(typeof(TreeViewList)) as TreeViewList;
+                    WordTreeView.Expand(parent);
+                    WordTreeView.SelectedNode = child;
 
-                    if (treeViewList is not null)
+                    if (WordTreeView.FindChild(typeof(TreeViewList)) is TreeViewList tvl)
                     {
-                        WordTreeView.Expand(parent);
-                        treeViewList.ScrollIntoView(child);
-                        WordTreeView.SelectedNode = child;
-                        WordTreeView.Focus(FocusState.Programmatic);
-                        return true;
+                        tvl.ScrollIntoView(child);
+
+                        if (WordTreeView.ContainerFromNode(child) is TreeViewItem tvi)
+                        {
+                            tvi.Focus(FocusState.Programmatic);
+                        }
                     }
+
+                    return true;
                 }
             }
         }
