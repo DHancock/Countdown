@@ -31,17 +31,12 @@ internal sealed partial class NumbersView : Page, IPageItem
 
         static void FixTextBoxContextFlyoutMenuForThemeChange(DependencyObject root)
         {
-            TextBox? tb = root.FindChild(typeof(TextBox)) as TextBox;
-
-            Debug.Assert(tb is not null);
-            Debug.Assert(tb.ContextFlyout is not null);
-
-            if ((tb is not null) && (tb.ContextFlyout is not null))
+            if (root.FindChild(typeof(TextBox)) is TextBox tb)
             {
                 // The context flyout is the standard cut/copy/paste menu provided by the sdk.
                 // This event handler affects all other TextBox instances, seems that they're
                 // all sharing a single context flyout.
-                tb.ContextFlyout.Opening += ContextFlyout_Opening;
+                tb.ContextFlyout?.Opening += ContextFlyout_Opening;
             }
 
             static void ContextFlyout_Opening(object? sender, object e)
