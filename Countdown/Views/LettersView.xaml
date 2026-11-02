@@ -120,20 +120,17 @@
                     ItemTemplateSelector="{StaticResource WordTreeTemplateSelector}" 
                     CanReorderItems="False" 
                     PointerPressed="WordTreeView_PointerPressed"
-                    DoubleTapped="WordTreeView_DoubleTapped"   
-                    ProcessKeyboardAccelerators="WordTreeView_ProcessKeyboardAccelerators">
+                    DoubleTapped="WordTreeView_DoubleTapped"
+                    RightTapped="WordTreeView_RightTapped">
 
                     <TreeView.Resources>
                         <StandardUICommand x:Name="CopyCommand" Kind="Copy" CanExecuteRequested="CopyCommand_CanExecuteRequested" ExecuteRequested="CopyCommand_ExecuteRequested"/>
 
+                        <MenuFlyout x:Name="ItemContextMenu">
+                            <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
+                        </MenuFlyout>
+                        
                         <Style TargetType="TreeViewItem">
-                            <Setter Property="ContextFlyout">
-                                <Setter.Value>
-                                    <MenuFlyout>
-                                        <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
-                                    </MenuFlyout>
-                                </Setter.Value>
-                            </Setter>
                             <Setter Property="Margin" Value="5,0,14,0"/>
                             <Setter Property="FocusVisualMargin" Value="-3,-1,0,-1"/>
                         </Style>

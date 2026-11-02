@@ -49,4 +49,6 @@ internal sealed partial class SettingsView : Page, IPageItem
         rects[2] = Utils.GetPassthroughRect(VolumeExpander, topClip);
         rects[3] = Utils.GetPassthroughRect(HyperlinkTextBlock, topClip);   
     }
+
+    public bool InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key) => false;
 }

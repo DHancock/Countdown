@@ -119,38 +119,35 @@ internal sealed partial class ConundrumView : Page, IPageItem
         ViewModel?.DeleteItems(ConundrumList.SelectedItems);
     }
 
-    private void ConundrumList_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
+    public bool InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key)
     {
-        if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
+        if (FocusManager.GetFocusedElement(XamlRoot) is ListView or ListViewItem)
         {
-            if (ConundrumList.IsAnySelected)
+            if ((modifiers == VirtualKeyModifiers.Shift) && (key == VirtualKey.F10))
             {
-                int index = Utils.FindSuitablePlacementIndex(ConundrumList);
-
-                if ((index >= 0) && (index < ConundrumList.Items.Count))
+                if (ConundrumList.IsAnySelected)
                 {
-                    ConundrumList.ScrollIntoView(ConundrumList.Items[index]);
+                    int index = Utils.FindSuitablePlacementIndex(ConundrumList);
 
-                    if (ConundrumList.ContainerFromIndex(index) is ListViewItem lvi)
+                    if ((index >= 0) && (index < ConundrumList.Items.Count))
                     {
-                        lvi.ContextFlyout.ShowAt(lvi);
+                        ConundrumList.ScrollIntoView(ConundrumList.Items[index]);
+
+                        if (ConundrumList.ContainerFromIndex(index) is ListViewItem lvi)
+                        {
+                            ItemContextMenu.ShowAt(lvi);
+                        }
                     }
                 }
+
+                return true;
             }
 
-            args.Handled = true;
+            // the context menu item commands aren't item specific
+            return Utils.InvokeMenuItemForKeyboardAccelerator(ItemContextMenu.Items, modifiers, key);
         }
-        else if ((args.Modifiers == VirtualKeyModifiers.Control) && (args.Key == VirtualKey.A))
-        {
-            // ignore select/deselect all, the sdk's default list view accelerators handle it
-            // it isn't clear why this is needed here while other lists work ok without it
-            args.Handled = true;
-        }
-        else if (ConundrumList.ContainerFromIndex(((ItemsStackPanel)ConundrumList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
-        {
-            // using the first visible index ensures that it's container exists, the menu item commands aren't item specific
-            args.Handled = Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)lvi.ContextFlyout).Items, args.Modifiers, args.Key);
-        }
+
+        return false;
     }
 
     private void ConundrumList_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -170,5 +167,10 @@ internal sealed partial class ConundrumView : Page, IPageItem
                 }
             }
         }
+    }
+
+    private void ConundrumList_RightTapped(object sender, RightTappedRoutedEventArgs e)
+    {
+        ItemContextMenu.ShowAt(null, e.GetPosition(null));
     }
 }

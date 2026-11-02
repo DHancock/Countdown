@@ -142,32 +142,35 @@ internal sealed partial class NumbersView : Page, IPageItem
         }
     }
 
-    private void EquationList_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
+    public bool InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key)
     {
-        if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
+        if (FocusManager.GetFocusedElement(XamlRoot) is ListView or ListViewItem)
         {
-            if (EquationList.IsAnySelected)
+            if ((modifiers == VirtualKeyModifiers.Shift) && (key == VirtualKey.F10))
             {
-                int index = Utils.FindSuitablePlacementIndex(EquationList);
-
-                if ((index >= 0) && (index < EquationList.Items.Count))
+                if (EquationList.IsAnySelected)
                 {
-                    EquationList.ScrollIntoView(EquationList.Items[index]);
+                    int index = Utils.FindSuitablePlacementIndex(EquationList);
 
-                    if (EquationList.ContainerFromIndex(index) is ListViewItem lvi)
+                    if ((index >= 0) && (index < EquationList.Items.Count))
                     {
-                        lvi.ContextFlyout.ShowAt(lvi);
+                        EquationList.ScrollIntoView(EquationList.Items[index]);
+
+                        if (EquationList.ContainerFromIndex(index) is ListViewItem lvi)
+                        {
+                            ItemContextMenu.ShowAt(lvi);
+                        }
                     }
                 }
+
+                return true;
             }
 
-            args.Handled = true;
+            // the context menu item commands aren't list view item specific
+            return Utils.InvokeMenuItemForKeyboardAccelerator(ItemContextMenu.Items, modifiers, key);
         }
-        else if (EquationList.ContainerFromIndex(((ItemsStackPanel)EquationList.ItemsPanelRoot).FirstVisibleIndex) is ListViewItem lvi)
-        {
-            // using the first visible index ensures that it's container exists, the menu item commands aren't item specific
-            args.Handled = Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)lvi.ContextFlyout).Items, args.Modifiers, args.Key);
-        }
+
+        return false;
     }
 
     private void EquationList_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -187,5 +190,10 @@ internal sealed partial class NumbersView : Page, IPageItem
                 }
             }
         }
+    }
+
+    private void EquationList_RightTapped(object sender, RightTappedRoutedEventArgs e)
+    {
+        ItemContextMenu.ShowAt(null, e.GetPosition(null));
     }
 }

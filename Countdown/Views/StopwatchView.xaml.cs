@@ -21,4 +21,6 @@ internal sealed partial class StopwatchView : Page, IPageItem
     {
         rects[0] = Utils.GetPassthroughRect(StopwatchButton);
     }
+
+    public bool InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key) => false;
 }

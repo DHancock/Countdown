@@ -79,25 +79,19 @@
 
         </StackPanel>
 
-        <ListView x:Name="ConundrumList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.ConundrumsView}" PointerPressed="ConundrumList_PointerPressed" ProcessKeyboardAccelerators="ConundrumList_ProcessKeyboardAccelerators">
+        <ListView x:Name="ConundrumList" Grid.Column="1" ItemsSource="{x:Bind ViewModel.ConundrumsView}" PointerPressed="ConundrumList_PointerPressed" RightTapped="ConundrumList_RightTapped">
 
             <ListView.Resources>
                 <StandardUICommand x:Name="CopyCommand" Kind="Copy" CanExecuteRequested="CopyCommand_CanExecuteRequested" ExecuteRequested="CopyCommand_ExecuteRequested"/>
                 <StandardUICommand x:Name="SelectAllCommand" Kind="SelectAll" CanExecuteRequested="SelectAllCommand_CanExecuteRequested" ExecuteRequested="SelectAllCommand_ExecuteRequested"/>
                 <StandardUICommand x:Name="DeleteCommand" Kind="Delete" CanExecuteRequested="DeleteCommand_CanExecuteRequested" ExecuteRequested="DeleteCommand_ExecuteRequested"/>
 
-                <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
-                    <Setter Property="ContextFlyout">
-                        <Setter.Value>
-                            <MenuFlyout>
-                                <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
-                                <MenuFlyoutItem Command="{StaticResource SelectAllCommand}"/>
-                                <MenuFlyoutSeparator/>
-                                <MenuFlyoutItem Command="{StaticResource DeleteCommand}"/>
-                            </MenuFlyout>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
+                <MenuFlyout x:Name="ItemContextMenu">
+                    <MenuFlyoutItem Command="{StaticResource CopyCommand}"/>
+                    <MenuFlyoutItem Command="{StaticResource SelectAllCommand}"/>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Command="{StaticResource DeleteCommand}"/>
+                </MenuFlyout>
             </ListView.Resources>
 
             <ListView.GroupStyle>

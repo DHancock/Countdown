@@ -12,7 +12,7 @@
         <MicaBackdrop/>
     </Window.SystemBackdrop>
 
-    <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}">
+    <Grid x:Name="LayoutRoot" RequestedTheme="{x:Bind rootViewModel.SettingsViewModel.SelectedTheme, Mode=OneWay}" ProcessKeyboardAccelerators="LayoutRoot_ProcessKeyboardAccelerators">
         <Grid.Resources>
             <!--required to make the NavigationView transparent, at least in top mode-->
             <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent" />
