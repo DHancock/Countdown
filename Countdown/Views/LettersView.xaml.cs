@@ -382,27 +382,30 @@ internal sealed partial class LettersView : Page, IPageItem
         Debug.Assert(index == PassthroughCount);
     }
 
-    private void WordTreeView_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
+    public bool InvokeKeyboardAccelerator(VirtualKeyModifiers modifiers, VirtualKey key)
     {
-        if (WordTreeView.FindChild(typeof(TreeViewList)) is TreeViewList treeViewList)
+        if (FocusManager.GetFocusedElement(XamlRoot) is TreeView or TreeViewItem)
         {
-            if ((args.Modifiers == VirtualKeyModifiers.Shift) && (args.Key == VirtualKey.F10))
+            if ((modifiers == VirtualKeyModifiers.Shift) && (key == VirtualKey.F10))
             {
-                treeViewList.ScrollIntoView(WordTreeView.SelectedNode);
-
-                if (WordTreeView.ContainerFromNode(WordTreeView.SelectedNode) is TreeViewItem tvi)
+                if (WordTreeView.FindChild(typeof(TreeViewList)) is TreeViewList treeViewList)
                 {
-                    tvi.ContextFlyout.ShowAt(tvi);
+                    treeViewList.ScrollIntoView(WordTreeView.SelectedNode);
+
+                    if (WordTreeView.ContainerFromNode(WordTreeView.SelectedNode) is TreeViewItem tvi)
+                    {
+                        ItemContextMenu.ShowAt(tvi);
+                    }
                 }
 
-                args.Handled = true;
+                return true;
             }
-            else if (treeViewList.ContainerFromIndex(((ItemsStackPanel)treeViewList.ItemsPanelRoot).FirstVisibleIndex) is TreeViewItem tvi)
-            {
-                // using the first visible index ensures that it's container exists, the menu commands only access the selected node
-                args.Handled = Utils.InvokeMenuItemForKeyboardAccelerator(((MenuFlyout)tvi.ContextFlyout).Items, args.Modifiers, args.Key);
-            }
+
+            // the context menu commands only access the selected node
+            return Utils.InvokeMenuItemForKeyboardAccelerator(ItemContextMenu.Items, modifiers, key);
         }
+
+        return false;
     }
 
     private void WordTreeView_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -421,6 +424,11 @@ internal sealed partial class LettersView : Page, IPageItem
         {
             tvn.IsExpanded = !tvn.IsExpanded;
         }
+    }
+
+    private void WordTreeView_RightTapped(object sender, RightTappedRoutedEventArgs e)
+    {
+        ItemContextMenu.ShowAt(null, e.GetPosition(null));
     }
 }
 
