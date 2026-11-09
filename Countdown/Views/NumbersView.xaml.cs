@@ -128,6 +128,8 @@ internal sealed partial class NumbersView : Page, IPageItem
             sender.Label = "Select All";
             sender.Description = "Selects all content";
         }
+
+        args.CanExecute = EquationList.Items.Count > 0;
     }
 
     private void SelectAllCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)

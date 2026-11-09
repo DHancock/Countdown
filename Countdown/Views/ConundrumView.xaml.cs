@@ -95,6 +95,8 @@ internal sealed partial class ConundrumView : Page, IPageItem
             sender.Label = "Select All";
             sender.Description = "Selects all content";
         }
+
+        args.CanExecute = ConundrumList.Items.Count > 0;
     }
 
     private void SelectAllCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
